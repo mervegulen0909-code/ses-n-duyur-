@@ -42,6 +42,22 @@ export async function POST(req: Request): Promise<Response> {
   const bot = await botGuard(req);
   if (bot) return bot;
 
+  // Scores are written with the service role (RLS blocks user writes), and
+  // performances has no DELETE policy — so a user-scoped rollback is impossible.
+  // Acquire the service client up front, BEFORE the oEmbed fetch, the (paid) LLM
+  // scoring call, and the performance insert: a missing/invalid service key then
+  // fails fast and can never leave an orphan, scoreless (unrankable) performance.
+  const service = createSupabaseServiceClient();
+  if (!service) {
+    console.error(
+      '[performances] SUPABASE_SERVICE_ROLE_KEY missing/invalid — refusing to create a scoreless performance',
+    );
+    return Response.json(
+      { error: 'Scoring is temporarily unavailable. Please try again later.' },
+      { status: 503 },
+    );
+  }
+
   const videoId = parseYouTubeId(parsed.data.youtubeUrl);
   if (!videoId) {
     return Response.json({ error: 'Invalid YouTube URL' }, { status: 422 });
@@ -83,14 +99,25 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'Could not create performance' }, { status: 500 });
   }
 
-  // Scores are service-role only (RLS blocks user writes). Best-effort.
-  const service = createSupabaseServiceClient();
-  if (service) {
-    await service.from('scores').insert({
-      performance_id: perf.id,
-      ...payload.score,
-      ai_breakdown: payload.score.ai_breakdown as unknown as Json,
-    });
+  // Write the score row. If it fails, roll back the performance (service role
+  // bypasses RLS) so we never persist a performance without its score, and
+  // surface the failure instead of silently swallowing it.
+  const { error: scoreError } = await service.from('scores').insert({
+    performance_id: perf.id,
+    ...payload.score,
+    ai_breakdown: payload.score.ai_breakdown as unknown as Json,
+  });
+  if (scoreError) {
+    console.error(`[performances] score insert failed for ${perf.id}; rolling back`, scoreError);
+    // Roll back via the service role (performances has no user DELETE policy).
+    const { error: rollbackError } = await service.from('performances').delete().eq('id', perf.id);
+    if (rollbackError) {
+      console.error(
+        `[performances] ROLLBACK FAILED — orphaned scoreless performance ${perf.id}`,
+        rollbackError,
+      );
+    }
+    return Response.json({ error: 'Could not score performance' }, { status: 500 });
   }
 
   return Response.json({ id: perf.id }, { status: 201 });
