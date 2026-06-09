@@ -7,11 +7,18 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'VocalLeague — Global AI Vocal Performance League',
   description: 'Discover who sings a song best. AI-scored, community-voted vocal performances.',
+  // Disable Chrome/Google auto-translation site-wide. The UI is English-only and
+  // heavily interactive (React conditional text). Google Translate swaps text
+  // nodes for <font> wrappers, which breaks React's reconciliation (e.g. the
+  // /login Sign in ↔ Sign up toggle silently stops updating and forms crash).
+  // See docs/adr/0002-disable-browser-auto-translation.md. Revisit with real
+  // i18n (next-intl) before re-enabling translation.
+  other: { google: 'notranslate' },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" translate="no" className="notranslate">
       <body>
         <header className="border-b border-neutral-800">
           <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
