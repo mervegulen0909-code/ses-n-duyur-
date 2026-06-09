@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+.next
+next-env.d.ts
+pnpm-lock.yaml
+supabase/config.toml

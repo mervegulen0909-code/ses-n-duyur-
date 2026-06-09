@@ -1,0 +1,63 @@
+import { CRITERIA, type Criterion } from '@vocal-league/scoring';
+import { CRITERION_LABELS } from '@/lib/criteria-labels';
+import { ProvisionalBadge } from './provisional-badge';
+
+export interface ScoreBreakdownProps {
+  initialAiScore: number | null;
+  currentScore: number | null;
+  trendScore: number | null;
+  isProvisional: boolean;
+  breakdown: Partial<Record<Criterion, number>> | null;
+  hasVideo: boolean;
+}
+
+function fmt(value: number | null): string {
+  return value === null ? '—' : value.toFixed(1);
+}
+
+export function ScoreBreakdown(props: ScoreBreakdownProps) {
+  const trend = props.trendScore ?? 0;
+  const trendColor =
+    trend > 0 ? 'text-emerald-400' : trend < 0 ? 'text-rose-400' : 'text-neutral-400';
+
+  return (
+    <section className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
+      <header className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <div className="text-3xl font-bold">{fmt(props.currentScore)}</div>
+          <div className="text-xs text-neutral-500">Current score</div>
+        </div>
+        <div className="text-right">
+          <div className={`text-sm font-medium ${trendColor}`}>
+            {trend > 0 ? '+' : ''}
+            {trend.toFixed(1)} trend
+          </div>
+          <div className="text-xs text-neutral-500">AI start {fmt(props.initialAiScore)}</div>
+        </div>
+      </header>
+
+      {props.isProvisional && (
+        <div className="mb-4">
+          <ProvisionalBadge />
+        </div>
+      )}
+
+      <ul className="space-y-1.5">
+        {CRITERIA.filter((c) => props.hasVideo || c !== 'stagePresence').map((c) => {
+          const value = props.breakdown?.[c] ?? null;
+          return (
+            <li key={c} className="flex items-center gap-3 text-sm">
+              <span className="w-44 shrink-0 text-neutral-400">{CRITERION_LABELS[c]}</span>
+              <div className="h-1.5 flex-1 overflow-hidden rounded bg-neutral-800">
+                <div className="h-full bg-emerald-500/70" style={{ width: `${value ?? 0}%` }} />
+              </div>
+              <span className="w-10 shrink-0 text-right tabular-nums text-neutral-300">
+                {fmt(value)}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}

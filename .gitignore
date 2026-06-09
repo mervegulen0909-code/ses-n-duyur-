@@ -1,0 +1,29 @@
+node_modules/
+dist/
+coverage/
+.next/
+out/
+build/
+
+# env / secrets — NEVER commit
+.env
+.env.*
+!.env.example
+
+# editor / os
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# MCP memory (local context, not source)
+memory.json
+
+# turbo / cache
+.turbo/
+*.tsbuildinfo
+
+# playwright
+test-results/
+playwright-report/
+playwright/.cache/
