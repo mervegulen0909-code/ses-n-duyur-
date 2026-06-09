@@ -7,12 +7,12 @@ its env key is present, and falls back to a dev mock otherwise.
 
 ## The adapter seam — which env var flips which adapter to "real"
 
-| Capability    | Mock (no key)                         | Real (key present)                             | Activating env                                                                             |
-| ------------- | ------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| AI scoring    | `MockScoringProvider` (deterministic) | `AnthropicScoringProvider` (`claude-opus-4-8`) | `ANTHROPIC_API_KEY`                                                                        |
-| Rate limiting | `InMemoryRateLimiter`                 | `UpstashRateLimiter`                           | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`                                      |
-| Bot check     | `NoopBotCheck` (passes)               | `TurnstileBotCheck`                            | `TURNSTILE_SECRET_KEY`                                                                     |
-| DB + Auth     | local Supabase                        | Supabase cloud                                 | `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY` |
+| Capability    | Mock (no key)                         | Real (key present)                      | Activating env                                                                             |
+| ------------- | ------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------ |
+| AI scoring    | `MockScoringProvider` (deterministic) | `OpenAIScoringProvider` (`gpt-4o-mini`) | `OPENAI_API_KEY`                                                                           |
+| Rate limiting | `InMemoryRateLimiter`                 | `UpstashRateLimiter`                    | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`                                      |
+| Bot check     | `NoopBotCheck` (passes)               | `TurnstileBotCheck`                     | `TURNSTILE_SECRET_KEY`                                                                     |
+| DB + Auth     | local Supabase                        | Supabase cloud                          | `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY` |
 
 Factories: `apps/web/src/lib/adapters/{scoring,ratelimit,botcheck}.ts`. No code change is
 needed to switch — set the env var and redeploy.
@@ -26,11 +26,12 @@ needed to switch — set the env var and redeploy.
 5. Project Settings → API: copy **Project URL**, **anon/publishable key**, **service_role/secret key**.
 6. Auth → providers: enable Email; set Site URL + redirect URLs to your domain.
 
-## 2. Anthropic (AI scoring)
+## 2. OpenAI (AI scoring)
 
-- Create an API key at console.anthropic.com → set `ANTHROPIC_API_KEY`.
-- Model is `claude-opus-4-8` (see `apps/web/src/lib/adapters/scoring.ts`). Scores
-  from YouTube stay **provisional** — the provider never claims audio measurement.
+- Create an API key at platform.openai.com → set `OPENAI_API_KEY`.
+- Model defaults to `gpt-4o-mini` (override with `OPENAI_SCORING_MODEL`); see
+  `apps/web/src/lib/adapters/scoring.ts`. Scores from YouTube stay **provisional** —
+  the provider never claims audio measurement, and falls back to the mock on error.
 
 ## 3. Upstash (rate limiting)
 
@@ -48,13 +49,13 @@ needed to switch — set the env var and redeploy.
 1. Import the repo. **Root Directory:** `apps/web`. Framework preset: Next.js.
 2. Install command: `pnpm install`. Build is auto-detected (`next build`).
 3. Add all env vars from §1–4 (Production + Preview). `SUPABASE_SERVICE_ROLE_KEY`,
-   `ANTHROPIC_API_KEY`, `TURNSTILE_SECRET_KEY`, `UPSTASH_*` are **server-only** —
+   `OPENAI_API_KEY`, `TURNSTILE_SECRET_KEY`, `UPSTASH_*` are **server-only** —
    do not prefix with `NEXT_PUBLIC_`.
 4. Deploy. Set the production domain; update Supabase Auth Site URL to match.
 
 ## 6. Post-deploy verification
 
-- Sign up → add a YouTube performance → confirm a (now Anthropic-backed) provisional
+- Sign up → add a YouTube performance → confirm a (now OpenAI-backed) provisional
   score appears, still labeled "Provisional AI Estimate".
 - Complete a Verified Listen → vote → score moves. Try to vote without listening → blocked.
 - Battle two performances → Elo + Wilson leaderboard update; verify Realtime refresh.
@@ -66,7 +67,7 @@ needed to switch — set the env var and redeploy.
 
 - AI: scores computed once per performance and cached in `scores`; never recomputed on read.
 - Free vs premium: gate uploads/real-DSP (v2) and raise limits for premium.
-- Watch Supabase Realtime message volume and Anthropic token spend; alert via Sentry (optional).
+- Watch Supabase Realtime message volume and OpenAI token spend; alert via Sentry (optional).
 
 ## Legal before launch
 
