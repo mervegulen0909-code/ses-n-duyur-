@@ -68,6 +68,13 @@ export const battleVoteSchema = z.object({
 });
 export type BattleVoteInput = z.infer<typeof battleVoteSchema>;
 
+/** Post a comment on a performance. Body length mirrors the DB check (1–4000). */
+export const commentSchema = z.object({
+  performanceId: z.string().uuid(),
+  body: z.string().trim().min(1).max(4000),
+});
+export type CommentInput = z.infer<typeof commentSchema>;
+
 /** A user reports content for moderation. */
 export const reportSchema = z.object({
   targetType: z.enum(['performance', 'comment', 'profile']),

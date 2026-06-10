@@ -1,13 +1,21 @@
 import Slider from '@react-native-community/slider';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer, { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
 import type { ListenEvent } from '@vocal-league/core';
 import { CRITERIA } from '@vocal-league/scoring';
-import { submitVote } from '@/lib/api';
+import { postComment, submitVote } from '@/lib/api';
 import { CRITERION_LABELS } from '@/lib/criteria-labels';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
@@ -33,6 +41,17 @@ function one<T>(x: T | T[] | null | undefined): T | null {
   return Array.isArray(x) ? (x[0] ?? null) : x;
 }
 
+type CommentRow = {
+  id: string;
+  body: string;
+  created_at: string;
+  profiles: { handle: string } | { handle: string }[] | null;
+};
+function handleOf(p: CommentRow['profiles']): string {
+  const row = Array.isArray(p) ? p[0] : p;
+  return row?.handle ? `@${row.handle}` : 'anonymous';
+}
+
 export default function PerformanceScreen() {
   const router = useRouter();
   const { user } = useSession();
@@ -54,6 +73,11 @@ export default function PerformanceScreen() {
   );
   const [voteState, setVoteState] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
   const [voteMsg, setVoteMsg] = useState('');
+
+  const [comments, setComments] = useState<CommentRow[]>([]);
+  const [commentText, setCommentText] = useState('');
+  const [posting, setPosting] = useState(false);
+  const [commentErr, setCommentErr] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -79,6 +103,19 @@ export default function PerformanceScreen() {
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [id]);
+
+  const loadComments = useCallback(async () => {
+    const { data } = await supabase
+      .from('comments')
+      .select('id, body, created_at, profiles(handle)')
+      .eq('performance_id', id)
+      .order('created_at', { ascending: false });
+    setComments((data ?? []) as unknown as CommentRow[]);
+  }, [id]);
+
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
 
   const pushEvent = (kind: ListenEvent['kind'], atSeconds: number) => {
     eventsRef.current.push({ kind, atSeconds: Math.max(0, atSeconds), clientTs: Date.now() });
@@ -121,16 +158,37 @@ export default function PerformanceScreen() {
     if (!listenId || !perf) return;
     setVoteState('submitting');
     setVoteMsg('');
-    const activeRatings = Object.fromEntries(activeCriteria.map((c) => [c, Math.round(ratings[c])]));
+    const activeRatings = Object.fromEntries(
+      activeCriteria.map((c) => [c, Math.round(ratings[c])]),
+    );
     const res = await submitVote(perf.id, listenId, activeRatings);
     if (res.ok) {
       setVoteState('done');
       setVoteMsg(
-        res.currentScore != null ? `Thanks! New current score: ${res.currentScore.toFixed(1)}` : 'Thanks for voting!',
+        res.currentScore != null
+          ? `Thanks! New current score: ${res.currentScore.toFixed(1)}`
+          : 'Thanks for voting!',
       );
     } else {
       setVoteState('error');
       setVoteMsg(res.error ?? `Failed (${res.status})`);
+    }
+  }
+
+  async function doComment() {
+    const text = commentText.trim();
+    if (!text || !perf) return;
+    setPosting(true);
+    setCommentErr('');
+    const res = await postComment(perf.id, text);
+    setPosting(false);
+    if (res.ok) {
+      setCommentText('');
+      await loadComments();
+    } else {
+      setCommentErr(
+        res.status === 401 ? 'Sign in again to comment.' : (res.error ?? `Failed (${res.status})`),
+      );
     }
   }
 
@@ -242,12 +300,15 @@ export default function PerformanceScreen() {
                     : '0.0 trend'}
                 </Text>
                 <Text style={styles.aiStart}>
-                  AI start {score?.initial_ai_score != null ? score.initial_ai_score.toFixed(1) : '—'}
+                  AI start{' '}
+                  {score?.initial_ai_score != null ? score.initial_ai_score.toFixed(1) : '—'}
                 </Text>
               </View>
             </View>
 
-            {score?.is_provisional !== false && <Text style={styles.badge}>Provisional AI Estimate</Text>}
+            {score?.is_provisional !== false && (
+              <Text style={styles.badge}>Provisional AI Estimate</Text>
+            )}
 
             <View style={styles.criteria}>
               {activeCriteria.map((c) => (
@@ -259,6 +320,54 @@ export default function PerformanceScreen() {
                 </View>
               ))}
             </View>
+          </View>
+
+          {/* Comments — readable by all; posting requires sign-in. */}
+          <View style={styles.commentsCard}>
+            <Text style={styles.commentsTitle}>Comments</Text>
+            {user ? (
+              <View style={styles.commentForm}>
+                <TextInput
+                  style={styles.commentInput}
+                  placeholder="Add a comment…"
+                  placeholderTextColor="#6b7280"
+                  value={commentText}
+                  onChangeText={setCommentText}
+                  multiline
+                  maxLength={4000}
+                />
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.commentBtn,
+                    pressed && { opacity: 0.85 },
+                    (posting || !commentText.trim()) && { opacity: 0.5 },
+                  ]}
+                  onPress={doComment}
+                  disabled={posting || !commentText.trim()}
+                >
+                  {posting ? (
+                    <ActivityIndicator color="#06281d" />
+                  ) : (
+                    <Text style={styles.commentBtnText}>Post</Text>
+                  )}
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable onPress={() => router.push('/login')}>
+                <Text style={styles.signinPrompt}>Sign in to comment ›</Text>
+              </Pressable>
+            )}
+            {commentErr ? <Text style={styles.error}>{commentErr}</Text> : null}
+            {comments.length === 0 ? (
+              <Text style={styles.commentEmpty}>No comments yet — be the first.</Text>
+            ) : (
+              comments.map((c) => (
+                <View key={c.id} style={styles.commentRow}>
+                  <Text style={styles.commentHandle}>{handleOf(c.profiles)}</Text>
+                  <Text style={styles.commentBody}>{c.body}</Text>
+                </View>
+              ))
+            )}
           </View>
         </ScrollView>
       )}
@@ -322,4 +431,32 @@ const styles = StyleSheet.create({
   critRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   critLabel: { fontSize: 14, color: '#d4d4d8' },
   critVal: { fontSize: 14, fontWeight: '700', color: '#fafafa', fontVariant: ['tabular-nums'] },
+  commentsCard: {
+    marginTop: 16,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#171717',
+    gap: 10,
+  },
+  commentsTitle: { fontSize: 15, fontWeight: '700', color: '#fafafa' },
+  commentForm: { gap: 8 },
+  commentInput: {
+    backgroundColor: '#0a0a0a',
+    borderRadius: 10,
+    padding: 12,
+    color: '#fafafa',
+    fontSize: 14,
+    minHeight: 44,
+  },
+  commentBtn: {
+    backgroundColor: '#34d399',
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  commentBtnText: { color: '#06281d', fontSize: 14, fontWeight: '800' },
+  commentEmpty: { color: '#6b7280', fontSize: 13 },
+  commentRow: { gap: 2, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#262626' },
+  commentHandle: { color: '#34d399', fontSize: 13, fontWeight: '700' },
+  commentBody: { color: '#d4d4d8', fontSize: 14 },
 });

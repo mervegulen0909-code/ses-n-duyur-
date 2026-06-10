@@ -131,3 +131,22 @@ export async function deleteAccount(): Promise<{ ok: boolean; status: number; er
   );
   return { ok: ok && data.ok !== false, status, error: data.error };
 }
+
+export type PostedComment = { id: string; body: string; created_at: string };
+
+/**
+ * Post a comment on a performance. The server route uses rateLimit only (no
+ * botGuard), so this works from native once this branch is deployed (401 until
+ * then). The author is the verified JWT user, never a body-supplied id.
+ */
+export async function postComment(
+  performanceId: string,
+  body: string,
+): Promise<{ ok: boolean; status: number; comment?: PostedComment; error?: string }> {
+  const { ok, status, data } = await authedPost<{
+    ok?: boolean;
+    comment?: PostedComment;
+    error?: string;
+  }>('/api/comments', { performanceId, body });
+  return { ok: ok && data.ok !== false, status, comment: data.comment, error: data.error };
+}
