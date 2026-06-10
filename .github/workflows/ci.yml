@@ -12,10 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Version is read from the root package.json "packageManager" field — the
+      # single source of truth. Pinning it here too makes action-setup@v4 fail
+      # with ERR_PNPM_BAD_PM_VERSION ("Multiple versions of pnpm specified").
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v4

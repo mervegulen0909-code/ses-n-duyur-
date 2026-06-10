@@ -107,40 +107,80 @@ describe('battleVoteSchema', () => {
   });
 });
 
-describe('calibrateSchema', () => {
-  it('accepts at least one criterion', () => {
-    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: { toneQuality: 75 } });
+describe('reportSchema', () => {
+  it('accepts a valid report', () => {
+    const r = reportSchema.safeParse({
+      targetType: 'performance',
+      targetId: UUID,
+      reason: 'spam content',
+    });
     expect(r.success).toBe(true);
   });
-  it('rejects an empty criteria object', () => {
-    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: {} });
-    expect(r.success).toBe(false);
-  });
-  it('rejects an out-of-range criterion', () => {
-    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: { toneQuality: 150 } });
-    expect(r.success).toBe(false);
-  });
-});
-
-describe('moderation, report & dmca schemas', () => {
-  it('reportSchema accepts a valid report', () => {
+  it('rejects an unknown target type', () => {
     expect(
-      reportSchema.safeParse({ targetType: 'performance', targetId: UUID, reason: 'spam content' })
+      reportSchema.safeParse({ targetType: 'song', targetId: UUID, reason: 'spam content' })
         .success,
-    ).toBe(true);
+    ).toBe(false);
   });
-  it('reportSchema rejects a too-short reason', () => {
+  it('rejects a too-short reason', () => {
     expect(
       reportSchema.safeParse({ targetType: 'comment', targetId: UUID, reason: 'x' }).success,
     ).toBe(false);
   });
-  it('dmcaSchema accepts a public filing with just a claimant', () => {
-    expect(dmcaSchema.safeParse({ claimant: 'Rights Holder LLC' }).success).toBe(true);
+});
+
+describe('dmcaSchema', () => {
+  it('accepts a minimal claim (claimant only)', () => {
+    expect(dmcaSchema.safeParse({ claimant: 'Acme Records' }).success).toBe(true);
   });
-  it('moderateSchema accepts a resolve action', () => {
+  it('accepts a full claim with performance + details', () => {
+    expect(
+      dmcaSchema.safeParse({ performanceId: UUID, claimant: 'Acme Records', details: 'Our master.' })
+        .success,
+    ).toBe(true);
+  });
+  it('rejects a too-short claimant', () => {
+    expect(dmcaSchema.safeParse({ claimant: 'x' }).success).toBe(false);
+  });
+});
+
+describe('moderateSchema', () => {
+  it('accepts resolve/dismiss, optionally hiding a performance', () => {
     expect(moderateSchema.safeParse({ flagId: UUID, status: 'resolved' }).success).toBe(true);
+    expect(
+      moderateSchema.safeParse({ flagId: UUID, status: 'dismissed', hidePerformanceId: UUID2 })
+        .success,
+    ).toBe(true);
   });
-  it('dmcaActionSchema accepts an actioned status', () => {
+  it('rejects an unknown status', () => {
+    expect(moderateSchema.safeParse({ flagId: UUID, status: 'maybe' }).success).toBe(false);
+  });
+});
+
+describe('dmcaActionSchema', () => {
+  it('accepts action/reject, optionally naming a performance', () => {
     expect(dmcaActionSchema.safeParse({ requestId: UUID, status: 'actioned' }).success).toBe(true);
+    expect(
+      dmcaActionSchema.safeParse({ requestId: UUID, status: 'rejected', performanceId: UUID2 })
+        .success,
+    ).toBe(true);
+  });
+  it('rejects an unknown status', () => {
+    expect(dmcaActionSchema.safeParse({ requestId: UUID, status: 'pending' }).success).toBe(false);
+  });
+});
+
+describe('calibrateSchema', () => {
+  it('accepts at least one criterion', () => {
+    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: { vocalAccuracy: 80 } });
+    expect(r.success).toBe(true);
+  });
+  it('rejects an empty criteria object (the refine)', () => {
+    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: {} });
+    expect(r.success).toBe(false);
+  });
+  it('rejects an out-of-range criterion', () => {
+    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: { vocalAccuracy: 150 } });
+    expect(r.success).toBe(false);
   });
 });
