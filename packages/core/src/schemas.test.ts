@@ -2,8 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   addPerformanceSchema,
   battleVoteSchema,
+  calibrateSchema,
+  dmcaActionSchema,
+  dmcaSchema,
   listenCompleteSchema,
   listenEventSchema,
+  moderateSchema,
+  reportSchema,
   voteSchema,
 } from './schemas';
 
@@ -99,5 +104,43 @@ describe('battleVoteSchema', () => {
       listenBId: UUID2,
     });
     expect(r.success).toBe(true);
+  });
+});
+
+describe('calibrateSchema', () => {
+  it('accepts at least one criterion', () => {
+    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: { toneQuality: 75 } });
+    expect(r.success).toBe(true);
+  });
+  it('rejects an empty criteria object', () => {
+    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: {} });
+    expect(r.success).toBe(false);
+  });
+  it('rejects an out-of-range criterion', () => {
+    const r = calibrateSchema.safeParse({ performanceId: UUID, criteria: { toneQuality: 150 } });
+    expect(r.success).toBe(false);
+  });
+});
+
+describe('moderation, report & dmca schemas', () => {
+  it('reportSchema accepts a valid report', () => {
+    expect(
+      reportSchema.safeParse({ targetType: 'performance', targetId: UUID, reason: 'spam content' })
+        .success,
+    ).toBe(true);
+  });
+  it('reportSchema rejects a too-short reason', () => {
+    expect(
+      reportSchema.safeParse({ targetType: 'comment', targetId: UUID, reason: 'x' }).success,
+    ).toBe(false);
+  });
+  it('dmcaSchema accepts a public filing with just a claimant', () => {
+    expect(dmcaSchema.safeParse({ claimant: 'Rights Holder LLC' }).success).toBe(true);
+  });
+  it('moderateSchema accepts a resolve action', () => {
+    expect(moderateSchema.safeParse({ flagId: UUID, status: 'resolved' }).success).toBe(true);
+  });
+  it('dmcaActionSchema accepts an actioned status', () => {
+    expect(dmcaActionSchema.safeParse({ requestId: UUID, status: 'actioned' }).success).toBe(true);
   });
 });
