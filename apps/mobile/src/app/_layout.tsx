@@ -1,0 +1,27 @@
+import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+
+import { configureNotificationHandler } from '@/lib/push';
+import { usePushRegistration } from '@/lib/use-push-registration';
+
+// Surface foreground notifications app-wide. Safe in Expo Go; runs once.
+configureNotificationHandler();
+
+// Root navigator: a dark Stack. Screens render their own headers (via
+// SafeAreaView), so the native header is hidden. Tabs return in a later phase.
+export default function RootLayout() {
+  // Register for remote push once a user signs in (no-op/typed reason in Expo Go).
+  usePushRegistration();
+
+  return (
+    <ThemeProvider value={DarkTheme}>
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: '#0a0a0a' },
+        }}
+      />
+    </ThemeProvider>
+  );
+}
