@@ -1,14 +1,16 @@
 import type { NextConfig } from 'next';
 
 // CSP tuned for: YouTube IFrame embed + API, Supabase (local + cloud, incl. ws
-// for Realtime), and YouTube thumbnails. Tighten further before production.
+// for Realtime), YouTube thumbnails, and Cloudflare Turnstile (bot check — its
+// api.js script + challenge iframe load from challenges.cloudflare.com).
+// Tighten further before production.
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https://i.ytimg.com https://*.ytimg.com",
-  'frame-src https://www.youtube.com https://www.youtube-nocookie.com',
-  "connect-src 'self' http://127.0.0.1:54321 ws://127.0.0.1:54321 https://*.supabase.co wss://*.supabase.co",
+  'frame-src https://www.youtube.com https://www.youtube-nocookie.com https://challenges.cloudflare.com',
+  "connect-src 'self' http://127.0.0.1:54321 ws://127.0.0.1:54321 https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com",
   "font-src 'self' data:",
   "base-uri 'self'",
   "form-action 'self'",
