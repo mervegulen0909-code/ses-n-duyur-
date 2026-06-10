@@ -81,9 +81,14 @@ export default function LeaderboardScreen() {
               <Text style={styles.authLink}>Battle</Text>
             </Pressable>
             {user ? (
-              <Pressable onPress={() => router.push('/profile')} hitSlop={8}>
-                <Text style={styles.authLink}>Profile</Text>
-              </Pressable>
+              <>
+                <Pressable onPress={() => router.push('/add')} hitSlop={8}>
+                  <Text style={styles.authLink}>+ Add</Text>
+                </Pressable>
+                <Pressable onPress={() => router.push('/profile')} hitSlop={8}>
+                  <Text style={styles.authLink}>Profile</Text>
+                </Pressable>
+              </>
             ) : (
               <Pressable onPress={() => router.push('/login')} hitSlop={8}>
                 <Text style={styles.authLink}>Sign in</Text>
@@ -92,7 +97,9 @@ export default function LeaderboardScreen() {
           </View>
         </View>
         <Text style={styles.sub}>
-          {user ? (user.email ?? 'Signed in') : `Leaderboard · AI-scored on ${CRITERIA.length} criteria`}
+          {user
+            ? (user.email ?? 'Signed in')
+            : `Leaderboard · AI-scored on ${CRITERIA.length} criteria`}
         </Text>
       </View>
 
@@ -104,11 +111,15 @@ export default function LeaderboardScreen() {
           keyExtractor={(i) => i.id}
           contentContainerStyle={styles.list}
           ListEmptyComponent={<Text style={styles.empty}>No performances yet.</Text>}
-          refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor="#34d399" />}
+          refreshControl={
+            <RefreshControl refreshing={false} onRefresh={load} tintColor="#34d399" />
+          }
           renderItem={({ item, index }) => (
             <Pressable
               style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-              onPress={() => router.push({ pathname: '/performance/[id]', params: { id: item.id } })}
+              onPress={() =>
+                router.push({ pathname: '/performance/[id]', params: { id: item.id } })
+              }
             >
               <Text style={styles.rank}>{index + 1}</Text>
               <View style={styles.rowMain}>

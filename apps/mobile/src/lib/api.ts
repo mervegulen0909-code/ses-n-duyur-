@@ -131,3 +131,41 @@ export async function deleteAccount(): Promise<{ ok: boolean; status: number; er
   );
   return { ok: ok && data.ok !== false, status, error: data.error };
 }
+
+export type PostedComment = { id: string; body: string; created_at: string };
+
+/**
+ * Post a comment on a performance. The server route uses rateLimit only (no
+ * botGuard), so this works from native once this branch is deployed (401 until
+ * then). The author is the verified JWT user, never a body-supplied id.
+ */
+export async function postComment(
+  performanceId: string,
+  body: string,
+): Promise<{ ok: boolean; status: number; comment?: PostedComment; error?: string }> {
+  const { ok, status, data } = await authedPost<{
+    ok?: boolean;
+    comment?: PostedComment;
+    error?: string;
+  }>('/api/comments', { performanceId, body });
+  return { ok: ok && data.ok !== false, status, comment: data.comment, error: data.error };
+}
+
+/**
+ * Submit a new performance from a YouTube URL. The server fetches oEmbed
+ * metadata, runs the provisional AI score, and inserts it (returns the new id).
+ *
+ * GATING: /api/performances uses botGuard, so — like single-vote — this is gated
+ * on web Turnstile / native attestation (N2b): it 403s from native in prod until
+ * that lands, and 401s until this branch is deployed. It works in dev (Noop
+ * bot-check), so the screen is fully usable for local/preview QA.
+ */
+export async function addPerformance(
+  youtubeUrl: string,
+): Promise<{ ok: boolean; status: number; id?: string; error?: string }> {
+  const { ok, status, data } = await authedPost<{ id?: string; error?: string }>(
+    '/api/performances',
+    { youtubeUrl },
+  );
+  return { ok: ok && !!data.id, status, id: data.id, error: data.error };
+}
