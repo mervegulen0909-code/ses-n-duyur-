@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { LegalLinks } from '@/components/legal-links';
 import { deleteAccount } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
@@ -161,6 +162,7 @@ export default function ProfileScreen() {
           >
             <Text style={styles.buttonText}>Sign in</Text>
           </Pressable>
+          <LegalLinks />
         </View>
       </SafeAreaView>
     );
@@ -200,22 +202,25 @@ export default function ProfileScreen() {
             <Text style={styles.empty}>You haven’t added any performances yet.</Text>
           }
           ListFooterComponent={
-            <Pressable
-              accessibilityRole="button"
-              onPress={onDeleteAccount}
-              disabled={deleting}
-              style={({ pressed }) => [
-                styles.deleteButton,
-                pressed && styles.rowPressed,
-                deleting && styles.deleteButtonDisabled,
-              ]}
-            >
-              {deleting ? (
-                <ActivityIndicator color="#fb7185" />
-              ) : (
-                <Text style={styles.deleteButtonText}>Delete account</Text>
-              )}
-            </Pressable>
+            <>
+              <Pressable
+                accessibilityRole="button"
+                onPress={onDeleteAccount}
+                disabled={deleting}
+                style={({ pressed }) => [
+                  styles.deleteButton,
+                  pressed && styles.rowPressed,
+                  deleting && styles.deleteButtonDisabled,
+                ]}
+              >
+                {deleting ? (
+                  <ActivityIndicator color="#fb7185" />
+                ) : (
+                  <Text style={styles.deleteButtonText}>Delete account</Text>
+                )}
+              </Pressable>
+              <LegalLinks />
+            </>
           }
           refreshControl={
             <RefreshControl refreshing={false} onRefresh={load} tintColor="#34d399" />
