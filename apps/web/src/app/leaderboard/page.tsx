@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { wilsonLowerBound } from '@vocal-league/scoring';
+import { ProvisionalBadge } from '@/components/provisional-badge';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -75,6 +76,7 @@ export default async function LeaderboardPage() {
               >
                 <span className="w-6 text-right tabular-nums text-neutral-500">{i + 1}</span>
                 <span className="flex-1 truncate text-sm">{r.title}</span>
+                {r.isProvisional && <ProvisionalBadge />}
                 <span className="hidden text-xs text-neutral-500 sm:inline">
                   {r.wins}-{r.battles - r.wins} · Elo·battle
                 </span>
