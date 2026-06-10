@@ -1,7 +1,7 @@
 import { calibrateSchema } from '@vocal-league/core';
 import type { Json } from '@vocal-league/db';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getCurrentProfile } from '@/lib/auth';
+import { getRequestContext } from '@/lib/supabase/server';
+import { getProfileForContext } from '@/lib/auth';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -14,10 +14,11 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = calibrateSchema.safeParse(json);
   if (!parsed.success) return Response.json({ error: 'Invalid input' }, { status: 422 });
 
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return Response.json({ error: 'Supabase is not configured' }, { status: 503 });
+  const ctx = await getRequestContext(req);
+  if (!ctx) return Response.json({ error: 'Forbidden' }, { status: 403 });
+  const { supabase } = ctx;
 
-  const profile = await getCurrentProfile();
+  const profile = await getProfileForContext(ctx);
   if (profile?.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
   const { error } = await supabase.from('admin_scores').insert({

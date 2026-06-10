@@ -1,6 +1,6 @@
 import { dmcaActionSchema } from '@vocal-league/core';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { isAdmin } from '@/lib/auth';
+import { getRequestContext } from '@/lib/supabase/server';
+import { getProfileForContext } from '@/lib/auth';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -13,9 +13,12 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = dmcaActionSchema.safeParse(json);
   if (!parsed.success) return Response.json({ error: 'Invalid input' }, { status: 422 });
 
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return Response.json({ error: 'Supabase is not configured' }, { status: 503 });
-  if (!(await isAdmin())) return Response.json({ error: 'Forbidden' }, { status: 403 });
+  const ctx = await getRequestContext(req);
+  if (!ctx) return Response.json({ error: 'Forbidden' }, { status: 403 });
+  const { supabase } = ctx;
+  if ((await getProfileForContext(ctx))?.role !== 'admin') {
+    return Response.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const { error } = await supabase
     .from('dmca_requests')

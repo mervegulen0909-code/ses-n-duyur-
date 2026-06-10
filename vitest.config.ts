@@ -1,10 +1,21 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  resolve: {
+    // Mirror apps/web's "@/*" -> "src/*" tsconfig path so route tests resolve.
+    // Key is "@" (not "@/"): the alias matcher requires a "/" AFTER the key, so
+    // this matches "@/lib/..." but never the "@vocal-league/*" workspace pkgs.
+    alias: {
+      '@': fileURLToPath(new URL('./apps/web/src', import.meta.url)),
+    },
+  },
   test: {
-    include: ['packages/**/src/**/*.{test,spec}.ts'],
+    include: ['packages/**/src/**/*.{test,spec}.ts', 'apps/web/src/**/*.{test,spec}.ts'],
     coverage: {
       provider: 'v8',
+      // Coverage stays packages-only (100% thresholds). App routes are exercised
+      // by their own tests but not held to the package coverage bar.
       include: ['packages/**/src/**/*.ts'],
       exclude: [
         'packages/**/src/**/*.{test,spec}.ts',
