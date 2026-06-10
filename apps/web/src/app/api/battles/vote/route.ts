@@ -1,6 +1,6 @@
 import { battleVoteSchema } from '@vocal-league/core';
 import { applyBattle } from '@vocal-league/scoring';
-import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 
 export async function POST(req: Request): Promise<Response> {
@@ -15,13 +15,9 @@ export async function POST(req: Request): Promise<Response> {
   if (!parsed.success) return Response.json({ error: 'Invalid input' }, { status: 422 });
   const { battleId, winnerPerformanceId, listenAId, listenBId } = parsed.data;
 
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return Response.json({ error: 'Supabase is not configured' }, { status: 503 });
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return Response.json({ error: 'Authentication required' }, { status: 401 });
+  const ctx = await getRequestContext(req);
+  if (!ctx) return Response.json({ error: 'Authentication required' }, { status: 401 });
+  const { supabase, user } = ctx;
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;

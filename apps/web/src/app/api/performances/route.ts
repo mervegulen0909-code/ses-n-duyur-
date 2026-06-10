@@ -5,7 +5,7 @@ import {
   parseYouTubeId,
 } from '@vocal-league/core';
 import type { Json } from '@vocal-league/db';
-import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { botGuard, rateLimit } from '@/lib/guard';
 
@@ -25,17 +25,11 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) {
-    return Response.json({ error: 'Supabase is not configured' }, { status: 503 });
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const ctx = await getRequestContext(req);
+  if (!ctx) {
     return Response.json({ error: 'Authentication required' }, { status: 401 });
   }
+  const { supabase, user } = ctx;
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;

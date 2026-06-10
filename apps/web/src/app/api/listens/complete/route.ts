@@ -1,6 +1,6 @@
 import { listenCompleteSchema, validateListen } from '@vocal-league/core';
 import type { Json } from '@vocal-league/db';
-import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -13,13 +13,9 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = listenCompleteSchema.safeParse(json);
   if (!parsed.success) return Response.json({ error: 'Invalid input' }, { status: 422 });
 
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return Response.json({ error: 'Supabase is not configured' }, { status: 503 });
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return Response.json({ error: 'Authentication required' }, { status: 401 });
+  const ctx = await getRequestContext(req);
+  if (!ctx) return Response.json({ error: 'Authentication required' }, { status: 401 });
+  const { supabase, user } = ctx;
 
   // The listen session must exist, belong to this user, and match the performance.
   const { data: listen } = await supabase

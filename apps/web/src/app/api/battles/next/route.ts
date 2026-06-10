@@ -1,4 +1,4 @@
-import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 
 interface PerfRow {
   id: string;
@@ -29,14 +29,9 @@ function titleOf(meta: unknown): string {
   return m.title ?? 'Performance';
 }
 
-export async function POST(): Promise<Response> {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return Response.json({ error: 'Supabase is not configured' }, { status: 503 });
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return Response.json({ error: 'Authentication required' }, { status: 401 });
+export async function POST(req: Request): Promise<Response> {
+  const ctx = await getRequestContext(req);
+  if (!ctx) return Response.json({ error: 'Authentication required' }, { status: 401 });
 
   const service = createSupabaseServiceClient();
   if (!service) return Response.json({ error: 'Server not configured' }, { status: 503 });

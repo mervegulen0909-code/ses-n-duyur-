@@ -1,7 +1,7 @@
 import { criteriaOverall, recomputeScore, voteSchema } from '@vocal-league/core';
 import { CRITERIA, type Criterion } from '@vocal-league/scoring';
 import type { Database } from '@vocal-league/db';
-import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
 
 type CriteriaRatingInsert = Database['public']['Tables']['criteria_ratings']['Insert'];
@@ -40,13 +40,9 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = voteSchema.safeParse(json);
   if (!parsed.success) return Response.json({ error: 'Invalid input' }, { status: 422 });
 
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return Response.json({ error: 'Supabase is not configured' }, { status: 503 });
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return Response.json({ error: 'Authentication required' }, { status: 401 });
+  const ctx = await getRequestContext(req);
+  if (!ctx) return Response.json({ error: 'Authentication required' }, { status: 401 });
+  const { supabase, user } = ctx;
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;
