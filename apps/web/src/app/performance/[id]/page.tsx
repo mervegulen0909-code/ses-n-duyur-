@@ -5,6 +5,8 @@ import { YouTubeEmbed } from '@/components/youtube-embed';
 import { ScoreBreakdown } from '@/components/score-breakdown';
 import { VotePanel } from '@/components/vote-panel';
 import { ReportButton } from '@/components/report-button';
+import { CommentComposer } from '@/components/comment-composer';
+import { withAuthors } from '@/lib/comments';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
 
@@ -50,6 +52,17 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
   const meta = (perf.oembed_meta ?? {}) as OEmbedish;
   const breakdown = (score?.ai_breakdown ?? null) as Partial<Record<Criterion, number>> | null;
   const user = await getCurrentUser();
+
+  const { data: rawComments } = await supabase
+    .from('comments')
+    .select('id, body, created_at, user_id')
+    .eq('performance_id', id)
+    .order('created_at', { ascending: false });
+  const commenterIds = [...new Set((rawComments ?? []).map((c) => c.user_id))];
+  const { data: commenterProfiles } = commenterIds.length
+    ? await supabase.from('profiles').select('id, handle').in('id', commenterIds)
+    : { data: [] };
+  const comments = withAuthors(rawComments ?? [], commenterProfiles ?? []);
 
   return (
     <main className="mx-auto grid max-w-5xl gap-8 px-6 py-10 lg:grid-cols-[1fr_360px]">
@@ -101,6 +114,50 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           hasVideo={perf.has_video}
         />
       </aside>
+
+      <section className="lg:col-span-2">
+        <h2 className="mb-4 text-lg font-semibold">Comments</h2>
+        {user ? (
+          <div className="mb-6">
+            <CommentComposer performanceId={perf.id} />
+          </div>
+        ) : (
+          <p className="mb-6 text-sm text-neutral-500">
+            <Link href="/login" className="text-emerald-400">
+              Sign in
+            </Link>{' '}
+            to comment.
+          </p>
+        )}
+
+        {comments.length === 0 ? (
+          <p className="text-sm text-neutral-500">No comments yet.</p>
+        ) : (
+          <ul className="space-y-4">
+            {comments.map((c) => (
+              <li key={c.id} className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-3">
+                <div className="mb-1 flex items-center justify-between gap-3">
+                  <span className="text-sm">
+                    {c.authorHandle ? (
+                      <Link
+                        href={`/profile/${encodeURIComponent(c.authorHandle)}`}
+                        className="font-medium text-emerald-400 hover:underline"
+                      >
+                        @{c.authorHandle}
+                      </Link>
+                    ) : (
+                      <span className="text-neutral-500">unknown</span>
+                    )}
+                    <span className="text-neutral-600"> · {c.createdAt.slice(0, 10)}</span>
+                  </span>
+                  {user && <ReportButton targetType="comment" targetId={c.id} />}
+                </div>
+                <p className="whitespace-pre-wrap text-sm text-neutral-300">{c.body}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }
