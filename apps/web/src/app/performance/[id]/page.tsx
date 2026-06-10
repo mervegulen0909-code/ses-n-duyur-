@@ -29,11 +29,17 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
   const { data: perf } = await supabase
     .from('performances')
-    .select('id, youtube_video_id, oembed_meta, has_video')
+    .select('id, user_id, youtube_video_id, oembed_meta, has_video')
     .eq('id', id)
     .maybeSingle();
 
   if (!perf) notFound();
+
+  const { data: uploader } = await supabase
+    .from('profiles')
+    .select('handle')
+    .eq('id', perf.user_id)
+    .maybeSingle();
 
   const { data: score } = await supabase
     .from('scores')
@@ -53,6 +59,17 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           {user && <ReportButton targetType="performance" targetId={perf.id} />}
         </div>
         {meta.authorName && <p className="text-sm text-neutral-500">{meta.authorName}</p>}
+        {uploader?.handle && (
+          <p className="text-sm text-neutral-500">
+            Added by{' '}
+            <Link
+              href={`/profile/${encodeURIComponent(uploader.handle)}`}
+              className="text-emerald-400 hover:underline"
+            >
+              @{uploader.handle}
+            </Link>
+          </p>
+        )}
         {!perf.youtube_video_id ? (
           <p className="text-neutral-500">No video.</p>
         ) : user ? (
