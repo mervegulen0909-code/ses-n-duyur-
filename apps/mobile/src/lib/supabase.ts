@@ -1,7 +1,7 @@
 import 'react-native-url-polyfill/auto';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@vocal-league/db';
+import { LargeSecureStore } from './secure-store';
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -14,12 +14,13 @@ if (!url || !anonKey) {
 }
 
 /**
- * Supabase client for React Native. Sessions persist via AsyncStorage; RLS (the
- * same policies as web) protects every table. The anon key is client-safe.
+ * Supabase client for React Native. Sessions persist ENCRYPTED via
+ * LargeSecureStore (AES key in the OS keychain, ciphertext in AsyncStorage); RLS
+ * (the same policies as web) protects every table. The anon key is client-safe.
  */
 export const supabase = createClient<Database>(url, anonKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: new LargeSecureStore(),
     autoRefreshToken: true,
     persistSession: true,
     // React Native has no URL-based auth redirect to parse.
