@@ -150,3 +150,22 @@ export async function postComment(
   }>('/api/comments', { performanceId, body });
   return { ok: ok && data.ok !== false, status, comment: data.comment, error: data.error };
 }
+
+/**
+ * Submit a new performance from a YouTube URL. The server fetches oEmbed
+ * metadata, runs the provisional AI score, and inserts it (returns the new id).
+ *
+ * GATING: /api/performances uses botGuard, so — like single-vote — this is gated
+ * on web Turnstile / native attestation (N2b): it 403s from native in prod until
+ * that lands, and 401s until this branch is deployed. It works in dev (Noop
+ * bot-check), so the screen is fully usable for local/preview QA.
+ */
+export async function addPerformance(
+  youtubeUrl: string,
+): Promise<{ ok: boolean; status: number; id?: string; error?: string }> {
+  const { ok, status, data } = await authedPost<{ id?: string; error?: string }>(
+    '/api/performances',
+    { youtubeUrl },
+  );
+  return { ok: ok && !!data.id, status, id: data.id, error: data.error };
+}
