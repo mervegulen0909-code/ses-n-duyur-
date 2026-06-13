@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 
+import { registerPushToken } from './api';
 import {
   registerForPushNotifications,
   type PushTokenResult,
@@ -34,8 +36,14 @@ export function usePushRegistration() {
     if (res.ok) {
       setToken(res.token);
       setStatus('registered');
-      // TODO(backend): once Bearer auth + /api/push/register land, persist here:
-      //   await registerPushToken(res.token, Platform.OS as 'ios' | 'android');
+      // Persist to the backend so the server can target this device. Best-effort:
+      // a failure here does NOT downgrade local status — the token is still valid,
+      // we just couldn't store it yet (e.g. the API host hasn't shipped this build).
+      try {
+        await registerPushToken(res.token, Platform.OS === 'android' ? 'android' : 'ios');
+      } catch {
+        // network/unreachable — the next sign-in re-runs registration.
+      }
     } else {
       setToken(null);
       setReason(res.reason);

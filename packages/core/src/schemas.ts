@@ -75,6 +75,13 @@ export const commentSchema = z.object({
 });
 export type CommentInput = z.infer<typeof commentSchema>;
 
+/** Register a device's Expo push token for the signed-in user (native push). */
+export const pushRegisterSchema = z.object({
+  token: z.string().trim().min(1),
+  platform: z.enum(['ios', 'android']),
+});
+export type PushRegisterInput = z.infer<typeof pushRegisterSchema>;
+
 /** A user reports content for moderation. */
 export const reportSchema = z.object({
   targetType: z.enum(['performance', 'comment', 'profile']),
