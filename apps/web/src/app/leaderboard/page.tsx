@@ -26,8 +26,9 @@ export default async function LeaderboardPage() {
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-12 text-center text-neutral-400">
-        Supabase is not configured yet.
+      <main className="mx-auto max-w-3xl px-6 py-10">
+        <h1 className="mb-6 text-2xl font-bold">Leaderboard</h1>
+        <p className="text-neutral-400">Supabase is not configured yet.</p>
       </main>
     );
   }
