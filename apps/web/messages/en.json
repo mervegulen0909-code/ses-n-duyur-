@@ -1,0 +1,41 @@
+{
+  "Meta": {
+    "title": "VocalLeague — Global AI Vocal Performance League",
+    "description": "Discover who sings a song best. AI-scored, community-voted vocal performances."
+  },
+  "Nav": {
+    "leaderboard": "Leaderboard",
+    "battle": "Battle",
+    "signIn": "Sign in",
+    "admin": "Admin",
+    "addPerformance": "Add performance",
+    "signOut": "Sign out",
+    "footerTagline": "VocalLeague — embeds only, never hosts media.",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "dmca": "DMCA / Takedown"
+  },
+  "Common": {
+    "provisionalBadge": "Provisional AI Estimate",
+    "provisionalBadgeTitle": "Estimated by AI from metadata — not a real audio measurement.",
+    "untitledPerformance": "Untitled performance",
+    "noPerformances": "No performances yet.",
+    "supabaseNotConfigured": "Supabase is not configured yet."
+  },
+  "Home": {
+    "heroTitle": "Discover who sings a song <hl>best</hl>.",
+    "heroSubtitle": "Add a YouTube performance, get a Provisional AI Estimate, then let verified listeners vote and battle.",
+    "supabaseHint": "Supabase is not configured yet. Start the local stack (<code>pnpm db:start</code>) and set <code>.env.local</code>, then add a performance.",
+    "addFirst": "Add the first one →"
+  },
+  "Login": {
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "pleaseWait": "Please wait…",
+    "signUp": "Sign up",
+    "needAccount": "Need an account? Sign up",
+    "haveAccount": "Have an account? Sign in"
+  }
+}

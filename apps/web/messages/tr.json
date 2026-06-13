@@ -1,0 +1,41 @@
+{
+  "Meta": {
+    "title": "VocalLeague — Küresel Yapay Zekâ Vokal Performans Ligi",
+    "description": "Bir şarkıyı en iyi kimin söylediğini keşfet. Yapay zekâ puanlı, toplulukça oylanan vokal performanslar."
+  },
+  "Nav": {
+    "leaderboard": "Sıralama",
+    "battle": "Düello",
+    "signIn": "Giriş yap",
+    "admin": "Yönetici",
+    "addPerformance": "Performans ekle",
+    "signOut": "Çıkış yap",
+    "footerTagline": "VocalLeague — yalnızca gömülü içerik, medya barındırmaz.",
+    "terms": "Şartlar",
+    "privacy": "Gizlilik",
+    "dmca": "DMCA / Kaldırma"
+  },
+  "Common": {
+    "provisionalBadge": "Geçici YZ Tahmini",
+    "provisionalBadgeTitle": "Yapay zekâ tarafından meta veriden tahmin edildi — gerçek bir ses ölçümü değildir.",
+    "untitledPerformance": "Başlıksız performans",
+    "noPerformances": "Henüz performans yok.",
+    "supabaseNotConfigured": "Supabase henüz yapılandırılmadı."
+  },
+  "Home": {
+    "heroTitle": "Bir şarkıyı <hl>en iyi</hl> kimin söylediğini keşfet.",
+    "heroSubtitle": "Bir YouTube performansı ekle, Geçici YZ Tahmini al, sonra doğrulanmış dinleyiciler oylayıp düello yapsın.",
+    "supabaseHint": "Supabase henüz yapılandırılmadı. Yerel ortamı başlat (<code>pnpm db:start</code>) ve <code>.env.local</code> ayarla, sonra performans ekle.",
+    "addFirst": "İlkini ekle →"
+  },
+  "Login": {
+    "signIn": "Giriş yap",
+    "createAccount": "Hesap oluştur",
+    "emailPlaceholder": "E-posta",
+    "passwordPlaceholder": "Şifre",
+    "pleaseWait": "Lütfen bekleyin…",
+    "signUp": "Kaydol",
+    "needAccount": "Hesabın yok mu? Kaydol",
+    "haveAccount": "Hesabın var mı? Giriş yap"
+  }
+}
