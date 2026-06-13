@@ -8,6 +8,7 @@ import {
   listenCompleteSchema,
   listenEventSchema,
   moderateSchema,
+  pushRegisterSchema,
   reportSchema,
   voteSchema,
 } from './schemas';
@@ -135,8 +136,11 @@ describe('dmcaSchema', () => {
   });
   it('accepts a full claim with performance + details', () => {
     expect(
-      dmcaSchema.safeParse({ performanceId: UUID, claimant: 'Acme Records', details: 'Our master.' })
-        .success,
+      dmcaSchema.safeParse({
+        performanceId: UUID,
+        claimant: 'Acme Records',
+        details: 'Our master.',
+      }).success,
     ).toBe(true);
   });
   it('rejects a too-short claimant', () => {
@@ -167,6 +171,26 @@ describe('dmcaActionSchema', () => {
   });
   it('rejects an unknown status', () => {
     expect(dmcaActionSchema.safeParse({ requestId: UUID, status: 'pending' }).success).toBe(false);
+  });
+});
+
+describe('pushRegisterSchema', () => {
+  it('accepts a valid ios/android token registration', () => {
+    expect(
+      pushRegisterSchema.safeParse({ token: 'ExponentPushToken[abc]', platform: 'ios' }).success,
+    ).toBe(true);
+    expect(
+      pushRegisterSchema.safeParse({ token: 'ExponentPushToken[abc]', platform: 'android' })
+        .success,
+    ).toBe(true);
+  });
+  it('rejects an empty token', () => {
+    expect(pushRegisterSchema.safeParse({ token: '', platform: 'ios' }).success).toBe(false);
+  });
+  it('rejects an unsupported platform', () => {
+    expect(
+      pushRegisterSchema.safeParse({ token: 'ExponentPushToken[abc]', platform: 'web' }).success,
+    ).toBe(false);
   });
 });
 

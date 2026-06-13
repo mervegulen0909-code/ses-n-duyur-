@@ -108,6 +108,14 @@ export interface PublicRows {
     body: string;
     created_at: Timestamp;
   };
+  push_tokens: {
+    id: Uuid;
+    user_id: Uuid;
+    token: string;
+    platform: 'ios' | 'android';
+    created_at: Timestamp;
+    updated_at: Timestamp;
+  };
   admin_scores: {
     id: Uuid;
     performance_id: Uuid;

@@ -35,3 +35,17 @@ jobs:
 
       - name: Test (with coverage)
         run: pnpm test:cov
+
+      # Build was previously CI-uncovered: a broken `next build` (or any package
+      # build) only surfaced on Vercel. `pnpm -r build` runs each workspace that
+      # has a build script (web + scoring); env-less build degrades safely.
+      - name: Build
+        run: pnpm build
+
+      # E2E smoke (apps/web/e2e). Playwright's webServer does its own next build
+      # + start, so this also guards the production server boot path.
+      - name: Install Playwright browsers
+        run: pnpm --filter @vocal-league/web exec playwright install --with-deps chromium
+
+      - name: E2E (smoke)
+        run: pnpm test:e2e

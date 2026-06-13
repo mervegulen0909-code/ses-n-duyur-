@@ -169,3 +169,20 @@ export async function addPerformance(
   );
   return { ok: ok && !!data.id, status, id: data.id, error: data.error };
 }
+
+/**
+ * Persist this device's Expo push token so the server can send remote pushes.
+ * Upserts on (user, token) server-side, so calling it on every registration is
+ * idempotent. rateLimit-only route (no botGuard) → works from native once this
+ * branch is deployed (401 until then). Body matches pushRegisterSchema.
+ */
+export async function registerPushToken(
+  token: string,
+  platform: 'ios' | 'android',
+): Promise<{ ok: boolean; status: number }> {
+  const { ok, status, data } = await authedPost<{ ok?: boolean }>('/api/push/register', {
+    token,
+    platform,
+  });
+  return { ok: ok && data.ok !== false, status };
+}
