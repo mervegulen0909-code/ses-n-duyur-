@@ -11,7 +11,13 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['packages/**/src/**/*.{test,spec}.ts', 'apps/web/src/**/*.{test,spec}.ts'],
+    include: [
+      'packages/**/src/**/*.{test,spec}.ts',
+      'apps/web/src/**/*.{test,spec}.ts',
+      // Mobile pure-logic tests (e.g. the api client). These mock './supabase'
+      // and any expo native modules, so they run in the node env like the rest.
+      'apps/mobile/src/**/*.{test,spec}.ts',
+    ],
     coverage: {
       provider: 'v8',
       // Coverage stays packages-only (100% thresholds). App routes are exercised
