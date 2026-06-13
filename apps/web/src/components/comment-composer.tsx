@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 /**
  * Posts a comment to /api/comments, then refreshes the Server Component so the
@@ -10,6 +11,7 @@ import { useRouter } from 'next/navigation';
  */
 export function CommentComposer({ performanceId }: { performanceId: string }) {
   const router = useRouter();
+  const t = useTranslations();
   const [body, setBody] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -29,7 +31,7 @@ export function CommentComposer({ performanceId }: { performanceId: string }) {
       if (!res.ok) {
         const b = (await res.json().catch(() => ({}))) as { error?: string };
         setStatus('error');
-        setMessage(b.error ?? `Failed (${res.status})`);
+        setMessage(b.error ?? t('Common.failedStatus', { status: res.status }));
         return;
       }
       setBody('');
@@ -37,7 +39,7 @@ export function CommentComposer({ performanceId }: { performanceId: string }) {
       router.refresh();
     } catch {
       setStatus('error');
-      setMessage('Network error');
+      setMessage(t('Common.networkError'));
     }
   }
 
@@ -48,7 +50,7 @@ export function CommentComposer({ performanceId }: { performanceId: string }) {
         onChange={(e) => setBody(e.target.value)}
         maxLength={4000}
         rows={3}
-        placeholder="Add a comment…"
+        placeholder={t('Comments.placeholder')}
         className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-emerald-500"
       />
       <div className="flex items-center gap-3">
@@ -57,7 +59,7 @@ export function CommentComposer({ performanceId }: { performanceId: string }) {
           disabled={status === 'submitting' || body.trim().length === 0}
           className="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
         >
-          {status === 'submitting' ? 'Posting…' : 'Comment'}
+          {status === 'submitting' ? t('Comments.posting') : t('Comments.submit')}
         </button>
         {status === 'error' && <span className="text-sm text-rose-400">{message}</span>}
       </div>

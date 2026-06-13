@@ -1,5 +1,7 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { CRITERIA, type Criterion } from '@vocal-league/scoring';
-import { CRITERION_LABELS } from '@/lib/criteria-labels';
 import { ProvisionalBadge } from './provisional-badge';
 
 export interface ScoreBreakdownProps {
@@ -16,6 +18,7 @@ function fmt(value: number | null): string {
 }
 
 export function ScoreBreakdown(props: ScoreBreakdownProps) {
+  const t = useTranslations();
   const trend = props.trendScore ?? 0;
   const trendColor =
     trend > 0 ? 'text-emerald-400' : trend < 0 ? 'text-rose-400' : 'text-neutral-400';
@@ -25,14 +28,16 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
       <header className="mb-4 flex items-center justify-between gap-3">
         <div>
           <div className="text-3xl font-bold">{fmt(props.currentScore)}</div>
-          <div className="text-xs text-neutral-500">Current score</div>
+          <div className="text-xs text-neutral-500">{t('Performance.currentScore')}</div>
         </div>
         <div className="text-right">
           <div className={`text-sm font-medium ${trendColor}`}>
             {trend > 0 ? '+' : ''}
-            {trend.toFixed(1)} trend
+            {trend.toFixed(1)} {t('Performance.trend')}
           </div>
-          <div className="text-xs text-neutral-500">AI start {fmt(props.initialAiScore)}</div>
+          <div className="text-xs text-neutral-500">
+            {t('Performance.aiStart')} {fmt(props.initialAiScore)}
+          </div>
         </div>
       </header>
 
@@ -47,7 +52,7 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
           const value = props.breakdown?.[c] ?? null;
           return (
             <li key={c} className="flex items-center gap-3 text-sm">
-              <span className="w-44 shrink-0 text-neutral-400">{CRITERION_LABELS[c]}</span>
+              <span className="w-44 shrink-0 text-neutral-400">{t(`Criteria.${c}`)}</span>
               <div className="h-1.5 flex-1 overflow-hidden rounded bg-neutral-800">
                 <div className="h-full bg-emerald-500/70" style={{ width: `${value ?? 0}%` }} />
               </div>

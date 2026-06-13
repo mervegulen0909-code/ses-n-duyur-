@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { toScoreView, type ScoreRow } from '@/lib/score';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -18,6 +19,7 @@ interface PerformanceCard {
 }
 
 export default async function HomePage() {
+  const t = await getTranslations();
   const supabase = await createSupabaseServerClient();
   let performances: PerformanceCard[] = [];
   let scoreByPerf = new Map<string, ScoreRow>();
@@ -45,24 +47,24 @@ export default async function HomePage() {
     <main className="mx-auto max-w-5xl px-6 py-10">
       <section className="mb-10 text-center">
         <h1 className="text-balance text-4xl font-bold sm:text-5xl">
-          Discover who sings a song <span className="text-emerald-400">best</span>.
+          {t.rich('Home.heroTitle', {
+            hl: (chunks) => <span className="text-emerald-400">{chunks}</span>,
+          })}
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-pretty text-neutral-400">
-          Add a YouTube performance, get a Provisional AI Estimate, then let verified listeners vote
-          and battle.
+          {t('Home.heroSubtitle')}
         </p>
       </section>
 
       {!supabase ? (
         <p className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 text-center text-neutral-400">
-          Supabase is not configured yet. Start the local stack (<code>pnpm db:start</code>) and set{' '}
-          <code>.env.local</code>, then add a performance.
+          {t.rich('Home.supabaseHint', { code: (chunks) => <code>{chunks}</code> })}
         </p>
       ) : performances.length === 0 ? (
         <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-8 text-center">
-          <p className="text-neutral-400">No performances yet.</p>
+          <p className="text-neutral-400">{t('Common.noPerformances')}</p>
           <Link href="/add" className="mt-3 inline-block font-medium text-emerald-400">
-            Add the first one →
+            {t('Home.addFirst')}
           </Link>
         </div>
       ) : (
@@ -87,7 +89,7 @@ export default async function HomePage() {
                   )}
                   <div className="p-3">
                     <div className="line-clamp-2 text-sm font-medium">
-                      {meta.title ?? 'Untitled performance'}
+                      {meta.title ?? t('Common.untitledPerformance')}
                     </div>
                     {meta.authorName && (
                       <div className="mt-1 text-xs text-neutral-500">{meta.authorName}</div>

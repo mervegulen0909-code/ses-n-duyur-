@@ -1,4 +1,9 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
+
+// Wires next-intl's request config (locale + messages) into the build. The app
+// uses cookie-based locale (no i18n routing), so no middleware/route changes.
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 // CSP tuned for: YouTube IFrame embed + API, Supabase (local + cloud, incl. ws
 // for Realtime), YouTube thumbnails, and Cloudflare Turnstile (bot check — its
@@ -32,4 +37,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

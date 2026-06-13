@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { wilsonLowerBound } from '@vocal-league/scoring';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
@@ -19,16 +20,17 @@ interface Row {
 
 function titleOf(meta: unknown): string {
   const m = (meta ?? {}) as { title?: string };
-  return m.title ?? 'Untitled performance';
+  return m.title ?? '';
 }
 
 export default async function LeaderboardPage() {
+  const t = await getTranslations();
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="mb-6 text-2xl font-bold">Leaderboard</h1>
-        <p className="text-neutral-400">Supabase is not configured yet.</p>
+        <h1 className="mb-6 text-2xl font-bold">{t('Nav.leaderboard')}</h1>
+        <p className="text-neutral-400">{t('Common.supabaseNotConfigured')}</p>
       </main>
     );
   }
@@ -63,10 +65,10 @@ export default async function LeaderboardPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <RealtimeRefresh table="scores" />
-      <h1 className="mb-6 text-2xl font-bold">Leaderboard</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('Nav.leaderboard')}</h1>
 
       {rows.length === 0 ? (
-        <p className="text-neutral-400">No performances yet.</p>
+        <p className="text-neutral-400">{t('Common.noPerformances')}</p>
       ) : (
         <ol className="space-y-2">
           {rows.map((r, i) => (
@@ -76,7 +78,9 @@ export default async function LeaderboardPage() {
                 className="flex items-center gap-4 rounded-lg border border-neutral-800 bg-neutral-900/50 px-4 py-3 hover:border-neutral-600"
               >
                 <span className="w-6 text-right tabular-nums text-neutral-500">{i + 1}</span>
-                <span className="flex-1 truncate text-sm">{r.title}</span>
+                <span className="flex-1 truncate text-sm">
+                  {r.title || t('Common.untitledPerformance')}
+                </span>
                 {r.isProvisional && <ProvisionalBadge />}
                 <span className="hidden text-xs text-neutral-500 sm:inline">
                   {r.wins}-{r.battles - r.wins} · Elo·battle

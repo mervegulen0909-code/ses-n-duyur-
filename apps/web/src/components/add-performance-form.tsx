@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { TurnstileWidget } from './turnstile-widget';
 
 export function AddPerformanceForm() {
   const router = useRouter();
+  const t = useTranslations();
   const [url, setUrl] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -27,20 +29,20 @@ export function AddPerformanceForm() {
       const body = (await res.json()) as { id?: string; error?: string };
       if (!res.ok || !body.id) {
         setStatus('error');
-        setMessage(body.error ?? `Failed (${res.status})`);
+        setMessage(body.error ?? t('Common.failedStatus', { status: res.status }));
         return;
       }
       router.push(`/performance/${body.id}`);
     } catch {
       setStatus('error');
-      setMessage('Network error');
+      setMessage(t('Common.networkError'));
     }
   }
 
   return (
     <form onSubmit={onSubmit} className="flex w-full max-w-xl flex-col gap-3">
       <label htmlFor="yt" className="text-sm text-neutral-400">
-        YouTube performance URL
+        {t('Add.urlLabel')}
       </label>
       <input
         id="yt"
@@ -57,7 +59,7 @@ export function AddPerformanceForm() {
         disabled={status === 'submitting'}
         className="rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white disabled:opacity-50"
       >
-        {status === 'submitting' ? 'Adding…' : 'Add performance'}
+        {status === 'submitting' ? t('Add.adding') : t('Add.submit')}
       </button>
       {status === 'error' && <p className="text-sm text-rose-400">{message}</p>}
     </form>

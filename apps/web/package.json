@@ -19,6 +19,7 @@
     "@vocal-league/db": "workspace:*",
     "@vocal-league/scoring": "workspace:*",
     "next": "^16.2.7",
+    "next-intl": "^4.13.0",
     "openai": "^6.42.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
