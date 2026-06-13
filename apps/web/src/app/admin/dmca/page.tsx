@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { isAdmin } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { DmcaActions } from '@/components/admin-actions';
@@ -5,10 +6,11 @@ import { DmcaActions } from '@/components/admin-actions';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDmcaPage() {
+  const t = await getTranslations('Admin');
   if (!(await isAdmin())) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-16 text-center text-neutral-400">
-        Admin access required.
+        {t('accessRequired')}
       </main>
     );
   }
@@ -22,9 +24,9 @@ export default async function AdminDmcaPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-6 text-2xl font-bold">DMCA / Takedown requests</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('dmcaRequests')}</h1>
       {!reqs || reqs.length === 0 ? (
-        <p className="text-neutral-400">No open requests.</p>
+        <p className="text-neutral-400">{t('noOpenRequests')}</p>
       ) : (
         <ul className="space-y-3">
           {reqs.map((r) => (
@@ -34,7 +36,9 @@ export default async function AdminDmcaPage() {
             >
               <div className="text-sm font-medium">{r.claimant}</div>
               {r.performance_id && (
-                <div className="text-xs text-neutral-500">Performance: {r.performance_id}</div>
+                <div className="text-xs text-neutral-500">
+                  {t('performanceId', { id: r.performance_id })}
+                </div>
               )}
               {r.details && <p className="text-sm text-neutral-300">{r.details}</p>}
               <DmcaActions requestId={r.id} performanceId={r.performance_id} />

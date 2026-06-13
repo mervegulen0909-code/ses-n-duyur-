@@ -20,7 +20,10 @@
     "provisionalBadgeTitle": "Estimated by AI from metadata — not a real audio measurement.",
     "untitledPerformance": "Untitled performance",
     "noPerformances": "No performances yet.",
-    "supabaseNotConfigured": "Supabase is not configured yet."
+    "supabaseNotConfigured": "Supabase is not configured yet.",
+    "failed": "Failed",
+    "failedStatus": "Failed ({status})",
+    "networkError": "Network error"
   },
   "Home": {
     "heroTitle": "Discover who sings a song <hl>best</hl>.",
@@ -37,5 +40,106 @@
     "signUp": "Sign up",
     "needAccount": "Need an account? Sign up",
     "haveAccount": "Have an account? Sign in"
+  },
+  "Add": {
+    "title": "Add a performance",
+    "subtitle": "Paste a YouTube link. We embed it (never download), fetch its metadata, and create a Provisional AI Estimate.",
+    "signInPrompt": "Please <link>sign in</link> to add a performance.",
+    "urlLabel": "YouTube performance URL",
+    "submit": "Add performance",
+    "adding": "Adding…"
+  },
+  "Battle": {
+    "subtitle": "Two performances, one winner. Listen to both fully, then decide.",
+    "signInPrompt": "Please <link>sign in</link> to battle.",
+    "statusListened": "✓ Listened",
+    "statusNotFully": "Not fully listened",
+    "statusListening": "Listening…",
+    "statusPressPlay": "Press play & watch fully",
+    "voteRecorded": "Vote recorded! 🎉",
+    "nextBattle": "Next battle →",
+    "sideWins": "{title} wins",
+    "mustListenBoth": "You must fully listen to BOTH performances before choosing a winner.",
+    "finding": "Finding a battle…",
+    "notEnough": "Not enough performances to battle yet. Add more!",
+    "couldNotLoad": "Could not load a battle."
+  },
+  "Performance": {
+    "currentScore": "Current score",
+    "trend": "trend",
+    "aiStart": "AI start",
+    "fallbackTitle": "Performance",
+    "addedBy": "Added by <link>{handle}</link>",
+    "noVideo": "No video.",
+    "signInToVote": "<link>Sign in</link> and complete a Verified Listen to vote.",
+    "signInToComment": "<link>Sign in</link> to comment."
+  },
+  "Criteria": {
+    "vocalAccuracy": "Vocal accuracy",
+    "rhythmTiming": "Rhythm & timing",
+    "toneQuality": "Tone quality",
+    "emotionInterpretation": "Emotion & interpretation",
+    "technicalSkill": "Technical skill",
+    "pronunciationDiction": "Pronunciation & diction",
+    "recordingQuality": "Recording quality",
+    "originality": "Originality",
+    "stagePresence": "Stage presence"
+  },
+  "Vote": {
+    "hintIdle": "Press play and watch to the end to unlock voting.",
+    "errStart": "Could not start the listen session.",
+    "verifying": "Verifying your listen…",
+    "verified": "Verified Listen complete — you can vote now.",
+    "notVerified": "Listen not verified. Watch the full performance to vote.",
+    "errVerify": "Could not verify the listen.",
+    "rateThis": "Rate this performance",
+    "submitting": "Submitting…",
+    "submit": "Submit vote",
+    "thanksScore": "Thanks! New current score: {score}",
+    "thanks": "Thanks for voting!"
+  },
+  "Comments": {
+    "heading": "Comments",
+    "placeholder": "Add a comment…",
+    "posting": "Posting…",
+    "submit": "Comment",
+    "empty": "No comments yet.",
+    "unknownAuthor": "unknown"
+  },
+  "Profile": {
+    "performanceCount": "{count, plural, one {# performance} other {# performances}}",
+    "battleRecord": "{wins}–{losses} in battles",
+    "winRate": "{rate}% win rate",
+    "noPublic": "No public performances yet."
+  },
+  "Admin": {
+    "accessRequired": "Admin access required.",
+    "cardModeration": "Moderation",
+    "cardDmca": "DMCA / Takedowns",
+    "cardCalibration": "Calibration scoring",
+    "openFlags": "{count, plural, one {# open flag} other {# open flags}}",
+    "openRequests": "{count, plural, one {# open request} other {# open requests}}",
+    "calibrationSub": "Anchor the AI model",
+    "moderationQueue": "Moderation queue",
+    "noOpenFlags": "No open flags.",
+    "dmcaRequests": "DMCA / Takedown requests",
+    "noOpenRequests": "No open requests.",
+    "performanceId": "Performance: {id}",
+    "calibrateIntro": "Human-scored anchors that calibrate the AI scoring model. Paste a performance ID and rate each criterion.",
+    "dismiss": "Dismiss",
+    "resolve": "Resolve",
+    "resolveHide": "Resolve + hide",
+    "reject": "Reject",
+    "takeDown": "Take down",
+    "calibratePlaceholder": "Performance ID (UUID)",
+    "saving": "Saving…",
+    "saveCalibration": "Save calibration",
+    "calibrationSaved": "Calibration saved ✓",
+    "calibrationFailed": "Failed to save"
+  },
+  "Report": {
+    "promptReason": "Why are you reporting this?",
+    "thanks": "Reported — thank you.",
+    "button": "Report"
   }
 }

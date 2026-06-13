@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useVerifiedListen, type ListenStatus } from '@/lib/use-verified-listen';
 import { YouTubePlayer } from './youtube-player';
 
@@ -15,11 +16,11 @@ interface Battle {
   b: Side;
 }
 
-function statusLabel(status: ListenStatus): string {
-  if (status === 'verified') return '✓ Listened';
-  if (status === 'invalid') return 'Not fully listened';
-  if (status === 'listening') return 'Listening…';
-  return 'Press play & watch fully';
+function statusKey(status: ListenStatus): string {
+  if (status === 'verified') return 'statusListened';
+  if (status === 'invalid') return 'statusNotFully';
+  if (status === 'listening') return 'statusListening';
+  return 'statusPressPlay';
 }
 
 function BattleSide({
@@ -29,6 +30,7 @@ function BattleSide({
   side: Side;
   listen: ReturnType<typeof useVerifiedListen>;
 }) {
+  const t = useTranslations('Battle');
   return (
     <div className="space-y-2">
       <h2 className="truncate text-sm font-semibold">{side.title}</h2>
@@ -46,13 +48,14 @@ function BattleSide({
               : 'text-neutral-500'
         }`}
       >
-        {statusLabel(listen.status)}
+        {t(statusKey(listen.status))}
       </p>
     </div>
   );
 }
 
 function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void }) {
+  const t = useTranslations();
   const listenA = useVerifiedListen(battle.a.performanceId);
   const listenB = useVerifiedListen(battle.b.performanceId);
   const [result, setResult] = useState<string>('');
@@ -74,9 +77,9 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
         }),
       });
       const body = (await res.json()) as { ok?: boolean; error?: string };
-      setResult(res.ok && body.ok ? 'Vote recorded! 🎉' : (body.error ?? 'Failed'));
+      setResult(res.ok && body.ok ? t('Battle.voteRecorded') : (body.error ?? t('Common.failed')));
     } catch {
-      setResult('Network error');
+      setResult(t('Common.networkError'));
     } finally {
       setBusy(false);
     }
@@ -97,7 +100,7 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
             onClick={onDone}
             className="rounded-lg border border-neutral-700 px-4 py-2 text-sm hover:border-neutral-500"
           >
-            Next battle →
+            {t('Battle.nextBattle')}
           </button>
         </div>
       ) : (
@@ -108,7 +111,7 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
             onClick={() => vote(battle.a.performanceId)}
             className="rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white disabled:opacity-40"
           >
-            {battle.a.title} wins
+            {t('Battle.sideWins', { title: battle.a.title })}
           </button>
           <button
             type="button"
@@ -116,20 +119,19 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
             onClick={() => vote(battle.b.performanceId)}
             className="rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white disabled:opacity-40"
           >
-            {battle.b.title} wins
+            {t('Battle.sideWins', { title: battle.b.title })}
           </button>
         </div>
       )}
       {!bothVerified && !result && (
-        <p className="text-center text-xs text-neutral-600">
-          You must fully listen to BOTH performances before choosing a winner.
-        </p>
+        <p className="text-center text-xs text-neutral-600">{t('Battle.mustListenBoth')}</p>
       )}
     </div>
   );
 }
 
 export function BattleArena() {
+  const t = useTranslations('Battle');
   const [battle, setBattle] = useState<Battle | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
   const [nonce, setNonce] = useState(0);
@@ -163,11 +165,9 @@ export function BattleArena() {
     };
   }, [nonce]);
 
-  if (state === 'loading') return <p className="text-neutral-400">Finding a battle…</p>;
-  if (state === 'empty')
-    return <p className="text-neutral-400">Not enough performances to battle yet. Add more!</p>;
-  if (state === 'error' || !battle)
-    return <p className="text-rose-400">Could not load a battle.</p>;
+  if (state === 'loading') return <p className="text-neutral-400">{t('finding')}</p>;
+  if (state === 'empty') return <p className="text-neutral-400">{t('notEnough')}</p>;
+  if (state === 'error' || !battle) return <p className="text-rose-400">{t('couldNotLoad')}</p>;
 
   return (
     <BattleInner key={battle.battleId} battle={battle} onDone={() => setNonce((n) => n + 1)} />

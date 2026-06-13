@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { isAdmin } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { ModerationActions } from '@/components/admin-actions';
@@ -5,10 +6,11 @@ import { ModerationActions } from '@/components/admin-actions';
 export const dynamic = 'force-dynamic';
 
 export default async function ModerationPage() {
+  const t = await getTranslations('Admin');
   if (!(await isAdmin())) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-16 text-center text-neutral-400">
-        Admin access required.
+        {t('accessRequired')}
       </main>
     );
   }
@@ -22,9 +24,9 @@ export default async function ModerationPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-6 text-2xl font-bold">Moderation queue</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('moderationQueue')}</h1>
       {!flags || flags.length === 0 ? (
-        <p className="text-neutral-400">No open flags.</p>
+        <p className="text-neutral-400">{t('noOpenFlags')}</p>
       ) : (
         <ul className="space-y-3">
           {flags.map((f) => (

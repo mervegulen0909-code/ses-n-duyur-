@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import type { Criterion } from '@vocal-league/scoring';
 import { YouTubeEmbed } from '@/components/youtube-embed';
 import { ScoreBreakdown } from '@/components/score-breakdown';
@@ -19,12 +20,13 @@ interface OEmbedish {
 
 export default async function PerformancePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const t = await getTranslations();
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-12 text-center text-neutral-400">
-        Supabase is not configured yet.
+        {t('Common.supabaseNotConfigured')}
       </main>
     );
   }
@@ -68,23 +70,27 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
     <main className="mx-auto grid max-w-5xl gap-8 px-6 py-10 lg:grid-cols-[1fr_360px]">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-xl font-bold">{meta.title ?? 'Performance'}</h1>
+          <h1 className="text-xl font-bold">{meta.title ?? t('Performance.fallbackTitle')}</h1>
           {user && <ReportButton targetType="performance" targetId={perf.id} />}
         </div>
         {meta.authorName && <p className="text-sm text-neutral-500">{meta.authorName}</p>}
         {uploader?.handle && (
           <p className="text-sm text-neutral-500">
-            Added by{' '}
-            <Link
-              href={`/profile/${encodeURIComponent(uploader.handle)}`}
-              className="text-emerald-400 hover:underline"
-            >
-              @{uploader.handle}
-            </Link>
+            {t.rich('Performance.addedBy', {
+              handle: `@${uploader.handle}`,
+              link: (chunks) => (
+                <Link
+                  href={`/profile/${encodeURIComponent(uploader.handle!)}`}
+                  className="text-emerald-400 hover:underline"
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         )}
         {!perf.youtube_video_id ? (
-          <p className="text-neutral-500">No video.</p>
+          <p className="text-neutral-500">{t('Performance.noVideo')}</p>
         ) : user ? (
           <VotePanel
             performanceId={perf.id}
@@ -95,10 +101,13 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           <>
             <YouTubeEmbed videoId={perf.youtube_video_id} title={meta.title} />
             <p className="text-xs text-neutral-600">
-              <Link href="/login" className="text-emerald-400">
-                Sign in
-              </Link>{' '}
-              and complete a Verified Listen to vote.
+              {t.rich('Performance.signInToVote', {
+                link: (chunks) => (
+                  <Link href="/login" className="text-emerald-400">
+                    {chunks}
+                  </Link>
+                ),
+              })}
             </p>
           </>
         )}
@@ -116,22 +125,25 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
       </aside>
 
       <section className="lg:col-span-2">
-        <h2 className="mb-4 text-lg font-semibold">Comments</h2>
+        <h2 className="mb-4 text-lg font-semibold">{t('Comments.heading')}</h2>
         {user ? (
           <div className="mb-6">
             <CommentComposer performanceId={perf.id} />
           </div>
         ) : (
           <p className="mb-6 text-sm text-neutral-500">
-            <Link href="/login" className="text-emerald-400">
-              Sign in
-            </Link>{' '}
-            to comment.
+            {t.rich('Performance.signInToComment', {
+              link: (chunks) => (
+                <Link href="/login" className="text-emerald-400">
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         )}
 
         {comments.length === 0 ? (
-          <p className="text-sm text-neutral-500">No comments yet.</p>
+          <p className="text-sm text-neutral-500">{t('Comments.empty')}</p>
         ) : (
           <ul className="space-y-4">
             {comments.map((c) => (
@@ -146,7 +158,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
                         @{c.authorHandle}
                       </Link>
                     ) : (
-                      <span className="text-neutral-500">unknown</span>
+                      <span className="text-neutral-500">{t('Comments.unknownAuthor')}</span>
                     )}
                     <span className="text-neutral-600"> · {c.createdAt.slice(0, 10)}</span>
                   </span>

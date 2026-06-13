@@ -1,14 +1,16 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { isAdmin } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPage() {
+  const t = await getTranslations();
   if (!(await isAdmin())) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-16 text-center text-neutral-400">
-        Admin access required.
+        {t('Admin.accessRequired')}
       </main>
     );
   }
@@ -24,14 +26,26 @@ export default async function AdminPage() {
     .eq('status', 'open');
 
   const cards = [
-    { href: '/admin/moderation', title: 'Moderation', sub: `${flags ?? 0} open flags` },
-    { href: '/admin/dmca', title: 'DMCA / Takedowns', sub: `${dmca ?? 0} open requests` },
-    { href: '/admin/calibrate', title: 'Calibration scoring', sub: 'Anchor the AI model' },
+    {
+      href: '/admin/moderation',
+      title: t('Admin.cardModeration'),
+      sub: t('Admin.openFlags', { count: flags ?? 0 }),
+    },
+    {
+      href: '/admin/dmca',
+      title: t('Admin.cardDmca'),
+      sub: t('Admin.openRequests', { count: dmca ?? 0 }),
+    },
+    {
+      href: '/admin/calibrate',
+      title: t('Admin.cardCalibration'),
+      sub: t('Admin.calibrationSub'),
+    },
   ];
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-6 text-2xl font-bold">Admin</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('Nav.admin')}</h1>
       <div className="grid gap-4 sm:grid-cols-3">
         {cards.map((c) => (
           <Link

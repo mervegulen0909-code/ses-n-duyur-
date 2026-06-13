@@ -1,6 +1,6 @@
 # ADR 0002 — Disable Browser Auto-Translation (Chrome/Google Translate)
 
-- Status: Accepted
+- Status: Accepted — i18n follow-up implemented 2026-06-13 (see **Addendum**)
 - Date: 2026-06-09
 - Supersedes: none
 - Related: 0001-stack-and-hard-constraints
@@ -75,3 +75,34 @@ We chose global disable over the two alternatives:
   English" enabled, load `/login` — page renders untranslated, and the
   Sign in ↔ Sign up toggle + form submit work. Sanity-check `/`, `/add`,
   `/leaderboard`, `/performance/[id]` render and stay interactive.
+
+## Addendum (2026-06-13) — i18n implemented; `translate="no"` deliberately kept
+
+The "Follow-up" above is now done: app-controlled internationalization landed via
+**`next-intl`** (EN + TR to start). Crucially, the three no-translate signals are
+**deliberately preserved** — the app now performs translation itself, and browser
+auto-translate stays OFF. The two systems must not both rewrite the DOM, or the
+exact React-reconciliation crash this ADR documents returns. So:
+
+- **What changed:** `lang` on `<html>` is no longer hard-coded `"en"` — it is now
+  `lang={locale}` (`"en"` / `"tr"`), resolved per request from the `NEXT_LOCALE`
+  cookie (else `Accept-Language`, else `en`) in `apps/web/src/i18n/request.ts`.
+  UI strings live in `apps/web/messages/{en,tr}.json`; a `LanguageSwitcher` sets
+  the cookie. Cookie-based locale (no `/[locale]` routing) so the Supabase auth
+  middleware is untouched.
+- **What did NOT change:** `translate="no"` + `class="notranslate"` on `<html>`
+  and `metadata.other.google = 'notranslate'` all stay. The reconciliation hazard
+  was browser translation fighting React; that hazard is unchanged. An accurate
+  `lang` now also tells the browser the content is already in the user's language,
+  so it has no reason to offer translation.
+- **Verification (2026-06-13):** served HTML for `/` returns
+  `<html lang="tr" translate="no" class="notranslate">` with a `NEXT_LOCALE=tr`
+  cookie and `lang="en"` with `en`; the same page renders Turkish vs. English
+  strings accordingly. typecheck · build · lint · e2e (7/7) green.
+- **Scope note:** legal pages (`/terms`, `/privacy`, `/dmca`) remain English
+  content for now — machine-translating legal text needs counsel review
+  (CLAUDE.md). Their nav/chrome is localized; the prose is not.
+
+Re-enabling *browser* translation is still what this ADR forbids and would still
+require superseding it. Adding more app languages does not — it is just another
+`messages/<lang>.json` + a switcher entry.

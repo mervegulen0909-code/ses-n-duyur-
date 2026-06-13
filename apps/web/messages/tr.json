@@ -20,7 +20,10 @@
     "provisionalBadgeTitle": "Yapay zekâ tarafından meta veriden tahmin edildi — gerçek bir ses ölçümü değildir.",
     "untitledPerformance": "Başlıksız performans",
     "noPerformances": "Henüz performans yok.",
-    "supabaseNotConfigured": "Supabase henüz yapılandırılmadı."
+    "supabaseNotConfigured": "Supabase henüz yapılandırılmadı.",
+    "failed": "Başarısız",
+    "failedStatus": "Başarısız ({status})",
+    "networkError": "Ağ hatası"
   },
   "Home": {
     "heroTitle": "Bir şarkıyı <hl>en iyi</hl> kimin söylediğini keşfet.",
@@ -37,5 +40,106 @@
     "signUp": "Kaydol",
     "needAccount": "Hesabın yok mu? Kaydol",
     "haveAccount": "Hesabın var mı? Giriş yap"
+  },
+  "Add": {
+    "title": "Performans ekle",
+    "subtitle": "Bir YouTube linki yapıştır. Gömeriz (asla indirmeyiz), meta verisini çekeriz ve Geçici YZ Tahmini oluştururuz.",
+    "signInPrompt": "Performans eklemek için lütfen <link>giriş yap</link>.",
+    "urlLabel": "YouTube performans bağlantısı",
+    "submit": "Performans ekle",
+    "adding": "Ekleniyor…"
+  },
+  "Battle": {
+    "subtitle": "İki performans, tek kazanan. İkisini de tam dinle, sonra karar ver.",
+    "signInPrompt": "Düello yapmak için lütfen <link>giriş yap</link>.",
+    "statusListened": "✓ Dinlendi",
+    "statusNotFully": "Tam dinlenmedi",
+    "statusListening": "Dinleniyor…",
+    "statusPressPlay": "Oynat ve tamamını izle",
+    "voteRecorded": "Oy kaydedildi! 🎉",
+    "nextBattle": "Sonraki düello →",
+    "sideWins": "{title} kazanır",
+    "mustListenBoth": "Kazananı seçmeden önce HER İKİ performansı da tam dinlemelisin.",
+    "finding": "Bir düello bulunuyor…",
+    "notEnough": "Düello için henüz yeterli performans yok. Daha fazla ekle!",
+    "couldNotLoad": "Düello yüklenemedi."
+  },
+  "Performance": {
+    "currentScore": "Güncel puan",
+    "trend": "eğilim",
+    "aiStart": "YZ başlangıç",
+    "fallbackTitle": "Performans",
+    "addedBy": "<link>{handle}</link> tarafından eklendi",
+    "noVideo": "Video yok.",
+    "signInToVote": "Oylamak için <link>giriş yap</link> ve bir Doğrulanmış Dinleme tamamla.",
+    "signInToComment": "Yorum yapmak için <link>giriş yap</link>."
+  },
+  "Criteria": {
+    "vocalAccuracy": "Vokal doğruluk",
+    "rhythmTiming": "Ritim ve zamanlama",
+    "toneQuality": "Ton kalitesi",
+    "emotionInterpretation": "Duygu ve yorum",
+    "technicalSkill": "Teknik beceri",
+    "pronunciationDiction": "Telaffuz ve diksiyon",
+    "recordingQuality": "Kayıt kalitesi",
+    "originality": "Özgünlük",
+    "stagePresence": "Sahne hâkimiyeti"
+  },
+  "Vote": {
+    "hintIdle": "Oylamayı açmak için oynat ve sonuna kadar izle.",
+    "errStart": "Dinleme oturumu başlatılamadı.",
+    "verifying": "Dinlemen doğrulanıyor…",
+    "verified": "Doğrulanmış Dinleme tamamlandı — artık oylayabilirsin.",
+    "notVerified": "Dinleme doğrulanmadı. Oylamak için performansın tamamını izle.",
+    "errVerify": "Dinleme doğrulanamadı.",
+    "rateThis": "Bu performansı puanla",
+    "submitting": "Gönderiliyor…",
+    "submit": "Oy gönder",
+    "thanksScore": "Teşekkürler! Yeni güncel puan: {score}",
+    "thanks": "Oyladığın için teşekkürler!"
+  },
+  "Comments": {
+    "heading": "Yorumlar",
+    "placeholder": "Yorum ekle…",
+    "posting": "Gönderiliyor…",
+    "submit": "Yorum yap",
+    "empty": "Henüz yorum yok.",
+    "unknownAuthor": "bilinmiyor"
+  },
+  "Profile": {
+    "performanceCount": "{count, plural, other {# performans}}",
+    "battleRecord": "düellolarda {wins}–{losses}",
+    "winRate": "%{rate} kazanma oranı",
+    "noPublic": "Henüz herkese açık performans yok."
+  },
+  "Admin": {
+    "accessRequired": "Yönetici erişimi gerekli.",
+    "cardModeration": "Moderasyon",
+    "cardDmca": "DMCA / Kaldırmalar",
+    "cardCalibration": "Kalibrasyon puanlama",
+    "openFlags": "{count, plural, other {# açık bildirim}}",
+    "openRequests": "{count, plural, other {# açık talep}}",
+    "calibrationSub": "YZ modelini sabitle",
+    "moderationQueue": "Moderasyon kuyruğu",
+    "noOpenFlags": "Açık bildirim yok.",
+    "dmcaRequests": "DMCA / Kaldırma talepleri",
+    "noOpenRequests": "Açık talep yok.",
+    "performanceId": "Performans: {id}",
+    "calibrateIntro": "YZ puanlama modelini kalibre eden insan-puanlı çapalar. Bir performans ID'si yapıştır ve her kriteri puanla.",
+    "dismiss": "Yoksay",
+    "resolve": "Çöz",
+    "resolveHide": "Çöz + gizle",
+    "reject": "Reddet",
+    "takeDown": "Kaldır",
+    "calibratePlaceholder": "Performans ID (UUID)",
+    "saving": "Kaydediliyor…",
+    "saveCalibration": "Kalibrasyonu kaydet",
+    "calibrationSaved": "Kalibrasyon kaydedildi ✓",
+    "calibrationFailed": "Kaydedilemedi"
+  },
+  "Report": {
+    "promptReason": "Bunu neden bildiriyorsun?",
+    "thanks": "Bildirildi — teşekkürler.",
+    "button": "Bildir"
   }
 }

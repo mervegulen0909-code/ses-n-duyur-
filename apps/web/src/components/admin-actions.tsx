@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 async function post(url: string, body: unknown): Promise<boolean> {
   const res = await fetch(url, {
@@ -22,6 +23,7 @@ export function ModerationActions({
   performanceId?: string;
 }) {
   const router = useRouter();
+  const t = useTranslations('Admin');
   const [busy, setBusy] = useState(false);
 
   async function act(status: 'resolved' | 'dismissed', hide = false) {
@@ -38,10 +40,10 @@ export function ModerationActions({
   return (
     <div className="flex gap-2">
       <button disabled={busy} className={btn} onClick={() => act('dismissed')}>
-        Dismiss
+        {t('dismiss')}
       </button>
       <button disabled={busy} className={btn} onClick={() => act('resolved')}>
-        Resolve
+        {t('resolve')}
       </button>
       {performanceId && (
         <button
@@ -49,7 +51,7 @@ export function ModerationActions({
           className={`${btn} border-rose-700 text-rose-300`}
           onClick={() => act('resolved', true)}
         >
-          Resolve + hide
+          {t('resolveHide')}
         </button>
       )}
     </div>
@@ -64,6 +66,7 @@ export function DmcaActions({
   performanceId?: string | null;
 }) {
   const router = useRouter();
+  const t = useTranslations('Admin');
   const [busy, setBusy] = useState(false);
 
   async function act(status: 'actioned' | 'rejected') {
@@ -80,14 +83,14 @@ export function DmcaActions({
   return (
     <div className="flex gap-2">
       <button disabled={busy} className={btn} onClick={() => act('rejected')}>
-        Reject
+        {t('reject')}
       </button>
       <button
         disabled={busy}
         className={`${btn} border-rose-700 text-rose-300`}
         onClick={() => act('actioned')}
       >
-        Take down
+        {t('takeDown')}
       </button>
     </div>
   );
