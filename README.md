@@ -1,4 +1,4 @@
-# VocalLeague
+# VoxScore
 
 Global AI-powered vocal performance league. Add a vocal performance via a
 YouTube link, get a (provisional) AI score, then let verified listeners vote and

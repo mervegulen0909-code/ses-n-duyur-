@@ -3,8 +3,8 @@ import {
   buildPerformanceCreate,
   fetchOEmbed,
   parseYouTubeId,
-} from '@vocal-league/core';
-import type { Json } from '@vocal-league/db';
+} from '@voxscore/core';
+import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { botGuard, rateLimit } from '@/lib/guard';

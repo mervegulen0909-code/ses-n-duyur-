@@ -1,4 +1,4 @@
--- VocalLeague — initial schema + RLS
+-- VoxScore — initial schema + RLS
 -- Fairness core enforced at the DB layer:
 --   * criteria_ratings can ONLY be inserted with a valid verified_listen
 --   * battle_votes require a valid verified listen for BOTH sides

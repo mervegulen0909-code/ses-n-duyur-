@@ -1,5 +1,5 @@
-import { battleVoteSchema } from '@vocal-league/core';
-import { applyBattle } from '@vocal-league/scoring';
+import { battleVoteSchema } from '@voxscore/core';
+import { applyBattle } from '@voxscore/scoring';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 

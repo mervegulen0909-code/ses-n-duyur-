@@ -1,4 +1,4 @@
-export const metadata = { title: 'Terms of Service — VocalLeague' };
+export const metadata = { title: 'Terms of Service — VoxScore' };
 
 export default function TermsPage() {
   return (
@@ -6,9 +6,9 @@ export default function TermsPage() {
       <h1 className="text-2xl font-bold text-neutral-100">Terms of Service</h1>
       <p className="text-neutral-500">Draft — review with counsel before launch.</p>
 
-      <h2 className="pt-2 text-lg font-semibold text-neutral-100">1. What VocalLeague is</h2>
+      <h2 className="pt-2 text-lg font-semibold text-neutral-100">1. What VoxScore is</h2>
       <p>
-        VocalLeague lets users submit links to vocal performances hosted on YouTube and rates them
+        VoxScore lets users submit links to vocal performances hosted on YouTube and rates them
         with AI estimates and community votes. We embed YouTube content via the official player; we
         do not host, download, or store any video or audio.
       </p>

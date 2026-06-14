@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import type { ListenEvent } from '@vocal-league/core';
+import type { ListenEvent } from '@voxscore/core';
 
 interface YTPlayer {
   getCurrentTime(): number;

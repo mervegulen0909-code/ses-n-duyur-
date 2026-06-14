@@ -1,5 +1,5 @@
 /**
- * @vocal-league/core — shared domain layer.
+ * @voxscore/core — shared domain layer.
  *
  * Zod schemas (validate every API input), keyless YouTube/oEmbed helpers, and
  * the adapter seam (scoring/rate-limit/bot-check) that keeps all real secrets

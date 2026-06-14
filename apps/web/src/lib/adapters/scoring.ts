@@ -1,12 +1,12 @@
 import 'server-only';
 import OpenAI from 'openai';
-import { CRITERIA, clamp, composeInitialAiScore, type CriteriaScores } from '@vocal-league/scoring';
+import { CRITERIA, clamp, composeInitialAiScore, type CriteriaScores } from '@voxscore/scoring';
 import {
   MockScoringProvider,
   type ScoringInput,
   type ScoringProvider,
   type ScoringResult,
-} from '@vocal-league/core';
+} from '@voxscore/core';
 
 // Default scoring model. Override with OPENAI_SCORING_MODEL env if desired.
 const SCORING_MODEL = process.env.OPENAI_SCORING_MODEL ?? 'gpt-4o-mini';

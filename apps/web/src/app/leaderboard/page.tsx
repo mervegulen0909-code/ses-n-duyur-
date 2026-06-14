@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { wilsonLowerBound } from '@vocal-league/scoring';
+import { wilsonLowerBound } from '@voxscore/scoring';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
 import { createSupabaseServerClient } from '@/lib/supabase/server';

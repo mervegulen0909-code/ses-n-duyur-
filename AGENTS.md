@@ -1,4 +1,4 @@
-# VoxScore — Project Rules for Claude
+# VoxScore — Project Rules for Codex
 
 ## What this is
 
@@ -6,7 +6,7 @@ Global AI-powered vocal performance league. Users add performances via YouTube
 links (embed only — we never host or download video/audio). We store metadata,
 scores, votes, comments, rankings, and battle data.
 
-Full plan: `~/.claude/plans/sen-d-nyan-n-en-iyi-eager-falcon.md`
+Full plan: `~/.Codex/plans/sen-d-nyan-n-en-iyi-eager-falcon.md`
 
 ## Stack (do not change without an ADR in docs/adr)
 
@@ -46,7 +46,7 @@ Full plan: `~/.claude/plans/sen-d-nyan-n-en-iyi-eager-falcon.md`
 - Zod-validate every API input. Never trust client-reported listen/vote data.
 - Secrets via env only; never commit keys. `service_role` key: server-only.
 
-## Recommended hooks (add to .claude/settings.json once deps are installed)
+## Recommended hooks (add to .Codex/settings.json once deps are installed)
 
 PostToolUse on Edit|Write → `pnpm exec prettier --write` the changed file;
 Stop hook → `pnpm typecheck`. Hooks give ~100% compliance vs ~70% for prose.

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import type { ListenEvent } from '@vocal-league/core';
+import type { ListenEvent } from '@voxscore/core';
 
 export type ListenStatus = 'idle' | 'listening' | 'verified' | 'invalid';
 

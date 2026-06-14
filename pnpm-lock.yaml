@@ -50,13 +50,13 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.108.0
         version: 2.108.0
-      '@vocal-league/core':
+      '@voxscore/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@vocal-league/db':
+      '@voxscore/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@vocal-league/scoring':
+      '@voxscore/scoring':
         specifier: workspace:*
         version: link:../../packages/scoring
       aes-js:
@@ -171,13 +171,13 @@ importers:
       '@upstash/redis':
         specifier: ^1.34.3
         version: 1.38.0
-      '@vocal-league/core':
+      '@voxscore/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@vocal-league/db':
+      '@voxscore/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@vocal-league/scoring':
+      '@voxscore/scoring':
         specifier: workspace:*
         version: link:../../packages/scoring
       next:
@@ -220,7 +220,7 @@ importers:
 
   packages/core:
     dependencies:
-      '@vocal-league/scoring':
+      '@voxscore/scoring':
         specifier: workspace:*
         version: link:../scoring
       zod:

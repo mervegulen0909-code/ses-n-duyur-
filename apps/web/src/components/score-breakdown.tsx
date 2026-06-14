@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { CRITERIA, type Criterion } from '@vocal-league/scoring';
+import { CRITERIA, type Criterion } from '@voxscore/scoring';
 import { ProvisionalBadge } from './provisional-badge';
 
 export interface ScoreBreakdownProps {

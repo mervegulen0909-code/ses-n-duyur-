@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { CRITERIA, type Criterion } from '@vocal-league/scoring';
+import { CRITERIA, type Criterion } from '@voxscore/scoring';
 
 export function CalibrateForm() {
   const t = useTranslations();

@@ -43,6 +43,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 <Link href="/battle" className="text-sm text-neutral-400 hover:text-neutral-200">
                   {t('battle')}
                 </Link>
+                <Link
+                  href="/storyboard"
+                  className="text-sm text-neutral-400 hover:text-neutral-200"
+                >
+                  {t('storyboard')}
+                </Link>
               </div>
               <div className="flex items-center gap-3">
                 <LanguageSwitcher />

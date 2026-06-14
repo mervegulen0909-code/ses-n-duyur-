@@ -5,7 +5,7 @@ import {
   round,
   trendScore,
   type Criterion,
-} from '@vocal-league/scoring';
+} from '@voxscore/scoring';
 
 /** Average of the provided criterion ratings → a single 0–100 "overall". */
 export function criteriaOverall(ratings: Partial<Record<Criterion, number>>): number | null {

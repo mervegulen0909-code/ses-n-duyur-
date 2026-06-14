@@ -3,8 +3,8 @@
 import { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { CRITERIA, type Criterion } from '@vocal-league/scoring';
-import type { ListenEvent } from '@vocal-league/core';
+import { CRITERIA, type Criterion } from '@voxscore/scoring';
+import type { ListenEvent } from '@voxscore/core';
 import { YouTubePlayer } from './youtube-player';
 import { TurnstileWidget } from './turnstile-widget';
 

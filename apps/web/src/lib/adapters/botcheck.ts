@@ -1,5 +1,5 @@
 import 'server-only';
-import { NoopBotCheck, type BotCheck } from '@vocal-league/core';
+import { NoopBotCheck, type BotCheck } from '@voxscore/core';
 
 /**
  * TurnstileBotCheck — verifies a Cloudflare Turnstile token server-side.

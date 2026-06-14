@@ -1,16 +1,17 @@
 {
   "Meta": {
-    "title": "VocalLeague — Küresel Yapay Zekâ Vokal Performans Ligi",
+    "title": "VoxScore — Küresel Yapay Zekâ Vokal Performans Ligi",
     "description": "Bir şarkıyı en iyi kimin söylediğini keşfet. Yapay zekâ puanlı, toplulukça oylanan vokal performanslar."
   },
   "Nav": {
     "leaderboard": "Sıralama",
     "battle": "Düello",
+    "storyboard": "Storyboard",
     "signIn": "Giriş yap",
     "admin": "Yönetici",
     "addPerformance": "Performans ekle",
     "signOut": "Çıkış yap",
-    "footerTagline": "VocalLeague — yalnızca gömülü içerik, medya barındırmaz.",
+    "footerTagline": "VoxScore — yalnızca gömülü içerik, medya barındırmaz.",
     "terms": "Şartlar",
     "privacy": "Gizlilik",
     "dmca": "DMCA / Kaldırma"

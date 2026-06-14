@@ -1,4 +1,4 @@
--- VocalLeague — push_tokens: one Expo push token per (user, device).
+-- VoxScore — push_tokens: one Expo push token per (user, device).
 -- A user reads/writes ONLY their own tokens (RLS); the server (service_role)
 -- reads all to fan out remote pushes via Expo's Push API. Backend contract is
 -- documented in apps/mobile/src/lib/push.ts.

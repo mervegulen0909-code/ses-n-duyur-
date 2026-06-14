@@ -45,7 +45,7 @@ jobs:
       # E2E smoke (apps/web/e2e). Playwright's webServer does its own next build
       # + start, so this also guards the production server boot path.
       - name: Install Playwright browsers
-        run: pnpm --filter @vocal-league/web exec playwright install --with-deps chromium
+        run: pnpm --filter @voxscore/web exec playwright install --with-deps chromium
 
       - name: E2E (smoke)
         run: pnpm test:e2e

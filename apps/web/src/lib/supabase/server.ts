@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
-import type { Database } from '@vocal-league/db';
+import type { Database } from '@voxscore/db';
 import { getServiceRoleKey, getSupabaseEnv } from '../env';
 
 /**

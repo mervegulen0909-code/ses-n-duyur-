@@ -3,7 +3,7 @@ import {
   composeInitialAiScore,
   type CriteriaScores,
   type Criterion,
-} from '@vocal-league/scoring';
+} from '@voxscore/scoring';
 
 /** Input to a scoring provider. For YouTube sources this is metadata only. */
 export interface ScoringInput {

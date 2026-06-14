@@ -1,4 +1,4 @@
-export const metadata = { title: 'Privacy Policy — VocalLeague' };
+export const metadata = { title: 'Privacy Policy — VoxScore' };
 
 export default function PrivacyPage() {
   return (

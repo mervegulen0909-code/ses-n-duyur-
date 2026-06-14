@@ -4,7 +4,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 /**
- * Push notifications for VocalLeague (native).
+ * Push notifications for VoxScore (native).
  *
  * GATING — read before shipping:
  *   • REMOTE (Expo push) notifications require a DEVELOPMENT BUILD. Since Expo
@@ -79,7 +79,7 @@ export async function ensureAndroidChannel(): Promise<void> {
   await Notifications.setNotificationChannelAsync(ANDROID_DEFAULT_CHANNEL, {
     name: 'Default',
     importance: Notifications.AndroidImportance.DEFAULT,
-    lightColor: '#34d399',
+    lightColor: '#22D3EE',
   });
 }
 

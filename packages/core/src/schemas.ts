@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { CRITERIA } from '@vocal-league/scoring';
+import { CRITERIA } from '@voxscore/scoring';
 import { parseYouTubeId } from './youtube';
 
 /** A 0–100 score for a single criterion. */
 export const criterionScore = z.number().finite().min(0).max(100);
 
-/** All 9 criteria, each 0–100. Keys match `@vocal-league/scoring` CRITERIA. */
+/** All 9 criteria, each 0–100. Keys match `@voxscore/scoring` CRITERIA. */
 export const criteriaScoresSchema = z.object(
   Object.fromEntries(CRITERIA.map((c) => [c, criterionScore])) as Record<
     (typeof CRITERIA)[number],

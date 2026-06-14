@@ -1,4 +1,4 @@
-import { moderateSchema } from '@vocal-league/core';
+import { moderateSchema } from '@voxscore/core';
 import { getRequestContext } from '@/lib/supabase/server';
 import { getProfileForContext } from '@/lib/auth';
 

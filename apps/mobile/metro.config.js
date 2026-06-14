@@ -1,6 +1,6 @@
 // Metro config for the pnpm monorepo: watch the whole workspace and resolve
 // modules from both the app's and the workspace root's node_modules so the
-// shared @vocal-league/* packages (and React Native) resolve correctly.
+// shared @voxscore/* packages (and React Native) resolve correctly.
 // https://docs.expo.dev/guides/monorepos/
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');

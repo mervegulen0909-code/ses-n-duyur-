@@ -1,4 +1,4 @@
-# VocalLeague — Store Privacy Disclosures (Apple Privacy Labels + Google Data Safety)
+# VoxScore — Store Privacy Disclosures (Apple Privacy Labels + Google Data Safety)
 
 > **STATUS: DRAFT, code-derived.** This document maps what the app *actually*
 > stores/collects (from the Supabase schema + API routes + mobile client) to the

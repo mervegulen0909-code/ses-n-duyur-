@@ -1,4 +1,4 @@
-import type { CriteriaScores } from '@vocal-league/scoring';
+import type { CriteriaScores } from '@voxscore/scoring';
 import { parseYouTubeId } from './youtube';
 import type { OEmbedMetadata } from './youtube';
 import type { ScoringResult } from './adapters/scoring-provider';

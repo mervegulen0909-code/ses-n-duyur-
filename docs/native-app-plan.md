@@ -1,4 +1,4 @@
-# VocalLeague — Native Mobile App Plan (v2)
+# VoxScore — Native Mobile App Plan (v2)
 
 > **Primary product goal:** a flawless, store-published native app on **Apple App
 > Store + Google Play**. The existing Next.js web app is the MVP + shared backend;
@@ -23,9 +23,9 @@ Already built and **reused as-is** in React Native:
 
 - ✅ **Supabase** (Auth, Postgres, **RLS on every table**, Realtime, Storage) —
   `@supabase/supabase-js` works in RN (+ `expo-secure-store` for session, AsyncStorage).
-- ✅ **`@vocal-league/scoring`** — pure TS (criteria, weights, current/trend, Elo,
+- ✅ **`@voxscore/scoring`** — pure TS (criteria, weights, current/trend, Elo,
   Wilson). Zero changes.
-- ✅ **`@vocal-league/core`** — Zod schemas, `parseYouTubeId`/oEmbed, `validateListen`
+- ✅ **`@voxscore/core`** — Zod schemas, `parseYouTubeId`/oEmbed, `validateListen`
   (Verified-Listen anti-cheat), `recomputeScore`. Zero changes.
 - ✅ **API routes** (`apps/web/src/app/api/*`) — the native app calls the same
   Next.js API (or Supabase directly for reads). Fairness rules already enforced
@@ -43,7 +43,7 @@ packages/
   scoring/  core/  db/ # shared, reused by both web and mobile
 ```
 
-- `apps/mobile` consumes `@vocal-league/{scoring,core,db}` via pnpm workspace.
+- `apps/mobile` consumes `@voxscore/{scoring,core,db}` via pnpm workspace.
 - Shared env contract; mobile gets its own `EXPO_PUBLIC_*` vars.
 
 ## 4. Hard rules — unchanged on mobile (legal + fairness)
@@ -107,6 +107,6 @@ Turnstile is a **web** widget — on native we use **platform attestation** inst
 1. `apps/mobile` Expo app scaffolded (TypeScript, expo-router), pnpm workspace wired.
 2. Supabase RN client (`@supabase/supabase-js` + `expo-secure-store` session adapter),
    `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
-3. Shared `@vocal-league/scoring` + `@vocal-league/core` imported and a smoke test
+3. Shared `@voxscore/scoring` + `@voxscore/core` imported and a smoke test
    (e.g., render a leaderboard list from Supabase) green on a simulator.
 4. CI: typecheck `apps/mobile`; later EAS Build matrix.

@@ -1,7 +1,7 @@
 import 'server-only';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
-import { InMemoryRateLimiter, type RateLimiter, type RateLimitResult } from '@vocal-league/core';
+import { InMemoryRateLimiter, type RateLimiter, type RateLimitResult } from '@voxscore/core';
 
 /**
  * UpstashRateLimiter — distributed fixed-window limiter for production (works

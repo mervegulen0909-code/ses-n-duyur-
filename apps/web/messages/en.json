@@ -1,16 +1,17 @@
 {
   "Meta": {
-    "title": "VocalLeague — Global AI Vocal Performance League",
+    "title": "VoxScore — Global AI Vocal Performance League",
     "description": "Discover who sings a song best. AI-scored, community-voted vocal performances."
   },
   "Nav": {
     "leaderboard": "Leaderboard",
     "battle": "Battle",
+    "storyboard": "Storyboard",
     "signIn": "Sign in",
     "admin": "Admin",
     "addPerformance": "Add performance",
     "signOut": "Sign out",
-    "footerTagline": "VocalLeague — embeds only, never hosts media.",
+    "footerTagline": "VoxScore — embeds only, never hosts media.",
     "terms": "Terms",
     "privacy": "Privacy",
     "dmca": "DMCA / Takedown"

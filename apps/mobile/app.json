@@ -1,25 +1,25 @@
 {
   "expo": {
-    "name": "VocalLeague",
-    "slug": "vocalleague",
+    "name": "VoxScore",
+    "slug": "voxscore",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "vocalleague",
+    "scheme": "voxscore",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.vocalleague.app",
+      "bundleIdentifier": "com.voxscore.app",
       "buildNumber": "1",
       "config": {
         "usesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.vocalleague.app",
+      "package": "com.voxscore.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0B1220",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -35,17 +35,19 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 300,
+          "backgroundColor": "#07101d",
           "android": {
             "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
+            "imageWidth": 300
           }
         }
       ],
       [
         "expo-notifications",
         {
-          "color": "#34d399",
+          "color": "#22D3EE",
           "defaultChannel": "default"
         }
       ],
@@ -54,6 +56,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6ce7276f-bd2a-4666-a12c-4fb02ed21510"
+      }
+    },
+    "owner": "arfgln09"
   }
 }

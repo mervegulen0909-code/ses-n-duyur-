@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import type { Criterion } from '@vocal-league/scoring';
+import type { Criterion } from '@voxscore/scoring';
 import { YouTubeEmbed } from '@/components/youtube-embed';
 import { ScoreBreakdown } from '@/components/score-breakdown';
 import { VotePanel } from '@/components/vote-panel';
