@@ -1,4 +1,5 @@
 import 'server-only';
+import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import { CRITERIA, clamp, composeInitialAiScore, type CriteriaScores } from '@voxscore/scoring';
 import {
@@ -10,6 +11,10 @@ import {
 
 // Default scoring model. Override with OPENAI_SCORING_MODEL env if desired.
 const SCORING_MODEL = process.env.OPENAI_SCORING_MODEL ?? 'gpt-4o-mini';
+
+// Default Anthropic scoring model — Haiku is plenty for a small JSON estimate and
+// keeps per-score cost low. Override with ANTHROPIC_SCORING_MODEL (e.g. a Sonnet).
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_SCORING_MODEL ?? 'claude-haiku-4-5-20251001';
 
 const SYSTEM = `You estimate vocal-performance quality for a music league.
 You are given ONLY text metadata (title, artist/channel, optional transcript) for
@@ -72,8 +77,73 @@ export class OpenAIScoringProvider implements ScoringProvider {
   }
 }
 
-/** Returns the real provider when OPENAI_API_KEY is set, else the dev mock. */
+/**
+ * AnthropicScoringProvider — clearly-provisional Claude estimate of the 9
+ * criteria from metadata (never audio). Preferred provider (see CLAUDE.md:
+ * default to the latest Claude models). Activated by getScoringProvider() when
+ * ANTHROPIC_API_KEY is set. Falls back to the mock on any API/parse error so
+ * adding a performance never hard-fails.
+ */
+export class AnthropicScoringProvider implements ScoringProvider {
+  private readonly client: Anthropic;
+  private readonly fallback = new MockScoringProvider();
+
+  constructor(apiKey: string) {
+    this.client = new Anthropic({ apiKey });
+  }
+
+  async score(input: ScoringInput): Promise<ScoringResult> {
+    try {
+      const transcript = input.transcript ? `\nTranscript excerpt:\n${input.transcript}` : '';
+      const message = await this.client.messages.create({
+        model: ANTHROPIC_MODEL,
+        max_tokens: 1024,
+        system: SYSTEM,
+        messages: [
+          {
+            role: 'user',
+            content: `Title: ${input.title}\nArtist/Channel: ${input.authorName}\nHas video: ${input.hasVideo}${transcript}`,
+          },
+        ],
+      });
+
+      const textBlock = message.content.find((b) => b.type === 'text');
+      const raw = textBlock && textBlock.type === 'text' ? textBlock.text : '';
+      // The model is instructed to return ONLY JSON; slice defensively in case it
+      // wraps the object in prose.
+      const start = raw.indexOf('{');
+      const end = raw.lastIndexOf('}');
+      if (start === -1 || end === -1) return this.fallback.score(input);
+      const parsed = JSON.parse(raw.slice(start, end + 1)) as Record<string, unknown>;
+
+      const breakdown = Object.fromEntries(
+        CRITERIA.map((c) => {
+          const n = Number(parsed[c]);
+          return [c, clamp(Number.isFinite(n) ? n : 50, 0, 100)];
+        }),
+      ) as CriteriaScores;
+
+      return {
+        initialAiScore: composeInitialAiScore(breakdown, { hasVideo: input.hasVideo }),
+        breakdown,
+        provisional: true,
+        model: ANTHROPIC_MODEL,
+      };
+    } catch {
+      return this.fallback.score(input);
+    }
+  }
+}
+
+/**
+ * Returns the real scoring provider based on which API key is configured:
+ * Anthropic (Claude, preferred) → OpenAI → deterministic dev mock. All embed
+ * scores stay PROVISIONAL regardless of provider.
+ */
 export function getScoringProvider(): ScoringProvider {
-  const key = process.env.OPENAI_API_KEY;
-  return key ? new OpenAIScoringProvider(key) : new MockScoringProvider();
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (anthropicKey) return new AnthropicScoringProvider(anthropicKey);
+  const openaiKey = process.env.OPENAI_API_KEY;
+  if (openaiKey) return new OpenAIScoringProvider(openaiKey);
+  return new MockScoringProvider();
 }
