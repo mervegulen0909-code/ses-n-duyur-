@@ -15,7 +15,7 @@ import { supabase } from './supabase';
 // STILL GATED on native: /api/votes and /api/performances run botGuard
 // (Turnstile on web; App Attest / Play Integrity on native, N2b) which is not
 // wired here yet, so those 403 from native until device attestation lands.
-const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://ses-n-duyur-web.vercel.app';
+const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://web-seven-coral-88.vercel.app';
 
 async function authedPost<T>(
   path: string,

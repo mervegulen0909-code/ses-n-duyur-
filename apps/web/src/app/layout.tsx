@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
               <div className="flex items-center gap-4">
                 <Link href="/" className="font-bold tracking-tight">
-                  Vocal<span className="text-emerald-400">League</span>
+                  Vox<span className="text-emerald-400">Score</span>
                 </Link>
                 <Link
                   href="/leaderboard"
