@@ -117,6 +117,9 @@ export default function LeaderboardScreen() {
             ? (user.email ?? 'Signed in')
             : `Leaderboard · AI-scored on ${CRITERIA.length} criteria`}
         </Text>
+        <Pressable onPress={() => router.push('/standings')} hitSlop={8}>
+          <Text style={styles.standingsLink}>Battle standings →</Text>
+        </Pressable>
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
@@ -166,6 +169,7 @@ const styles = StyleSheet.create({
   brand: { fontSize: 26, fontWeight: '800', color: '#fafafa' },
   brandAccent: { color: '#22D3EE' },
   sub: { marginTop: 4, fontSize: 13, color: '#9ca3af' },
+  standingsLink: { marginTop: 8, fontSize: 13, fontWeight: '600', color: '#22D3EE' },
   spinner: { marginTop: 40 },
   error: { margin: 20, color: '#fb7185' },
   empty: { marginTop: 40, textAlign: 'center', color: '#9ca3af' },
