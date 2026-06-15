@@ -6,6 +6,7 @@
   "Nav": {
     "leaderboard": "Leaderboard",
     "battle": "Battle",
+    "standings": "Standings",
     "storyboard": "Storyboard",
     "signIn": "Sign in",
     "admin": "Admin",
@@ -66,6 +67,19 @@
     "finding": "Finding a battle…",
     "notEnough": "Not enough performances to battle yet. Add more!",
     "couldNotLoad": "Could not load a battle."
+  },
+  "Leaderboard": {
+    "subtitle": "Ranked by current score.",
+    "battleRecord": "{wins}–{losses} · battles",
+    "viewStandings": "Battle standings →"
+  },
+  "Standings": {
+    "title": "Battle standings",
+    "subtitle": "Ranked by Elo from head-to-head battles.",
+    "record": "{wins}–{losses}",
+    "winRate": "{rate}% wins",
+    "empty": "No battles yet. Open the Battle arena to start one.",
+    "viewScores": "Score leaderboard →"
   },
   "Performance": {
     "currentScore": "Current score",

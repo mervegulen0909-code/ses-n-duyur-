@@ -43,6 +43,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 <Link href="/battle" className="text-sm text-neutral-400 hover:text-neutral-200">
                   {t('battle')}
                 </Link>
+                <Link href="/standings" className="text-sm text-neutral-400 hover:text-neutral-200">
+                  {t('standings')}
+                </Link>
                 <Link
                   href="/storyboard"
                   className="text-sm text-neutral-400 hover:text-neutral-200"
