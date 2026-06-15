@@ -1,4 +1,4 @@
-import { commentSchema } from '@vocal-league/core';
+import { commentSchema } from '@voxscore/core';
 import { getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 

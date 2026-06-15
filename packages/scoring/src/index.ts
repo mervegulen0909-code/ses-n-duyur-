@@ -1,5 +1,5 @@
 /**
- * @vocal-league/scoring — the fairness core.
+ * @voxscore/scoring — the fairness core.
  *
  * Pure, fully-tested scoring math: criterion composition, the AI↔Listener vote
  * weight tiers, Current/Trend scores, battle Elo, and Wilson leaderboard bounds.

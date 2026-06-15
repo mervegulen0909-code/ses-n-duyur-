@@ -1,4 +1,4 @@
-import type { Criterion } from '@vocal-league/scoring';
+import type { Criterion } from '@voxscore/scoring';
 
 /** Display labels for the 9 scoring criteria (mirrors the web app). */
 export const CRITERION_LABELS: Record<Criterion, string> = {

@@ -1,5 +1,5 @@
-import { calibrateSchema } from '@vocal-league/core';
-import type { Json } from '@vocal-league/db';
+import { calibrateSchema } from '@voxscore/core';
+import type { Json } from '@voxscore/db';
 import { getRequestContext } from '@/lib/supabase/server';
 import { getProfileForContext } from '@/lib/auth';
 

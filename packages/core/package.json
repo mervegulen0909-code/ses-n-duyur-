@@ -1,5 +1,5 @@
 {
-  "name": "@vocal-league/core",
+  "name": "@voxscore/core",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vocal-league/scoring": "workspace:*",
+    "@voxscore/scoring": "workspace:*",
     "zod": "^3.24.1"
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { createBrowserClient } from '@supabase/ssr';
-import type { Database } from '@vocal-league/db';
+import type { Database } from '@voxscore/db';
 
 /** Browser client for client components. Requires NEXT_PUBLIC_* env at runtime. */
 export function createSupabaseBrowserClient() {

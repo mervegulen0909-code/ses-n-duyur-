@@ -42,5 +42,5 @@ const styles = StyleSheet.create({
   },
   row: { paddingVertical: 10 },
   rowPressed: { opacity: 0.6 },
-  link: { fontSize: 15, color: '#34d399', fontWeight: '600' },
+  link: { fontSize: 15, color: '#22D3EE', fontWeight: '600' },
 });

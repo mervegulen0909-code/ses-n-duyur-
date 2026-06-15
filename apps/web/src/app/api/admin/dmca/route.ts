@@ -1,4 +1,4 @@
-import { dmcaActionSchema } from '@vocal-league/core';
+import { dmcaActionSchema } from '@voxscore/core';
 import { getRequestContext } from '@/lib/supabase/server';
 import { getProfileForContext } from '@/lib/auth';
 

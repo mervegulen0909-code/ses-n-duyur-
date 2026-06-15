@@ -1,5 +1,5 @@
 {
-  "name": "vocal-league",
+  "name": "voxscore",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "test:e2e": "pnpm --filter @vocal-league/web test:e2e",
+    "test:e2e": "pnpm --filter @voxscore/web test:e2e",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",

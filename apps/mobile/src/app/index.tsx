@@ -11,8 +11,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CRITERIA } from '@vocal-league/scoring';
+import { CRITERIA } from '@voxscore/scoring';
 import { supabase } from '@/lib/supabase';
+import { isOnboardingComplete } from '@/lib/onboarding';
 import { useSession } from '@/lib/use-session';
 
 type ScoreRel = { current_score: number | null };
@@ -35,6 +36,14 @@ export default function LeaderboardScreen() {
   const [items, setItems] = useState<Item[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
+  const [gate, setGate] = useState<'checking' | 'ok'>('checking');
+
+  useEffect(() => {
+    isOnboardingComplete().then((done) => {
+      if (!done) router.replace('/onboarding');
+      else setGate('ok');
+    });
+  }, [router]);
 
   const load = useCallback(async () => {
     const { data, error } = await supabase
@@ -66,19 +75,26 @@ export default function LeaderboardScreen() {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (gate === 'ok') load();
+  }, [load, gate]);
+
+  if (gate === 'checking') {
+    return <View style={styles.safe} />;
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.brand}>
-            Vocal<Text style={styles.brandAccent}>League</Text>
+            Vox<Text style={styles.brandAccent}>Score</Text>
           </Text>
           <View style={styles.navRow}>
             <Pressable onPress={() => router.push('/battle')} hitSlop={8}>
               <Text style={styles.authLink}>Battle</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push('/voxscore-demo')} hitSlop={8}>
+              <Text style={styles.authLink}>Demo</Text>
             </Pressable>
             {user ? (
               <>
@@ -101,9 +117,12 @@ export default function LeaderboardScreen() {
             ? (user.email ?? 'Signed in')
             : `Leaderboard · AI-scored on ${CRITERIA.length} criteria`}
         </Text>
+        <Pressable onPress={() => router.push('/standings')} hitSlop={8}>
+          <Text style={styles.standingsLink}>Battle standings →</Text>
+        </Pressable>
       </View>
 
-      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#34d399" />}
+      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
       {state === 'error' && <Text style={styles.error}>Could not load: {error}</Text>}
       {state === 'ready' && (
         <FlatList
@@ -112,7 +131,7 @@ export default function LeaderboardScreen() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={<Text style={styles.empty}>No performances yet.</Text>}
           refreshControl={
-            <RefreshControl refreshing={false} onRefresh={load} tintColor="#34d399" />
+            <RefreshControl refreshing={false} onRefresh={load} tintColor="#22D3EE" />
           }
           renderItem={({ item, index }) => (
             <Pressable
@@ -146,10 +165,11 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   navRow: { flexDirection: 'row', gap: 16 },
-  authLink: { color: '#34d399', fontSize: 15, fontWeight: '600' },
+  authLink: { color: '#22D3EE', fontSize: 15, fontWeight: '600' },
   brand: { fontSize: 26, fontWeight: '800', color: '#fafafa' },
-  brandAccent: { color: '#34d399' },
+  brandAccent: { color: '#22D3EE' },
   sub: { marginTop: 4, fontSize: 13, color: '#9ca3af' },
+  standingsLink: { marginTop: 8, fontSize: 13, fontWeight: '600', color: '#22D3EE' },
   spinner: { marginTop: 40 },
   error: { margin: 20, color: '#fb7185' },
   empty: { marginTop: 40, textAlign: 'center', color: '#9ca3af' },
@@ -168,5 +188,5 @@ const styles = StyleSheet.create({
   rowMain: { flex: 1 },
   title: { fontSize: 15, fontWeight: '600', color: '#fafafa' },
   artist: { marginTop: 2, fontSize: 12, color: '#9ca3af' },
-  score: { fontSize: 17, fontWeight: '800', color: '#34d399', minWidth: 48, textAlign: 'right' },
+  score: { fontSize: 17, fontWeight: '800', color: '#22D3EE', minWidth: 48, textAlign: 'right' },
 });

@@ -1,4 +1,4 @@
-# VocalLeague — Project Rules for Claude
+# VoxScore — Project Rules for Claude
 
 ## What this is
 

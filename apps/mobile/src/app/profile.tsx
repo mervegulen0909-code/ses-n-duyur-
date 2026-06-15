@@ -190,7 +190,7 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#34d399" />}
+      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
       {state === 'error' && <Text style={styles.error}>Could not load: {error}</Text>}
       {state === 'ready' && (
         <FlatList
@@ -223,7 +223,7 @@ export default function ProfileScreen() {
             </>
           }
           refreshControl={
-            <RefreshControl refreshing={false} onRefresh={load} tintColor="#34d399" />
+            <RefreshControl refreshing={false} onRefresh={load} tintColor="#22D3EE" />
           }
           renderItem={({ item }) => (
             <Pressable
@@ -255,11 +255,11 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0a0a0a' },
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  backText: { color: '#34d399', fontSize: 16, fontWeight: '600' },
-  authLink: { color: '#34d399', fontSize: 15, fontWeight: '600' },
+  backText: { color: '#22D3EE', fontSize: 16, fontWeight: '600' },
+  authLink: { color: '#22D3EE', fontSize: 15, fontWeight: '600' },
   handle: { marginTop: 12, fontSize: 26, fontWeight: '800', color: '#fafafa' },
   repRow: { marginTop: 4, flexDirection: 'row', alignItems: 'baseline', gap: 6 },
-  repValue: { fontSize: 17, fontWeight: '800', color: '#34d399', fontVariant: ['tabular-nums'] },
+  repValue: { fontSize: 17, fontWeight: '800', color: '#22D3EE', fontVariant: ['tabular-nums'] },
   repLabel: { fontSize: 13, color: '#9ca3af' },
   sectionLabel: {
     fontSize: 13,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   rowMain: { flex: 1 },
   title: { fontSize: 15, fontWeight: '600', color: '#fafafa' },
   status: { marginTop: 2, fontSize: 12, color: '#fbbf24', textTransform: 'capitalize' },
-  score: { fontSize: 17, fontWeight: '800', color: '#34d399', minWidth: 48, textAlign: 'right' },
+  score: { fontSize: 17, fontWeight: '800', color: '#22D3EE', minWidth: 48, textAlign: 'right' },
   // Danger zone — store-required account deletion.
   deleteButton: {
     marginTop: 28,
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   signedOutSub: { fontSize: 14, color: '#9ca3af', textAlign: 'center' },
   button: {
     marginTop: 8,
-    backgroundColor: '#34d399',
+    backgroundColor: '#22D3EE',
     borderRadius: 12,
     paddingVertical: 15,
     alignItems: 'center',

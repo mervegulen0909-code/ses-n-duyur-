@@ -1,16 +1,18 @@
 {
   "Meta": {
-    "title": "VocalLeague — Küresel Yapay Zekâ Vokal Performans Ligi",
+    "title": "VoxScore — Küresel Yapay Zekâ Vokal Performans Ligi",
     "description": "Bir şarkıyı en iyi kimin söylediğini keşfet. Yapay zekâ puanlı, toplulukça oylanan vokal performanslar."
   },
   "Nav": {
     "leaderboard": "Sıralama",
     "battle": "Düello",
+    "standings": "Puan durumu",
+    "storyboard": "Storyboard",
     "signIn": "Giriş yap",
     "admin": "Yönetici",
     "addPerformance": "Performans ekle",
     "signOut": "Çıkış yap",
-    "footerTagline": "VocalLeague — yalnızca gömülü içerik, medya barındırmaz.",
+    "footerTagline": "VoxScore — yalnızca gömülü içerik, medya barındırmaz.",
     "terms": "Şartlar",
     "privacy": "Gizlilik",
     "dmca": "DMCA / Kaldırma"
@@ -39,7 +41,9 @@
     "pleaseWait": "Lütfen bekleyin…",
     "signUp": "Kaydol",
     "needAccount": "Hesabın yok mu? Kaydol",
-    "haveAccount": "Hesabın var mı? Giriş yap"
+    "haveAccount": "Hesabın var mı? Giriş yap",
+    "google": "Google ile devam et",
+    "orDivider": "veya"
   },
   "Add": {
     "title": "Performans ekle",
@@ -63,6 +67,19 @@
     "finding": "Bir düello bulunuyor…",
     "notEnough": "Düello için henüz yeterli performans yok. Daha fazla ekle!",
     "couldNotLoad": "Düello yüklenemedi."
+  },
+  "Leaderboard": {
+    "subtitle": "Güncel puana göre sıralanır.",
+    "battleRecord": "{wins}–{losses} · düello",
+    "viewStandings": "Puan durumu →"
+  },
+  "Standings": {
+    "title": "Puan durumu",
+    "subtitle": "Birebir düellolardan gelen Elo'ya göre sıralanır.",
+    "record": "{wins}–{losses}",
+    "winRate": "%{rate} galibiyet",
+    "empty": "Henüz düello yok. Başlatmak için Düello arenasını aç.",
+    "viewScores": "Skor sıralaması →"
   },
   "Performance": {
     "currentScore": "Güncel puan",

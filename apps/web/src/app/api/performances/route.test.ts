@@ -19,7 +19,7 @@ vi.mock('@/lib/guard', () => ({
 
 // Deterministic provisional scoring — no network, no OpenAI call.
 vi.mock('@/lib/adapters/scoring', async () => {
-  const { CRITERIA } = await import('@vocal-league/scoring');
+  const { CRITERIA } = await import('@voxscore/scoring');
   return {
     getScoringProvider: () => ({
       score: async () => ({
@@ -35,8 +35,8 @@ vi.mock('@/lib/adapters/scoring', async () => {
 // Keep the REAL core (schema, parseYouTubeId, buildPerformanceCreate) and stub
 // only the networked oEmbed read. Embed-only rule stays intact: we still fetch
 // metadata only, never media.
-vi.mock('@vocal-league/core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@vocal-league/core')>();
+vi.mock('@voxscore/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@voxscore/core')>();
   return {
     ...actual,
     fetchOEmbed: vi.fn(async () => ({

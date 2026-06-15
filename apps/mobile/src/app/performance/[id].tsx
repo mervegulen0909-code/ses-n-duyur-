@@ -13,8 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer, { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
-import type { ListenEvent } from '@vocal-league/core';
-import { CRITERIA } from '@vocal-league/scoring';
+import type { ListenEvent } from '@voxscore/core';
+import { CRITERIA } from '@voxscore/scoring';
 import { postComment, submitVote } from '@/lib/api';
 import { CRITERION_LABELS } from '@/lib/criteria-labels';
 import { supabase } from '@/lib/supabase';
@@ -212,7 +212,7 @@ export default function PerformanceScreen() {
         <Text style={styles.backText}>‹ Back</Text>
       </Pressable>
 
-      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#34d399" />}
+      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
       {state === 'error' && <Text style={styles.error}>Could not load: {error}</Text>}
 
       {state === 'ready' && perf && (
@@ -261,9 +261,9 @@ export default function PerformanceScreen() {
                         step={1}
                         value={ratings[c]}
                         onValueChange={(v) => setRatings((r) => ({ ...r, [c]: v }))}
-                        minimumTrackTintColor="#34d399"
+                        minimumTrackTintColor="#22D3EE"
                         maximumTrackTintColor="#3f3f46"
-                        thumbTintColor="#34d399"
+                        thumbTintColor="#22D3EE"
                       />
                     </View>
                   ))}
@@ -378,7 +378,7 @@ export default function PerformanceScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0a0a0a' },
   back: { paddingHorizontal: 16, paddingVertical: 8 },
-  backText: { color: '#34d399', fontSize: 16, fontWeight: '600' },
+  backText: { color: '#22D3EE', fontSize: 16, fontWeight: '600' },
   spinner: { marginTop: 40 },
   error: { marginTop: 8, color: '#fb7185', fontSize: 13 },
   content: { padding: 16, paddingBottom: 40 },
@@ -393,22 +393,22 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     fontSize: 13,
   },
-  gateOk: { backgroundColor: 'rgba(52,211,153,0.12)', color: '#34d399' },
+  gateOk: { backgroundColor: 'rgba(52,211,153,0.12)', color: '#22D3EE' },
   gateBad: { backgroundColor: 'rgba(251,113,133,0.12)', color: '#fb7185' },
   voteCard: { marginTop: 12, padding: 16, borderRadius: 16, backgroundColor: '#171717', gap: 8 },
   voteTitle: { fontSize: 15, fontWeight: '700', color: '#fafafa', marginBottom: 4 },
-  signinPrompt: { color: '#34d399', fontSize: 15, fontWeight: '600' },
+  signinPrompt: { color: '#22D3EE', fontSize: 15, fontWeight: '600' },
   critEdit: { marginTop: 4 },
   critEditTop: { flexDirection: 'row', justifyContent: 'space-between' },
   voteBtn: {
     marginTop: 12,
-    backgroundColor: '#34d399',
+    backgroundColor: '#22D3EE',
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
   },
   voteBtnText: { color: '#06281d', fontSize: 16, fontWeight: '800' },
-  voteDone: { marginTop: 12, color: '#34d399', fontSize: 14, fontWeight: '600' },
+  voteDone: { marginTop: 12, color: '#22D3EE', fontSize: 14, fontWeight: '600' },
   scoreCard: { marginTop: 16, padding: 16, borderRadius: 16, backgroundColor: '#171717' },
   scoreHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   scoreBig: { fontSize: 40, fontWeight: '900', color: '#fafafa', lineHeight: 44 },
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   commentBtn: {
-    backgroundColor: '#34d399',
+    backgroundColor: '#22D3EE',
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
@@ -457,6 +457,6 @@ const styles = StyleSheet.create({
   commentBtnText: { color: '#06281d', fontSize: 14, fontWeight: '800' },
   commentEmpty: { color: '#6b7280', fontSize: 13 },
   commentRow: { gap: 2, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#262626' },
-  commentHandle: { color: '#34d399', fontSize: 13, fontWeight: '700' },
+  commentHandle: { color: '#22D3EE', fontSize: 13, fontWeight: '700' },
   commentBody: { color: '#d4d4d8', fontSize: 14 },
 });

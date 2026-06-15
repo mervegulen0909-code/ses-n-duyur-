@@ -1,4 +1,4 @@
-import { listenStartSchema } from '@vocal-league/core';
+import { listenStartSchema } from '@voxscore/core';
 import { getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 

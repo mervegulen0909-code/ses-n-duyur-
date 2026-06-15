@@ -1,4 +1,4 @@
-import { dmcaSchema } from '@vocal-league/core';
+import { dmcaSchema } from '@voxscore/core';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 /** Public DMCA / takedown filing. Anyone may submit (RLS dmca_insert_any). */

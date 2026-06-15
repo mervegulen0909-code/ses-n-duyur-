@@ -1,6 +1,6 @@
 import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@vocal-league/db';
+import type { Database } from '@voxscore/db';
 import { LargeSecureStore } from './secure-store';
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -25,5 +25,8 @@ export const supabase = createClient<Database>(url, anonKey, {
     persistSession: true,
     // React Native has no URL-based auth redirect to parse.
     detectSessionInUrl: false,
+    // OAuth (Google): redirect comes back with ?code=… which login.tsx trades
+    // for a session via exchangeCodeForSession (PKCE — code verifier in storage).
+    flowType: 'pkce',
   },
 });

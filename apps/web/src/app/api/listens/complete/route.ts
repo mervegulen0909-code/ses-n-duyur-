@@ -1,5 +1,5 @@
-import { listenCompleteSchema, validateListen } from '@vocal-league/core';
-import type { Json } from '@vocal-league/db';
+import { listenCompleteSchema, validateListen } from '@voxscore/core';
+import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 
 export async function POST(req: Request): Promise<Response> {

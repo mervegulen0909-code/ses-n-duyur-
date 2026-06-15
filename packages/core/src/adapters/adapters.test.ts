@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CRITERIA } from '@vocal-league/scoring';
+import { CRITERIA } from '@voxscore/scoring';
 import {
   InMemoryRateLimiter,
   MockScoringProvider,

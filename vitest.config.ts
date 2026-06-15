@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     // Mirror apps/web's "@/*" -> "src/*" tsconfig path so route tests resolve.
     // Key is "@" (not "@/"): the alias matcher requires a "/" AFTER the key, so
-    // this matches "@/lib/..." but never the "@vocal-league/*" workspace pkgs.
+    // this matches "@/lib/..." but never the "@voxscore/*" workspace pkgs.
     alias: {
       '@': fileURLToPath(new URL('./apps/web/src', import.meta.url)),
     },

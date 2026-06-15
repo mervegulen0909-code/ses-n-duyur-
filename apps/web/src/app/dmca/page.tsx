@@ -1,6 +1,6 @@
 import { DmcaForm } from '@/components/dmca-form';
 
-export const metadata = { title: 'DMCA / Takedown — VocalLeague' };
+export const metadata = { title: 'DMCA / Takedown — VoxScore' };
 
 export default function DmcaPage() {
   return (

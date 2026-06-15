@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
               <div className="flex items-center gap-4">
                 <Link href="/" className="font-bold tracking-tight">
-                  Vocal<span className="text-emerald-400">League</span>
+                  Vox<span className="text-emerald-400">Score</span>
                 </Link>
                 <Link
                   href="/leaderboard"
@@ -42,6 +42,15 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 </Link>
                 <Link href="/battle" className="text-sm text-neutral-400 hover:text-neutral-200">
                   {t('battle')}
+                </Link>
+                <Link href="/standings" className="text-sm text-neutral-400 hover:text-neutral-200">
+                  {t('standings')}
+                </Link>
+                <Link
+                  href="/storyboard"
+                  className="text-sm text-neutral-400 hover:text-neutral-200"
+                >
+                  {t('storyboard')}
                 </Link>
               </div>
               <div className="flex items-center gap-3">

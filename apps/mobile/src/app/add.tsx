@@ -118,7 +118,7 @@ export default function AddPerformanceScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0a0a0a' },
   header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
-  backText: { color: '#34d399', fontSize: 16, fontWeight: '600' },
+  backText: { color: '#22D3EE', fontSize: 16, fontWeight: '600' },
   body: { flex: 1, paddingHorizontal: 20, paddingTop: 8, gap: 12 },
   centered: { flex: 1, justifyContent: 'center', paddingHorizontal: 24, gap: 16 },
   title: { fontSize: 26, fontWeight: '800', color: '#fafafa' },
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   signedOutTitle: { fontSize: 20, fontWeight: '800', color: '#fafafa', textAlign: 'center' },
   button: {
     marginTop: 4,
-    backgroundColor: '#34d399',
+    backgroundColor: '#22D3EE',
     borderRadius: 12,
     paddingVertical: 15,
     alignItems: 'center',

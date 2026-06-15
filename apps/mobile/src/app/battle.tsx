@@ -4,7 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer, { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
-import type { ListenEvent } from '@vocal-league/core';
+import type { ListenEvent } from '@voxscore/core';
 import { nextBattle, submitBattleVote } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
@@ -170,14 +170,13 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
       setVoteMsg('Vote recorded. Thanks for judging!');
     } else {
       setVoteState('error');
-      // NOTE: /api/battles/vote uses only rateLimit (NO botGuard), so there is
-      // no Turnstile/attestation gate on this endpoint. It is cookie-auth today
-      // (the server ignores the Bearer header), so the only missing enabler is
-      // mobile Bearer-auth — until that lands the write 401s. A 403 here is the
-      // both-listens-must-be-valid check, not a bot/device-attestation gate.
+      // /api/battles/vote uses only rateLimit (NO botGuard) and authenticates via
+      // Bearer (getRequestContext), which is live in prod — so it works from
+      // native. A 401 here means the session expired; a 403 is the
+      // both-listens-must-be-valid hard-rule check; a 409 is a duplicate vote.
       setVoteMsg(
         res.status === 401
-          ? 'Voting needs the mobile Bearer-auth backend (coming soon).'
+          ? 'Your session expired — sign in again to vote.'
           : res.status === 403
             ? (res.error ?? 'Both performances must be fully listened to vote.')
             : res.status === 409
@@ -244,7 +243,7 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
         </View>
       )}
 
-      {voteState === 'submitting' && <ActivityIndicator style={styles.spinner} color="#34d399" />}
+      {voteState === 'submitting' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
       {voteState === 'error' && <Text style={styles.error}>{voteMsg}</Text>}
     </ScrollView>
   );
@@ -252,6 +251,8 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
 
 export default function BattleScreen() {
   const router = useRouter();
+  const { user, loading } = useSession();
+  const userId = user?.id ?? null;
   const [battle, setBattle] = useState<Battle | null>(null);
   const [state, setState] = useState<LoadState>('loading');
   const [error, setError] = useState('');
@@ -259,6 +260,11 @@ export default function BattleScreen() {
   const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
+    // Only fetch once the session has resolved AND a user is signed in: the
+    // battle routes authenticate via Bearer (getRequestContext), so an
+    // anonymous fetch 401s. The signed-out gate below covers the no-user case.
+    // Keying on userId (not the user object) avoids a refetch on token refresh.
+    if (loading || !userId) return;
     let active = true;
     setState('loading');
     setBattle(null);
@@ -267,8 +273,8 @@ export default function BattleScreen() {
     (async () => {
       // Pairings come from /api/battles/next: only admins/service-role may insert
       // into `battles` (RLS), so a client cannot create one directly via supabase.
-      // This route is cookie-auth today and needs mobile Bearer support to
-      // succeed — until then it 401s and we show a graceful state.
+      // The route is Bearer-authenticated (live in prod), so a 401 here means the
+      // session expired rather than a missing backend.
       const res = await nextBattle();
       if (!active) return;
 
@@ -279,7 +285,7 @@ export default function BattleScreen() {
       if (!res.ok || !res.data?.battleId) {
         setError(
           res.status === 401
-            ? 'Battles need the mobile Bearer-auth backend (coming soon).'
+            ? 'Your session expired — sign in again and retry.'
             : (res.data?.error ?? `Could not load a battle (${res.status}).`),
         );
         setState('error');
@@ -325,7 +331,37 @@ export default function BattleScreen() {
     return () => {
       active = false;
     };
-  }, [nonce]);
+  }, [nonce, userId, loading]);
+
+  // ---- Signed-out gate (mirrors /add and /profile) ------------------------
+  if (!loading && !user) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
+            <Text style={styles.backText}>‹ Back</Text>
+          </Pressable>
+          <Text style={styles.heading}>Battle</Text>
+          <Text style={styles.sub}>
+            Two performances, one winner. Listen to both, then decide.
+          </Text>
+        </View>
+        <View style={styles.emptyWrap}>
+          <Text style={styles.emptyTitle}>Sign in to battle</Text>
+          <Text style={styles.emptyText}>
+            Battles pit two performances head-to-head. Sign in to listen to both and pick the
+            winner.
+          </Text>
+          <Pressable
+            style={({ pressed }) => [styles.nextBtn, pressed && { opacity: 0.85 }]}
+            onPress={() => router.push('/login')}
+          >
+            <Text style={styles.nextBtnText}>Sign in</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -337,7 +373,7 @@ export default function BattleScreen() {
         <Text style={styles.sub}>Two performances, one winner. Listen to both, then decide.</Text>
       </View>
 
-      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#34d399" />}
+      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
 
       {state === 'empty' && (
         <View style={styles.emptyWrap}>
@@ -377,7 +413,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0a0a0a' },
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 8 },
   back: { paddingVertical: 4 },
-  backText: { color: '#34d399', fontSize: 16, fontWeight: '600' },
+  backText: { color: '#22D3EE', fontSize: 16, fontWeight: '600' },
   heading: { marginTop: 4, fontSize: 26, fontWeight: '800', color: '#fafafa' },
   sub: { marginTop: 4, fontSize: 13, color: '#9ca3af' },
   spinner: { marginTop: 40 },
@@ -396,13 +432,13 @@ const styles = StyleSheet.create({
   sideArtist: { fontSize: 12, color: '#9ca3af' },
   player: { marginTop: 6, borderRadius: 12, overflow: 'hidden', backgroundColor: '#000' },
   sideStatus: { marginTop: 4, fontSize: 12, color: '#9ca3af', fontWeight: '600' },
-  sideStatusOk: { color: '#34d399' },
+  sideStatusOk: { color: '#22D3EE' },
   sideStatusBad: { color: '#fb7185' },
   vs: { textAlign: 'center', fontSize: 14, fontWeight: '900', color: '#6b7280', letterSpacing: 2 },
   pickRow: { flexDirection: 'row', gap: 12, marginTop: 4 },
   pickBtn: {
     flex: 1,
-    backgroundColor: '#34d399',
+    backgroundColor: '#22D3EE',
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 12,
@@ -417,11 +453,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#171717',
     alignItems: 'center',
   },
-  signinPrompt: { color: '#34d399', fontSize: 15, fontWeight: '600' },
+  signinPrompt: { color: '#22D3EE', fontSize: 15, fontWeight: '600' },
   resultCard: { marginTop: 4, padding: 16, borderRadius: 16, backgroundColor: '#171717', gap: 12 },
-  resultText: { color: '#34d399', fontSize: 15, fontWeight: '700', textAlign: 'center' },
+  resultText: { color: '#22D3EE', fontSize: 15, fontWeight: '700', textAlign: 'center' },
   nextBtn: {
-    backgroundColor: '#34d399',
+    backgroundColor: '#22D3EE',
     borderRadius: 12,
     paddingVertical: 13,
     paddingHorizontal: 20,

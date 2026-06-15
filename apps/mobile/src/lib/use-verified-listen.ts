@@ -1,4 +1,4 @@
-import type { ListenEvent } from '@vocal-league/core';
+import type { ListenEvent } from '@voxscore/core';
 import { useCallback, useRef, useState } from 'react';
 
 import { completeListen, startListen } from './api';

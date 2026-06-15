@@ -58,7 +58,7 @@ We chose global disable over the two alternatives:
 
 - The `/login` toggle and all state-driven UI stay reliable regardless of the
   visitor's Chrome translation setting. Near-zero maintenance.
-- **Tradeoff:** VocalLeague is a _global_ product, and non-English visitors lose
+- **Tradeoff:** VoxScore is a _global_ product, and non-English visitors lose
   Chrome's one-click auto-translate site-wide. This is an explicit, accepted
   cost of the MVP.
 - **Follow-up (not this PR):** real internationalization (e.g. `next-intl`) is

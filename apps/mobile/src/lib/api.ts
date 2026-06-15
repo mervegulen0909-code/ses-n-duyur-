@@ -1,4 +1,4 @@
-import type { BattleVoteInput, ListenEvent } from '@vocal-league/core';
+import type { BattleVoteInput, ListenEvent } from '@voxscore/core';
 
 import { supabase } from './supabase';
 
@@ -7,12 +7,15 @@ import { supabase } from './supabase';
 //
 // AUTH: mobile sends the Supabase access token as a Bearer header. The API's
 // getRequestContext (apps/web/src/lib/supabase/server.ts) accepts BOTH cookie
-// (web) and Bearer (mobile) auth, so these calls authenticate from native. The
-// only caveat is deploy lag: until this branch ships to the API_BASE host, calls
-// hit the older cookie-only build and 401. /api/votes ADDITIONALLY needs a
-// bot-check token (Turnstile on web; App Attest / Play Integrity on native, N2b)
-// which is not wired here yet, so /api/votes stays gated until that lands.
-const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://ses-n-duyur-web.vercel.app';
+// (web) and Bearer (mobile) auth, and is LIVE in production — so routes WITHOUT
+// a botGuard authenticate from native today: battles (next/vote), listens
+// (start/complete), comments, account/delete, push/register. A 401 from these
+// means the session is missing/expired, not a missing backend.
+//
+// STILL GATED on native: /api/votes and /api/performances run botGuard
+// (Turnstile on web; App Attest / Play Integrity on native, N2b) which is not
+// wired here yet, so those 403 from native until device attestation lands.
+const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://web-seven-coral-88.vercel.app';
 
 async function authedPost<T>(
   path: string,
@@ -87,7 +90,7 @@ export type NextBattlePayload = {
  * Fetch (and create) one open battle pairing. The `battles` table is
  * admin/service-role insert-only under RLS, so the client cannot pair directly
  * via supabase — this server route does it. Authenticates via getRequestContext
- * (cookie or Bearer), so it succeeds from native once this branch is deployed.
+ * (cookie or Bearer), so it succeeds from native (Bearer-auth is live in prod).
  * 404 = not enough performances to pair.
  */
 export async function nextBattle(): Promise<{
@@ -104,7 +107,7 @@ export async function nextBattle(): Promise<{
  * BOTH listens (valid, owned by this user, covering each side) before counting
  * the vote. /api/battles/vote uses only rateLimit (no botGuard), so there is no
  * device-attestation gate here — getRequestContext honors the Bearer header, so
- * this succeeds from native once this branch is deployed. A 403 means both sides
+ * this works from native (Bearer-auth is live in prod). A 403 means both sides
  * were not validly listened.
  */
 export async function submitBattleVote(
@@ -121,8 +124,8 @@ export async function submitBattleVote(
  * Permanently delete the signed-in user's account and all their data. Required
  * by Apple Guideline 5.1.1(v) and Google Play for any app with account creation.
  * The server deletes ONLY the JWT's user (no id in the body) and cascades all
- * owned rows. Cookie/Bearer-auth via getRequestContext — succeeds from mobile
- * once this branch is deployed to the API_BASE host (401 until then).
+ * owned rows. Cookie/Bearer-auth via getRequestContext — works from mobile
+ * (Bearer-auth is live; a 401 means the session expired).
  */
 export async function deleteAccount(): Promise<{ ok: boolean; status: number; error?: string }> {
   const { ok, status, data } = await authedPost<{ ok?: boolean; error?: string }>(
@@ -136,8 +139,8 @@ export type PostedComment = { id: string; body: string; created_at: string };
 
 /**
  * Post a comment on a performance. The server route uses rateLimit only (no
- * botGuard), so this works from native once this branch is deployed (401 until
- * then). The author is the verified JWT user, never a body-supplied id.
+ * botGuard), so this works from native today (Bearer-auth is live). The author
+ * is the verified JWT user, never a body-supplied id.
  */
 export async function postComment(
   performanceId: string,
@@ -157,7 +160,7 @@ export async function postComment(
  *
  * GATING: /api/performances uses botGuard, so — like single-vote — this is gated
  * on web Turnstile / native attestation (N2b): it 403s from native in prod until
- * that lands, and 401s until this branch is deployed. It works in dev (Noop
+ * that lands (Bearer-auth itself is live). It works in dev (Noop
  * bot-check), so the screen is fully usable for local/preview QA.
  */
 export async function addPerformance(
@@ -173,8 +176,8 @@ export async function addPerformance(
 /**
  * Persist this device's Expo push token so the server can send remote pushes.
  * Upserts on (user, token) server-side, so calling it on every registration is
- * idempotent. rateLimit-only route (no botGuard) → works from native once this
- * branch is deployed (401 until then). Body matches pushRegisterSchema.
+ * idempotent. rateLimit-only route (no botGuard) → works from native today
+ * (Bearer-auth is live). Body matches pushRegisterSchema.
  */
 export async function registerPushToken(
   token: string,

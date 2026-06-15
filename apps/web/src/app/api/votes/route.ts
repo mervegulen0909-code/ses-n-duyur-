@@ -1,6 +1,6 @@
-import { criteriaOverall, recomputeScore, voteSchema } from '@vocal-league/core';
-import { CRITERIA, type Criterion } from '@vocal-league/scoring';
-import type { Database } from '@vocal-league/db';
+import { criteriaOverall, recomputeScore, voteSchema } from '@voxscore/core';
+import { CRITERIA, type Criterion } from '@voxscore/scoring';
+import type { Database } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
 

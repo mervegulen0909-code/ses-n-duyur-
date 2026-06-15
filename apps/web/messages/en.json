@@ -1,16 +1,18 @@
 {
   "Meta": {
-    "title": "VocalLeague — Global AI Vocal Performance League",
+    "title": "VoxScore — Global AI Vocal Performance League",
     "description": "Discover who sings a song best. AI-scored, community-voted vocal performances."
   },
   "Nav": {
     "leaderboard": "Leaderboard",
     "battle": "Battle",
+    "standings": "Standings",
+    "storyboard": "Storyboard",
     "signIn": "Sign in",
     "admin": "Admin",
     "addPerformance": "Add performance",
     "signOut": "Sign out",
-    "footerTagline": "VocalLeague — embeds only, never hosts media.",
+    "footerTagline": "VoxScore — embeds only, never hosts media.",
     "terms": "Terms",
     "privacy": "Privacy",
     "dmca": "DMCA / Takedown"
@@ -39,7 +41,9 @@
     "pleaseWait": "Please wait…",
     "signUp": "Sign up",
     "needAccount": "Need an account? Sign up",
-    "haveAccount": "Have an account? Sign in"
+    "haveAccount": "Have an account? Sign in",
+    "google": "Continue with Google",
+    "orDivider": "or"
   },
   "Add": {
     "title": "Add a performance",
@@ -63,6 +67,19 @@
     "finding": "Finding a battle…",
     "notEnough": "Not enough performances to battle yet. Add more!",
     "couldNotLoad": "Could not load a battle."
+  },
+  "Leaderboard": {
+    "subtitle": "Ranked by current score.",
+    "battleRecord": "{wins}–{losses} · battles",
+    "viewStandings": "Battle standings →"
+  },
+  "Standings": {
+    "title": "Battle standings",
+    "subtitle": "Ranked by Elo from head-to-head battles.",
+    "record": "{wins}–{losses}",
+    "winRate": "{rate}% wins",
+    "empty": "No battles yet. Open the Battle arena to start one.",
+    "viewScores": "Score leaderboard →"
   },
   "Performance": {
     "currentScore": "Current score",

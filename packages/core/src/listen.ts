@@ -1,4 +1,4 @@
-import { clamp, round } from '@vocal-league/scoring';
+import { clamp, round } from '@voxscore/scoring';
 import type { ListenEvent } from './schemas';
 
 export interface ListenValidation {

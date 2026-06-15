@@ -1,5 +1,5 @@
 {
-  "name": "@vocal-league/web",
+  "name": "@voxscore/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,13 +11,14 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.0",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.34.3",
-    "@vocal-league/core": "workspace:*",
-    "@vocal-league/db": "workspace:*",
-    "@vocal-league/scoring": "workspace:*",
+    "@voxscore/core": "workspace:*",
+    "@voxscore/db": "workspace:*",
+    "@voxscore/scoring": "workspace:*",
     "next": "^16.2.7",
     "next-intl": "^4.13.0",
     "openai": "^6.42.0",
