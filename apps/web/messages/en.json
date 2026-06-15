@@ -40,7 +40,9 @@
     "pleaseWait": "Please wait…",
     "signUp": "Sign up",
     "needAccount": "Need an account? Sign up",
-    "haveAccount": "Have an account? Sign in"
+    "haveAccount": "Have an account? Sign in",
+    "google": "Continue with Google",
+    "orDivider": "or"
   },
   "Add": {
     "title": "Add a performance",

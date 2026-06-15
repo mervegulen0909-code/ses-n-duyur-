@@ -25,5 +25,8 @@ export const supabase = createClient<Database>(url, anonKey, {
     persistSession: true,
     // React Native has no URL-based auth redirect to parse.
     detectSessionInUrl: false,
+    // OAuth (Google): redirect comes back with ?code=… which login.tsx trades
+    // for a session via exchangeCodeForSession (PKCE — code verifier in storage).
+    flowType: 'pkce',
   },
 });

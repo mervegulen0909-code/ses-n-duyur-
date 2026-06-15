@@ -40,7 +40,9 @@
     "pleaseWait": "Lütfen bekleyin…",
     "signUp": "Kaydol",
     "needAccount": "Hesabın yok mu? Kaydol",
-    "haveAccount": "Hesabın var mı? Giriş yap"
+    "haveAccount": "Hesabın var mı? Giriş yap",
+    "google": "Google ile devam et",
+    "orDivider": "veya"
   },
   "Add": {
     "title": "Performans ekle",
