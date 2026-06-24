@@ -1,5 +1,4 @@
 import { battleVoteSchema } from '@voxscore/core';
-import { applyBattle } from '@voxscore/scoring';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 
@@ -71,38 +70,25 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'You have already voted in this battle' }, { status: 409 });
   }
 
-  // Update Elo ratings + win counts via service role.
+  // Apply the Elo update + win/battle counters ATOMICALLY. apply_battle_result
+  // locks BOTH performance rows, recomputes Elo (mirrors @voxscore/scoring), and
+  // increments the counters in one transaction — so concurrent battle votes that
+  // share a performance can no longer lose updates (the old JS read-modify-write
+  // race that leaked Elo points and undercounted battles).
   const service = createSupabaseServiceClient();
   if (service) {
-    const { data: perfs } = await service
-      .from('performances')
-      .select('id, elo_rating, battle_wins, battle_count')
-      .in('id', [battle.perf_a, battle.perf_b]);
-
-    const a = perfs?.find((p) => p.id === battle.perf_a);
-    const b = perfs?.find((p) => p.id === battle.perf_b);
-    if (a && b) {
-      const resultForA = winnerPerformanceId === battle.perf_a ? 1 : 0;
-      const { ratingA, ratingB } = applyBattle(a.elo_rating, b.elo_rating, resultForA);
-
-      await service
-        .from('performances')
-        .update({
-          elo_rating: ratingA,
-          battle_count: a.battle_count + 1,
-          battle_wins: a.battle_wins + (resultForA === 1 ? 1 : 0),
-        })
-        .eq('id', battle.perf_a);
-      await service
-        .from('performances')
-        .update({
-          elo_rating: ratingB,
-          battle_count: b.battle_count + 1,
-          battle_wins: b.battle_wins + (resultForA === 0 ? 1 : 0),
-        })
-        .eq('id', battle.perf_b);
-
-      return Response.json({ ok: true, ratingA, ratingB }, { status: 201 });
+    const resultForA = winnerPerformanceId === battle.perf_a ? 1 : 0;
+    const { data: applied } = await service.rpc('apply_battle_result', {
+      p_perf_a: battle.perf_a,
+      p_perf_b: battle.perf_b,
+      p_result_for_a: resultForA,
+    });
+    const row = applied?.[0];
+    if (row) {
+      return Response.json(
+        { ok: true, ratingA: row.rating_a, ratingB: row.rating_b },
+        { status: 201 },
+      );
     }
   }
 

@@ -5,6 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/supabase/server', () => ({
   createSupabaseServerClient: vi.fn(),
 }));
+vi.mock('@/lib/guard', () => ({
+  rateLimit: vi.fn(async () => null),
+}));
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { POST } from './route';

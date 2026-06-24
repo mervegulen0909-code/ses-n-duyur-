@@ -158,5 +158,16 @@
     "promptReason": "Why are you reporting this?",
     "thanks": "Reported — thank you.",
     "button": "Report"
+  },
+  "Dmca": {
+    "formTitle": "DMCA / Takedown request",
+    "intro": "We embed YouTube videos and never host media. If you believe content here infringes your rights, file a request below and we will review it promptly.",
+    "claimantPlaceholder": "Your name / organization",
+    "performanceIdPlaceholder": "Performance ID (optional)",
+    "detailsPlaceholder": "Describe the claim (rights, infringing content, etc.)",
+    "submit": "File request",
+    "filing": "Filing…",
+    "filed": "Your request has been filed. We will review it promptly.",
+    "failed": "Could not file the request. Check your input."
   }
 }

@@ -4,6 +4,9 @@ vi.mock('@/lib/supabase/server', () => ({
   getRequestContext: vi.fn(),
   createSupabaseServiceClient: vi.fn(),
 }));
+vi.mock('@/lib/guard', () => ({
+  rateLimit: vi.fn(async () => null),
+}));
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { POST } from './route';

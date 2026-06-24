@@ -68,19 +68,9 @@ function makeCtx(
 }
 
 function makeService(): Service {
-  const perfsIn = vi.fn(async () => ({
-    data: [
-      { id: PERF_A, elo_rating: 1500, battle_wins: 0, battle_count: 0 },
-      { id: PERF_B, elo_rating: 1500, battle_wins: 0, battle_count: 0 },
-    ],
-  }));
-  const updateEq = vi.fn(async () => ({ error: null }));
-  const from = vi.fn((table: string) => {
-    if (table === 'performances')
-      return { select: () => ({ in: perfsIn }), update: () => ({ eq: updateEq }) };
-    return {};
-  });
-  return { from } as unknown as Service;
+  // Elo is now applied atomically server-side via the apply_battle_result RPC.
+  const rpc = vi.fn(async () => ({ data: [{ rating_a: 1516, rating_b: 1484 }], error: null }));
+  return { rpc } as unknown as Service;
 }
 
 describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5)', () => {

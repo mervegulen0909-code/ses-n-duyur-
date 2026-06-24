@@ -1,6 +1,7 @@
-import { listenCompleteSchema, validateListen } from '@voxscore/core';
+import { listenCompleteSchema, validateListen, MIN_VERIFIED_LISTEN_SECONDS } from '@voxscore/core';
 import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/guard';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -17,10 +18,14 @@ export async function POST(req: Request): Promise<Response> {
   if (!ctx) return Response.json({ error: 'Authentication required' }, { status: 401 });
   const { supabase, user } = ctx;
 
+  const limited = await rateLimit(req, user.id);
+  if (limited) return limited;
+
   // The listen session must exist, belong to this user, and match the performance.
+  // `created_at` is the SERVER-recorded session start — our wall-clock anchor.
   const { data: listen } = await supabase
     .from('verified_listens')
-    .select('id, user_id, performance_id')
+    .select('id, user_id, performance_id, created_at')
     .eq('id', parsed.data.listenId)
     .maybeSingle();
 
@@ -33,7 +38,14 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   // Server-side anti-cheat. The client cannot set is_valid itself (RLS).
-  const result = validateListen(parsed.data.events, parsed.data.durationS);
+  // Anchor the decision to facts the SERVER owns — the real wall-clock elapsed
+  // since the session started, and an absolute minimum playback floor — so a
+  // forged event trail / tiny `durationS` cannot unlock voting (Hard Rule 4).
+  const serverElapsedS = (Date.now() - Date.parse(listen.created_at)) / 1000;
+  const result = validateListen(parsed.data.events, parsed.data.durationS, {
+    serverElapsedS,
+    minWatchSeconds: MIN_VERIFIED_LISTEN_SECONDS,
+  });
 
   const service = createSupabaseServiceClient();
   if (!service) {

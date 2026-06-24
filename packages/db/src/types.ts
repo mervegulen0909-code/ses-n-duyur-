@@ -161,7 +161,17 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      apply_battle_result: {
+        Args: {
+          p_perf_a: Uuid;
+          p_perf_b: Uuid;
+          p_result_for_a: number;
+          p_k?: number;
+        };
+        Returns: { rating_a: number; rating_b: number }[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

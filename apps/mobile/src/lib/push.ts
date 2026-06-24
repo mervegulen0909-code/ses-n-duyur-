@@ -96,16 +96,24 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 /**
- * Full REMOTE-push registration: ensure the Android channel, request permission,
- * then fetch the Expo push token. Returns a typed result rather than throwing,
- * so callers can branch on the reason (notably 'expo-go' → needs a dev build).
+ * Full REMOTE-push registration: ensure the Android channel, (optionally) request
+ * permission, then fetch the Expo push token. Returns a typed result rather than
+ * throwing, so callers can branch on the reason (notably 'expo-go' → needs a dev
+ * build).
+ *
+ * `opts.prompt` (default true) controls whether the OS permission dialog may be
+ * shown. Pass `prompt: false` to register ONLY if permission was already granted
+ * — this lets the app avoid a context-free permission prompt on sign-in (Apple
+ * HIG / App Review): the dialog should be triggered from an explicit user gesture.
  *
  * The caller is responsible for sending `result.token` to the backend
- * (`push_tokens` table — see note below). This util does NOT make that call,
- * because the POST /api/push/register endpoint is not built yet (see the
- * backend-contract sketch at the bottom of this file).
+ * (`push_tokens` table — see note below).
  */
-export async function registerForPushNotifications(): Promise<PushTokenResult> {
+export async function registerForPushNotifications(
+  opts: { prompt?: boolean } = {},
+): Promise<PushTokenResult> {
+  const prompt = opts.prompt ?? true;
+
   // Remote push is unavailable in Expo Go since SDK 53 — needs a dev build.
   if (isExpoGo()) return { ok: false, reason: 'expo-go' };
 
@@ -114,7 +122,11 @@ export async function registerForPushNotifications(): Promise<PushTokenResult> {
 
   await ensureAndroidChannel();
 
-  const granted = await requestNotificationPermission();
+  // Without a prompt, only proceed if permission was ALREADY granted — never
+  // surface the one-shot OS dialog as a side effect of sign-in.
+  const granted = prompt
+    ? await requestNotificationPermission()
+    : (await Notifications.getPermissionsAsync()).status === 'granted';
   if (!granted) return { ok: false, reason: 'permission-denied' };
 
   const projectId = getProjectId();

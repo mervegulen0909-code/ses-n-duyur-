@@ -55,9 +55,9 @@ describe('summarizeCreator', () => {
     ]);
   });
 
-  it('falls back to a default title when oembed_meta has none', () => {
+  it('returns an empty title when oembed_meta has none (page localizes the fallback)', () => {
     const s = summarizeCreator([{ id: 'a', oembed_meta: {}, battle_wins: 0, battle_count: 0 }], []);
-    expect(s.rows).toEqual([expect.objectContaining({ title: 'Untitled performance' })]);
+    expect(s.rows).toEqual([expect.objectContaining({ title: '' })]);
   });
 
   it('sorts rows by current score descending, nulls last', () => {
