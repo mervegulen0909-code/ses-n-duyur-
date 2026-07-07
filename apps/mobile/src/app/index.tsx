@@ -101,9 +101,14 @@ export default function LeaderboardScreen() {
             <Pressable onPress={() => router.push('/battle')} hitSlop={8}>
               <Text style={styles.authLink}>Battle</Text>
             </Pressable>
-            <Pressable onPress={() => router.push('/voxscore-demo')} hitSlop={8}>
-              <Text style={styles.authLink}>Demo</Text>
-            </Pressable>
+            {/* Design prototype (simulated recording/scoring) — dev/preview only.
+                Hidden in production/store builds so users never see the mock as
+                if it were a real voice-recording feature. */}
+            {__DEV__ && (
+              <Pressable onPress={() => router.push('/voxscore-demo')} hitSlop={8}>
+                <Text style={styles.authLink}>Demo</Text>
+              </Pressable>
+            )}
             {user ? (
               <>
                 <Pressable onPress={() => router.push('/add')} hitSlop={8}>

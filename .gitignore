@@ -23,6 +23,9 @@ memory.json
 .turbo/
 *.tsbuildinfo
 
+# expo generated local state (types, cache) — not source
+**/.expo/
+
 # playwright
 test-results/
 playwright-report/

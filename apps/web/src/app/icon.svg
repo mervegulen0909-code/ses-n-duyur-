@@ -1,0 +1,11 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="7" fill="#0A0A0A" />
+  <!-- Soundwave mark: vocal performance in VoxScore emerald -->
+  <g fill="#34D399">
+    <rect x="6" y="13" width="2.4" height="6" rx="1.2" />
+    <rect x="10" y="9" width="2.4" height="14" rx="1.2" />
+    <rect x="14" y="5" width="2.4" height="22" rx="1.2" />
+    <rect x="18" y="10" width="2.4" height="12" rx="1.2" />
+    <rect x="22" y="13" width="2.4" height="6" rx="1.2" />
+  </g>
+</svg>

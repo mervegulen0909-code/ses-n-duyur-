@@ -7,22 +7,28 @@ export * from './rate-limiter';
 export * from './bot-check';
 
 /**
- * Adapter factories. Today they return development mocks; in Faz J each gets a
- * branch that returns the real implementation when its env key is present. This
- * is the single seam where real secrets enter the system.
+ * Mock-only adapter factories for the shared core package.
+ *
+ * The REAL, env-gated factories live in the web app at
+ * `apps/web/src/lib/adapters/{scoring,ratelimit,botcheck}.ts` — they carry
+ * `import 'server-only'` and the provider SDKs (`@anthropic-ai/sdk`, `openai`,
+ * `@upstash/*`), which are web-app dependencies, not core dependencies. Server
+ * code MUST use those factories (`getScoringProvider()`, etc.) so the real
+ * provider activates when its key is present.
+ *
+ * These core factories always return the deterministic mock. They exist for
+ * pure, SDK-free unit tests and are intentionally NOT wired into any request
+ * path. Do not add "real" branches here — they belong in the web adapters.
  */
 
 export function createScoringProvider(): ScoringProvider {
-  // Faz J: if (env.ANTHROPIC_API_KEY) return new AnthropicScoringProvider(...)
   return new MockScoringProvider();
 }
 
 export function createRateLimiter(limit = 30, windowMs = 60_000): RateLimiter {
-  // Faz J: if (env.UPSTASH_REDIS_REST_URL) return new UpstashRateLimiter(...)
   return new InMemoryRateLimiter(limit, windowMs);
 }
 
 export function createBotCheck(): BotCheck {
-  // Faz J: if (env.TURNSTILE_SECRET_KEY) return new TurnstileBotCheck(...)
   return new NoopBotCheck();
 }
