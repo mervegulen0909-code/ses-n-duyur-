@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Animated,
@@ -689,7 +689,16 @@ const BG: Record<Screen, string> = {
   progress: '#0a1420',
 };
 
-export default function VoxScoreDemoScreen() {
+export default function VoxScoreDemoRoute() {
+  // SIMULATED recording/scoring prototype — dev/preview only. The nav link is
+  // already __DEV__-gated, but expo-router still bundles this file as a real
+  // route, so deep links (voxscore://voxscore-demo) could reach it in a store
+  // build. Gate the ROUTE itself: in production, bounce straight home.
+  if (!__DEV__) return <Redirect href="/" />;
+  return <VoxScoreDemoScreen />;
+}
+
+function VoxScoreDemoScreen() {
   const router = useRouter();
   const [screen, setScreen] = useState<Screen>('splash');
   const [seconds, setSeconds] = useState(0);

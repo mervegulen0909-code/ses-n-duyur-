@@ -51,6 +51,7 @@ export default function StandingsScreen() {
   const [items, setItems] = useState<Item[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     const { data, error } = await supabase
@@ -92,6 +93,16 @@ export default function StandingsScreen() {
     }, [load]),
   );
 
+  // Pull-to-refresh with a visible spinner.
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await load();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [load]);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
@@ -119,7 +130,7 @@ export default function StandingsScreen() {
             <Text style={styles.empty}>No battles yet. Open the Battle arena to start one.</Text>
           }
           refreshControl={
-            <RefreshControl refreshing={false} onRefresh={load} tintColor="#22D3EE" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#22D3EE" />
           }
           renderItem={({ item, index }) => {
             const medal = MEDAL[index];

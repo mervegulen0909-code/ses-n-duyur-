@@ -42,6 +42,7 @@ export default function LeaderboardScreen() {
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
   const [gate, setGate] = useState<'checking' | 'ok'>('checking');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     isOnboardingComplete().then((done) => {
@@ -90,6 +91,17 @@ export default function LeaderboardScreen() {
       if (gate === 'ok') load();
     }, [load, gate]),
   );
+
+  // Pull-to-refresh with a visible spinner (RefreshControl needs a real
+  // `refreshing` boolean — hardcoding false means no feedback at all).
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await load();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [load]);
 
   if (gate === 'checking') {
     return <View style={styles.safe} />;
@@ -149,7 +161,7 @@ export default function LeaderboardScreen() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={<Text style={styles.empty}>No performances yet.</Text>}
           refreshControl={
-            <RefreshControl refreshing={false} onRefresh={load} tintColor="#22D3EE" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#22D3EE" />
           }
           renderItem={({ item, index }) => (
             <Pressable

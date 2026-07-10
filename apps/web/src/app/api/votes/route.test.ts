@@ -29,16 +29,28 @@ function makeRequest(body: unknown): Request {
 
 const validBody = { performanceId: PERF, verifiedListenId: LISTEN, ratings: { vocalAccuracy: 80 } };
 
-// RLS-scoped client: reads the verified listen, then inserts the criteria rating.
+// RLS-scoped client: reads the verified listen + the performance's owner, then
+// inserts the criteria rating.
 function makeCtx(
   userId = 'me',
-  opts: { listen?: Record<string, unknown> | null; insertError?: unknown } = {},
+  opts: {
+    listen?: Record<string, unknown> | null;
+    insertError?: unknown;
+    perfOwner?: string;
+  } = {},
 ) {
   const listenMaybeSingle = vi.fn(async () => ({ data: opts.listen ?? null, error: null }));
+  const perfMaybeSingle = vi.fn(async () => ({
+    data: { user_id: opts.perfOwner ?? 'performance-owner' },
+    error: null,
+  }));
   const ratingsInsert = vi.fn(async () => ({ error: opts.insertError ?? null }));
   const from = vi.fn((table: string) => {
     if (table === 'verified_listens') {
       return { select: () => ({ eq: () => ({ maybeSingle: listenMaybeSingle }) }) };
+    }
+    if (table === 'performances') {
+      return { select: () => ({ eq: () => ({ maybeSingle: perfMaybeSingle }) }) };
     }
     if (table === 'criteria_ratings') return { insert: ratingsInsert };
     return {};
@@ -125,6 +137,17 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
     });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
     expect((await POST(makeRequest(validBody))).status).toBe(403);
+  });
+
+  it('403 when the voter OWNS the performance (no self-voting)', async () => {
+    const { ctx, ratingsInsert } = makeCtx('me', { listen: validListen, perfOwner: 'me' });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(403);
+    await expect(res.json()).resolves.toMatchObject({
+      error: 'You cannot vote on your own performance',
+    });
+    expect(ratingsInsert).not.toHaveBeenCalled();
   });
 
   it('409 when the user already voted (unique violation)', async () => {

@@ -4,13 +4,13 @@ export default function TermsPage() {
   return (
     <main className="mx-auto max-w-2xl space-y-4 px-6 py-10 text-sm leading-relaxed text-neutral-300">
       <h1 className="text-2xl font-bold text-neutral-100">Terms of Service</h1>
-      <p className="text-neutral-500">Draft — review with counsel before launch.</p>
+      <p className="text-neutral-500">Last updated: July 10, 2026</p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">1. What VoxScore is</h2>
       <p>
-        VoxScore lets users submit links to vocal performances hosted on YouTube and rates them
-        with AI estimates and community votes. We embed YouTube content via the official player; we
-        do not host, download, or store any video or audio.
+        VoxScore lets users submit links to vocal performances hosted on YouTube and rates them with
+        AI estimates and community votes. We embed YouTube content via the official player; we do
+        not host, download, or store any video or audio.
       </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">2. Your responsibilities</h2>

@@ -29,6 +29,11 @@ export function updateRating(
   assertFinite(rating, 'rating');
   assertFinite(k, 'k');
   if (k <= 0) throw new RangeError('k must be > 0');
+  // The type says 1 | 0.5 | 0, but JS callers can pass anything — an
+  // out-of-band result (NaN, 7, -1) would silently corrupt the rating instead
+  // of failing loudly like every other guarded input in this package.
+  assertFinite(result, 'result');
+  if (result < 0 || result > 1) throw new RangeError('result must be within [0, 1]');
   const expected = expectedScore(rating, opponentRating);
   return rating + k * (result - expected);
 }

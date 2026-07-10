@@ -174,7 +174,22 @@ export default function PerformanceScreen() {
       );
     } else {
       setVoteState('error');
-      setVoteMsg(res.error ?? `Failed (${res.status})`);
+      // /api/votes is Turnstile-gated (botGuard) and native cannot supply a
+      // browser token, so a 403 here for a user who DID complete the Verified
+      // Listen is the bot-check — surface an honest message (mirrors add.tsx)
+      // instead of the engine's cryptic "Bot check failed."; self-vote 403s
+      // carry their own message and pass through.
+      setVoteMsg(
+        res.status === 401
+          ? 'Your session expired — sign in again to vote.'
+          : res.status === 403
+            ? res.error === 'You cannot vote on your own performance'
+              ? res.error
+              : 'Verification required. Voting from the app unlocks once device attestation ships — you can vote on the web for now.'
+            : res.status === 409
+              ? 'You have already voted on this performance.'
+              : (res.error ?? `Failed (${res.status})`),
+      );
     }
   }
 
