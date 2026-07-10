@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -142,15 +142,19 @@ export default function ProfileScreen() {
     setState('ready');
   }, [user]);
 
-  useEffect(() => {
-    if (sessionLoading) return;
-    if (!user) {
-      setState('ready');
-      return;
-    }
-    setState('loading');
-    load();
-  }, [sessionLoading, user, load]);
+  // Refetch on focus so "Your performances" reflects anything added since the
+  // last visit (not just the first mount).
+  useFocusEffect(
+    useCallback(() => {
+      if (sessionLoading) return;
+      if (!user) {
+        setState('ready');
+        return;
+      }
+      setState('loading');
+      load();
+    }, [sessionLoading, user, load]),
+  );
 
   // ---- Signed-out state ----------------------------------------------------
   if (!sessionLoading && !user) {
