@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -82,9 +82,14 @@ export default function LeaderboardScreen() {
     setState('ready');
   }, []);
 
-  useEffect(() => {
-    if (gate === 'ok') load();
-  }, [load, gate]);
+  // Refetch whenever the screen regains focus (e.g. after adding a performance
+  // and navigating back) — not just on first mount — so the feed never shows
+  // stale data. Pull-to-refresh still calls the same load().
+  useFocusEffect(
+    useCallback(() => {
+      if (gate === 'ok') load();
+    }, [load, gate]),
+  );
 
   if (gate === 'checking') {
     return <View style={styles.safe} />;

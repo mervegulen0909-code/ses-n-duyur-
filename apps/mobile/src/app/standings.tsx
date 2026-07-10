@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -85,9 +85,12 @@ export default function StandingsScreen() {
     setState('ready');
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  // Refetch on focus so Elo standings reflect battles voted since the last visit.
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
