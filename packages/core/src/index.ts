@@ -11,4 +11,5 @@ export * from './performance';
 export * from './song';
 export * from './listen';
 export * from './score-update';
+export * from './measured';
 export * from './adapters/index';

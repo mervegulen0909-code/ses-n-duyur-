@@ -85,6 +85,8 @@
     "currentScore": "Current score",
     "trend": "trend",
     "aiStart": "AI start",
+    "measuredBadge": "Measured",
+    "measuredCaption": "Measured criteria come from the artist's own submitted recording â the audio is analyzed, then deleted.",
     "fallbackTitle": "Performance",
     "addedBy": "Added by <link>{handle}</link>",
     "noVideo": "No video.",

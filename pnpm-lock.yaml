@@ -180,6 +180,9 @@ importers:
       '@voxscore/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@voxscore/dsp':
+        specifier: workspace:*
+        version: link:../../packages/dsp
       '@voxscore/scoring':
         specifier: workspace:*
         version: link:../../packages/scoring

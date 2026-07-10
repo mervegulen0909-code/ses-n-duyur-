@@ -57,6 +57,16 @@ export interface PublicRows {
     verified_vote_count: number;
     updated_at: Timestamp;
   };
+  measured_scores: {
+    id: Uuid;
+    performance_id: Uuid;
+    user_id: Uuid;
+    dsp_version: number;
+    features: Json;
+    measured_breakdown: Json;
+    created_at: Timestamp;
+    updated_at: Timestamp;
+  };
   verified_listens: {
     id: Uuid;
     user_id: Uuid;

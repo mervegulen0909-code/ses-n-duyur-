@@ -64,21 +64,30 @@ function makeCtx(
 // A valid listen owned by `userId` for PERF.
 const validListen = { id: LISTEN, is_valid: true, user_id: 'me', performance_id: PERF };
 
-function makeService(): Service {
-  const scoresMaybeSingle = vi.fn(async () => ({ data: { initial_ai_score: 70 } }));
+function makeService(opts: { measured?: Record<string, number> | null; scoreRow?: unknown } = {}) {
+  const scoresMaybeSingle = vi.fn(async () => ({
+    data: opts.scoreRow ?? { initial_ai_score: 70, ai_breakdown: null },
+  }));
+  const measuredMaybeSingle = vi.fn(async () => ({
+    data: opts.measured ? { measured_breakdown: opts.measured } : null,
+  }));
   const ratingsEq = vi.fn(async () => ({ data: [{ vocal_accuracy: 80 }] }));
   const scoresUpdateEq = vi.fn(async () => ({ error: null }));
+  const scoresUpdate = vi.fn(() => ({ eq: scoresUpdateEq }));
   const from = vi.fn((table: string) => {
     if (table === 'scores') {
       return {
         select: () => ({ eq: () => ({ maybeSingle: scoresMaybeSingle }) }),
-        update: () => ({ eq: scoresUpdateEq }),
+        update: scoresUpdate,
       };
+    }
+    if (table === 'measured_scores') {
+      return { select: () => ({ eq: () => ({ maybeSingle: measuredMaybeSingle }) }) };
     }
     if (table === 'criteria_ratings') return { select: () => ({ eq: ratingsEq }) };
     return {};
   });
-  return { from } as unknown as Service;
+  return { client: { from } as unknown as Service, scoresUpdate };
 }
 
 describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () => {
@@ -153,7 +162,7 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
   it('409 when the user already voted (unique violation)', async () => {
     const { ctx } = makeCtx('me', { listen: validListen, insertError: { message: 'duplicate' } });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService());
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
     expect((await POST(makeRequest(validBody))).status).toBe(409);
   });
 
@@ -162,7 +171,7 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
       listen: { ...validListen, user_id: 'me-real' },
     });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService());
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
 
     const res = await POST(makeRequest(validBody));
 
@@ -176,5 +185,32 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
         vocal_accuracy: 80,
       }),
     );
+  });
+
+  it('blends from the MEASURED basis when a measurement exists (ADR 0003)', async () => {
+    const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    const { CRITERIA } = await import('@voxscore/scoring');
+    const aiBreakdown = Object.fromEntries(CRITERIA.map((c) => [c, 70]));
+    const service = makeService({
+      scoreRow: { initial_ai_score: 70, ai_breakdown: aiBreakdown },
+      measured: {
+        vocalAccuracy: 100,
+        rhythmTiming: 100,
+        technicalSkill: 100,
+        recordingQuality: 100,
+      },
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(201);
+
+    // Basis lifted above the plain 70 estimate: with one 80-overall vote the
+    // blended current must exceed the estimate-only blend (0.85*70 + 0.15*80).
+    const update = (service.scoresUpdate.mock.calls[0] as unknown[])[0] as {
+      current_score: number;
+    };
+    expect(update.current_score).toBeGreaterThan(0.85 * 70 + 0.15 * 80);
   });
 });
