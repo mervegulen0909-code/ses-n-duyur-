@@ -151,6 +151,30 @@ describe('POST /api/performances — score persistence is not best-effort', () =
     expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('ROLLBACK FAILED'))).toBe(true);
   });
 
+  // One video = one league entry (and one AI score): unique-violation → 409.
+  it('returns 409 when the same video is already in the league (unique violation)', async () => {
+    const single = vi.fn(async () => ({
+      data: null,
+      error: { code: '23505', message: 'duplicate key value violates unique constraint' },
+    }));
+    const insert = vi.fn(() => ({ select: vi.fn(() => ({ single })) }));
+    const ctx = {
+      supabase: { from: vi.fn(() => ({ insert })) },
+      user: { id: 'user-1' },
+    } as unknown as RequestCtx;
+    const service = makeServiceClient({ scoreResult: { error: null } });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({ error: 'This video is already in the league' });
+    // No score write, no rollback — nothing was created.
+    expect(service.insert).not.toHaveBeenCalled();
+    expect(service.del).not.toHaveBeenCalled();
+  });
+
   // Regression guard: the happy path still returns 201 and never rolls back/logs.
   it('returns 201 with the new id when the score persists cleanly', async () => {
     const user = makeUserClient('perf-ok');

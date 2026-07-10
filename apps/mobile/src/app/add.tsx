@@ -39,9 +39,11 @@ export default function AddPerformanceScreen() {
         ? 'Your session expired — sign in again and retry.'
         : res.status === 403
           ? 'Verification required. Adding from the app unlocks once device attestation ships.'
-          : res.status === 422
-            ? 'That doesn’t look like a valid YouTube link.'
-            : (res.error ?? `Could not add performance (${res.status}).`),
+          : res.status === 409
+            ? 'That video is already in the league.'
+            : res.status === 422
+              ? 'That doesn’t look like a valid YouTube link.'
+              : (res.error ?? `Could not add performance (${res.status}).`),
     );
   }
 

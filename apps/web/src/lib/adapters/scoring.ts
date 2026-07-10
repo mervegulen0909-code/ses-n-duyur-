@@ -9,11 +9,30 @@ import {
   type ScoringResult,
 } from '@voxscore/core';
 
-// Default scoring model. Override with OPENAI_SCORING_MODEL env if desired.
-const SCORING_MODEL = process.env.OPENAI_SCORING_MODEL ?? 'gpt-4o-mini';
+// SCORING CONSISTENCY CONTRACT
+// ----------------------------
+// League fairness demands that the SAME input always yields the SAME estimate,
+// as far as an LLM allows. Every knob below serves that:
+//   - models are pinned to dated snapshots (a floating alias like "gpt-4o-mini"
+//     silently changes scoring behavior when the vendor updates it);
+//   - temperature is 0 (greedy decoding) and OpenAI gets a fixed seed;
+//   - the rubric anchors what each band means, so estimates don't freestyle;
+//   - scores are quantized to multiples of 5 (absorbs residual logit jitter);
+//   - each performance is scored ONCE at insert and duplicates of the same
+//     video are rejected (unique index), so users can never observe two
+//     different scores for the same video.
+// Switching providers (Anthropic <-> OpenAI) shifts the score distribution:
+// keep ONE provider active per league season; if you must switch, bump
+// SCORING_VERSION in @voxscore/core so old and new scores are distinguishable.
 
-// Default Anthropic scoring model — Haiku is plenty for a small JSON estimate and
-// keeps per-score cost low. Override with ANTHROPIC_SCORING_MODEL (e.g. a Sonnet).
+// Default scoring model — a PINNED snapshot. Override with OPENAI_SCORING_MODEL.
+const SCORING_MODEL = process.env.OPENAI_SCORING_MODEL ?? 'gpt-4o-mini-2024-07-18';
+
+// Best-effort determinism for OpenAI (with temperature 0 and a pinned snapshot).
+const OPENAI_SEED = 42;
+
+// Default Anthropic scoring model — already a dated snapshot; Haiku is plenty
+// for a small JSON estimate. Override with ANTHROPIC_SCORING_MODEL.
 const ANTHROPIC_MODEL = process.env.ANTHROPIC_SCORING_MODEL ?? 'claude-haiku-4-5-20251001';
 
 const SYSTEM = `You estimate vocal-performance quality for a music league.
@@ -21,9 +40,28 @@ You are given ONLY text metadata (title, artist/channel, optional transcript) fo
 a YouTube performance — you are NOT given the audio. Produce a PROVISIONAL,
 interpretive estimate for each criterion on a 0-100 scale. This is explicitly a
 provisional estimate, never a real audio measurement — never claim to have
-measured pitch, timing, or any acoustic feature. When metadata is thin, estimate
-conservatively toward the middle. Respond with ONLY a JSON object whose keys are
-exactly: ${CRITERIA.join(', ')} — each an integer 0-100.`;
+measured pitch, timing, or any acoustic feature.
+
+Rubric — apply it identically to every request:
+- 90-100 exceptional, professional-grade signals in the metadata
+- 75-89  strong signals (established artist/channel, official release)
+- 60-74  competent (typical decent cover/performance signals)
+- 40-59  average or UNKNOWN — the default band when metadata gives little signal
+- 0-39   clearly weak signals
+Rules: every score MUST be an integer multiple of 5. Judge only from the given
+metadata; identical metadata must always produce identical scores. Respond with
+ONLY a JSON object whose keys are exactly: ${CRITERIA.join(', ')}.`;
+
+/**
+ * Quantize a raw model score to the league scale: integer multiples of 5,
+ * clamped to [0, 100]. Absorbs small run-to-run jitter so near-identical model
+ * outputs collapse to the same published score.
+ */
+function quantize(n: unknown): number {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return 50;
+  return clamp(Math.round(v / 5) * 5, 0, 100);
+}
 
 /**
  * OpenAIScoringProvider — clearly-provisional LLM estimate of the 9 criteria
@@ -45,6 +83,9 @@ export class OpenAIScoringProvider implements ScoringProvider {
       const completion = await this.client.chat.completions.create({
         model: SCORING_MODEL,
         response_format: { type: 'json_object' },
+        // Determinism: greedy decoding + fixed seed (see consistency contract).
+        temperature: 0,
+        seed: OPENAI_SEED,
         messages: [
           { role: 'system', content: SYSTEM },
           {
@@ -62,10 +103,7 @@ export class OpenAIScoringProvider implements ScoringProvider {
       const parsed = JSON.parse(raw) as Record<string, unknown>;
 
       const breakdown = Object.fromEntries(
-        CRITERIA.map((c) => {
-          const n = Number(parsed[c]);
-          return [c, clamp(Number.isFinite(n) ? n : 50, 0, 100)];
-        }),
+        CRITERIA.map((c) => [c, quantize(parsed[c])]),
       ) as CriteriaScores;
 
       return {
@@ -105,6 +143,8 @@ export class AnthropicScoringProvider implements ScoringProvider {
       const message = await this.client.messages.create({
         model: ANTHROPIC_MODEL,
         max_tokens: 1024,
+        // Determinism: greedy decoding (see consistency contract above).
+        temperature: 0,
         system: SYSTEM,
         messages: [
           {
@@ -121,16 +161,15 @@ export class AnthropicScoringProvider implements ScoringProvider {
       const start = raw.indexOf('{');
       const end = raw.lastIndexOf('}');
       if (start === -1 || end === -1) {
-        console.error('[scoring] Anthropic reply had no JSON object; falling back to mock estimate');
+        console.error(
+          '[scoring] Anthropic reply had no JSON object; falling back to mock estimate',
+        );
         return this.fallback.score(input);
       }
       const parsed = JSON.parse(raw.slice(start, end + 1)) as Record<string, unknown>;
 
       const breakdown = Object.fromEntries(
-        CRITERIA.map((c) => {
-          const n = Number(parsed[c]);
-          return [c, clamp(Number.isFinite(n) ? n : 50, 0, 100)];
-        }),
+        CRITERIA.map((c) => [c, quantize(parsed[c])]),
       ) as CriteriaScores;
 
       return {

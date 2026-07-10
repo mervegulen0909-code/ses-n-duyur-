@@ -90,6 +90,12 @@ export async function POST(req: Request): Promise<Response> {
     .single();
 
   if (perfError || !perf) {
+    // Unique index performances_youtube_video_unique: one video = one league
+    // entry (and therefore exactly one AI score). A duplicate submit is a
+    // user-facing conflict, not a server error.
+    if (perfError?.code === '23505') {
+      return Response.json({ error: 'This video is already in the league' }, { status: 409 });
+    }
     return Response.json({ error: 'Could not create performance' }, { status: 500 });
   }
 
