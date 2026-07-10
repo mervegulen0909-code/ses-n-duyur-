@@ -5,11 +5,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavAuth } from '@/components/nav-auth';
+import { SITE_URL } from '@/lib/site';
 import './globals.css';
-
-// Production origin for absolute URLs (OpenGraph/canonical). Override per
-// environment with NEXT_PUBLIC_SITE_URL; falls back to the current prod alias.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://web-seven-coral-88.vercel.app';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Meta');
