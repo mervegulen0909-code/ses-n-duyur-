@@ -1,5 +1,5 @@
 import Slider from '@react-native-community/slider';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -30,6 +30,7 @@ type ScoreRow = {
 };
 type Perf = {
   id: string;
+  user_id: string;
   youtube_video_id: string;
   has_video: boolean;
   song_id: string | null;
@@ -83,13 +84,37 @@ export default function PerformanceScreen() {
   const [posting, setPosting] = useState(false);
   const [commentErr, setCommentErr] = useState('');
 
+  // Real DSP measurement of the artist's own recording (ADR 0003). Separate,
+  // soft-failing query: until the measured_scores table ships live, this
+  // simply stays null. Refetched on focus so returning from the measure
+  // screen shows the fresh badges.
+  const [measured, setMeasured] = useState<Record<string, number> | null>(null);
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      (async () => {
+        const { data } = await supabase
+          .from('measured_scores')
+          .select('measured_breakdown')
+          .eq('performance_id', id)
+          .maybeSingle();
+        if (active) {
+          setMeasured((data?.measured_breakdown as Record<string, number> | null) ?? null);
+        }
+      })();
+      return () => {
+        active = false;
+      };
+    }, [id]),
+  );
+
   useEffect(() => {
     let active = true;
     (async () => {
       const { data, error } = await supabase
         .from('performances')
         .select(
-          'id, youtube_video_id, has_video, song_id, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional)',
+          'id, user_id, youtube_video_id, has_video, song_id, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional)',
         )
         .eq('id', id)
         .single();
@@ -341,16 +366,42 @@ export default function PerformanceScreen() {
               <Text style={styles.badge}>Provisional AI Estimate</Text>
             )}
 
+            {measured && (
+              <Text style={styles.measuredCaption}>
+                Measured criteria come from the artist’s own submitted recording — the audio is
+                analyzed, then deleted.
+              </Text>
+            )}
+
             <View style={styles.criteria}>
-              {activeCriteria.map((c) => (
-                <View key={c} style={styles.critRow}>
-                  <Text style={styles.critLabel}>{CRITERION_LABELS[c]}</Text>
-                  <Text style={styles.critVal}>
-                    {breakdown[c] != null ? Number(breakdown[c]).toFixed(0) : '—'}
-                  </Text>
-                </View>
-              ))}
+              {activeCriteria.map((c) => {
+                const measuredValue = measured?.[c] ?? null;
+                const value = measuredValue ?? (breakdown[c] != null ? breakdown[c] : null);
+                return (
+                  <View key={c} style={styles.critRow}>
+                    <View style={styles.critNameWrap}>
+                      <Text style={styles.critLabel}>{CRITERION_LABELS[c]}</Text>
+                      {measuredValue != null && <Text style={styles.measuredChip}>Measured</Text>}
+                    </View>
+                    <Text style={[styles.critVal, measuredValue != null && styles.critValMeasured]}>
+                      {value != null ? Number(value).toFixed(0) : '—'}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
+
+            {/* Owner-only: attach a real measurement to this performance. */}
+            {user && perf.user_id === user.id && (
+              <Pressable
+                style={({ pressed }) => [styles.measureBtn, pressed && { opacity: 0.85 }]}
+                onPress={() => router.push({ pathname: '/measure/[id]', params: { id: perf.id } })}
+              >
+                <Text style={styles.measureBtnText}>
+                  {measured ? 'Re-measure my recording' : 'Measure my recording'} 🎙
+                </Text>
+              </Pressable>
+            )}
           </View>
 
           {/* Comments — readable by all; posting requires sign-in. */}
@@ -461,8 +512,29 @@ const styles = StyleSheet.create({
   },
   criteria: { marginTop: 16, gap: 10 },
   critRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  critNameWrap: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   critLabel: { fontSize: 14, color: '#d4d4d8' },
   critVal: { fontSize: 14, fontWeight: '700', color: '#fafafa', fontVariant: ['tabular-nums'] },
+  critValMeasured: { color: '#38bdf8' },
+  measuredCaption: { marginTop: 10, fontSize: 12, color: '#9ca3af', lineHeight: 17 },
+  measuredChip: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
+    backgroundColor: 'rgba(56,189,248,0.15)',
+    color: '#38bdf8',
+    fontSize: 10,
+    fontWeight: '700',
+    overflow: 'hidden',
+  },
+  measureBtn: {
+    marginTop: 16,
+    backgroundColor: 'rgba(56,189,248,0.15)',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  measureBtnText: { color: '#38bdf8', fontSize: 14, fontWeight: '800' },
   commentsCard: {
     marginTop: 16,
     padding: 16,
