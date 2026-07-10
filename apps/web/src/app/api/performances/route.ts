@@ -2,12 +2,64 @@ import {
   addPerformanceSchema,
   buildPerformanceCreate,
   fetchOEmbed,
+  normalizeSongKey,
   parseYouTubeId,
 } from '@voxscore/core';
 import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { getScoringProvider } from '@/lib/adapters/scoring';
+import { getSongExtractor } from '@/lib/adapters/song';
 import { botGuard, rateLimit } from '@/lib/guard';
+
+type ServiceClient = NonNullable<ReturnType<typeof createSupabaseServiceClient>>;
+
+/**
+ * Resolve which SONG this video performs and upsert it into public.songs,
+ * keyed on normalized_key, so covers of the same song share a song_id (the
+ * battle matcher pairs same-song performances first — the product's core
+ * "who sings THIS song best" loop). Best-effort by design: any failure just
+ * returns null and the performance is added without a song link.
+ */
+async function resolveSongId(
+  service: ServiceClient,
+  input: { title: string; authorName: string },
+): Promise<string | null> {
+  try {
+    const guess = await getSongExtractor().extract(input);
+    if (!guess) return null;
+    const key = normalizeSongKey(guess.artist, guess.title);
+    if (!key) return null;
+
+    const { data: existing } = await service
+      .from('songs')
+      .select('id')
+      .eq('normalized_key', key)
+      .maybeSingle();
+    if (existing) return existing.id;
+
+    const { data: created, error } = await service
+      .from('songs')
+      .insert({ title: guess.title, artist: guess.artist, normalized_key: key })
+      .select('id')
+      .single();
+    if (created) return created.id;
+
+    // Unique-index race: another add created the song between our select and
+    // insert — re-read the winner instead of dropping the link.
+    if (error?.code === '23505') {
+      const { data: winner } = await service
+        .from('songs')
+        .select('id')
+        .eq('normalized_key', key)
+        .maybeSingle();
+      return winner?.id ?? null;
+    }
+    return null;
+  } catch (err) {
+    console.error('[performances] song resolution failed; adding without song link:', err);
+    return null;
+  }
+}
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -64,19 +116,25 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'Could not fetch YouTube metadata' }, { status: 502 });
   }
 
-  const scoring = await getScoringProvider().score({
-    videoId,
-    title: oembed.title,
-    authorName: oembed.authorName,
-    hasVideo: true,
-  });
+  // Score and resolve the song concurrently — two independent LLM/API calls.
+  const [scoring, resolvedSongId] = await Promise.all([
+    getScoringProvider().score({
+      videoId,
+      title: oembed.title,
+      authorName: oembed.authorName,
+      hasVideo: true,
+    }),
+    parsed.data.songId
+      ? Promise.resolve<string | null>(null) // caller pinned the song explicitly
+      : resolveSongId(service, { title: oembed.title, authorName: oembed.authorName }),
+  ]);
 
   const payload = buildPerformanceCreate({
     userId: user.id,
     youtubeUrl: parsed.data.youtubeUrl,
     oembed,
     scoring,
-    songId: parsed.data.songId ?? null,
+    songId: parsed.data.songId ?? resolvedSongId,
   });
 
   // Insert the performance AS THE USER (RLS enforces user_id = auth.uid()).

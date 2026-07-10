@@ -8,6 +8,7 @@
 export * from './youtube';
 export * from './schemas';
 export * from './performance';
+export * from './song';
 export * from './listen';
 export * from './score-update';
 export * from './adapters/index';
