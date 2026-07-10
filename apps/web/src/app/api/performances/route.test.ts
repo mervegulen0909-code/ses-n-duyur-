@@ -50,6 +50,7 @@ vi.mock('@voxscore/core', async (importOriginal) => {
 });
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { fetchOEmbed } from '@voxscore/core';
 import { POST } from './route';
 
 const VALID_BODY = { youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ' };
@@ -149,6 +150,52 @@ describe('POST /api/performances — score persistence is not best-effort', () =
     expect(res.status).toBe(500);
     expect(service.del).toHaveBeenCalledTimes(1);
     expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('ROLLBACK FAILED'))).toBe(true);
+  });
+
+  // Same-song matchmaking: a recognizable title auto-links a songs row and the
+  // performance is inserted with that song_id (battles pair same-song first).
+  it('auto-resolves the song and inserts the performance with its song_id', async () => {
+    vi.mocked(fetchOEmbed).mockResolvedValueOnce({
+      title: 'Adele - Hello (Cover by Jane)',
+      authorName: 'Jane Doe',
+      authorUrl: 'https://youtube.com/@jane',
+      thumbnailUrl: 'https://img/t.jpg',
+      providerName: 'YouTube',
+    });
+
+    const single = vi.fn(async () => ({ data: { id: 'perf-song' }, error: null }));
+    const perfInsert = vi.fn(() => ({ select: vi.fn(() => ({ single })) }));
+    const ctx = {
+      supabase: { from: vi.fn(() => ({ insert: perfInsert })) },
+      user: { id: 'user-1' },
+    } as unknown as RequestCtx;
+
+    // Service client: no existing song → insert creates song-1; score insert ok.
+    const songMaybeSingle = vi.fn(async () => ({ data: null, error: null }));
+    const songInsertSingle = vi.fn(async () => ({ data: { id: 'song-1' }, error: null }));
+    const songsTable = {
+      select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: songMaybeSingle })) })),
+      insert: vi.fn(() => ({ select: vi.fn(() => ({ single: songInsertSingle })) })),
+    };
+    const serviceFrom = vi.fn((table: string) =>
+      table === 'songs' ? songsTable : { insert: vi.fn(async () => ({ error: null })) },
+    );
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue({
+      from: serviceFrom,
+    } as unknown as ServiceClient);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(201);
+    // The song row was upserted with the canonical name + normalized key...
+    expect(songsTable.insert).toHaveBeenCalledWith({
+      title: 'Hello',
+      artist: 'Adele',
+      normalized_key: 'adele :: hello',
+    });
+    // ...and the performance carries the resolved song_id.
+    expect(perfInsert).toHaveBeenCalledWith(expect.objectContaining({ song_id: 'song-1' }));
   });
 
   // One video = one league entry (and one AI score): unique-violation → 409.

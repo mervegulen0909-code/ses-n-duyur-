@@ -3,6 +3,7 @@ import { InMemoryRateLimiter, type RateLimiter } from './rate-limiter';
 import { NoopBotCheck, type BotCheck } from './bot-check';
 
 export * from './scoring-provider';
+export * from './song-extractor';
 export * from './rate-limiter';
 export * from './bot-check';
 
