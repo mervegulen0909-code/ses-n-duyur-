@@ -1,9 +1,11 @@
 import type { BattleVoteInput, ListenEvent } from '@voxscore/core';
 
+import { WEB_BASE as API_BASE } from './config';
 import { supabase } from './supabase';
 
 // The native app talks to the deployed Next.js API (same fairness/score logic
-// as web). Override with EXPO_PUBLIC_API_BASE_URL for local/staging.
+// as web). Base URL is single-sourced in lib/config.ts (override per env with
+// EXPO_PUBLIC_API_BASE_URL for local/staging).
 //
 // AUTH: mobile sends the Supabase access token as a Bearer header. The API's
 // getRequestContext (apps/web/src/lib/supabase/server.ts) accepts BOTH cookie
@@ -15,7 +17,6 @@ import { supabase } from './supabase';
 // STILL GATED on native: /api/votes and /api/performances run botGuard
 // (Turnstile on web; App Attest / Play Integrity on native, N2b) which is not
 // wired here yet, so those 403 from native until device attestation lands.
-const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://web-seven-coral-88.vercel.app';
 
 async function authedPost<T>(
   path: string,
@@ -23,16 +24,23 @@ async function authedPost<T>(
 ): Promise<{ ok: boolean; status: number; data: T }> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(body),
-  });
-  const json = (await res.json().catch(() => ({}))) as T;
-  return { ok: res.ok, status: res.status, data: json };
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+    const json = (await res.json().catch(() => ({}))) as T;
+    return { ok: res.ok, status: res.status, data: json };
+  } catch {
+    // Network failure (offline, DNS, TLS, timeout) REJECTS fetch on-device.
+    // Surface a synthetic failure so every caller's `if (!res.ok)` / error
+    // branch fires instead of the promise rejecting and freezing the screen.
+    return { ok: false, status: 0, data: {} as T };
+  }
 }
 
 export async function startListen(performanceId: string): Promise<string | null> {

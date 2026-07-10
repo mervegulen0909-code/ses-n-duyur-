@@ -7,10 +7,19 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
  * cookie was set by the browser client during signInWithOAuth), then send the
  * user on. On any failure we bounce back to /login.
  */
+/**
+ * Only honor same-origin, absolute in-app paths for `next`. Rejects open-redirect
+ * payloads like `@evil.com` (becomes userinfo → host evil.com), `//evil.com` and
+ * `/\evil.com` (protocol-relative). Falls back to the home page otherwise.
+ */
+function safeNext(next: string): string {
+  return next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/\\') ? next : '/';
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/';
+  const next = safeNext(searchParams.get('next') ?? '/');
 
   if (code) {
     const supabase = await createSupabaseServerClient();

@@ -158,5 +158,16 @@
     "promptReason": "Bunu neden bildiriyorsun?",
     "thanks": "Bildirildi — teşekkürler.",
     "button": "Bildir"
+  },
+  "Dmca": {
+    "formTitle": "DMCA / Kaldırma talebi",
+    "intro": "YouTube videolarını gömeriz ve hiçbir medyayı barındırmayız. Buradaki içeriğin haklarını ihlal ettiğini düşünüyorsan, aşağıdan bir talep gönder; en kısa sürede inceleyelim.",
+    "claimantPlaceholder": "Adın / kuruluşun",
+    "performanceIdPlaceholder": "Performans ID (isteğe bağlı)",
+    "detailsPlaceholder": "Talebi açıkla (haklar, ihlal eden içerik vb.)",
+    "submit": "Talep gönder",
+    "filing": "Gönderiliyor…",
+    "filed": "Talebin alındı. En kısa sürede inceleyeceğiz.",
+    "failed": "Talep gönderilemedi. Girdini kontrol et."
   }
 }

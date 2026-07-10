@@ -18,9 +18,22 @@ export function useVerifiedListen(performanceId: string) {
   const onStart = useCallback(async () => {
     if (listenIdRef.current) return;
     setStatus('listening');
-    const id = await startListen(performanceId);
-    if (id) listenIdRef.current = id;
-    else setStatus('idle');
+    setReason(null);
+    // If the session can't be opened (offline / expired session / rate-limit),
+    // surface an actionable error instead of silently reverting to 'idle' — a
+    // full watch afterward would otherwise dead-end with no way to unlock voting.
+    try {
+      const id = await startListen(performanceId);
+      if (id) {
+        listenIdRef.current = id;
+      } else {
+        setStatus('invalid');
+        setReason('Could not start the listen — check your connection and replay.');
+      }
+    } catch {
+      setStatus('invalid');
+      setReason('Could not start the listen — check your connection and replay.');
+    }
   }, [performanceId]);
 
   const onComplete = useCallback(

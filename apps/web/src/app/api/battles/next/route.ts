@@ -1,4 +1,5 @@
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/guard';
 
 interface PerfRow {
   id: string;
@@ -32,6 +33,12 @@ function titleOf(meta: unknown): string {
 export async function POST(req: Request): Promise<Response> {
   const ctx = await getRequestContext(req);
   if (!ctx) return Response.json({ error: 'Authentication required' }, { status: 401 });
+
+  // This route inserts battle rows via the service role (bypassing the
+  // admin-only RLS insert policy), so rate-limit per user to stop a single
+  // caller flooding public.battles.
+  const limited = await rateLimit(req, ctx.user.id);
+  if (limited) return limited;
 
   const service = createSupabaseServiceClient();
   if (!service) return Response.json({ error: 'Server not configured' }, { status: 503 });

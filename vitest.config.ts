@@ -8,6 +8,11 @@ export default defineConfig({
     // this matches "@/lib/..." but never the "@voxscore/*" workspace pkgs.
     alias: {
       '@': fileURLToPath(new URL('./apps/web/src', import.meta.url)),
+      // `server-only`/`client-only` throw when imported outside their target
+      // environment; under vitest (plain Node) alias them to a no-op so
+      // server-only modules (e.g. lib/supabase/server, adapters) can be tested.
+      'server-only': fileURLToPath(new URL('./vitest.empty.ts', import.meta.url)),
+      'client-only': fileURLToPath(new URL('./vitest.empty.ts', import.meta.url)),
     },
   },
   test: {

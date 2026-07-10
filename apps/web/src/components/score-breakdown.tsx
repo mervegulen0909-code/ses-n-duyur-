@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { CRITERIA, type Criterion } from '@voxscore/scoring';
 import { ProvisionalBadge } from './provisional-badge';
+import { trendDirection } from '@/lib/leaderboard';
 
 export interface ScoreBreakdownProps {
   initialAiScore: number | null;
@@ -20,8 +21,11 @@ function fmt(value: number | null): string {
 export function ScoreBreakdown(props: ScoreBreakdownProps) {
   const t = useTranslations();
   const trend = props.trendScore ?? 0;
+  // Use the leaderboard's flat band (|trend| < 0.05 → flat) so a value that
+  // rounds to 0.0 shows neutral with no '+' — matching the leaderboard arrow.
+  const dir = trendDirection(props.trendScore);
   const trendColor =
-    trend > 0 ? 'text-emerald-400' : trend < 0 ? 'text-rose-400' : 'text-neutral-400';
+    dir === 'up' ? 'text-emerald-400' : dir === 'down' ? 'text-rose-400' : 'text-neutral-400';
 
   return (
     <section className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
@@ -32,7 +36,7 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
         </div>
         <div className="text-right">
           <div className={`text-sm font-medium ${trendColor}`}>
-            {trend > 0 ? '+' : ''}
+            {dir === 'up' ? '+' : ''}
             {trend.toFixed(1)} {t('Performance.trend')}
           </div>
           <div className="text-xs text-neutral-500">

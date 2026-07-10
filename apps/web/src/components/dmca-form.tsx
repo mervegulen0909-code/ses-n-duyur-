@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export function DmcaForm() {
+  const t = useTranslations('Dmca');
   const [claimant, setClaimant] = useState('');
   const [performanceId, setPerformanceId] = useState('');
   const [details, setDetails] = useState('');
@@ -24,12 +26,12 @@ export function DmcaForm() {
     });
     setBusy(false);
     if (res.ok) {
-      setMsg('Your request has been filed. We will review it promptly.');
+      setMsg(t('filed'));
       setClaimant('');
       setPerformanceId('');
       setDetails('');
     } else {
-      setMsg('Could not file the request. Check your input.');
+      setMsg(t('failed'));
     }
   }
 
@@ -42,19 +44,19 @@ export function DmcaForm() {
         required
         value={claimant}
         onChange={(e) => setClaimant(e.target.value)}
-        placeholder="Your name / organization"
+        placeholder={t('claimantPlaceholder')}
         className={input}
       />
       <input
         value={performanceId}
         onChange={(e) => setPerformanceId(e.target.value)}
-        placeholder="Performance ID (optional)"
+        placeholder={t('performanceIdPlaceholder')}
         className={input}
       />
       <textarea
         value={details}
         onChange={(e) => setDetails(e.target.value)}
-        placeholder="Describe the claim (rights, infringing content, etc.)"
+        placeholder={t('detailsPlaceholder')}
         rows={5}
         className={input}
       />
@@ -63,7 +65,7 @@ export function DmcaForm() {
         disabled={busy}
         className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
       >
-        {busy ? 'Filing…' : 'File request'}
+        {busy ? t('filing') : t('submit')}
       </button>
       {msg && <p className="text-sm text-neutral-400">{msg}</p>}
     </form>

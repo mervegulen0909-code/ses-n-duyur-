@@ -16,18 +16,23 @@ import { supabase } from '@/lib/supabase';
 import { isOnboardingComplete } from '@/lib/onboarding';
 import { useSession } from '@/lib/use-session';
 
-type ScoreRel = { current_score: number | null };
+type ScoreRel = { current_score: number | null; is_provisional?: boolean | null };
 type PerfRow = {
   id: string;
   oembed_meta: { title?: string; authorName?: string } | null;
   scores: ScoreRel | ScoreRel[] | null;
 };
-type Item = { id: string; title: string; artist: string; score: number | null };
+type Item = {
+  id: string;
+  title: string;
+  artist: string;
+  score: number | null;
+  isProvisional: boolean;
+};
 
-function scoreOf(scores: ScoreRel | ScoreRel[] | null | undefined): number | null {
+function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): ScoreRel | null {
   if (!scores) return null;
-  const row = Array.isArray(scores) ? scores[0] : scores;
-  return row?.current_score ?? null;
+  return (Array.isArray(scores) ? scores[0] : scores) ?? null;
 }
 
 export default function LeaderboardScreen() {
@@ -48,7 +53,7 @@ export default function LeaderboardScreen() {
   const load = useCallback(async () => {
     const { data, error } = await supabase
       .from('performances')
-      .select('id, oembed_meta, scores(current_score)')
+      .select('id, oembed_meta, scores(current_score, is_provisional)')
       .eq('status', 'active');
 
     if (error) {
@@ -62,11 +67,14 @@ export default function LeaderboardScreen() {
     const rows = (data ?? []) as unknown as PerfRow[];
     const mapped: Item[] = rows.map((p) => {
       const meta = p.oembed_meta ?? {};
+      const score = scoreRowOf(p.scores);
       return {
         id: p.id,
         title: meta.title ?? 'Untitled',
         artist: meta.authorName ?? '',
-        score: scoreOf(p.scores),
+        score: score?.current_score ?? null,
+        // Column is NOT NULL default true; absent score → treat as provisional.
+        isProvisional: score?.is_provisional !== false,
       };
     });
     mapped.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
@@ -93,9 +101,14 @@ export default function LeaderboardScreen() {
             <Pressable onPress={() => router.push('/battle')} hitSlop={8}>
               <Text style={styles.authLink}>Battle</Text>
             </Pressable>
-            <Pressable onPress={() => router.push('/voxscore-demo')} hitSlop={8}>
-              <Text style={styles.authLink}>Demo</Text>
-            </Pressable>
+            {/* Design prototype (simulated recording/scoring) — dev/preview only.
+                Hidden in production/store builds so users never see the mock as
+                if it were a real voice-recording feature. */}
+            {__DEV__ && (
+              <Pressable onPress={() => router.push('/voxscore-demo')} hitSlop={8}>
+                <Text style={styles.authLink}>Demo</Text>
+              </Pressable>
+            )}
             {user ? (
               <>
                 <Pressable onPress={() => router.push('/add')} hitSlop={8}>
@@ -150,6 +163,9 @@ export default function LeaderboardScreen() {
                     {item.artist}
                   </Text>
                 )}
+                {item.isProvisional && (
+                  <Text style={styles.provisional}>Provisional AI Estimate</Text>
+                )}
               </View>
               <Text style={styles.score}>{item.score != null ? item.score.toFixed(1) : '—'}</Text>
             </Pressable>
@@ -188,5 +204,6 @@ const styles = StyleSheet.create({
   rowMain: { flex: 1 },
   title: { fontSize: 15, fontWeight: '600', color: '#fafafa' },
   artist: { marginTop: 2, fontSize: 12, color: '#9ca3af' },
+  provisional: { marginTop: 4, fontSize: 10, fontWeight: '600', color: '#fbbf24' },
   score: { fontSize: 17, fontWeight: '800', color: '#22D3EE', minWidth: 48, textAlign: 'right' },
 });

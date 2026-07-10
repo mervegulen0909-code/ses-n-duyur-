@@ -43,7 +43,10 @@ export interface CreatorSummary {
 
 function titleOf(meta: unknown): string {
   const m = (meta ?? {}) as { title?: string };
-  return m.title ?? 'Untitled performance';
+  // Empty (not an English literal) so the profile page's
+  // `title || t('Common.untitledPerformance')` fallback localizes — matching
+  // the leaderboard/standings titleOf. A truthy English default would leak.
+  return m.title ?? '';
 }
 
 export function summarizeCreator(

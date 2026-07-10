@@ -59,12 +59,17 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
   const listenA = useVerifiedListen(battle.a.performanceId);
   const listenB = useVerifiedListen(battle.b.performanceId);
   const [result, setResult] = useState<string>('');
+  // Only a confirmed success ('ok') swaps in the 'Next battle' block; an error
+  // keeps the winner buttons so a transient failure can be retried in-place.
+  const [voteState, setVoteState] = useState<'ok' | 'error' | null>(null);
   const [busy, setBusy] = useState(false);
   const bothVerified = listenA.status === 'verified' && listenB.status === 'verified';
 
   async function vote(winnerPerformanceId: string) {
     if (!bothVerified || !listenA.listenIdRef.current || !listenB.listenIdRef.current) return;
     setBusy(true);
+    setVoteState(null);
+    setResult('');
     try {
       const res = await fetch('/api/battles/vote', {
         method: 'POST',
@@ -77,9 +82,16 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
         }),
       });
       const body = (await res.json()) as { ok?: boolean; error?: string };
-      setResult(res.ok && body.ok ? t('Battle.voteRecorded') : (body.error ?? t('Common.failed')));
+      if (res.ok && body.ok) {
+        setResult(t('Battle.voteRecorded'));
+        setVoteState('ok');
+      } else {
+        setResult(body.error ?? t('Common.failed'));
+        setVoteState('error');
+      }
     } catch {
       setResult(t('Common.networkError'));
+      setVoteState('error');
     } finally {
       setBusy(false);
     }
@@ -92,7 +104,7 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
         <BattleSide side={battle.b} listen={listenB} />
       </div>
 
-      {result ? (
+      {voteState === 'ok' ? (
         <div className="space-y-3 text-center">
           <p className="text-emerald-400">{result}</p>
           <button
@@ -104,26 +116,29 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
           </button>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            disabled={!bothVerified || busy}
-            onClick={() => vote(battle.a.performanceId)}
-            className="rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white disabled:opacity-40"
-          >
-            {t('Battle.sideWins', { title: battle.a.title })}
-          </button>
-          <button
-            type="button"
-            disabled={!bothVerified || busy}
-            onClick={() => vote(battle.b.performanceId)}
-            className="rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white disabled:opacity-40"
-          >
-            {t('Battle.sideWins', { title: battle.b.title })}
-          </button>
+        <div className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              disabled={!bothVerified || busy}
+              onClick={() => vote(battle.a.performanceId)}
+              className="rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white disabled:opacity-40"
+            >
+              {t('Battle.sideWins', { title: battle.a.title })}
+            </button>
+            <button
+              type="button"
+              disabled={!bothVerified || busy}
+              onClick={() => vote(battle.b.performanceId)}
+              className="rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white disabled:opacity-40"
+            >
+              {t('Battle.sideWins', { title: battle.b.title })}
+            </button>
+          </div>
+          {voteState === 'error' && <p className="text-center text-sm text-rose-400">{result}</p>}
         </div>
       )}
-      {!bothVerified && !result && (
+      {!bothVerified && voteState !== 'ok' && (
         <p className="text-center text-xs text-neutral-600">{t('Battle.mustListenBoth')}</p>
       )}
     </div>

@@ -55,7 +55,10 @@ export class OpenAIScoringProvider implements ScoringProvider {
       });
 
       const raw = completion.choices[0]?.message?.content;
-      if (!raw) return this.fallback.score(input);
+      if (!raw) {
+        console.error('[scoring] OpenAI returned empty content; falling back to mock estimate');
+        return this.fallback.score(input);
+      }
       const parsed = JSON.parse(raw) as Record<string, unknown>;
 
       const breakdown = Object.fromEntries(
@@ -71,7 +74,11 @@ export class OpenAIScoringProvider implements ScoringProvider {
         provisional: true,
         model: SCORING_MODEL,
       };
-    } catch {
+    } catch (err) {
+      // Degrade to the deterministic mock so adding a performance never fails,
+      // but surface WHY (invalid key, rate limit, bad model id) in server logs —
+      // otherwise a misconfigured OPENAI_API_KEY silently scores as mock forever.
+      console.error('[scoring] OpenAI provider failed; falling back to mock estimate:', err);
       return this.fallback.score(input);
     }
   }
@@ -113,7 +120,10 @@ export class AnthropicScoringProvider implements ScoringProvider {
       // wraps the object in prose.
       const start = raw.indexOf('{');
       const end = raw.lastIndexOf('}');
-      if (start === -1 || end === -1) return this.fallback.score(input);
+      if (start === -1 || end === -1) {
+        console.error('[scoring] Anthropic reply had no JSON object; falling back to mock estimate');
+        return this.fallback.score(input);
+      }
       const parsed = JSON.parse(raw.slice(start, end + 1)) as Record<string, unknown>;
 
       const breakdown = Object.fromEntries(
@@ -129,7 +139,11 @@ export class AnthropicScoringProvider implements ScoringProvider {
         provisional: true,
         model: ANTHROPIC_MODEL,
       };
-    } catch {
+    } catch (err) {
+      // Degrade to the deterministic mock so adding a performance never fails,
+      // but surface WHY (invalid key, rate limit, bad model id) in server logs —
+      // otherwise a misconfigured ANTHROPIC_API_KEY silently scores as mock forever.
+      console.error('[scoring] Anthropic provider failed; falling back to mock estimate:', err);
       return this.fallback.score(input);
     }
   }

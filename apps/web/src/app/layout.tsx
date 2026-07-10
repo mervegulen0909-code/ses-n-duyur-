@@ -5,13 +5,30 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavAuth } from '@/components/nav-auth';
+import { SITE_URL } from '@/lib/site';
 import './globals.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Meta');
+  const title = t('title');
+  const description = t('description');
   return {
-    title: t('title'),
-    description: t('description'),
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    applicationName: 'VoxScore',
+    openGraph: {
+      title,
+      description,
+      siteName: 'VoxScore',
+      type: 'website',
+      url: SITE_URL,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
     // App-controlled i18n (next-intl) translates the UI — keep BROWSER auto-
     // translation OFF: Chrome Translate swaps text nodes for <font> wrappers and
     // breaks React reconciliation. See docs/adr/0002-disable-browser-auto-translation.md.
@@ -46,12 +63,17 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 <Link href="/standings" className="text-sm text-neutral-400 hover:text-neutral-200">
                   {t('standings')}
                 </Link>
-                <Link
-                  href="/storyboard"
-                  className="text-sm text-neutral-400 hover:text-neutral-200"
-                >
-                  {t('storyboard')}
-                </Link>
+                {/* English-only design storyboard — kept reachable by URL for
+                    demos, but out of the main nav in production so regular (incl.
+                    Turkish) users don't land on untranslated prototype copy. */}
+                {process.env.NODE_ENV !== 'production' && (
+                  <Link
+                    href="/storyboard"
+                    className="text-sm text-neutral-400 hover:text-neutral-200"
+                  >
+                    {t('storyboard')}
+                  </Link>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <LanguageSwitcher />

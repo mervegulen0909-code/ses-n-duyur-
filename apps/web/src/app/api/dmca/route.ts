@@ -1,5 +1,6 @@
 import { dmcaSchema } from '@voxscore/core';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/guard';
 
 /** Public DMCA / takedown filing. Anyone may submit (RLS dmca_insert_any). */
 export async function POST(req: Request): Promise<Response> {
@@ -12,6 +13,11 @@ export async function POST(req: Request): Promise<Response> {
 
   const parsed = dmcaSchema.safeParse(json);
   if (!parsed.success) return Response.json({ error: 'Invalid input' }, { status: 422 });
+
+  // The only public, unauthenticated mutation: rate-limit by IP so the
+  // takedown queue can't be flooded with fabricated requests.
+  const limited = await rateLimit(req);
+  if (limited) return limited;
 
   const supabase = await createSupabaseServerClient();
   if (!supabase) return Response.json({ error: 'Supabase is not configured' }, { status: 503 });

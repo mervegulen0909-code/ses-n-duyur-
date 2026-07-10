@@ -9,7 +9,7 @@ its env key is present, and falls back to a dev mock otherwise.
 
 | Capability    | Mock (no key)                         | Real (key present)                      | Activating env                                                                             |
 | ------------- | ------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------ |
-| AI scoring    | `MockScoringProvider` (deterministic) | `OpenAIScoringProvider` (`gpt-4o-mini`) | `OPENAI_API_KEY`                                                                           |
+| AI scoring    | `MockScoringProvider` (deterministic) | `AnthropicScoringProvider` (`claude-haiku-4-5-20251001`, preferred) → `OpenAIScoringProvider` (`gpt-4o-mini`) | `ANTHROPIC_API_KEY` (preferred) **or** `OPENAI_API_KEY`                       |
 | Rate limiting | `InMemoryRateLimiter`                 | `UpstashRateLimiter`                    | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`                                      |
 | Bot check     | `NoopBotCheck` (passes)               | `TurnstileBotCheck`                     | `TURNSTILE_SECRET_KEY`                                                                     |
 | DB + Auth     | local Supabase                        | Supabase cloud                          | `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY` |
@@ -26,12 +26,17 @@ needed to switch — set the env var and redeploy.
 5. Project Settings → API: copy **Project URL**, **anon/publishable key**, **service_role/secret key**.
 6. Auth → providers: enable Email; set Site URL + redirect URLs to your domain.
 
-## 2. OpenAI (AI scoring)
+## 2. LLM scoring (Anthropic preferred, OpenAI fallback)
 
-- Create an API key at platform.openai.com → set `OPENAI_API_KEY`.
-- Model defaults to `gpt-4o-mini` (override with `OPENAI_SCORING_MODEL`); see
-  `apps/web/src/lib/adapters/scoring.ts`. Scores from YouTube stay **provisional** —
-  the provider never claims audio measurement, and falls back to the mock on error.
+- **Anthropic (preferred):** create a key at console.anthropic.com → set `ANTHROPIC_API_KEY`.
+  Model defaults to `claude-haiku-4-5-20251001` (override with `ANTHROPIC_SCORING_MODEL`).
+- **OpenAI (fallback):** create a key at platform.openai.com → set `OPENAI_API_KEY`.
+  Model defaults to `gpt-4o-mini` (override with `OPENAI_SCORING_MODEL`).
+- Selection order is `ANTHROPIC_API_KEY → OPENAI_API_KEY → mock`; see
+  `apps/web/src/lib/adapters/scoring.ts` (`getScoringProvider()`). Scores from
+  YouTube stay **provisional** — the provider never claims audio measurement, and
+  falls back to the mock on error (the failure is logged server-side, so a bad key
+  is visible in Vercel logs instead of silently degrading).
 
 ## 3. Upstash (rate limiting)
 

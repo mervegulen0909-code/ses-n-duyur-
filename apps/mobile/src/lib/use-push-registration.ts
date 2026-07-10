@@ -29,10 +29,10 @@ export function usePushRegistration() {
   const [token, setToken] = useState<string | null>(null);
   const [reason, setReason] = useState<PushUnavailableReason | null>(null);
 
-  const register = useCallback(async () => {
+  const run = useCallback(async (prompt: boolean) => {
     setStatus('registering');
     setReason(null);
-    const res: PushTokenResult = await registerForPushNotifications();
+    const res: PushTokenResult = await registerForPushNotifications({ prompt });
     if (res.ok) {
       setToken(res.token);
       setStatus('registered');
@@ -42,14 +42,20 @@ export function usePushRegistration() {
       try {
         await registerPushToken(res.token, Platform.OS === 'android' ? 'android' : 'ios');
       } catch {
-        // network/unreachable — the next sign-in re-runs registration.
+        // network/unreachable — registration can be retried later.
       }
     } else {
       setToken(null);
       setReason(res.reason);
-      setStatus('unavailable');
+      // 'permission-denied' from a non-prompting sync just means "not enabled yet",
+      // not a hard failure — keep the UI quiet (idle) so nothing nags the user.
+      setStatus(res.reason === 'permission-denied' && !prompt ? 'idle' : 'unavailable');
     }
   }, []);
+
+  // Explicit, user-gesture entry point: MAY show the OS permission dialog. Wire
+  // this to a "Enable notifications" control rather than calling it on sign-in.
+  const register = useCallback(() => run(true), [run]);
 
   useEffect(() => {
     if (!user) {
@@ -58,8 +64,10 @@ export function usePushRegistration() {
       setReason(null);
       return;
     }
-    void register();
-  }, [user, register]);
+    // Do NOT prompt on sign-in (Apple HIG): only register if permission was
+    // already granted. An explicit gesture should call register() to request it.
+    void run(false);
+  }, [user, run]);
 
   return { status, token, reason, register };
 }

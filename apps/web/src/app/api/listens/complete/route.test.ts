@@ -4,6 +4,9 @@ vi.mock('@/lib/supabase/server', () => ({
   getRequestContext: vi.fn(),
   createSupabaseServiceClient: vi.fn(),
 }));
+vi.mock('@/lib/guard', () => ({
+  rateLimit: vi.fn(async () => null),
+}));
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { POST } from './route';
@@ -29,7 +32,12 @@ const validBody = {
   events: [{ kind: 'ended', atSeconds: 200, clientTs: 5 }],
 };
 
-const ownedListen = { id: LISTEN, user_id: 'me', performance_id: PERF };
+const ownedListen = {
+  id: LISTEN,
+  user_id: 'me',
+  performance_id: PERF,
+  created_at: '2026-06-24T12:00:00.000Z',
+};
 
 function makeCtx(userId = 'me', listen: Record<string, unknown> | null = ownedListen) {
   const maybeSingle = vi.fn(async () => ({ data: listen }));

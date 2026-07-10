@@ -19,19 +19,24 @@ import { useSession } from '@/lib/use-session';
 
 type Profile = { handle: string; reputation: number };
 
-type ScoreRel = { current_score: number | null };
+type ScoreRel = { current_score: number | null; is_provisional?: boolean | null };
 type PerfRow = {
   id: string;
   status: string;
   oembed_meta: { title?: string; authorName?: string } | null;
   scores: ScoreRel | ScoreRel[] | null;
 };
-type Item = { id: string; title: string; status: string; score: number | null };
+type Item = {
+  id: string;
+  title: string;
+  status: string;
+  score: number | null;
+  isProvisional: boolean;
+};
 
-function scoreOf(scores: ScoreRel | ScoreRel[] | null | undefined): number | null {
+function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): ScoreRel | null {
   if (!scores) return null;
-  const row = Array.isArray(scores) ? scores[0] : scores;
-  return row?.current_score ?? null;
+  return (Array.isArray(scores) ? scores[0] : scores) ?? null;
 }
 
 export default function ProfileScreen() {
@@ -99,7 +104,7 @@ export default function ProfileScreen() {
       supabase.from('profiles').select('handle, reputation').eq('id', user.id).single(),
       supabase
         .from('performances')
-        .select('id, status, oembed_meta, scores(current_score)')
+        .select('id, status, oembed_meta, scores(current_score, is_provisional)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false }),
     ]);
@@ -123,11 +128,14 @@ export default function ProfileScreen() {
     setItems(
       rows.map((p) => {
         const meta = p.oembed_meta ?? {};
+        const score = scoreRowOf(p.scores);
         return {
           id: p.id,
           title: meta.title ?? 'Untitled',
           status: p.status,
-          score: scoreOf(p.scores),
+          score: score?.current_score ?? null,
+          // Column is NOT NULL default true; absent score → treat as provisional.
+          isProvisional: score?.is_provisional !== false,
         };
       }),
     );
@@ -241,6 +249,9 @@ export default function ProfileScreen() {
                     {item.status}
                   </Text>
                 )}
+                {item.isProvisional && (
+                  <Text style={styles.provisional}>Provisional AI Estimate</Text>
+                )}
               </View>
               <Text style={styles.score}>{item.score != null ? item.score.toFixed(1) : '—'}</Text>
             </Pressable>
@@ -286,6 +297,7 @@ const styles = StyleSheet.create({
   rowMain: { flex: 1 },
   title: { fontSize: 15, fontWeight: '600', color: '#fafafa' },
   status: { marginTop: 2, fontSize: 12, color: '#fbbf24', textTransform: 'capitalize' },
+  provisional: { marginTop: 4, fontSize: 10, fontWeight: '600', color: '#fbbf24' },
   score: { fontSize: 17, fontWeight: '800', color: '#22D3EE', minWidth: 48, textAlign: 'right' },
   // Danger zone — store-required account deletion.
   deleteButton: {

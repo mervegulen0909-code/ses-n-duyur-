@@ -26,6 +26,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
 
   function done() {
     if (router.canGoBack()) router.back();
@@ -36,23 +37,41 @@ export default function LoginScreen() {
     if (busy) return;
     setBusy(true);
     setError('');
-    const { error } =
-      mode === 'login'
-        ? await supabase.auth.signInWithPassword({ email: email.trim(), password })
-        : await supabase.auth.signUp({ email: email.trim(), password });
+    setNotice('');
+
+    if (mode === 'login') {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      setBusy(false);
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      done();
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({ email: email.trim(), password });
     setBusy(false);
     if (error) {
       setError(error.message);
       return;
     }
-    // Email confirmation is disabled, so signup signs in immediately.
-    done();
+    // If the project has email confirmation DISABLED, signUp returns a session
+    // and we're signed in immediately. If it's ENABLED, there is no session yet —
+    // tell the user to confirm instead of silently navigating away signed-out.
+    if (data.session) {
+      done();
+      return;
+    }
+    setNotice('Account created. Check your email to confirm, then sign in.');
+    setMode('login');
   }
 
   async function signInWithGoogle() {
     if (busy) return;
     setBusy(true);
     setError('');
+    setNotice('');
     try {
       // Deep-links back into the app (scheme "voxscore"): voxscore://auth-callback
       const redirectTo = Linking.createURL('auth-callback');
@@ -133,6 +152,7 @@ export default function LoginScreen() {
         />
 
         {!!error && <Text style={styles.error}>{error}</Text>}
+        {!!notice && <Text style={styles.notice}>{notice}</Text>}
 
         <Pressable
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
@@ -146,7 +166,14 @@ export default function LoginScreen() {
           )}
         </Pressable>
 
-        <Pressable onPress={() => setMode(mode === 'login' ? 'signup' : 'login')} hitSlop={8}>
+        <Pressable
+          onPress={() => {
+            setError('');
+            setNotice('');
+            setMode(mode === 'login' ? 'signup' : 'login');
+          }}
+          hitSlop={8}
+        >
           <Text style={styles.toggle}>
             {mode === 'login' ? 'Need an account? Sign up' : 'Have an account? Sign in'}
           </Text>
@@ -177,6 +204,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   error: { color: '#fb7185', fontSize: 13 },
+  notice: { color: '#34D399', fontSize: 13 },
   button: {
     marginTop: 8,
     backgroundColor: '#22D3EE',
