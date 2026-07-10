@@ -84,14 +84,34 @@ export default function PerformanceScreen() {
   const [posting, setPosting] = useState(false);
   const [commentErr, setCommentErr] = useState('');
 
-  // Real DSP measurement of the artist's own recording (ADR 0003). Separate,
-  // soft-failing query: until the measured_scores table ships live, this
-  // simply stays null. Refetched on focus so returning from the measure
-  // screen shows the fresh badges.
+  // Real DSP measurement of the artist's own recording (ADR 0003). Soft-fails
+  // to null until the measured_scores table ships live.
   const [measured, setMeasured] = useState<Record<string, number> | null>(null);
+
+  // Refetch performance + score (and the measurement) on every focus, not just
+  // mount: returning from the /measure screen must show the just-recomputed
+  // current_score, not the pre-measurement snapshot. Never resets `state` to
+  // 'loading' after the first load, so refocusing doesn't flash a spinner.
   useFocusEffect(
     useCallback(() => {
       let active = true;
+      (async () => {
+        const { data, error } = await supabase
+          .from('performances')
+          .select(
+            'id, user_id, youtube_video_id, has_video, song_id, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional)',
+          )
+          .eq('id', id)
+          .single();
+        if (!active) return;
+        if (error) {
+          setError(error.message);
+          setState('error');
+          return;
+        }
+        setPerf(data as unknown as Perf);
+        setState('ready');
+      })();
       (async () => {
         const { data } = await supabase
           .from('measured_scores')
@@ -109,29 +129,10 @@ export default function PerformanceScreen() {
   );
 
   useEffect(() => {
-    let active = true;
-    (async () => {
-      const { data, error } = await supabase
-        .from('performances')
-        .select(
-          'id, user_id, youtube_video_id, has_video, song_id, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional)',
-        )
-        .eq('id', id)
-        .single();
-      if (!active) return;
-      if (error) {
-        setError(error.message);
-        setState('error');
-        return;
-      }
-      setPerf(data as unknown as Perf);
-      setState('ready');
-    })();
     return () => {
-      active = false;
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [id]);
+  }, []);
 
   const loadComments = useCallback(async () => {
     const { data } = await supabase
