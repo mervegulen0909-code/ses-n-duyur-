@@ -63,7 +63,10 @@ export function buildPerformanceCreate(params: BuildPerformanceParams): Performa
       duration_s: params.durationS ?? null,
     },
     score: {
-      scoring_version: 1,
+      // v2 (2026-07-10): deterministic scoring regime — pinned model snapshots,
+      // temperature 0, rubric-anchored prompt, scores quantized to multiples
+      // of 5. v1 scores predate those guarantees; keep them distinguishable.
+      scoring_version: 2,
       initial_ai_score: params.scoring.initialAiScore,
       ai_breakdown: params.scoring.breakdown,
       is_provisional: params.scoring.provisional,
