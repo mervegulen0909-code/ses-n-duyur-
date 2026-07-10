@@ -169,5 +169,9 @@
     "filing": "Filing…",
     "filed": "Your request has been filed. We will review it promptly.",
     "failed": "Could not file the request. Check your input."
+  },
+  "Song": {
+    "subtitle": "Who sings this song best — ranked by score.",
+    "viewRanking": "See who sings “{title}” best"
   }
 }
