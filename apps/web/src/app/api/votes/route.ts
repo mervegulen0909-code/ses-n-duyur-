@@ -68,6 +68,18 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
+  // Fairness: a creator cannot rate their OWN performance (a self-vote would
+  // seed 100s across every criterion). Owners always see their own row through
+  // RLS, so this check is reliable exactly for the self-vote case.
+  const { data: votedPerf } = await supabase
+    .from('performances')
+    .select('user_id')
+    .eq('id', parsed.data.performanceId)
+    .maybeSingle();
+  if (votedPerf?.user_id === user.id) {
+    return Response.json({ error: 'You cannot vote on your own performance' }, { status: 403 });
+  }
+
   // Map camelCase ratings → snake_case columns.
   const ratingColumns: Record<string, number> = {};
   for (const c of CRITERIA) {

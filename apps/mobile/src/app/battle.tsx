@@ -249,6 +249,15 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
 
       {voteState === 'submitting' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
       {voteState === 'error' && <Text style={styles.error}>{voteMsg}</Text>}
+
+      {/* Always offer a way out: if a side can't be completed (embedding
+          disabled, broken video, or the user just isn't interested), the
+          battle would otherwise dead-end — Next only appeared after a vote. */}
+      {voteState !== 'done' && (
+        <Pressable onPress={onNext} hitSlop={8} style={styles.skipBtn}>
+          <Text style={styles.skipText}>Skip — next battle ›</Text>
+        </Pressable>
+      )}
     </ScrollView>
   );
 }
@@ -467,6 +476,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   nextBtnText: { color: '#06281d', fontSize: 15, fontWeight: '800' },
+  skipBtn: { alignSelf: 'center', paddingVertical: 10, paddingHorizontal: 16 },
+  skipText: { color: '#9ca3af', fontSize: 13, fontWeight: '600' },
   emptyWrap: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 16 },
   emptyTitle: { fontSize: 18, fontWeight: '800', color: '#fafafa' },
   emptyText: { fontSize: 14, color: '#9ca3af', textAlign: 'center', lineHeight: 20 },

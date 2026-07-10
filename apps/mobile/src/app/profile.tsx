@@ -42,12 +42,17 @@ function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): ScoreRel 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, loading: sessionLoading } = useSession();
+  // Key data-loading on the STABLE id string, not the `user` object identity:
+  // Supabase mints a fresh user object on every token refresh, which would
+  // otherwise re-trigger the focus effect (loading-spinner flash) mid-session.
+  const userId = user?.id ?? null;
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // The actual destructive call: delete server-side, then sign out and leave.
   const runDelete = useCallback(async () => {
@@ -95,17 +100,17 @@ export default function ProfileScreen() {
   }, [runDelete]);
 
   const load = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
 
     // Profile + performances both read directly through supabase (RLS-protected):
     // profiles is world-readable; performances are visible to their owner even
     // when not 'active'. No API/Bearer needed for these reads.
     const [profileRes, perfRes] = await Promise.all([
-      supabase.from('profiles').select('handle, reputation').eq('id', user.id).single(),
+      supabase.from('profiles').select('handle, reputation').eq('id', userId).single(),
       supabase
         .from('performances')
         .select('id, status, oembed_meta, scores(current_score, is_provisional)')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false }),
     ]);
 
@@ -140,21 +145,31 @@ export default function ProfileScreen() {
       }),
     );
     setState('ready');
-  }, [user]);
+  }, [userId]);
 
   // Refetch on focus so "Your performances" reflects anything added since the
   // last visit (not just the first mount).
   useFocusEffect(
     useCallback(() => {
       if (sessionLoading) return;
-      if (!user) {
+      if (!userId) {
         setState('ready');
         return;
       }
       setState('loading');
       load();
-    }, [sessionLoading, user, load]),
+    }, [sessionLoading, userId, load]),
   );
+
+  // Pull-to-refresh with a visible spinner.
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await load();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [load]);
 
   // ---- Signed-out state ----------------------------------------------------
   if (!sessionLoading && !user) {
@@ -235,7 +250,7 @@ export default function ProfileScreen() {
             </>
           }
           refreshControl={
-            <RefreshControl refreshing={false} onRefresh={load} tintColor="#22D3EE" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#22D3EE" />
           }
           renderItem={({ item }) => (
             <Pressable

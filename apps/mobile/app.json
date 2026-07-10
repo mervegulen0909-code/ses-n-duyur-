@@ -8,7 +8,6 @@
     "scheme": "voxscore",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.voxscore.app",
       "buildNumber": "1",
       "config": {

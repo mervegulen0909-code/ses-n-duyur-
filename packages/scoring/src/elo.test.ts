@@ -32,6 +32,12 @@ describe('updateRating', () => {
     expect(() => updateRating(1500, 1500, 1, 0)).toThrow(RangeError);
     expect(() => updateRating(1500, 1500, 1, -10)).toThrow(RangeError);
   });
+  it('throws on an out-of-band result (NaN or outside [0, 1])', () => {
+    const bad = (r: number) => () => updateRating(1500, 1500, r as 0 | 0.5 | 1);
+    expect(bad(Number.NaN)).toThrow();
+    expect(bad(-1)).toThrow(RangeError);
+    expect(bad(7)).toThrow(RangeError);
+  });
 });
 
 describe('applyBattle', () => {
