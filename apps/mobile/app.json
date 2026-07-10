@@ -50,7 +50,19 @@
           "defaultChannel": "default"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@siteed/audio-studio",
+        {
+          "enablePhoneStateHandling": false,
+          "enableNotifications": false,
+          "enableBackgroundAudio": false,
+          "enableDeviceDetection": false,
+          "iosConfig": {
+            "microphoneUsageDescription": "VoxScore records your own performance to measure real vocal scores. The audio is analyzed on our server and immediately deleted."
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
