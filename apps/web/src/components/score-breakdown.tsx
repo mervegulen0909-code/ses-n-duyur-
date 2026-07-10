@@ -11,6 +11,8 @@ export interface ScoreBreakdownProps {
   trendScore: number | null;
   isProvisional: boolean;
   breakdown: Partial<Record<Criterion, number>> | null;
+  /** Real DSP values measured from the artist's own recording (ADR 0003). */
+  measured?: Partial<Record<Criterion, number>> | null;
   hasVideo: boolean;
 }
 
@@ -51,14 +53,29 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
         </div>
       )}
 
+      {props.measured && (
+        <p className="mb-4 text-xs text-neutral-500">{t('Performance.measuredCaption')}</p>
+      )}
+
       <ul className="space-y-1.5">
         {CRITERIA.filter((c) => props.hasVideo || c !== 'stagePresence').map((c) => {
-          const value = props.breakdown?.[c] ?? null;
+          const measuredValue = props.measured?.[c] ?? null;
+          const value = measuredValue ?? props.breakdown?.[c] ?? null;
           return (
             <li key={c} className="flex items-center gap-3 text-sm">
-              <span className="w-44 shrink-0 text-neutral-400">{t(`Criteria.${c}`)}</span>
+              <span className="w-44 shrink-0 text-neutral-400">
+                {t(`Criteria.${c}`)}
+                {measuredValue !== null && (
+                  <span className="ml-1.5 rounded bg-sky-500/15 px-1 py-px text-[10px] font-medium text-sky-400">
+                    {t('Performance.measuredBadge')}
+                  </span>
+                )}
+              </span>
               <div className="h-1.5 flex-1 overflow-hidden rounded bg-neutral-800">
-                <div className="h-full bg-emerald-500/70" style={{ width: `${value ?? 0}%` }} />
+                <div
+                  className={`h-full ${measuredValue !== null ? 'bg-sky-500/70' : 'bg-emerald-500/70'}`}
+                  style={{ width: `${value ?? 0}%` }}
+                />
               </div>
               <span className="w-10 shrink-0 text-right tabular-nums text-neutral-300">
                 {fmt(value)}

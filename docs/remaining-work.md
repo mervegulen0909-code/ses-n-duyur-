@@ -56,16 +56,21 @@
 
 ## 4. Infrastructure hygiene (won't block launch, will bite later)
 
+- [ ] **Apply `20260710150000_measured_scores.sql` to the live DB** (SQL
+      editor, like every migration here). Until it runs, `/api/measurements`
+      returns 500 on store and the performance page simply shows no
+      "Measured" badges (reads fail soft). See ADR 0003.
 - [ ] **Rotate the Supabase `service_role` secret.** The current secret was
-      briefly exposed as an env-var *name* in Vercel (deleted 2026-07-10, but
+      briefly exposed as an env-var _name_ in Vercel (deleted 2026-07-10, but
       it appeared in dashboards/screens). Rotate in Supabase → update
       `SUPABASE_SERVICE_ROLE_KEY` in Vercel (project `web`) → redeploy.
 - [ ] **Migration ledger doesn't exist on the live DB** — migrations have been
       applied by hand via the SQL editor, so `supabase_migrations.schema_migrations`
       is empty/absent and `supabase db push` would try to re-apply everything.
-      Either keep managing via SQL editor (current practice; all 6 migration
-      files ARE applied + verified), or backfill the ledger manually before
-      ever using `db push`.
+      Either keep managing via SQL editor (current practice; every migration
+      file up to `20260710140000` IS applied + verified, `20260710150000` is
+      pending — see above), or backfill the ledger manually before ever using
+      `db push`.
 - [ ] **Local supabase CLI is linked to the WRONG project**
       (`qataxfwqgryffurgfysh`, the old one). Before any CLI DB work:
       `supabase link --project-ref twrwixownormzussyzse`.

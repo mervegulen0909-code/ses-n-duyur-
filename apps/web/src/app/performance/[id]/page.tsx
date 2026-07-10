@@ -56,8 +56,19 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
     .eq('performance_id', id)
     .maybeSingle();
 
+  // Real DSP measurement of the artist's own recording, when one exists
+  // (ADR 0003) — surfaces per-criterion "Measured" badges in the breakdown.
+  const { data: measuredRow } = await supabase
+    .from('measured_scores')
+    .select('measured_breakdown')
+    .eq('performance_id', id)
+    .maybeSingle();
+
   const meta = (perf.oembed_meta ?? {}) as OEmbedish;
   const breakdown = (score?.ai_breakdown ?? null) as Partial<Record<Criterion, number>> | null;
+  const measured = (measuredRow?.measured_breakdown ?? null) as Partial<
+    Record<Criterion, number>
+  > | null;
   const user = await getCurrentUser();
 
   const { data: rawComments } = await supabase
@@ -132,6 +143,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           trendScore={score?.trend_score ?? null}
           isProvisional={score?.is_provisional ?? true}
           breakdown={breakdown}
+          measured={measured}
           hasVideo={perf.has_video}
         />
       </aside>

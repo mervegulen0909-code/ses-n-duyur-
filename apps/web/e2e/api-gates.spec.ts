@@ -57,6 +57,14 @@ test.describe('mutating endpoints require a session (unauthenticated)', () => {
     expect(res.status()).toBe(401);
   });
 
+  test('measurement upload (measured scores are server-verified) → 401', async ({ request }) => {
+    const res = await request.post(`/api/measurements?performanceId=${UUID_A}`, {
+      headers: { 'content-type': 'audio/wav' },
+      data: Buffer.from('RIFF-not-really'),
+    });
+    expect(res.status()).toBe(401);
+  });
+
   test('comment → 401', async ({ request }) => {
     const res = await request.post('/api/comments', {
       data: { performanceId: UUID_A, body: 'nice run' },
@@ -90,6 +98,14 @@ test.describe('malformed bodies are rejected before any trust', () => {
   test('battle vote with non-UUID ids → 422', async ({ request }) => {
     const res = await request.post('/api/battles/vote', {
       data: { battleId: 'nope', winnerPerformanceId: 'x', listenAId: 'y', listenBId: 'z' },
+    });
+    expect(res.status()).toBe(422);
+  });
+
+  test('measurement without a performanceId → 422', async ({ request }) => {
+    const res = await request.post('/api/measurements', {
+      headers: { 'content-type': 'audio/wav' },
+      data: Buffer.from('RIFF-not-really'),
     });
     expect(res.status()).toBe(422);
   });

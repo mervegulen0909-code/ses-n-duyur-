@@ -1,33 +1,16 @@
-import { criteriaOverall, recomputeScore, voteSchema } from '@voxscore/core';
+import {
+  measuredAdjustedInitial,
+  recomputeScore,
+  voteSchema,
+  type MeasuredBreakdown,
+} from '@voxscore/core';
 import { CRITERIA, type Criterion } from '@voxscore/scoring';
 import type { Database } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
+import { COLUMN, rowToOverall } from './overall';
 
 type CriteriaRatingInsert = Database['public']['Tables']['criteria_ratings']['Insert'];
-
-/** Criterion (camelCase) → criteria_ratings column (snake_case). */
-const COLUMN: Record<Criterion, string> = {
-  vocalAccuracy: 'vocal_accuracy',
-  rhythmTiming: 'rhythm_timing',
-  toneQuality: 'tone_quality',
-  emotionInterpretation: 'emotion_interpretation',
-  technicalSkill: 'technical_skill',
-  pronunciationDiction: 'pronunciation_diction',
-  recordingQuality: 'recording_quality',
-  originality: 'originality',
-  stagePresence: 'stage_presence',
-};
-
-function rowToOverall(row: unknown): number | null {
-  const r = row as Record<string, unknown>;
-  const ratings: Partial<Record<Criterion, number>> = {};
-  for (const c of CRITERIA) {
-    const v = r[COLUMN[c]];
-    if (typeof v === 'number') ratings[c] = v;
-  }
-  return criteriaOverall(ratings);
-}
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -73,7 +56,7 @@ export async function POST(req: Request): Promise<Response> {
   // RLS, so this check is reliable exactly for the self-vote case.
   const { data: votedPerf } = await supabase
     .from('performances')
-    .select('user_id')
+    .select('user_id, has_video')
     .eq('id', parsed.data.performanceId)
     .maybeSingle();
   if (votedPerf?.user_id === user.id) {
@@ -106,7 +89,15 @@ export async function POST(req: Request): Promise<Response> {
   if (service) {
     const { data: scoreRow } = await service
       .from('scores')
-      .select('initial_ai_score')
+      .select('initial_ai_score, ai_breakdown')
+      .eq('performance_id', parsed.data.performanceId)
+      .maybeSingle();
+
+    // A real measurement (ADR 0003) replaces the LLM estimate for the
+    // measured criteria in the blend basis; absent one, the estimate stands.
+    const { data: measuredRow } = await service
+      .from('measured_scores')
+      .select('measured_breakdown')
       .eq('performance_id', parsed.data.performanceId)
       .maybeSingle();
 
@@ -115,7 +106,14 @@ export async function POST(req: Request): Promise<Response> {
       .select('*')
       .eq('performance_id', parsed.data.performanceId);
 
-    const initialAiScore = scoreRow?.initial_ai_score ?? 0;
+    const storedInitial = scoreRow?.initial_ai_score ?? 0;
+    const initialAiScore = measuredRow
+      ? (measuredAdjustedInitial({
+          aiBreakdown: scoreRow?.ai_breakdown as Partial<Record<Criterion, number>> | null,
+          measured: measuredRow.measured_breakdown as MeasuredBreakdown,
+          hasVideo: votedPerf?.has_video ?? true,
+        }) ?? storedInitial)
+      : storedInitial;
     const voteOveralls = (ratings ?? [])
       .map((r) => rowToOverall(r))
       .filter((v): v is number => v !== null);
