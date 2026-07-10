@@ -45,6 +45,8 @@ function useSideTracker(performanceId: string) {
   const playerRef = useRef<YoutubeIframeRef>(null);
   const eventsRef = useRef<ListenEvent[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Uploader disabled embedding (YouTube 101/150): this side can't be verified.
+  const [embedBlocked, setEmbedBlocked] = useState(false);
 
   useEffect(
     () => () => {
@@ -89,24 +91,23 @@ function useSideTracker(performanceId: string) {
     [listen],
   );
 
-  return { listen, playerRef, onChangeState };
+  return { listen, playerRef, onChangeState, embedBlocked, setEmbedBlocked };
 }
 
-function statusHint(status: ReturnType<typeof useVerifiedListen>['status'], reason: string | null) {
+function statusHint(
+  status: ReturnType<typeof useVerifiedListen>['status'],
+  reason: string | null,
+  embedBlocked: boolean,
+) {
+  if (embedBlocked) return 'Embedding disabled — plays on YouTube only, can’t verify here.';
   if (status === 'verified') return 'Listened ✓';
   if (status === 'listening') return 'Keep watching to the end…';
   if (status === 'invalid') return reason ?? 'Not fully listened — watch again to count.';
   return 'Press play and watch fully.';
 }
 
-function BattleSide({
-  side,
-  tracker,
-}: {
-  side: Side;
-  tracker: ReturnType<typeof useSideTracker>;
-}) {
-  const { listen, playerRef, onChangeState } = tracker;
+function BattleSide({ side, tracker }: { side: Side; tracker: ReturnType<typeof useSideTracker> }) {
+  const { listen, playerRef, onChangeState, embedBlocked, setEmbedBlocked } = tracker;
   return (
     <View style={styles.sideCard}>
       <Text style={styles.sideTitle} numberOfLines={2}>
@@ -123,16 +124,19 @@ function BattleSide({
           height={200}
           videoId={side.videoId}
           onChangeState={onChangeState}
+          onError={(e: string) => {
+            if (e === 'embed_not_allowed') setEmbedBlocked(true);
+          }}
         />
       </View>
       <Text
         style={[
           styles.sideStatus,
           listen.status === 'verified' && styles.sideStatusOk,
-          listen.status === 'invalid' && styles.sideStatusBad,
+          (listen.status === 'invalid' || embedBlocked) && styles.sideStatusBad,
         ]}
       >
-        {statusHint(listen.status, listen.reason)}
+        {statusHint(listen.status, listen.reason, embedBlocked)}
       </Text>
     </View>
   );
@@ -342,9 +346,7 @@ export default function BattleScreen() {
             <Text style={styles.backText}>‹ Back</Text>
           </Pressable>
           <Text style={styles.heading}>Battle</Text>
-          <Text style={styles.sub}>
-            Two performances, one winner. Listen to both, then decide.
-          </Text>
+          <Text style={styles.sub}>Two performances, one winner. Listen to both, then decide.</Text>
         </View>
         <View style={styles.emptyWrap}>
           <Text style={styles.emptyTitle}>Sign in to battle</Text>

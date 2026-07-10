@@ -60,6 +60,9 @@ export default function PerformanceScreen() {
   const [perf, setPerf] = useState<Perf | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
+  // The uploader disabled embedding (YouTube error 101/150) — the video can only
+  // be watched on YouTube, so an in-app Verified Listen can never complete here.
+  const [embedBlocked, setEmbedBlocked] = useState(false);
 
   const listen = useVerifiedListen(id);
 
@@ -197,8 +200,9 @@ export default function PerformanceScreen() {
   const breakdown = (score?.ai_breakdown ?? {}) as Record<string, number>;
   const activeCriteria = CRITERIA.filter((c) => perf?.has_video !== false || c !== 'stagePresence');
 
-  const hint =
-    listen.status === 'verified'
+  const hint = embedBlocked
+    ? 'The uploader disabled embedding, so this video only plays on YouTube — an in-app Verified Listen (required to vote) isn’t possible for it.'
+    : listen.status === 'verified'
       ? 'Verified Listen complete — you can vote now.'
       : listen.status === 'listening'
         ? 'Keep watching to the end to unlock voting…'
@@ -226,6 +230,9 @@ export default function PerformanceScreen() {
               height={210}
               videoId={perf.youtube_video_id}
               onChangeState={onChangeState}
+              onError={(e: string) => {
+                if (e === 'embed_not_allowed') setEmbedBlocked(true);
+              }}
             />
           </View>
 
@@ -233,7 +240,7 @@ export default function PerformanceScreen() {
             style={[
               styles.gate,
               listen.status === 'verified' && styles.gateOk,
-              listen.status === 'invalid' && styles.gateBad,
+              (listen.status === 'invalid' || embedBlocked) && styles.gateBad,
             ]}
           >
             {hint}
