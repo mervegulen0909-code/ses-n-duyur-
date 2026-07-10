@@ -232,6 +232,8 @@ importers:
 
   packages/db: {}
 
+  packages/dsp: {}
+
   packages/scoring: {}
 
 packages:
