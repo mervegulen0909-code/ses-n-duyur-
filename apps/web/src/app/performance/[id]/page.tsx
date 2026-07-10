@@ -33,7 +33,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
   const { data: perf } = await supabase
     .from('performances')
-    .select('id, user_id, youtube_video_id, oembed_meta, has_video')
+    .select('id, user_id, youtube_video_id, oembed_meta, has_video, song_id')
     .eq('id', id)
     .maybeSingle();
 
@@ -44,6 +44,11 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
     .select('handle')
     .eq('id', perf.user_id)
     .maybeSingle();
+
+  // Same-song ranking link — the core "who sings THIS song best" loop.
+  const { data: song } = perf.song_id
+    ? await supabase.from('songs').select('id, title').eq('id', perf.song_id).maybeSingle()
+    : { data: null };
 
   const { data: score } = await supabase
     .from('scores')
@@ -74,6 +79,13 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           {user && <ReportButton targetType="performance" targetId={perf.id} />}
         </div>
         {meta.authorName && <p className="text-sm text-neutral-500">{meta.authorName}</p>}
+        {song && (
+          <p className="text-sm">
+            <Link href={`/song/${song.id}`} className="text-emerald-400 hover:underline">
+              {t('Song.viewRanking', { title: song.title })} →
+            </Link>
+          </p>
+        )}
         {uploader?.handle && (
           <p className="text-sm text-neutral-500">
             {t.rich('Performance.addedBy', {

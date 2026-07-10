@@ -32,6 +32,7 @@ type Perf = {
   id: string;
   youtube_video_id: string;
   has_video: boolean;
+  song_id: string | null;
   oembed_meta: { title?: string; authorName?: string } | null;
   scores: ScoreRow | ScoreRow[] | null;
 };
@@ -88,7 +89,7 @@ export default function PerformanceScreen() {
       const { data, error } = await supabase
         .from('performances')
         .select(
-          'id, youtube_video_id, has_video, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional)',
+          'id, youtube_video_id, has_video, song_id, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional)',
         )
         .eq('id', id)
         .single();
@@ -238,6 +239,14 @@ export default function PerformanceScreen() {
         <ScrollView contentContainerStyle={styles.content}>
           <Text style={styles.title}>{meta.title ?? 'Untitled'}</Text>
           {!!meta.authorName && <Text style={styles.artist}>{meta.authorName}</Text>}
+          {!!perf.song_id && (
+            <Pressable
+              onPress={() => router.push({ pathname: '/song/[id]', params: { id: perf.song_id! } })}
+              hitSlop={8}
+            >
+              <Text style={styles.songLink}>Song ranking →</Text>
+            </Pressable>
+          )}
 
           <View style={styles.player}>
             <YoutubePlayer
@@ -406,6 +415,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 40 },
   title: { fontSize: 20, fontWeight: '800', color: '#fafafa' },
   artist: { marginTop: 4, fontSize: 14, color: '#9ca3af' },
+  songLink: { marginTop: 6, fontSize: 13, fontWeight: '600', color: '#22D3EE' },
   player: { marginTop: 16, borderRadius: 14, overflow: 'hidden', backgroundColor: '#000' },
   gate: {
     marginTop: 12,

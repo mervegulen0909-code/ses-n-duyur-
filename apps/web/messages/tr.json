@@ -169,5 +169,9 @@
     "filing": "Gönderiliyor…",
     "filed": "Talebin alındı. En kısa sürede inceleyeceğiz.",
     "failed": "Talep gönderilemedi. Girdini kontrol et."
+  },
+  "Song": {
+    "subtitle": "Bu şarkıyı en iyi kim söylüyor — puana göre sıralı.",
+    "viewRanking": "“{title}” şarkısını en iyi kim söylüyor?"
   }
 }
