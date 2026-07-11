@@ -93,6 +93,7 @@ export interface PublicRows {
     watched_pct: number;
     events: Json | null;
     is_valid: boolean;
+    ip_hash: string | null;
     created_at: Timestamp;
   };
   criteria_ratings: {

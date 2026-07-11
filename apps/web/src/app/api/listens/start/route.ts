@@ -1,6 +1,7 @@
 import { listenStartSchema } from '@voxscore/core';
 import { getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
+import { ipHashFromRequest } from '@/lib/ip-hash';
 
 /**
  * The verified-listen time-anchor is the core anti-bot cost — but only if
@@ -44,9 +45,16 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
+  // Salted network hash for the vote-burst cron (A3); null → column stays null.
+  const ipHash = ipHashFromRequest(req);
   const { data, error } = await supabase
     .from('verified_listens')
-    .insert({ user_id: user.id, performance_id: parsed.data.performanceId, is_valid: false })
+    .insert({
+      user_id: user.id,
+      performance_id: parsed.data.performanceId,
+      is_valid: false,
+      ...(ipHash ? { ip_hash: ipHash } : {}),
+    })
     .select('id')
     .single();
 

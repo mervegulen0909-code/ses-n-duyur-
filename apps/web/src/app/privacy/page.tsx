@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl space-y-4 px-6 py-10 text-sm leading-relaxed text-neutral-300">
       <h1 className="text-2xl font-bold text-neutral-100">Privacy Policy</h1>
-      <p className="text-neutral-500">Last updated: July 11, 2026</p>
+      <p className="text-neutral-500">Last updated: July 12, 2026</p>
       <p className="rounded-md border border-amber-700/40 bg-amber-950/30 p-3 text-amber-200">
         This policy is written and maintained by the VoxScore team. It has not yet been reviewed by
         a lawyer. Do not rely on it as a final, store-ready policy until that review is complete.
@@ -57,11 +57,12 @@ export default function PrivacyPage() {
       <p>
         When you use this feature: the app records audio with your device microphone (after you
         grant permission), uploads that recording to our server over an encrypted connection, our
-        server analyzes it to produce the metrics above, and <strong>the audio file is deleted
-        immediately after analysis</strong>. We do not retain the recording, do not use it to train
-        AI models, and do not share it with any third party. Only the resulting numeric scores are
-        stored against your performance. You can decline microphone permission and use VoxScore
-        without ever recording audio — Measured scoring is entirely optional.
+        server analyzes it to produce the metrics above, and{' '}
+        <strong>the audio file is deleted immediately after analysis</strong>. We do not retain the
+        recording, do not use it to train AI models, and do not share it with any third party. Only
+        the resulting numeric scores are stored against your performance. You can decline microphone
+        permission and use VoxScore without ever recording audio — Measured scoring is entirely
+        optional.
       </p>
       <p>
         Voice recordings can be treated as sensitive data under some privacy laws (for example,
@@ -77,17 +78,17 @@ export default function PrivacyPage() {
         by sending the performance&apos;s public metadata (video title and channel name) to an AI
         provider (OpenAI or Anthropic, depending on configuration). We never send audio, video, or
         your personal data for this scoring, and the estimate is an interpretive label — not a real
-        audio measurement. Criteria labeled &ldquo;Measured&rdquo; come only from real audio analysis
-        of a recording you submitted yourself, as described above.
+        audio measurement. Criteria labeled &ldquo;Measured&rdquo; come only from real audio
+        analysis of a recording you submitted yourself, as described above.
       </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Third-party services</h2>
       <p>
         VoxScore runs on <strong>Supabase</strong> (database, authentication — including optional
         Google sign-in — and file handling), <strong>Vercel</strong> (web hosting), and{' '}
-        <strong>Expo</strong> (mobile push notification delivery). We use{' '}
-        <strong>Upstash</strong> for rate limiting and <strong>Cloudflare Turnstile</strong> for bot
-        protection on web submissions. AI estimates are generated via <strong>OpenAI</strong> or{' '}
+        <strong>Expo</strong> (mobile push notification delivery). We use <strong>Upstash</strong>{' '}
+        for rate limiting and <strong>Cloudflare Turnstile</strong> for bot protection on web
+        submissions. AI estimates are generated via <strong>OpenAI</strong> or{' '}
         <strong>Anthropic</strong>. Embedded videos are served by YouTube under YouTube&apos;s own
         terms and privacy policy. None of these providers receive your voice recordings; the DSP
         analysis described above runs on our own servers only.
@@ -96,7 +97,11 @@ export default function PrivacyPage() {
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Anti-abuse</h2>
       <p>
         We use rate limiting and a bot-check (e.g. Cloudflare Turnstile) to protect vote integrity.
-        We do not use invasive device fingerprinting, and we do not sell your data or show
+        To detect coordinated vote rings, when you start a Verified Listen we also store a{' '}
+        <strong>salted, one-way hash of your network address</strong>. The salt is a server-side
+        secret, so this hash cannot be reversed to your IP address — we never store the IP itself —
+        and it is used only to spot many &ldquo;different&rdquo; voters arriving from a single
+        network. We do not use invasive device fingerprinting, and we do not sell your data or show
         third-party ads.
       </p>
 
