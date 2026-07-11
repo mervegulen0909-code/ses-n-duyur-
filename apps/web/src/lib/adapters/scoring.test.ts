@@ -16,7 +16,12 @@ vi.mock('@anthropic-ai/sdk', () => ({
 }));
 
 import { CRITERIA } from '@voxscore/scoring';
-import { AnthropicScoringProvider, OpenAIScoringProvider, getScoringProvider } from './scoring';
+import {
+  AnthropicScoringProvider,
+  GeminiScoringProvider,
+  OpenAIScoringProvider,
+  getScoringProvider,
+} from './scoring';
 
 const INPUT = {
   videoId: 'dQw4w9WgXcQ',
@@ -106,17 +111,60 @@ describe('scoring determinism contract (league fairness)', () => {
     expect(res2.initialAiScore).toBe(res.initialAiScore);
   });
 
-  it('provider selection: Anthropic preferred, then OpenAI, then mock', async () => {
-    vi.stubEnv('ANTHROPIC_API_KEY', 'a');
+  it('provider selection: OpenAI primary, then Gemini, then Anthropic, then mock', async () => {
     vi.stubEnv('OPENAI_API_KEY', 'o');
-    expect(getScoringProvider()).toBeInstanceOf(AnthropicScoringProvider);
-
-    vi.stubEnv('ANTHROPIC_API_KEY', '');
+    vi.stubEnv('GEMINI_API_KEY', 'g');
+    vi.stubEnv('ANTHROPIC_API_KEY', 'a');
     expect(getScoringProvider()).toBeInstanceOf(OpenAIScoringProvider);
 
     vi.stubEnv('OPENAI_API_KEY', '');
+    expect(getScoringProvider()).toBeInstanceOf(GeminiScoringProvider);
+
+    vi.stubEnv('GEMINI_API_KEY', '');
+    expect(getScoringProvider()).toBeInstanceOf(AnthropicScoringProvider);
+
+    vi.stubEnv('ANTHROPIC_API_KEY', '');
     const mock = getScoringProvider();
     const res = await mock.score(INPUT);
     expect(res.model).toBe('mock-provisional-v0');
+  });
+
+  it('Gemini is called with temperature 0 and JSON-only output, and parses the reply', async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        candidates: [{ content: { parts: [{ text: RAW_82 }] } }],
+      }),
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await new GeminiScoringProvider('k').score(INPUT);
+
+    const [url, init] = fetchMock.mock.calls[0]! as unknown as [string, { body: string }];
+    const body = JSON.parse(init.body) as {
+      generationConfig: { temperature: number; responseMimeType: string };
+    };
+    expect(url).toContain(':generateContent');
+    expect(body.generationConfig.temperature).toBe(0);
+    expect(body.generationConfig.responseMimeType).toBe('application/json');
+    expect(res.provider).toBe('gemini');
+    expect(res.breakdown.vocalAccuracy).toBe(80); // 82 quantized to 80
+    expect(res.provisional).toBe(true);
+
+    vi.unstubAllGlobals();
+  });
+
+  it('Gemini degrades to the deterministic mock on HTTP errors (e.g. depleted credits 429)', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 429, text: async () => 'RESOURCE_EXHAUSTED' })),
+    );
+
+    const res = await new GeminiScoringProvider('k').score(INPUT);
+
+    expect(res.provider).toBe('mock');
+    expect(res.model).toBe('mock-provisional-v0');
+    vi.unstubAllGlobals();
   });
 });
