@@ -60,6 +60,16 @@ export const listenCompleteSchema = z.object({
 });
 export type ListenCompleteInput = z.infer<typeof listenCompleteSchema>;
 
+/**
+ * Request a battle pairing. Omitting `songId` pairs from the global pool
+ * (preferring same-song pairs when available); passing it scopes the pairing
+ * to ONLY that song's performances — this powers challenge/song-page battles.
+ */
+export const battleNextSchema = z.object({
+  songId: z.string().uuid().optional(),
+});
+export type BattleNextInput = z.infer<typeof battleNextSchema>;
+
 /** Pick a battle winner — both listens must be referenced (server verifies). */
 export const battleVoteSchema = z.object({
   battleId: z.string().uuid(),

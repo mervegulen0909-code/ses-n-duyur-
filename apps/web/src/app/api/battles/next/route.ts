@@ -1,3 +1,4 @@
+import { battleNextSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 
@@ -25,6 +26,13 @@ function pickPair(perfs: PerfRow[]): [PerfRow, PerfRow] | null {
   return null;
 }
 
+/** Any two from an already same-song-filtered pool — no same-song preference needed. */
+function pickAnyPair(perfs: PerfRow[]): [PerfRow, PerfRow] | null {
+  const shuffled = [...perfs].sort(() => Math.random() - 0.5);
+  if (shuffled.length >= 2) return [shuffled[0]!, shuffled[1]!];
+  return null;
+}
+
 function titleOf(meta: unknown): string {
   const m = (meta ?? {}) as { title?: string };
   return m.title ?? 'Performance';
@@ -33,6 +41,17 @@ function titleOf(meta: unknown): string {
 export async function POST(req: Request): Promise<Response> {
   const ctx = await getRequestContext(req);
   if (!ctx) return Response.json({ error: 'Authentication required' }, { status: 401 });
+
+  let json: unknown = {};
+  try {
+    const text = await req.text();
+    json = text ? JSON.parse(text) : {};
+  } catch {
+    return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+  const parsed = battleNextSchema.safeParse(json);
+  if (!parsed.success) return Response.json({ error: 'Invalid input' }, { status: 422 });
+  const { songId } = parsed.data;
 
   // This route inserts battle rows via the service role (bypassing the
   // admin-only RLS insert policy), so rate-limit per user to stop a single
@@ -43,16 +62,26 @@ export async function POST(req: Request): Promise<Response> {
   const service = createSupabaseServiceClient();
   if (!service) return Response.json({ error: 'Server not configured' }, { status: 503 });
 
-  const { data: perfs } = await service
+  let query = service
     .from('performances')
     .select('id, youtube_video_id, oembed_meta, song_id')
     .eq('status', 'active')
-    .not('youtube_video_id', 'is', null)
-    .limit(50);
+    .not('youtube_video_id', 'is', null);
+  if (songId) query = query.eq('song_id', songId);
+  const { data: perfs } = await query.limit(50);
 
-  const pair = pickPair((perfs ?? []) as PerfRow[]);
+  const pair = songId
+    ? pickAnyPair((perfs ?? []) as PerfRow[])
+    : pickPair((perfs ?? []) as PerfRow[]);
   if (!pair) {
-    return Response.json({ error: 'Not enough performances to battle yet' }, { status: 404 });
+    return Response.json(
+      {
+        error: songId
+          ? 'Not enough performances for this challenge yet'
+          : 'Not enough performances to battle yet',
+      },
+      { status: 404 },
+    );
   }
   const [a, b] = pair;
 

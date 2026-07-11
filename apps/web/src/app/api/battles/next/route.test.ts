@@ -18,11 +18,11 @@ const BATTLE = '11111111-1111-1111-1111-111111111111';
 type RequestCtx = Awaited<ReturnType<typeof getRequestContext>>;
 type Service = ReturnType<typeof createSupabaseServiceClient>;
 
-function makeRequest(): Request {
+function makeRequest(body: Record<string, unknown> = {}): Request {
   return new Request('http://localhost/api/battles/next', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({}),
+    body: JSON.stringify(body),
   });
 }
 
@@ -37,9 +37,16 @@ const TWO_PERFS = [
 
 function makeService(
   opts: { perfs?: unknown[]; battle?: Record<string, unknown> | null; insertError?: unknown } = {},
-): { service: Service; battleInsert: ReturnType<typeof vi.fn> } {
-  // performances: select().eq().not().limit() resolves to the active rows.
+): {
+  service: Service;
+  battleInsert: ReturnType<typeof vi.fn>;
+  songIdEq: ReturnType<typeof vi.fn>;
+} {
+  // performances: select().eq('status').not().limit(), optionally with an
+  // extra .eq('song_id', songId) between .not() and .limit() when scoped.
   const limit = vi.fn(async () => ({ data: opts.perfs ?? TWO_PERFS }));
+  const songIdEq = vi.fn(() => ({ limit }));
+  const notChain = vi.fn(() => ({ limit, eq: songIdEq }));
   // battles: insert().select().single() resolves to the new row (or an error).
   const battleSingle = vi.fn(async () => ({
     data: 'battle' in opts ? opts.battle : { id: BATTLE },
@@ -47,12 +54,11 @@ function makeService(
   }));
   const battleInsert = vi.fn(() => ({ select: () => ({ single: battleSingle }) }));
   const from = vi.fn((table: string) => {
-    if (table === 'performances')
-      return { select: () => ({ eq: () => ({ not: () => ({ limit }) }) }) };
+    if (table === 'performances') return { select: () => ({ eq: () => ({ not: notChain }) }) };
     if (table === 'battles') return { insert: battleInsert };
     return {};
   });
-  return { service: { from } as unknown as Service, battleInsert };
+  return { service: { from } as unknown as Service, battleInsert, songIdEq };
 }
 
 describe('POST /api/battles/next — pairing creation', () => {
@@ -103,5 +109,36 @@ describe('POST /api/battles/next — pairing creation', () => {
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
     expect((await POST(makeRequest())).status).toBe(500);
+  });
+
+  it('422 on an invalid songId', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    expect((await POST(makeRequest({ songId: 'not-a-uuid' }))).status).toBe(422);
+  });
+
+  it('scopes the pairing pool to songId and never falls back globally', async () => {
+    const SONG_ID = '99999999-9999-9999-9999-999999999999';
+    const { service, songIdEq } = makeService();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
+
+    const res = await POST(makeRequest({ songId: SONG_ID }));
+
+    expect(res.status).toBe(200);
+    expect(songIdEq).toHaveBeenCalledWith('song_id', SONG_ID);
+  });
+
+  it('404 with a challenge-specific message when songId has fewer than 2 performances', async () => {
+    const SONG_ID = '99999999-9999-9999-9999-999999999999';
+    const { service } = makeService({ perfs: [TWO_PERFS[0]] });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
+
+    const res = await POST(makeRequest({ songId: SONG_ID }));
+
+    expect(res.status).toBe(404);
+    await expect(res.json()).resolves.toEqual({
+      error: 'Not enough performances for this challenge yet',
+    });
   });
 });

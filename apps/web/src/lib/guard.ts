@@ -4,6 +4,10 @@ import { getBotCheck } from './adapters/botcheck';
 // Module-level singletons (per route module). These resolve to the real
 // Upstash/Turnstile adapters when their env keys are set, else dev mocks.
 const writeLimiter = getRateLimiter(20, 60_000); // 20 writes / minute / key
+// Analytics events fire far more often than league writes (every page view,
+// every share click) — a separate, more permissive limiter so normal usage
+// never trips the write limiter's 20/min budget.
+const analyticsLimiter = getRateLimiter(120, 60_000); // 120 events / minute / key
 const botCheck = getBotCheck();
 const NATIVE_CLIENT_HEADER = 'x-voxscore-client';
 const NATIVE_CLIENT_VALUE = 'mobile-app';
@@ -25,6 +29,15 @@ export function isNativeClientRequest(req: Request): boolean {
 /** Rate-limit a mutating request. Returns a 429 Response when over the limit. */
 export async function rateLimit(req: Request, userId?: string): Promise<Response | null> {
   const { success } = await writeLimiter.check(keyFor(req, userId));
+  if (!success) {
+    return Response.json({ error: 'Too many requests — slow down.' }, { status: 429 });
+  }
+  return null;
+}
+
+/** Rate-limit an analytics event, keyed by session (falls back to IP). */
+export async function analyticsRateLimit(req: Request, sessionId: string): Promise<Response | null> {
+  const { success } = await analyticsLimiter.check(keyFor(req, sessionId));
   if (!success) {
     return Response.json({ error: 'Too many requests — slow down.' }, { status: 429 });
   }

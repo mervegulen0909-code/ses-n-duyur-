@@ -11,7 +11,7 @@ vi.mock('./adapters/ratelimit', () => ({
   getRateLimiter: () => ({ check }),
 }));
 
-import { botGuard, isNativeClientRequest, rateLimit } from './guard';
+import { analyticsRateLimit, botGuard, isNativeClientRequest, rateLimit } from './guard';
 
 describe('guard helpers', () => {
   beforeEach(() => {
@@ -76,5 +76,14 @@ describe('guard helpers', () => {
 
     expect(blocked?.status).toBe(429);
     expect(check).toHaveBeenCalledWith('u:user-1');
+  });
+
+  it('rate-limits analytics events by session id', async () => {
+    check.mockResolvedValueOnce({ success: false });
+
+    const blocked = await analyticsRateLimit(new Request('http://localhost'), 'session-1');
+
+    expect(blocked?.status).toBe(429);
+    expect(check).toHaveBeenCalledWith('u:session-1');
   });
 });
