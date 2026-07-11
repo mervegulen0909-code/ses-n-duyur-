@@ -4,6 +4,10 @@ import { assertFinite } from './util';
  * Vote-count → (AI weight, Listener weight) tiers, straight from the product
  * spec. As verified votes accumulate, trust shifts from the AI estimate to the
  * crowd. Weights in each tier sum to 1.0.
+ *
+ * @deprecated Regime v4 replaced the step tiers with the smooth
+ * {@link listenerWeightForVotes} curve; kept for historical reference and to
+ * keep old regime docs readable.
  */
 export interface VoteWeightTier {
   readonly minVotes: number;
@@ -27,8 +31,28 @@ export interface ScoreWeights {
 }
 
 /**
+ * Smooth Bayesian-shrinkage listener weight: lw = min(CAP, n / (n + K)).
+ * Replaces the step tiers (regime v4): no discontinuities between adjacent
+ * vote counts, and a single early vote has ~1.6% influence instead of 15% —
+ * verified votes are expensive (real listen time), so crowd trust converging
+ * by ~75 votes is deliberate.
+ */
+export const BLEND_PRIOR_STRENGTH = 60;
+export const LISTENER_WEIGHT_CAP = 0.55;
+
+export function listenerWeightForVotes(verifiedVotes: number): number {
+  assertFinite(verifiedVotes, 'verifiedVotes');
+  if (verifiedVotes < 0) throw new RangeError('verifiedVotes must be >= 0');
+  const n = Math.floor(verifiedVotes);
+  if (n <= 0) return 0;
+  return Math.min(LISTENER_WEIGHT_CAP, n / (n + BLEND_PRIOR_STRENGTH));
+}
+
+/**
  * Resolve the (AI, Listener) weights for a given count of VERIFIED votes.
  * Only verified votes count — callers must pass the verified total, not raw.
+ *
+ * @deprecated Regime v4 uses {@link listenerWeightForVotes}.
  */
 export function weightForVotes(verifiedVotes: number): ScoreWeights {
   assertFinite(verifiedVotes, 'verifiedVotes');

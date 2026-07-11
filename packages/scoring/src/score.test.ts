@@ -39,14 +39,13 @@ describe('currentScore', () => {
     expect(currentScore({ initialAiScore: 72, listenerScore: null, verifiedVotes: 10 })).toBe(72);
   });
 
-  it('blends AI and listener by the vote tier', () => {
-    // 10 votes → tier 1-25 → AI 0.85 / Listener 0.15
-    // 0.85*80 + 0.15*60 = 77
-    expect(currentScore({ initialAiScore: 80, listenerScore: 60, verifiedVotes: 10 })).toBe(77);
+  it('blends AI and listener by the smooth curve (regime v4)', () => {
+    // 10 votes → lw = 10/70 = 0.142857… → 0.857143*80 + 0.142857*60 ≈ 77.14
+    expect(currentScore({ initialAiScore: 80, listenerScore: 60, verifiedVotes: 10 })).toBe(77.14);
   });
 
-  it('shifts toward the crowd as votes grow', () => {
-    // 3000 votes → AI 0.45 / Listener 0.55 → 0.45*80 + 0.55*60 = 69
+  it('shifts toward the crowd as votes grow, capped at lw = 0.55', () => {
+    // 3000 votes → lw capped at 0.55 → 0.45*80 + 0.55*60 = 69
     expect(currentScore({ initialAiScore: 80, listenerScore: 60, verifiedVotes: 3000 })).toBe(69);
   });
 

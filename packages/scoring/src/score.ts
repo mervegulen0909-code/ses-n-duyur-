@@ -1,5 +1,5 @@
 import { assertFinite, assertScore, clamp, round } from './util';
-import { weightForVotes } from './weights';
+import { listenerWeightForVotes } from './weights';
 
 /**
  * A single verified listener vote. `overall` is the 0–100 value derived from
@@ -44,20 +44,22 @@ export interface CurrentScoreInput {
 
 /**
  * Current Score = weighted blend of AI and Listener scores, where the blend
- * shifts toward the crowd as verified votes grow (see VOTE_WEIGHT_TIERS).
+ * shifts smoothly toward the crowd as verified votes grow (regime v4:
+ * lw = min(0.55, n/(n+60)) — see listenerWeightForVotes).
  *
  * With 0 verified votes (or no listener data) the result equals the AI score.
  */
 export function currentScore(input: CurrentScoreInput): number {
   assertScore(input.initialAiScore, 'initialAiScore');
-  const { aiWeight, listenerWeight } = weightForVotes(input.verifiedVotes);
+  const listenerWeight = listenerWeightForVotes(input.verifiedVotes);
 
-  // No listener data → fully AI, regardless of tier.
+  // No listener data → fully AI, regardless of vote count.
   if (input.listenerScore === null || input.verifiedVotes <= 0) {
     return round(input.initialAiScore, 2);
   }
   assertScore(input.listenerScore, 'listenerScore');
 
+  const aiWeight = 1 - listenerWeight;
   const blended = aiWeight * input.initialAiScore + listenerWeight * input.listenerScore;
   return round(clamp(blended, 0, 100), 2);
 }
