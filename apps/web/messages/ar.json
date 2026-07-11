@@ -1,0 +1,179 @@
+{
+  "Meta": {
+    "title": "VoxScore — الدوري العالمي لأداء الغناء بالذكاء الاصطناعي",
+    "description": "اكتشف من يغني الأغنية بأفضل أداء. أداءات صوتية يقيّمها الذكاء الاصطناعي ويصوّت عليها المجتمع."
+  },
+  "Nav": {
+    "leaderboard": "لوحة الصدارة",
+    "battle": "التحدي",
+    "standings": "جدول الترتيب",
+    "storyboard": "المخطط التصويري",
+    "signIn": "تسجيل الدخول",
+    "admin": "الإدارة",
+    "addPerformance": "إضافة أداء",
+    "signOut": "تسجيل الخروج",
+    "footerTagline": "VoxScore — تضمين فقط، لا نستضيف أي وسائط أبدًا.",
+    "terms": "الشروط",
+    "privacy": "الخصوصية",
+    "dmca": "DMCA / إزالة المحتوى"
+  },
+  "Common": {
+    "provisionalBadge": "تقدير مبدئي بالذكاء الاصطناعي",
+    "provisionalBadgeTitle": "تقدير من الذكاء الاصطناعي بناءً على البيانات الوصفية — وليس قياسًا صوتيًا حقيقيًا.",
+    "untitledPerformance": "أداء بدون عنوان",
+    "noPerformances": "لا توجد أداءات بعد.",
+    "supabaseNotConfigured": "لم يتم إعداد Supabase بعد.",
+    "failed": "فشل",
+    "failedStatus": "فشل ({status})",
+    "networkError": "خطأ في الشبكة"
+  },
+  "Home": {
+    "heroTitle": "اكتشف من يغني الأغنية <hl>بأفضل أداء</hl>.",
+    "heroSubtitle": "أضف أداءً من يوتيوب، احصل على تقدير مبدئي بالذكاء الاصطناعي، ثم دع المستمعين الموثّقين يصوّتون ويتنافسون.",
+    "supabaseHint": "لم يتم إعداد Supabase بعد. شغّل البيئة المحلية (<code>pnpm db:start</code>) واضبط <code>.env.local</code>، ثم أضف أداءً.",
+    "addFirst": "أضف الأول →"
+  },
+  "Login": {
+    "signIn": "تسجيل الدخول",
+    "createAccount": "إنشاء حساب",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "passwordPlaceholder": "كلمة المرور",
+    "pleaseWait": "يرجى الانتظار…",
+    "signUp": "التسجيل",
+    "needAccount": "ليس لديك حساب؟ سجّل الآن",
+    "haveAccount": "لديك حساب بالفعل؟ سجّل الدخول",
+    "google": "المتابعة باستخدام Google",
+    "orDivider": "أو"
+  },
+  "Add": {
+    "title": "إضافة أداء",
+    "subtitle": "ألصق رابط يوتيوب. نقوم بتضمينه (دون تنزيله أبدًا)، ونجلب بياناته الوصفية، وننشئ تقديرًا مبدئيًا بالذكاء الاصطناعي.",
+    "signInPrompt": "يرجى <link>تسجيل الدخول</link> لإضافة أداء.",
+    "urlLabel": "رابط أداء يوتيوب",
+    "submit": "إضافة أداء",
+    "adding": "جارٍ الإضافة…"
+  },
+  "Battle": {
+    "subtitle": "أداءان، وفائز واحد. استمع إليهما بالكامل، ثم قرّر.",
+    "signInPrompt": "يرجى <link>تسجيل الدخول</link> للمشاركة في التحدي.",
+    "statusListened": "✓ تم الاستماع",
+    "statusNotFully": "لم يتم الاستماع بالكامل",
+    "statusListening": "جارٍ الاستماع…",
+    "statusPressPlay": "اضغط تشغيل وشاهد الأداء بالكامل",
+    "voteRecorded": "تم تسجيل تصويتك! 🎉",
+    "nextBattle": "التحدي التالي →",
+    "sideWins": "{title} يفوز",
+    "mustListenBoth": "يجب أن تستمع بالكامل إلى الأداءين كليهما قبل اختيار الفائز.",
+    "finding": "جارٍ البحث عن تحدٍّ…",
+    "notEnough": "لا توجد أداءات كافية للتحدي بعد. أضف المزيد!",
+    "couldNotLoad": "تعذّر تحميل التحدي."
+  },
+  "Leaderboard": {
+    "subtitle": "مرتّبة حسب النتيجة الحالية.",
+    "battleRecord": "{wins}–{losses} · تحديات",
+    "viewStandings": "ترتيب التحديات →"
+  },
+  "Standings": {
+    "title": "ترتيب التحديات",
+    "subtitle": "مرتّبة حسب تصنيف إيلو (Elo) من المواجهات المباشرة.",
+    "record": "{wins}–{losses}",
+    "winRate": "نسبة الفوز {rate}%",
+    "empty": "لا توجد تحديات بعد. افتح ساحة التحدي لبدء واحدة.",
+    "viewScores": "لوحة صدارة النتائج →"
+  },
+  "Performance": {
+    "currentScore": "النتيجة الحالية",
+    "trend": "الاتجاه",
+    "aiStart": "بداية الذكاء الاصطناعي",
+    "measuredBadge": "مقاس فعليًا",
+    "measuredCaption": "تأتي المعايير المقاسة من التسجيل الذي قدّمه الفنان نفسه — يُحلَّل الصوت ثم يُحذف.",
+    "fallbackTitle": "أداء",
+    "addedBy": "أضافه <link>{handle}</link>",
+    "noVideo": "لا يوجد فيديو.",
+    "signInToVote": "<link>سجّل الدخول</link> وأكمل استماعًا موثّقًا للتصويت.",
+    "signInToComment": "<link>سجّل الدخول</link> للتعليق."
+  },
+  "Criteria": {
+    "vocalAccuracy": "دقة الأداء الصوتي",
+    "rhythmTiming": "الإيقاع والتوقيت",
+    "toneQuality": "جودة النغمة",
+    "emotionInterpretation": "الإحساس والتعبير الفني",
+    "technicalSkill": "المهارة التقنية",
+    "pronunciationDiction": "النطق وإلقاء الكلمات",
+    "recordingQuality": "جودة التسجيل",
+    "originality": "الأصالة",
+    "stagePresence": "الحضور على المسرح"
+  },
+  "Vote": {
+    "hintIdle": "اضغط تشغيل وشاهد حتى النهاية لفتح خيار التصويت.",
+    "errStart": "تعذّر بدء جلسة الاستماع.",
+    "verifying": "جارٍ التحقق من استماعك…",
+    "verified": "اكتمل الاستماع الموثّق — يمكنك التصويت الآن.",
+    "notVerified": "لم يتم التحقق من الاستماع. شاهد الأداء كاملاً للتصويت.",
+    "errVerify": "تعذّر التحقق من الاستماع.",
+    "rateThis": "قيّم هذا الأداء",
+    "submitting": "جارٍ الإرسال…",
+    "submit": "إرسال التصويت",
+    "thanksScore": "شكرًا! النتيجة الحالية الجديدة: {score}",
+    "thanks": "شكرًا لتصويتك!"
+  },
+  "Comments": {
+    "heading": "التعليقات",
+    "placeholder": "أضف تعليقًا…",
+    "posting": "جارٍ النشر…",
+    "submit": "تعليق",
+    "empty": "لا توجد تعليقات بعد.",
+    "unknownAuthor": "غير معروف"
+  },
+  "Profile": {
+    "performanceCount": "{count, plural, one {# أداء} other {# أداءات}}",
+    "battleRecord": "{wins}–{losses} في التحديات",
+    "winRate": "نسبة الفوز {rate}%",
+    "noPublic": "لا توجد أداءات عامة بعد."
+  },
+  "Admin": {
+    "accessRequired": "يتطلب صلاحية إدارة.",
+    "cardModeration": "الإشراف",
+    "cardDmca": "DMCA / إزالة المحتوى",
+    "cardCalibration": "معايرة التقييم",
+    "openFlags": "{count, plural, one {# بلاغ مفتوح} other {# بلاغات مفتوحة}}",
+    "openRequests": "{count, plural, one {# طلب مفتوح} other {# طلبات مفتوحة}}",
+    "calibrationSub": "معايرة نموذج الذكاء الاصطناعي",
+    "moderationQueue": "قائمة انتظار الإشراف",
+    "noOpenFlags": "لا توجد بلاغات مفتوحة.",
+    "dmcaRequests": "طلبات DMCA / إزالة المحتوى",
+    "noOpenRequests": "لا توجد طلبات مفتوحة.",
+    "performanceId": "الأداء: {id}",
+    "calibrateIntro": "مراجع تقييم بشرية تُستخدم لمعايرة نموذج تقييم الذكاء الاصطناعي. ألصق معرّف الأداء وقيّم كل معيار.",
+    "dismiss": "تجاهل",
+    "resolve": "حل",
+    "resolveHide": "حل + إخفاء",
+    "reject": "رفض",
+    "takeDown": "إزالة",
+    "calibratePlaceholder": "معرّف الأداء (UUID)",
+    "saving": "جارٍ الحفظ…",
+    "saveCalibration": "حفظ المعايرة",
+    "calibrationSaved": "تم حفظ المعايرة ✓",
+    "calibrationFailed": "فشل الحفظ"
+  },
+  "Report": {
+    "promptReason": "لماذا تُبلغ عن هذا؟",
+    "thanks": "تم الإبلاغ — شكرًا لك.",
+    "button": "إبلاغ"
+  },
+  "Dmca": {
+    "formTitle": "طلب DMCA / إزالة محتوى",
+    "intro": "نقوم بتضمين مقاطع فيديو يوتيوب ولا نستضيف أي وسائط أبدًا. إذا كنت تعتقد أن محتوى هنا ينتهك حقوقك، فقدّم طلبًا أدناه وسنراجعه في أقرب وقت.",
+    "claimantPlaceholder": "اسمك / جهتك",
+    "performanceIdPlaceholder": "معرّف الأداء (اختياري)",
+    "detailsPlaceholder": "صف المطالبة (الحقوق، المحتوى المخالف، إلخ.)",
+    "submit": "تقديم الطلب",
+    "filing": "جارٍ التقديم…",
+    "filed": "تم تقديم طلبك. سنراجعه في أقرب وقت.",
+    "failed": "تعذّر تقديم الطلب. تحقق من البيانات المدخلة."
+  },
+  "Song": {
+    "subtitle": "من يغني هذه الأغنية بأفضل أداء — مرتّبة حسب النتيجة.",
+    "viewRanking": "شاهد من يغني «{title}» بأفضل أداء"
+  }
+}

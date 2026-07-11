@@ -1,0 +1,179 @@
+{
+  "Meta": {
+    "title": "VoxScore — ग्लोबल AI वोकल परफॉर्मेंस लीग",
+    "description": "जानिए कौन किसी गाने को सबसे बेहतर गाता है। AI-स्कोर्ड, कम्युनिटी-वोटेड वोकल परफॉर्मेंस।"
+  },
+  "Nav": {
+    "leaderboard": "लीडरबोर्ड",
+    "battle": "बैटल",
+    "standings": "स्टैंडिंग्स",
+    "storyboard": "स्टोरीबोर्ड",
+    "signIn": "साइन इन करें",
+    "admin": "एडमिन",
+    "addPerformance": "परफॉर्मेंस जोड़ें",
+    "signOut": "साइन आउट करें",
+    "footerTagline": "VoxScore — सिर्फ एम्बेड, कभी मीडिया होस्ट नहीं करता।",
+    "terms": "नियम",
+    "privacy": "गोपनीयता",
+    "dmca": "DMCA / टेकडाउन"
+  },
+  "Common": {
+    "provisionalBadge": "प्रोविजनल AI अनुमान",
+    "provisionalBadgeTitle": "मेटाडेटा से AI द्वारा अनुमानित — यह वास्तविक ऑडियो माप नहीं है।",
+    "untitledPerformance": "शीर्षकहीन परफॉर्मेंस",
+    "noPerformances": "अभी तक कोई परफॉर्मेंस नहीं है।",
+    "supabaseNotConfigured": "Supabase अभी कॉन्फ़िगर नहीं किया गया है।",
+    "failed": "विफल",
+    "failedStatus": "विफल ({status})",
+    "networkError": "नेटवर्क त्रुटि"
+  },
+  "Home": {
+    "heroTitle": "जानिए कौन किसी गाने को <hl>सबसे बेहतर</hl> गाता है।",
+    "heroSubtitle": "एक YouTube परफॉर्मेंस जोड़ें, प्रोविजनल AI अनुमान पाएं, फिर वेरिफाइड श्रोताओं को वोट और बैटल करने दें।",
+    "supabaseHint": "Supabase अभी कॉन्फ़िगर नहीं किया गया है। लोकल स्टैक शुरू करें (<code>pnpm db:start</code>) और <code>.env.local</code> सेट करें, फिर एक परफॉर्मेंस जोड़ें।",
+    "addFirst": "पहला जोड़ें →"
+  },
+  "Login": {
+    "signIn": "साइन इन करें",
+    "createAccount": "खाता बनाएं",
+    "emailPlaceholder": "ईमेल",
+    "passwordPlaceholder": "पासवर्ड",
+    "pleaseWait": "कृपया प्रतीक्षा करें…",
+    "signUp": "साइन अप करें",
+    "needAccount": "खाता नहीं है? साइन अप करें",
+    "haveAccount": "पहले से खाता है? साइन इन करें",
+    "google": "Google से जारी रखें",
+    "orDivider": "या"
+  },
+  "Add": {
+    "title": "एक परफॉर्मेंस जोड़ें",
+    "subtitle": "एक YouTube लिंक पेस्ट करें। हम इसे एम्बेड करते हैं (कभी डाउनलोड नहीं करते), इसका मेटाडेटा लाते हैं, और एक प्रोविजनल AI अनुमान बनाते हैं।",
+    "signInPrompt": "परफॉर्मेंस जोड़ने के लिए कृपया <link>साइन इन करें</link>।",
+    "urlLabel": "YouTube परफॉर्मेंस URL",
+    "submit": "परफॉर्मेंस जोड़ें",
+    "adding": "जोड़ा जा रहा है…"
+  },
+  "Battle": {
+    "subtitle": "दो परफॉर्मेंस, एक विजेता। दोनों को पूरा सुनें, फिर तय करें।",
+    "signInPrompt": "बैटल करने के लिए कृपया <link>साइन इन करें</link>।",
+    "statusListened": "✓ सुना गया",
+    "statusNotFully": "पूरी तरह से नहीं सुना गया",
+    "statusListening": "सुना जा रहा है…",
+    "statusPressPlay": "प्ले दबाएं और पूरा देखें",
+    "voteRecorded": "वोट दर्ज हो गया! 🎉",
+    "nextBattle": "अगली बैटल →",
+    "sideWins": "{title} जीता",
+    "mustListenBoth": "विजेता चुनने से पहले आपको दोनों परफॉर्मेंस पूरी तरह से सुननी होंगी।",
+    "finding": "बैटल ढूंढी जा रही है…",
+    "notEnough": "बैटल के लिए अभी पर्याप्त परफॉर्मेंस नहीं हैं। और जोड़ें!",
+    "couldNotLoad": "बैटल लोड नहीं हो सकी।"
+  },
+  "Leaderboard": {
+    "subtitle": "मौजूदा स्कोर के अनुसार रैंक किया गया।",
+    "battleRecord": "{wins}–{losses} · बैटल्स",
+    "viewStandings": "बैटल स्टैंडिंग्स →"
+  },
+  "Standings": {
+    "title": "बैटल स्टैंडिंग्स",
+    "subtitle": "हेड-टू-हेड बैटल्स से मिले Elo के अनुसार रैंक किया गया।",
+    "record": "{wins}–{losses}",
+    "winRate": "{rate}% जीत",
+    "empty": "अभी तक कोई बैटल नहीं हुई। शुरू करने के लिए बैटल एरिना खोलें।",
+    "viewScores": "स्कोर लीडरबोर्ड →"
+  },
+  "Performance": {
+    "currentScore": "मौजूदा स्कोर",
+    "trend": "ट्रेंड",
+    "aiStart": "AI शुरुआत",
+    "measuredBadge": "मापा गया",
+    "measuredCaption": "मापे गए मानदंड कलाकार की खुद जमा की गई रिकॉर्डिंग से आते हैं — ऑडियो का विश्लेषण किया जाता है, फिर उसे हटा दिया जाता है।",
+    "fallbackTitle": "परफॉर्मेंस",
+    "addedBy": "<link>{handle}</link> द्वारा जोड़ा गया",
+    "noVideo": "कोई वीडियो नहीं है।",
+    "signInToVote": "वोट करने के लिए <link>साइन इन करें</link> और वेरिफाइड लिसन पूरा करें।",
+    "signInToComment": "कमेंट करने के लिए <link>साइन इन करें</link>।"
+  },
+  "Criteria": {
+    "vocalAccuracy": "वोकल सटीकता",
+    "rhythmTiming": "रिदम और टाइमिंग",
+    "toneQuality": "टोन गुणवत्ता",
+    "emotionInterpretation": "भाव और अभिव्यक्ति",
+    "technicalSkill": "तकनीकी कौशल",
+    "pronunciationDiction": "उच्चारण और डिक्शन",
+    "recordingQuality": "रिकॉर्डिंग गुणवत्ता",
+    "originality": "मौलिकता",
+    "stagePresence": "स्टेज उपस्थिति"
+  },
+  "Vote": {
+    "hintIdle": "वोटिंग अनलॉक करने के लिए प्ले दबाएं और अंत तक देखें।",
+    "errStart": "लिसन सेशन शुरू नहीं हो सका।",
+    "verifying": "आपकी लिसनिंग सत्यापित की जा रही है…",
+    "verified": "वेरिफाइड लिसन पूरा हुआ — अब आप वोट कर सकते हैं।",
+    "notVerified": "लिसन सत्यापित नहीं हुई। वोट करने के लिए पूरी परफॉर्मेंस देखें।",
+    "errVerify": "लिसन सत्यापित नहीं हो सकी।",
+    "rateThis": "इस परफॉर्मेंस को रेट करें",
+    "submitting": "सबमिट किया जा रहा है…",
+    "submit": "वोट सबमिट करें",
+    "thanksScore": "धन्यवाद! नया मौजूदा स्कोर: {score}",
+    "thanks": "वोट देने के लिए धन्यवाद!"
+  },
+  "Comments": {
+    "heading": "कमेंट्स",
+    "placeholder": "एक कमेंट जोड़ें…",
+    "posting": "पोस्ट किया जा रहा है…",
+    "submit": "कमेंट करें",
+    "empty": "अभी तक कोई कमेंट नहीं है।",
+    "unknownAuthor": "अज्ञात"
+  },
+  "Profile": {
+    "performanceCount": "{count, plural, one {# परफॉर्मेंस} other {# परफॉर्मेंस}}",
+    "battleRecord": "बैटल्स में {wins}–{losses}",
+    "winRate": "{rate}% जीत दर",
+    "noPublic": "अभी तक कोई सार्वजनिक परफॉर्मेंस नहीं है।"
+  },
+  "Admin": {
+    "accessRequired": "एडमिन एक्सेस आवश्यक है।",
+    "cardModeration": "मॉडरेशन",
+    "cardDmca": "DMCA / टेकडाउन",
+    "cardCalibration": "कैलिब्रेशन स्कोरिंग",
+    "openFlags": "{count, plural, one {# खुला फ़्लैग} other {# खुले फ़्लैग}}",
+    "openRequests": "{count, plural, one {# खुला अनुरोध} other {# खुले अनुरोध}}",
+    "calibrationSub": "AI मॉडल को एंकर करें",
+    "moderationQueue": "मॉडरेशन क्यू",
+    "noOpenFlags": "कोई खुला फ़्लैग नहीं है।",
+    "dmcaRequests": "DMCA / टेकडाउन अनुरोध",
+    "noOpenRequests": "कोई खुला अनुरोध नहीं है।",
+    "performanceId": "परफॉर्मेंस: {id}",
+    "calibrateIntro": "मानव-स्कोर्ड एंकर जो AI स्कोरिंग मॉडल को कैलिब्रेट करते हैं। एक परफॉर्मेंस ID पेस्ट करें और हर मानदंड को रेट करें।",
+    "dismiss": "खारिज करें",
+    "resolve": "हल करें",
+    "resolveHide": "हल करें + छिपाएं",
+    "reject": "अस्वीकार करें",
+    "takeDown": "हटाएं",
+    "calibratePlaceholder": "परफॉर्मेंस ID (UUID)",
+    "saving": "सेव किया जा रहा है…",
+    "saveCalibration": "कैलिब्रेशन सेव करें",
+    "calibrationSaved": "कैलिब्रेशन सेव हो गया ✓",
+    "calibrationFailed": "सेव करने में विफल"
+  },
+  "Report": {
+    "promptReason": "आप इसकी रिपोर्ट क्यों कर रहे हैं?",
+    "thanks": "रिपोर्ट कर दिया गया — धन्यवाद।",
+    "button": "रिपोर्ट करें"
+  },
+  "Dmca": {
+    "formTitle": "DMCA / टेकडाउन अनुरोध",
+    "intro": "हम YouTube वीडियो एम्बेड करते हैं और कभी मीडिया होस्ट नहीं करते। अगर आपको लगता है कि यहां की कोई सामग्री आपके अधिकारों का उल्लंघन करती है, तो नीचे एक अनुरोध दाखिल करें और हम इसकी तुरंत समीक्षा करेंगे।",
+    "claimantPlaceholder": "आपका नाम / संगठन",
+    "performanceIdPlaceholder": "परफॉर्मेंस ID (वैकल्पिक)",
+    "detailsPlaceholder": "दावे का विवरण दें (अधिकार, उल्लंघनकारी सामग्री, आदि)",
+    "submit": "अनुरोध दाखिल करें",
+    "filing": "दाखिल किया जा रहा है…",
+    "filed": "आपका अनुरोध दाखिल कर दिया गया है। हम इसकी तुरंत समीक्षा करेंगे।",
+    "failed": "अनुरोध दाखिल नहीं हो सका। अपनी जानकारी जांचें।"
+  },
+  "Song": {
+    "subtitle": "कौन इस गाने को सबसे बेहतर गाता है — स्कोर के अनुसार रैंक किया गया।",
+    "viewRanking": "देखें कौन “{title}” को सबसे बेहतर गाता है"
+  }
+}

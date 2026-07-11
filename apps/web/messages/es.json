@@ -1,0 +1,179 @@
+{
+  "Meta": {
+    "title": "VoxScore — Liga Global de Interpretación Vocal con IA",
+    "description": "Descubre quién canta mejor una canción. Interpretaciones vocales puntuadas por IA y votadas por la comunidad."
+  },
+  "Nav": {
+    "leaderboard": "Clasificación",
+    "battle": "Batalla",
+    "standings": "Posiciones",
+    "storyboard": "Storyboard",
+    "signIn": "Iniciar sesión",
+    "admin": "Administración",
+    "addPerformance": "Añadir interpretación",
+    "signOut": "Cerrar sesión",
+    "footerTagline": "VoxScore — solo insertamos contenido, nunca alojamos medios.",
+    "terms": "Términos",
+    "privacy": "Privacidad",
+    "dmca": "DMCA / Retirada de contenido"
+  },
+  "Common": {
+    "provisionalBadge": "Estimación provisional de IA",
+    "provisionalBadgeTitle": "Estimado por IA a partir de metadatos — no es una medición de audio real.",
+    "untitledPerformance": "Interpretación sin título",
+    "noPerformances": "Aún no hay interpretaciones.",
+    "supabaseNotConfigured": "Supabase aún no está configurado.",
+    "failed": "Error",
+    "failedStatus": "Error ({status})",
+    "networkError": "Error de red"
+  },
+  "Home": {
+    "heroTitle": "Descubre quién canta <hl>mejor</hl> una canción.",
+    "heroSubtitle": "Añade una interpretación de YouTube, obtén una estimación provisional de IA y deja que los oyentes verificados voten y compitan.",
+    "supabaseHint": "Supabase aún no está configurado. Inicia el stack local (<code>pnpm db:start</code>) y configura <code>.env.local</code>, luego añade una interpretación.",
+    "addFirst": "Añade la primera →"
+  },
+  "Login": {
+    "signIn": "Iniciar sesión",
+    "createAccount": "Crear cuenta",
+    "emailPlaceholder": "Correo electrónico",
+    "passwordPlaceholder": "Contraseña",
+    "pleaseWait": "Un momento…",
+    "signUp": "Registrarse",
+    "needAccount": "¿No tienes cuenta? Regístrate",
+    "haveAccount": "¿Ya tienes cuenta? Inicia sesión",
+    "google": "Continuar con Google",
+    "orDivider": "o"
+  },
+  "Add": {
+    "title": "Añadir una interpretación",
+    "subtitle": "Pega un enlace de YouTube. Lo insertamos (nunca lo descargamos), obtenemos sus metadatos y creamos una estimación provisional de IA.",
+    "signInPrompt": "Por favor, <link>inicia sesión</link> para añadir una interpretación.",
+    "urlLabel": "URL de la interpretación en YouTube",
+    "submit": "Añadir interpretación",
+    "adding": "Añadiendo…"
+  },
+  "Battle": {
+    "subtitle": "Dos interpretaciones, un ganador. Escucha ambas por completo y luego decide.",
+    "signInPrompt": "Por favor, <link>inicia sesión</link> para participar en una batalla.",
+    "statusListened": "✓ Escuchado",
+    "statusNotFully": "No escuchado por completo",
+    "statusListening": "Escuchando…",
+    "statusPressPlay": "Presiona reproducir y mira hasta el final",
+    "voteRecorded": "¡Voto registrado! 🎉",
+    "nextBattle": "Siguiente batalla →",
+    "sideWins": "{title} gana",
+    "mustListenBoth": "Debes escuchar por completo AMBAS interpretaciones antes de elegir un ganador.",
+    "finding": "Buscando una batalla…",
+    "notEnough": "Aún no hay suficientes interpretaciones para una batalla. ¡Añade más!",
+    "couldNotLoad": "No se pudo cargar una batalla."
+  },
+  "Leaderboard": {
+    "subtitle": "Clasificadas por puntuación actual.",
+    "battleRecord": "{wins}–{losses} · batallas",
+    "viewStandings": "Posiciones de batalla →"
+  },
+  "Standings": {
+    "title": "Posiciones de batalla",
+    "subtitle": "Clasificadas por Elo según los enfrentamientos directos.",
+    "record": "{wins}–{losses}",
+    "winRate": "{rate}% de victorias",
+    "empty": "Aún no hay batallas. Abre la arena de batalla para iniciar una.",
+    "viewScores": "Clasificación por puntuación →"
+  },
+  "Performance": {
+    "currentScore": "Puntuación actual",
+    "trend": "tendencia",
+    "aiStart": "Inicio con IA",
+    "measuredBadge": "Medido",
+    "measuredCaption": "Los criterios medidos provienen de la grabación enviada por el propio artista — el audio se analiza y luego se elimina.",
+    "fallbackTitle": "Interpretación",
+    "addedBy": "Añadido por <link>{handle}</link>",
+    "noVideo": "Sin video.",
+    "signInToVote": "<link>Inicia sesión</link> y completa una Escucha Verificada para votar.",
+    "signInToComment": "<link>Inicia sesión</link> para comentar."
+  },
+  "Criteria": {
+    "vocalAccuracy": "Precisión vocal",
+    "rhythmTiming": "Ritmo y tempo",
+    "toneQuality": "Calidad del tono",
+    "emotionInterpretation": "Emoción e interpretación",
+    "technicalSkill": "Habilidad técnica",
+    "pronunciationDiction": "Pronunciación y dicción",
+    "recordingQuality": "Calidad de grabación",
+    "originality": "Originalidad",
+    "stagePresence": "Presencia escénica"
+  },
+  "Vote": {
+    "hintIdle": "Presiona reproducir y mira hasta el final para desbloquear la votación.",
+    "errStart": "No se pudo iniciar la sesión de escucha.",
+    "verifying": "Verificando tu escucha…",
+    "verified": "Escucha Verificada completa — ya puedes votar.",
+    "notVerified": "La escucha no se verificó. Mira la interpretación completa para poder votar.",
+    "errVerify": "No se pudo verificar la escucha.",
+    "rateThis": "Califica esta interpretación",
+    "submitting": "Enviando…",
+    "submit": "Enviar voto",
+    "thanksScore": "¡Gracias! Nueva puntuación actual: {score}",
+    "thanks": "¡Gracias por votar!"
+  },
+  "Comments": {
+    "heading": "Comentarios",
+    "placeholder": "Añade un comentario…",
+    "posting": "Publicando…",
+    "submit": "Comentar",
+    "empty": "Aún no hay comentarios.",
+    "unknownAuthor": "desconocido"
+  },
+  "Profile": {
+    "performanceCount": "{count, plural, one {# interpretación} other {# interpretaciones}}",
+    "battleRecord": "{wins}–{losses} en batallas",
+    "winRate": "{rate}% de victorias",
+    "noPublic": "Aún no hay interpretaciones públicas."
+  },
+  "Admin": {
+    "accessRequired": "Se requiere acceso de administrador.",
+    "cardModeration": "Moderación",
+    "cardDmca": "DMCA / Retiradas",
+    "cardCalibration": "Puntuación de calibración",
+    "openFlags": "{count, plural, one {# reporte abierto} other {# reportes abiertos}}",
+    "openRequests": "{count, plural, one {# solicitud abierta} other {# solicitudes abiertas}}",
+    "calibrationSub": "Ajusta el modelo de IA",
+    "moderationQueue": "Cola de moderación",
+    "noOpenFlags": "No hay reportes abiertos.",
+    "dmcaRequests": "Solicitudes de DMCA / Retirada",
+    "noOpenRequests": "No hay solicitudes abiertas.",
+    "performanceId": "Interpretación: {id}",
+    "calibrateIntro": "Referencias puntuadas por humanos que calibran el modelo de puntuación de IA. Pega el ID de una interpretación y califica cada criterio.",
+    "dismiss": "Descartar",
+    "resolve": "Resolver",
+    "resolveHide": "Resolver y ocultar",
+    "reject": "Rechazar",
+    "takeDown": "Retirar",
+    "calibratePlaceholder": "ID de la interpretación (UUID)",
+    "saving": "Guardando…",
+    "saveCalibration": "Guardar calibración",
+    "calibrationSaved": "Calibración guardada ✓",
+    "calibrationFailed": "Error al guardar"
+  },
+  "Report": {
+    "promptReason": "¿Por qué estás reportando esto?",
+    "thanks": "Reportado — gracias.",
+    "button": "Reportar"
+  },
+  "Dmca": {
+    "formTitle": "Solicitud de DMCA / Retirada de contenido",
+    "intro": "Insertamos videos de YouTube y nunca alojamos medios. Si crees que algún contenido aquí infringe tus derechos, presenta una solicitud a continuación y la revisaremos con prontitud.",
+    "claimantPlaceholder": "Tu nombre / organización",
+    "performanceIdPlaceholder": "ID de la interpretación (opcional)",
+    "detailsPlaceholder": "Describe la reclamación (derechos, contenido infractor, etc.)",
+    "submit": "Presentar solicitud",
+    "filing": "Presentando…",
+    "filed": "Tu solicitud ha sido presentada. La revisaremos con prontitud.",
+    "failed": "No se pudo presentar la solicitud. Revisa los datos ingresados."
+  },
+  "Song": {
+    "subtitle": "Quién canta mejor esta canción — clasificados por puntuación.",
+    "viewRanking": "Descubre quién canta mejor “{title}”"
+  }
+}

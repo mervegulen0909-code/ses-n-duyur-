@@ -1,0 +1,179 @@
+{
+  "Meta": {
+    "title": "VoxScore — 全球 AI 人声表演排行榜",
+    "description": "发现谁唱得最好。AI 评分，社区投票的人声表演。"
+  },
+  "Nav": {
+    "leaderboard": "排行榜",
+    "battle": "对战",
+    "standings": "积分榜",
+    "storyboard": "故事板",
+    "signIn": "登录",
+    "admin": "管理",
+    "addPerformance": "添加表演",
+    "signOut": "退出登录",
+    "footerTagline": "VoxScore — 仅嵌入，从不托管媒体内容。",
+    "terms": "条款",
+    "privacy": "隐私",
+    "dmca": "DMCA / 下架申请"
+  },
+  "Common": {
+    "provisionalBadge": "AI 初步估分",
+    "provisionalBadgeTitle": "由 AI 根据元数据估算——并非真实音频测量结果。",
+    "untitledPerformance": "未命名表演",
+    "noPerformances": "暂无表演。",
+    "supabaseNotConfigured": "Supabase 尚未配置。",
+    "failed": "失败",
+    "failedStatus": "失败（{status}）",
+    "networkError": "网络错误"
+  },
+  "Home": {
+    "heroTitle": "发现谁唱得<hl>最好</hl>。",
+    "heroSubtitle": "添加一段 YouTube 表演，获取 AI 初步估分，再让通过验证的听众投票、对战。",
+    "supabaseHint": "Supabase 尚未配置。请先启动本地环境（<code>pnpm db:start</code>）并设置 <code>.env.local</code>，然后再添加表演。",
+    "addFirst": "添加第一个 →"
+  },
+  "Login": {
+    "signIn": "登录",
+    "createAccount": "创建账号",
+    "emailPlaceholder": "邮箱",
+    "passwordPlaceholder": "密码",
+    "pleaseWait": "请稍候…",
+    "signUp": "注册",
+    "needAccount": "还没有账号？去注册",
+    "haveAccount": "已有账号？去登录",
+    "google": "使用 Google 继续",
+    "orDivider": "或"
+  },
+  "Add": {
+    "title": "添加表演",
+    "subtitle": "粘贴一个 YouTube 链接。我们会嵌入它（绝不下载），获取其元数据，并生成 AI 初步估分。",
+    "signInPrompt": "请<link>登录</link>以添加表演。",
+    "urlLabel": "YouTube 表演链接",
+    "submit": "添加表演",
+    "adding": "添加中…"
+  },
+  "Battle": {
+    "subtitle": "两段表演，一位赢家。完整听完两者，再做决定。",
+    "signInPrompt": "请<link>登录</link>以参与对战。",
+    "statusListened": "✓ 已听完",
+    "statusNotFully": "尚未听完",
+    "statusListening": "收听中…",
+    "statusPressPlay": "请点击播放并完整观看",
+    "voteRecorded": "投票已记录！🎉",
+    "nextBattle": "下一场对战 →",
+    "sideWins": "{title} 获胜",
+    "mustListenBoth": "选出赢家前，你必须完整听完两段表演。",
+    "finding": "正在寻找对战…",
+    "notEnough": "表演数量还不够，无法开始对战。快去添加更多吧！",
+    "couldNotLoad": "无法加载对战。"
+  },
+  "Leaderboard": {
+    "subtitle": "按当前得分排序。",
+    "battleRecord": "{wins}胜{losses}负 · 对战",
+    "viewStandings": "对战积分榜 →"
+  },
+  "Standings": {
+    "title": "对战积分榜",
+    "subtitle": "根据一对一对战的 Elo 分数排名。",
+    "record": "{wins}胜{losses}负",
+    "winRate": "胜率 {rate}%",
+    "empty": "暂无对战记录。前往对战竞技场开始一场吧。",
+    "viewScores": "得分排行榜 →"
+  },
+  "Performance": {
+    "currentScore": "当前得分",
+    "trend": "趋势",
+    "aiStart": "AI 初始分",
+    "measuredBadge": "已实测",
+    "measuredCaption": "实测指标来自演唱者本人上传的录音——音频经过分析后即被删除。",
+    "fallbackTitle": "表演",
+    "addedBy": "由 <link>{handle}</link> 添加",
+    "noVideo": "暂无视频。",
+    "signInToVote": "<link>登录</link>并完成验证收听后即可投票。",
+    "signInToComment": "<link>登录</link>后即可评论。"
+  },
+  "Criteria": {
+    "vocalAccuracy": "音准",
+    "rhythmTiming": "节奏与节拍",
+    "toneQuality": "音色质量",
+    "emotionInterpretation": "情感与诠释",
+    "technicalSkill": "技术能力",
+    "pronunciationDiction": "发音与咬字",
+    "recordingQuality": "录音质量",
+    "originality": "原创性",
+    "stagePresence": "台风与表现力"
+  },
+  "Vote": {
+    "hintIdle": "点击播放并听完全程即可解锁投票。",
+    "errStart": "无法开始收听会话。",
+    "verifying": "正在验证你的收听记录…",
+    "verified": "验证收听已完成——现在可以投票了。",
+    "notVerified": "收听未通过验证。请完整观看表演后再投票。",
+    "errVerify": "无法验证收听记录。",
+    "rateThis": "为这段表演打分",
+    "submitting": "提交中…",
+    "submit": "提交投票",
+    "thanksScore": "谢谢！最新当前得分：{score}",
+    "thanks": "感谢你的投票！"
+  },
+  "Comments": {
+    "heading": "评论",
+    "placeholder": "添加评论…",
+    "posting": "发布中…",
+    "submit": "评论",
+    "empty": "暂无评论。",
+    "unknownAuthor": "未知用户"
+  },
+  "Profile": {
+    "performanceCount": "{count, plural, one {# 个表演} other {# 个表演}}",
+    "battleRecord": "对战 {wins}胜{losses}负",
+    "winRate": "胜率 {rate}%",
+    "noPublic": "暂无公开表演。"
+  },
+  "Admin": {
+    "accessRequired": "需要管理员权限。",
+    "cardModeration": "内容审核",
+    "cardDmca": "DMCA / 下架申请",
+    "cardCalibration": "校准评分",
+    "openFlags": "{count, plural, one {# 条待处理举报} other {# 条待处理举报}}",
+    "openRequests": "{count, plural, one {# 条待处理申请} other {# 条待处理申请}}",
+    "calibrationSub": "为 AI 模型定基准",
+    "moderationQueue": "审核队列",
+    "noOpenFlags": "暂无待处理举报。",
+    "dmcaRequests": "DMCA / 下架申请",
+    "noOpenRequests": "暂无待处理申请。",
+    "performanceId": "表演：{id}",
+    "calibrateIntro": "使用人工评分基准来校准 AI 评分模型。粘贴表演 ID，并为每项标准打分。",
+    "dismiss": "驳回",
+    "resolve": "处理完成",
+    "resolveHide": "处理并隐藏",
+    "reject": "拒绝",
+    "takeDown": "下架",
+    "calibratePlaceholder": "表演 ID（UUID）",
+    "saving": "保存中…",
+    "saveCalibration": "保存校准",
+    "calibrationSaved": "校准已保存 ✓",
+    "calibrationFailed": "保存失败"
+  },
+  "Report": {
+    "promptReason": "你举报的原因是？",
+    "thanks": "举报已提交——谢谢你。",
+    "button": "举报"
+  },
+  "Dmca": {
+    "formTitle": "DMCA / 下架申请",
+    "intro": "我们只嵌入 YouTube 视频，从不托管媒体内容。如果你认为此处内容侵犯了你的权利，请在下方提交申请，我们会尽快审核。",
+    "claimantPlaceholder": "你的姓名 / 机构名称",
+    "performanceIdPlaceholder": "表演 ID（可选）",
+    "detailsPlaceholder": "描述你的主张（权利归属、侵权内容等）",
+    "submit": "提交申请",
+    "filing": "提交中…",
+    "filed": "你的申请已提交。我们会尽快审核。",
+    "failed": "无法提交申请，请检查填写内容。"
+  },
+  "Song": {
+    "subtitle": "谁唱这首歌最好——按得分排名。",
+    "viewRanking": "看看谁唱《{title}》最好"
+  }
+}

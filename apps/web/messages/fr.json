@@ -1,0 +1,179 @@
+{
+  "Meta": {
+    "title": "VoxScore — Ligue mondiale de performance vocale par IA",
+    "description": "Découvrez qui chante le mieux une chanson. Performances vocales notées par IA, votées par la communauté."
+  },
+  "Nav": {
+    "leaderboard": "Classement",
+    "battle": "Duel",
+    "standings": "Classement Elo",
+    "storyboard": "Storyboard",
+    "signIn": "Se connecter",
+    "admin": "Admin",
+    "addPerformance": "Ajouter une performance",
+    "signOut": "Se déconnecter",
+    "footerTagline": "VoxScore — intègre les vidéos, ne les héberge jamais.",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "dmca": "DMCA / Retrait"
+  },
+  "Common": {
+    "provisionalBadge": "Estimation IA provisoire",
+    "provisionalBadgeTitle": "Estimé par IA à partir des métadonnées — pas une mesure audio réelle.",
+    "untitledPerformance": "Performance sans titre",
+    "noPerformances": "Aucune performance pour l'instant.",
+    "supabaseNotConfigured": "Supabase n'est pas encore configuré.",
+    "failed": "Échec",
+    "failedStatus": "Échec ({status})",
+    "networkError": "Erreur réseau"
+  },
+  "Home": {
+    "heroTitle": "Découvrez qui chante <hl>le mieux</hl> une chanson.",
+    "heroSubtitle": "Ajoutez une performance YouTube, obtenez une estimation IA provisoire, puis laissez les auditeurs vérifiés voter et s'affronter.",
+    "supabaseHint": "Supabase n'est pas encore configuré. Démarrez la stack locale (<code>pnpm db:start</code>) et configurez <code>.env.local</code>, puis ajoutez une performance.",
+    "addFirst": "Ajouter la première →"
+  },
+  "Login": {
+    "signIn": "Se connecter",
+    "createAccount": "Créer un compte",
+    "emailPlaceholder": "E-mail",
+    "passwordPlaceholder": "Mot de passe",
+    "pleaseWait": "Veuillez patienter…",
+    "signUp": "S'inscrire",
+    "needAccount": "Besoin d'un compte ? Inscrivez-vous",
+    "haveAccount": "Vous avez déjà un compte ? Connectez-vous",
+    "google": "Continuer avec Google",
+    "orDivider": "ou"
+  },
+  "Add": {
+    "title": "Ajouter une performance",
+    "subtitle": "Collez un lien YouTube. Nous l'intégrons (sans jamais le télécharger), récupérons ses métadonnées et créons une estimation IA provisoire.",
+    "signInPrompt": "Veuillez <link>vous connecter</link> pour ajouter une performance.",
+    "urlLabel": "URL YouTube de la performance",
+    "submit": "Ajouter la performance",
+    "adding": "Ajout en cours…"
+  },
+  "Battle": {
+    "subtitle": "Deux performances, un seul gagnant. Écoutez les deux en entier, puis décidez.",
+    "signInPrompt": "Veuillez <link>vous connecter</link> pour participer à un duel.",
+    "statusListened": "✓ Écouté",
+    "statusNotFully": "Pas encore écouté en entier",
+    "statusListening": "Écoute en cours…",
+    "statusPressPlay": "Appuyez sur lecture et regardez en entier",
+    "voteRecorded": "Vote enregistré ! 🎉",
+    "nextBattle": "Duel suivant →",
+    "sideWins": "{title} gagne",
+    "mustListenBoth": "Vous devez écouter les DEUX performances en entier avant de choisir un gagnant.",
+    "finding": "Recherche d'un duel…",
+    "notEnough": "Pas encore assez de performances pour un duel. Ajoutez-en davantage !",
+    "couldNotLoad": "Impossible de charger un duel."
+  },
+  "Leaderboard": {
+    "subtitle": "Classées par score actuel.",
+    "battleRecord": "{wins}–{losses} · duels",
+    "viewStandings": "Classement des duels →"
+  },
+  "Standings": {
+    "title": "Classement des duels",
+    "subtitle": "Classées par Elo issu des duels en tête-à-tête.",
+    "record": "{wins}–{losses}",
+    "winRate": "{rate}% de victoires",
+    "empty": "Aucun duel pour l'instant. Ouvrez l'arène de duel pour en lancer un.",
+    "viewScores": "Classement par score →"
+  },
+  "Performance": {
+    "currentScore": "Score actuel",
+    "trend": "tendance",
+    "aiStart": "Départ IA",
+    "measuredBadge": "Mesuré",
+    "measuredCaption": "Les critères mesurés proviennent de l'enregistrement soumis par l'artiste lui-même — l'audio est analysé, puis supprimé.",
+    "fallbackTitle": "Performance",
+    "addedBy": "Ajoutée par <link>{handle}</link>",
+    "noVideo": "Aucune vidéo.",
+    "signInToVote": "<link>Connectez-vous</link> et terminez une écoute vérifiée pour voter.",
+    "signInToComment": "<link>Connectez-vous</link> pour commenter."
+  },
+  "Criteria": {
+    "vocalAccuracy": "Justesse vocale",
+    "rhythmTiming": "Rythme et tempo",
+    "toneQuality": "Qualité du timbre",
+    "emotionInterpretation": "Émotion et interprétation",
+    "technicalSkill": "Technique",
+    "pronunciationDiction": "Prononciation et diction",
+    "recordingQuality": "Qualité de l'enregistrement",
+    "originality": "Originalité",
+    "stagePresence": "Présence scénique"
+  },
+  "Vote": {
+    "hintIdle": "Appuyez sur lecture et regardez jusqu'à la fin pour débloquer le vote.",
+    "errStart": "Impossible de démarrer la session d'écoute.",
+    "verifying": "Vérification de votre écoute…",
+    "verified": "Écoute vérifiée terminée — vous pouvez voter maintenant.",
+    "notVerified": "Écoute non vérifiée. Regardez la performance en entier pour voter.",
+    "errVerify": "Impossible de vérifier l'écoute.",
+    "rateThis": "Notez cette performance",
+    "submitting": "Envoi en cours…",
+    "submit": "Envoyer le vote",
+    "thanksScore": "Merci ! Nouveau score actuel : {score}",
+    "thanks": "Merci d'avoir voté !"
+  },
+  "Comments": {
+    "heading": "Commentaires",
+    "placeholder": "Ajouter un commentaire…",
+    "posting": "Publication en cours…",
+    "submit": "Commenter",
+    "empty": "Aucun commentaire pour l'instant.",
+    "unknownAuthor": "inconnu"
+  },
+  "Profile": {
+    "performanceCount": "{count, plural, one {# performance} other {# performances}}",
+    "battleRecord": "{wins}–{losses} en duels",
+    "winRate": "{rate}% de victoires",
+    "noPublic": "Aucune performance publique pour l'instant."
+  },
+  "Admin": {
+    "accessRequired": "Accès administrateur requis.",
+    "cardModeration": "Modération",
+    "cardDmca": "DMCA / Retraits",
+    "cardCalibration": "Calibrage du score",
+    "openFlags": "{count, plural, one {# signalement ouvert} other {# signalements ouverts}}",
+    "openRequests": "{count, plural, one {# demande ouverte} other {# demandes ouvertes}}",
+    "calibrationSub": "Ancrer le modèle IA",
+    "moderationQueue": "File de modération",
+    "noOpenFlags": "Aucun signalement ouvert.",
+    "dmcaRequests": "Demandes DMCA / retrait",
+    "noOpenRequests": "Aucune demande ouverte.",
+    "performanceId": "Performance : {id}",
+    "calibrateIntro": "Des ancrages notés par des humains qui calibrent le modèle de notation IA. Collez un identifiant de performance et notez chaque critère.",
+    "dismiss": "Ignorer",
+    "resolve": "Résoudre",
+    "resolveHide": "Résoudre + masquer",
+    "reject": "Rejeter",
+    "takeDown": "Retirer",
+    "calibratePlaceholder": "Identifiant de performance (UUID)",
+    "saving": "Enregistrement…",
+    "saveCalibration": "Enregistrer le calibrage",
+    "calibrationSaved": "Calibrage enregistré ✓",
+    "calibrationFailed": "Échec de l'enregistrement"
+  },
+  "Report": {
+    "promptReason": "Pourquoi signalez-vous ce contenu ?",
+    "thanks": "Signalé — merci.",
+    "button": "Signaler"
+  },
+  "Dmca": {
+    "formTitle": "Demande DMCA / retrait",
+    "intro": "Nous intégrons des vidéos YouTube et n'hébergeons jamais de contenu multimédia. Si vous pensez qu'un contenu ici porte atteinte à vos droits, déposez une demande ci-dessous et nous l'examinerons rapidement.",
+    "claimantPlaceholder": "Votre nom / organisation",
+    "performanceIdPlaceholder": "Identifiant de performance (facultatif)",
+    "detailsPlaceholder": "Décrivez la réclamation (droits, contenu litigieux, etc.)",
+    "submit": "Déposer la demande",
+    "filing": "Envoi en cours…",
+    "filed": "Votre demande a été déposée. Nous l'examinerons rapidement.",
+    "failed": "Impossible de déposer la demande. Vérifiez votre saisie."
+  },
+  "Song": {
+    "subtitle": "Qui chante le mieux cette chanson — classement par score.",
+    "viewRanking": "Voir qui chante le mieux « {title} »"
+  }
+}
