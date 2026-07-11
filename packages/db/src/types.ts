@@ -206,6 +206,26 @@ export interface PublicRows {
     followee_id: Uuid;
     created_at: Timestamp;
   };
+  appeals: {
+    id: Uuid;
+    user_id: Uuid;
+    target_type: 'performance' | 'comment' | 'performance_request';
+    target_id: Uuid;
+    reason: string;
+    status: 'pending' | 'upheld' | 'denied';
+    reviewer_id: Uuid | null;
+    reviewed_at: Timestamp | null;
+    resolution_note: string | null;
+    created_at: Timestamp;
+  };
+  appeals_audit: {
+    id: Uuid;
+    appeal_id: Uuid;
+    actor: Uuid | null;
+    action: 'submitted' | 'upheld' | 'denied';
+    note: string | null;
+    created_at: Timestamp;
+  };
   analytics_events: {
     id: Uuid;
     event:

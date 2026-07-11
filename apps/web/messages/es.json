@@ -215,7 +215,11 @@
     "viralCoefficient": "Coeficiente viral",
     "viralCoefficientDetail": "{invites} registros por invitación / {signups} registros",
     "categoriesHeading": "Categorías más solicitadas",
-    "noEvents": "Aún no hay eventos en este periodo."
+    "noEvents": "Aún no hay eventos en este periodo.",
+    "cardAppeals": "Apelaciones",
+    "openAppeals": "{count, plural, one {# apelación abierta} other {# apelaciones abiertas}}",
+    "appealsQueue": "Cola de apelaciones",
+    "noOpenAppeals": "No hay apelaciones abiertas."
   },
   "Report": {
     "promptReason": "¿Por qué estás reportando esto?",
@@ -248,5 +252,15 @@
     "indieAlternative": "Indie / Alternativo",
     "musicalClassical": "Musical / Clásico",
     "other": "Otro"
+  },
+  "Appeals": {
+    "appealThis": "Apelar esto",
+    "reasonPlaceholder": "¿Por qué debería revertirse esta decisión?",
+    "submit": "Enviar apelación",
+    "submitting": "Enviando…",
+    "submitted": "Apelación enviada — un administrador la revisará.",
+    "cancel": "Cancelar",
+    "genericError": "No se pudo enviar la apelación.",
+    "hiddenBanner": "Esta actuación fue ocultada por un moderador. Puedes apelar esta decisión."
   }
 }

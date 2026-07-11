@@ -215,7 +215,11 @@
     "viralCoefficient": "病毒系数",
     "viralCoefficientDetail": "{invites} 次邀请注册 / {signups} 次注册",
     "categoriesHeading": "最受欢迎的申请类别",
-    "noEvents": "该时间段内暂无事件。"
+    "noEvents": "该时间段内暂无事件。",
+    "cardAppeals": "申诉",
+    "openAppeals": "{count} 条待处理申诉",
+    "appealsQueue": "申诉队列",
+    "noOpenAppeals": "暂无待处理申诉。"
   },
   "Report": {
     "promptReason": "你举报的原因是？",
@@ -248,5 +252,15 @@
     "indieAlternative": "独立 / 另类",
     "musicalClassical": "音乐剧 / 古典",
     "other": "其他"
+  },
+  "Appeals": {
+    "appealThis": "对此提出申诉",
+    "reasonPlaceholder": "为什么应该撤销这个决定？",
+    "submit": "提交申诉",
+    "submitting": "提交中…",
+    "submitted": "申诉已提交——管理员将进行审核。",
+    "cancel": "取消",
+    "genericError": "申诉提交失败。",
+    "hiddenBanner": "此表演已被管理员隐藏。你可以对此决定提出申诉。"
   }
 }

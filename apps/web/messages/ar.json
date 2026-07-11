@@ -215,7 +215,11 @@
     "viralCoefficient": "المعامل الفيروسي",
     "viralCoefficientDetail": "{invites} تسجيل عبر دعوة / {signups} تسجيل",
     "categoriesHeading": "الفئات الأكثر طلبًا",
-    "noEvents": "لا أحداث في هذه الفترة بعد."
+    "noEvents": "لا أحداث في هذه الفترة بعد.",
+    "cardAppeals": "الاستئنافات",
+    "openAppeals": "{count} استئناف مفتوح",
+    "appealsQueue": "قائمة الاستئنافات",
+    "noOpenAppeals": "لا توجد استئنافات مفتوحة."
   },
   "Report": {
     "promptReason": "لماذا تُبلغ عن هذا؟",
@@ -248,5 +252,15 @@
     "indieAlternative": "إندي / بديل",
     "musicalClassical": "مسرح غنائي / كلاسيكي",
     "other": "أخرى"
+  },
+  "Appeals": {
+    "appealThis": "استأنف هذا",
+    "reasonPlaceholder": "لماذا يجب التراجع عن هذا القرار؟",
+    "submit": "إرسال الاستئناف",
+    "submitting": "جارٍ الإرسال…",
+    "submitted": "تم إرسال الاستئناف — سيراجعه أحد المشرفين.",
+    "cancel": "إلغاء",
+    "genericError": "تعذّر إرسال الاستئناف.",
+    "hiddenBanner": "تم إخفاء هذا الأداء بواسطة مشرف. يمكنك استئناف هذا القرار."
   }
 }

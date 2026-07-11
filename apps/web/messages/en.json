@@ -215,7 +215,11 @@
     "viralCoefficient": "Viral coefficient",
     "viralCoefficientDetail": "{invites} ref signups / {signups} signups",
     "categoriesHeading": "Top requested categories",
-    "noEvents": "No events in this window yet."
+    "noEvents": "No events in this window yet.",
+    "cardAppeals": "Appeals",
+    "openAppeals": "{count, plural, one {# open appeal} other {# open appeals}}",
+    "appealsQueue": "Appeals queue",
+    "noOpenAppeals": "No open appeals."
   },
   "Report": {
     "promptReason": "Why are you reporting this?",
@@ -248,5 +252,15 @@
     "indieAlternative": "Indie / Alternative",
     "musicalClassical": "Musical / Classical",
     "other": "Other"
+  },
+  "Appeals": {
+    "appealThis": "Appeal this",
+    "reasonPlaceholder": "Why should this decision be reversed?",
+    "submit": "Submit appeal",
+    "submitting": "Submitting…",
+    "submitted": "Appeal submitted — an admin will review it.",
+    "cancel": "Cancel",
+    "genericError": "Could not submit appeal.",
+    "hiddenBanner": "This performance was hidden by a moderator. You can appeal this decision."
   }
 }

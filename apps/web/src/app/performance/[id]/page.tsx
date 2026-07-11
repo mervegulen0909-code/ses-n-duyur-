@@ -7,6 +7,7 @@ import { YouTubeEmbed } from '@/components/youtube-embed';
 import { ScoreBreakdown } from '@/components/score-breakdown';
 import { VotePanel } from '@/components/vote-panel';
 import { ReportButton } from '@/components/report-button';
+import { AppealForm } from '@/components/appeal-form';
 import { CommentComposer } from '@/components/comment-composer';
 import { ShareButtons } from '@/components/share-buttons';
 import { withAuthors } from '@/lib/comments';
@@ -42,9 +43,10 @@ export async function generateMetadata({
 
   const meta = (perf?.oembed_meta ?? {}) as OEmbedish;
   const songTitle = meta.title ?? 'Performance';
-  const scoreLabel = score?.current_score !== null && score?.current_score !== undefined
-    ? score.current_score.toFixed(1)
-    : '—';
+  const scoreLabel =
+    score?.current_score !== null && score?.current_score !== undefined
+      ? score.current_score.toFixed(1)
+      : '—';
   const title = `${songTitle} — ${scoreLabel} on VoxScore`;
 
   return { title, openGraph: { title }, twitter: { title } };
@@ -65,10 +67,13 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
   const { data: perf } = await supabase
     .from('performances')
-    .select('id, user_id, youtube_video_id, oembed_meta, has_video, song_id')
+    .select('id, user_id, youtube_video_id, oembed_meta, has_video, song_id, status')
     .eq('id', id)
     .maybeSingle();
 
+  // RLS already restricts a hidden performance to its owner + admins
+  // (performances_select_all: status = 'active' or user_id = auth.uid() or
+  // is_admin()) — a stranger's request simply gets no row here.
   if (!perf) notFound();
 
   const { data: uploader } = await supabase
@@ -123,6 +128,12 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           <h1 className="text-xl font-bold">{meta.title ?? t('Performance.fallbackTitle')}</h1>
           {user && <ReportButton targetType="performance" targetId={perf.id} />}
         </div>
+        {perf.status === 'hidden' && user?.id === perf.user_id && (
+          <div className="space-y-2 rounded-lg border border-amber-700/40 bg-amber-500/10 p-3">
+            <p className="text-sm text-amber-300">{t('Appeals.hiddenBanner')}</p>
+            <AppealForm targetType="performance" targetId={perf.id} />
+          </div>
+        )}
         {meta.authorName && <p className="text-sm text-neutral-500">{meta.authorName}</p>}
         {song && (
           <p className="text-sm">

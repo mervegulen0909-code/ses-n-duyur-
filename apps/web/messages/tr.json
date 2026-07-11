@@ -215,7 +215,11 @@
     "viralCoefficient": "Viral katsayı",
     "viralCoefficientDetail": "{invites} davetli kayıt / {signups} kayıt",
     "categoriesHeading": "En çok talep edilen kategoriler",
-    "noEvents": "Bu aralıkta henüz olay yok."
+    "noEvents": "Bu aralıkta henüz olay yok.",
+    "cardAppeals": "İtirazlar",
+    "openAppeals": "{count} açık itiraz",
+    "appealsQueue": "İtiraz kuyruğu",
+    "noOpenAppeals": "Açık itiraz yok."
   },
   "Report": {
     "promptReason": "Bunu neden bildiriyorsun?",
@@ -248,5 +252,15 @@
     "indieAlternative": "Indie / Alternatif",
     "musicalClassical": "Müzikal / Klasik",
     "other": "Diğer"
+  },
+  "Appeals": {
+    "appealThis": "Bunu itiraz et",
+    "reasonPlaceholder": "Bu karar neden geri alınmalı?",
+    "submit": "İtirazı gönder",
+    "submitting": "Gönderiliyor…",
+    "submitted": "İtiraz gönderildi — bir admin inceleyecek.",
+    "cancel": "Vazgeç",
+    "genericError": "İtiraz gönderilemedi.",
+    "hiddenBanner": "Bu performans bir moderatör tarafından gizlendi. Bu karara itiraz edebilirsin."
   }
 }

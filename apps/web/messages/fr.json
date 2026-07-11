@@ -215,7 +215,11 @@
     "viralCoefficient": "Coefficient viral",
     "viralCoefficientDetail": "{invites} inscriptions par invitation / {signups} inscriptions",
     "categoriesHeading": "Catégories les plus demandées",
-    "noEvents": "Aucun événement sur cette période pour le moment."
+    "noEvents": "Aucun événement sur cette période pour le moment.",
+    "cardAppeals": "Appels",
+    "openAppeals": "{count, plural, one {# appel ouvert} other {# appels ouverts}}",
+    "appealsQueue": "File d'appels",
+    "noOpenAppeals": "Aucun appel ouvert."
   },
   "Report": {
     "promptReason": "Pourquoi signalez-vous ce contenu ?",
@@ -248,5 +252,15 @@
     "indieAlternative": "Indie / Alternatif",
     "musicalClassical": "Comédie musicale / Classique",
     "other": "Autre"
+  },
+  "Appeals": {
+    "appealThis": "Faire appel",
+    "reasonPlaceholder": "Pourquoi cette décision devrait-elle être annulée ?",
+    "submit": "Envoyer l'appel",
+    "submitting": "Envoi…",
+    "submitted": "Appel envoyé — un administrateur va l’examiner.",
+    "cancel": "Annuler",
+    "genericError": "Impossible d'envoyer l'appel.",
+    "hiddenBanner": "Cette performance a été masquée par un modérateur. Tu peux faire appel de cette décision."
   }
 }

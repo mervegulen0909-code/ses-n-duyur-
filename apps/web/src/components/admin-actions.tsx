@@ -132,6 +132,80 @@ export function PerformanceRequestActions({ requestId }: { requestId: string }) 
   );
 }
 
+export function AppealActions({ appealId }: { appealId: string }) {
+  const router = useRouter();
+  const t = useTranslations('Admin');
+  const [busy, setBusy] = useState(false);
+  const [denying, setDenying] = useState(false);
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+
+  async function act(action: 'uphold' | 'deny') {
+    setBusy(true);
+    setError('');
+    const res = await fetch('/api/admin/appeals', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        appealId,
+        action,
+        resolutionNote: action === 'deny' ? reason : undefined,
+      }),
+    });
+    setBusy(false);
+    if (!res.ok) {
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      setError(body.error ?? t('rejectionReasonPlaceholder'));
+      return;
+    }
+    router.refresh();
+  }
+
+  if (denying) {
+    return (
+      <div className="flex flex-col gap-2">
+        <input
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder={t('rejectionReasonPlaceholder')}
+          className="rounded-md border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs outline-none focus:border-rose-500"
+        />
+        <div className="flex gap-2">
+          <button
+            disabled={busy || reason.trim().length < 3}
+            className={`${btn} border-rose-700 text-rose-300`}
+            onClick={() => act('deny')}
+          >
+            {t('reject')}
+          </button>
+          <button disabled={busy} className={btn} onClick={() => setDenying(false)}>
+            {t('dismiss')}
+          </button>
+        </div>
+        {error && <p className="text-xs text-rose-400">{error}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <button disabled={busy} className={btn} onClick={() => setDenying(true)}>
+          {t('reject')}
+        </button>
+        <button
+          disabled={busy}
+          className={`${btn} border-emerald-700 text-emerald-300`}
+          onClick={() => act('uphold')}
+        >
+          {t('approve')}
+        </button>
+      </div>
+      {error && <p className="text-xs text-rose-400">{error}</p>}
+    </div>
+  );
+}
+
 export function DmcaActions({
   requestId,
   performanceId,

@@ -215,7 +215,11 @@
     "viralCoefficient": "वायरल गुणांक",
     "viralCoefficientDetail": "{invites} आमंत्रण साइनअप / {signups} साइनअप",
     "categoriesHeading": "सबसे अधिक माँगी गई श्रेणियाँ",
-    "noEvents": "इस अवधि में अभी कोई इवेंट नहीं।"
+    "noEvents": "इस अवधि में अभी कोई इवेंट नहीं।",
+    "cardAppeals": "अपील",
+    "openAppeals": "{count} खुली अपील",
+    "appealsQueue": "अपील कतार",
+    "noOpenAppeals": "कोई खुली अपील नहीं।"
   },
   "Report": {
     "promptReason": "आप इसकी रिपोर्ट क्यों कर रहे हैं?",
@@ -248,5 +252,15 @@
     "indieAlternative": "इंडी / ऑल्टरनेटिव",
     "musicalClassical": "म्यूज़िकल / शास्त्रीय",
     "other": "अन्य"
+  },
+  "Appeals": {
+    "appealThis": "इस पर अपील करें",
+    "reasonPlaceholder": "इस निर्णय को क्यों पलटा जाना चाहिए?",
+    "submit": "अपील भेजें",
+    "submitting": "भेजा जा रहा है…",
+    "submitted": "अपील भेज दी गई — एक एडमिन इसकी समीक्षा करेगा।",
+    "cancel": "रद्द करें",
+    "genericError": "अपील भेजी नहीं जा सकी।",
+    "hiddenBanner": "इस परफ़ॉर्मेंस को एक मॉडरेटर ने छुपा दिया है। आप इस निर्णय पर अपील कर सकते हैं।"
   }
 }

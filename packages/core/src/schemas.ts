@@ -102,6 +102,29 @@ export const followSchema = z.object({
 });
 export type FollowInput = z.infer<typeof followSchema>;
 
+/**
+ * A user appeals a moderation decision (a hidden performance, a removed
+ * comment, a rejected performance request). Mirrors performanceRequestSchema.
+ */
+export const appealSchema = z.object({
+  targetType: z.enum(['performance', 'comment', 'performance_request']),
+  targetId: z.string().uuid(),
+  reason: z.string().trim().min(10).max(2000),
+});
+export type AppealInput = z.infer<typeof appealSchema>;
+
+/** Admin: uphold or deny a pending appeal. */
+export const appealActionSchema = z
+  .object({
+    appealId: z.string().uuid(),
+    action: z.enum(['uphold', 'deny']),
+    resolutionNote: z.string().trim().min(3).max(1000).optional(),
+  })
+  .refine((v) => v.action !== 'deny' || !!v.resolutionNote, {
+    message: 'A resolution note is required when denying',
+  });
+export type AppealActionInput = z.infer<typeof appealActionSchema>;
+
 /** A user reports content for moderation. */
 export const reportSchema = z.object({
   targetType: z.enum(['performance', 'comment', 'profile']),
