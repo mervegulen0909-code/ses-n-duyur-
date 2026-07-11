@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CRITERIA } from '@voxscore/scoring';
+import { songCategorySchema } from './categories';
 import { parseYouTubeId } from './youtube';
 
 /** A 0–100 score for a single criterion. */
@@ -97,6 +98,60 @@ export const dmcaSchema = z.object({
   details: z.string().trim().max(4000).optional(),
 });
 export type DmcaInput = z.infer<typeof dmcaSchema>;
+
+/**
+ * A user asks for a YouTube performance to be scored and added to the league.
+ * Requests land in an admin approval queue — they NEVER create a performance
+ * directly (see /api/performance-requests).
+ */
+export const performanceRequestSchema = z.object({
+  youtubeUrl: z
+    .string()
+    .trim()
+    .refine((v) => parseYouTubeId(v) !== null, { message: 'Not a valid YouTube video URL' }),
+  category: songCategorySchema,
+  note: z.string().trim().max(1000).optional(),
+});
+export type PerformanceRequestInput = z.infer<typeof performanceRequestSchema>;
+
+/** Admin: approve or reject a pending performance request. */
+export const performanceRequestActionSchema = z
+  .object({
+    requestId: z.string().uuid(),
+    action: z.enum(['approve', 'reject']),
+    rejectionReason: z.string().trim().min(3).max(1000).optional(),
+  })
+  .refine((v) => v.action !== 'reject' || !!v.rejectionReason, {
+    message: 'A rejection reason is required when rejecting',
+  });
+export type PerformanceRequestActionInput = z.infer<typeof performanceRequestActionSchema>;
+
+/**
+ * Privacy-preserving product analytics event. `sessionId` is a client-generated
+ * random UUID (not a tracking cookie), `meta` must never contain personal data
+ * or YouTube media data — only ids and enum-ish strings.
+ */
+export const ANALYTICS_EVENTS = [
+  'landing_view',
+  'signup_started',
+  'signup_completed',
+  'performance_request_submitted',
+  'performance_request_approved',
+  'verified_listen_completed',
+  'vote_submitted',
+  'battle_completed',
+  'share_clicked',
+  'challenge_opened',
+  'invite_converted',
+] as const;
+export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number];
+
+export const analyticsEventSchema = z.object({
+  event: z.enum(ANALYTICS_EVENTS),
+  sessionId: z.string().uuid(),
+  meta: z.record(z.string(), z.union([z.string().max(200), z.number()])).optional(),
+});
+export type AnalyticsEventInput = z.infer<typeof analyticsEventSchema>;
 
 /** Admin: resolve/dismiss a moderation flag, optionally hiding a performance. */
 export const moderateSchema = z.object({

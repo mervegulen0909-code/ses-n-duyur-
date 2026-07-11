@@ -15,6 +15,18 @@ export interface ScoringInput {
   readonly transcript?: string;
 }
 
+/**
+ * The active scoring regime. Bump when anything that changes the score
+ * DISTRIBUTION changes: provider switch, model switch, prompt/rubric edits,
+ * quantization rules. v2 (2026-07-10) = deterministic regime (pinned model
+ * snapshots, temperature 0, rubric-anchored prompt, multiples-of-5 scores).
+ * Persisted on every score row so old and new regimes stay distinguishable.
+ */
+export const SCORING_VERSION = 2;
+
+/** Which backend produced an AI estimate — persisted for provenance. */
+export type ScoringProviderName = 'anthropic' | 'openai' | 'mock';
+
 export interface ScoringResult {
   readonly initialAiScore: number;
   readonly breakdown: CriteriaScores;
@@ -25,6 +37,12 @@ export interface ScoringResult {
    */
   readonly provisional: boolean;
   readonly model: string;
+  /**
+   * Provider provenance. When a real provider silently degrades to the mock
+   * fallback, this MUST say 'mock' — the score row records what actually
+   * produced the numbers, never what was merely configured.
+   */
+  readonly provider: ScoringProviderName;
 }
 
 export interface ScoringProvider {
@@ -67,6 +85,7 @@ export class MockScoringProvider implements ScoringProvider {
       breakdown,
       provisional: true,
       model: 'mock-provisional-v0',
+      provider: 'mock',
     };
   }
 }

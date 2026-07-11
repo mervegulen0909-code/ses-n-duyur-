@@ -1,7 +1,8 @@
 import type { CriteriaScores } from '@voxscore/scoring';
 import { parseYouTubeId } from './youtube';
 import type { OEmbedMetadata } from './youtube';
-import type { ScoringResult } from './adapters/scoring-provider';
+import { SCORING_VERSION } from './adapters/scoring-provider';
+import type { ScoringProviderName, ScoringResult } from './adapters/scoring-provider';
 
 /** Row payloads ready to persist for a newly added YouTube performance. */
 export interface PerformanceCreate {
@@ -20,6 +21,8 @@ export interface PerformanceCreate {
     readonly initial_ai_score: number;
     readonly ai_breakdown: CriteriaScores;
     readonly is_provisional: boolean;
+    readonly ai_provider: ScoringProviderName;
+    readonly ai_model: string;
     readonly listener_score: null;
     readonly current_score: number;
     readonly trend_score: number;
@@ -63,13 +66,16 @@ export function buildPerformanceCreate(params: BuildPerformanceParams): Performa
       duration_s: params.durationS ?? null,
     },
     score: {
-      // v2 (2026-07-10): deterministic scoring regime — pinned model snapshots,
-      // temperature 0, rubric-anchored prompt, scores quantized to multiples
-      // of 5. v1 scores predate those guarantees; keep them distinguishable.
-      scoring_version: 2,
+      // Centralized regime version — see SCORING_VERSION in
+      // adapters/scoring-provider.ts for what a bump means.
+      scoring_version: SCORING_VERSION,
       initial_ai_score: params.scoring.initialAiScore,
       ai_breakdown: params.scoring.breakdown,
       is_provisional: params.scoring.provisional,
+      // Provenance: which backend actually produced these numbers (a silent
+      // fallback to mock is recorded as mock, never hidden).
+      ai_provider: params.scoring.provider,
+      ai_model: params.scoring.model,
       listener_score: null,
       // 0 verified votes → current equals the AI score, trend is flat.
       current_score: params.scoring.initialAiScore,

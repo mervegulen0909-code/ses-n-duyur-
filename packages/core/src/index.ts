@@ -6,6 +6,7 @@
  * deferred to Faz J behind mockable interfaces.
  */
 export * from './youtube';
+export * from './categories';
 export * from './schemas';
 export * from './performance';
 export * from './song';
