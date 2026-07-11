@@ -4,8 +4,11 @@
 // store-required links can't drift to a stale deployment.
 import { WEB_BASE } from './config';
 
+// Labels are translation keys (see lib/i18n/locales/*.json → Legal.*), not
+// display text — the destination pages themselves stay English (ADR 0002),
+// but the in-app link label should still match the user's chosen language.
 export const LEGAL_LINKS = [
-  { label: 'Terms of Service', url: `${WEB_BASE}/terms` },
-  { label: 'Privacy Policy', url: `${WEB_BASE}/privacy` },
-  { label: 'DMCA / Takedown', url: `${WEB_BASE}/dmca` },
+  { labelKey: 'Legal.terms', url: `${WEB_BASE}/terms` },
+  { labelKey: 'Legal.privacy', url: `${WEB_BASE}/privacy` },
+  { labelKey: 'Legal.dmca', url: `${WEB_BASE}/dmca` },
 ] as const;

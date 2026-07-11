@@ -1,5 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -48,6 +49,7 @@ function winRate(wins: number, battles: number): number {
  */
 export default function StandingsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [items, setItems] = useState<Item[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
@@ -73,7 +75,7 @@ export default function StandingsScreen() {
         const meta = p.oembed_meta ?? {};
         return {
           id: p.id,
-          title: meta.title ?? 'Untitled',
+          title: meta.title ?? t('Common.untitled'),
           artist: meta.authorName ?? '',
           elo: p.elo_rating,
           wins: p.battle_wins,
@@ -84,7 +86,7 @@ export default function StandingsScreen() {
     mapped.sort((a, b) => b.elo - a.elo || b.battles - a.battles || a.title.localeCompare(b.title));
     setItems(mapped);
     setState('ready');
-  }, []);
+  }, [t]);
 
   // Refetch on focus so Elo standings reflect battles voted since the last visit.
   useFocusEffect(
@@ -109,26 +111,26 @@ export default function StandingsScreen() {
         <View style={styles.headerTop}>
           <Pressable onPress={() => router.back()} hitSlop={8}>
             <Text style={styles.brand}>
-              ‹ Battle <Text style={styles.brandAccent}>standings</Text>
+              {t('Common.back')} <Text style={styles.brandAccent}>{t('Standings.title')}</Text>
             </Text>
           </Pressable>
           <Pressable onPress={() => router.push('/battle')} hitSlop={8}>
-            <Text style={styles.authLink}>Battle</Text>
+            <Text style={styles.authLink}>{t('Common.battle')}</Text>
           </Pressable>
         </View>
-        <Text style={styles.sub}>Ranked by Elo · head-to-head battles</Text>
+        <Text style={styles.sub}>{t('Standings.sub')}</Text>
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
-      {state === 'error' && <Text style={styles.error}>Could not load: {error}</Text>}
+      {state === 'error' && (
+        <Text style={styles.error}>{t('Common.loadError', { error })}</Text>
+      )}
       {state === 'ready' && (
         <FlatList
           data={items}
           keyExtractor={(i) => i.id}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={
-            <Text style={styles.empty}>No battles yet. Open the Battle arena to start one.</Text>
-          }
+          ListEmptyComponent={<Text style={styles.empty}>{t('Standings.empty')}</Text>}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#22D3EE" />
           }
@@ -149,8 +151,11 @@ export default function StandingsScreen() {
                     {item.title}
                   </Text>
                   <Text style={styles.record} numberOfLines={1}>
-                    {item.wins}-{item.battles - item.wins} · {winRate(item.wins, item.battles)}%
-                    wins
+                    {t('Standings.record', {
+                      wins: item.wins,
+                      losses: item.battles - item.wins,
+                      rate: winRate(item.wins, item.battles),
+                    })}
                   </Text>
                 </View>
                 <Text style={styles.elo}>{Math.round(item.elo)}</Text>

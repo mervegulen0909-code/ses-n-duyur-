@@ -2,10 +2,11 @@ import { AudioStudioModule, useAudioRecorder } from '@siteed/audio-studio';
 import { File } from 'expo-file-system';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CRITERION_LABELS } from '@/lib/criteria-labels';
+import { useCriterionLabels } from '@/lib/criteria-labels';
 import { uploadMeasurement } from '@/lib/measure-upload';
 import { useSession } from '@/lib/use-session';
 
@@ -14,12 +15,12 @@ const MAX_RECORD_MS = 110_000;
 // The DSP needs at least 2 s of audible singing; nudge users well past that.
 const MIN_RECORD_MS = 5_000;
 
-/** What each measured criterion is actually derived from (honest labeling). */
-const MEASURED_PROXIES: Record<string, string> = {
-  vocalAccuracy: 'pitch control',
-  rhythmTiming: 'timing steadiness',
-  technicalSkill: 'vibrato control',
-  recordingQuality: 'signal quality',
+/** i18n keys for what each measured criterion is actually derived from (honest labeling). */
+const MEASURED_PROXY_KEYS: Record<string, string> = {
+  vocalAccuracy: 'Measure.proxyPitchControl',
+  rhythmTiming: 'Measure.proxyTimingSteadiness',
+  technicalSkill: 'Measure.proxyVibratoControl',
+  recordingQuality: 'Measure.proxySignalQuality',
 };
 
 function fmtClock(ms: number): string {
@@ -31,6 +32,8 @@ type Phase = 'intro' | 'recording' | 'uploading' | 'done' | 'error';
 
 export default function MeasureScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const CRITERION_LABELS = useCriterionLabels();
   const { user } = useSession();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -44,7 +47,7 @@ export default function MeasureScreen() {
     const permission = await AudioStudioModule.requestPermissionsAsync();
     if (!permission?.granted) {
       setPhase('error');
-      setMessage('Microphone permission is required to measure your recording.');
+      setMessage(t('Measure.micPermissionError'));
       return;
     }
     try {
@@ -58,7 +61,7 @@ export default function MeasureScreen() {
       setPhase('recording');
     } catch {
       setPhase('error');
-      setMessage('Could not start recording — close other apps using the microphone.');
+      setMessage(t('Measure.startError'));
     }
   }
 
@@ -76,15 +79,15 @@ export default function MeasureScreen() {
         setPhase('error');
         setMessage(
           res.status === 401
-            ? 'Your session expired — sign in again to measure.'
+            ? t('Measure.sessionExpiredError')
             : res.status === 403
-              ? 'Only the performer can measure their own performance.'
-              : (res.error ?? `Measurement failed (${res.status})`),
+              ? t('Measure.notOwnerError')
+              : (res.error ?? t('Measure.genericFailError', { status: res.status })),
         );
       }
     } catch {
       setPhase('error');
-      setMessage('Recording failed — please try again.');
+      setMessage(t('Measure.recordingFailedError'));
     } finally {
       // Measure and delete applies on-device too: the take never outlives
       // the measurement.
@@ -108,29 +111,22 @@ export default function MeasureScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-        <Text style={styles.backText}>‹ Back</Text>
+        <Text style={styles.backText}>{t('Common.back')}</Text>
       </Pressable>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Measure my recording</Text>
+        <Text style={styles.title}>{t('Measure.title')}</Text>
 
         {!user ? (
           <Pressable onPress={() => router.push('/login')}>
-            <Text style={styles.signinPrompt}>Sign in to measure your recording ›</Text>
+            <Text style={styles.signinPrompt}>{t('Measure.signinPrompt')}</Text>
           </Pressable>
         ) : (
           <>
             <View style={styles.honestyCard}>
-              <Text style={styles.honestyTitle}>Real, measured scores</Text>
-              <Text style={styles.honestyBody}>
-                Sing 20–60 seconds of YOUR OWN performance into the microphone. Our server measures
-                the audio itself — pitch control, timing, vibrato, signal quality — and those four
-                criteria replace the AI estimate with a Measured score.
-              </Text>
-              <Text style={styles.honestyBody}>
-                Your audio is analyzed, then deleted immediately — on the server and on this device.
-                Only the measured numbers are kept.
-              </Text>
+              <Text style={styles.honestyTitle}>{t('Measure.honestyTitle')}</Text>
+              <Text style={styles.honestyBody}>{t('Measure.honestyBody1')}</Text>
+              <Text style={styles.honestyBody}>{t('Measure.honestyBody2')}</Text>
             </View>
 
             {phase === 'intro' && (
@@ -138,7 +134,7 @@ export default function MeasureScreen() {
                 style={({ pressed }) => [styles.recordBtn, pressed && { opacity: 0.85 }]}
                 onPress={doStart}
               >
-                <Text style={styles.recordBtnText}>● Start recording</Text>
+                <Text style={styles.recordBtnText}>{t('Measure.startRecording')}</Text>
               </Pressable>
             )}
 
@@ -146,7 +142,7 @@ export default function MeasureScreen() {
               <View style={styles.recordingCard}>
                 <Text style={styles.clock}>{fmtClock(durationMs)}</Text>
                 <Text style={styles.recordingHint}>
-                  Recording… max {fmtClock(MAX_RECORD_MS)}. Sing close to the microphone.
+                  {t('Measure.recordingMax', { time: fmtClock(MAX_RECORD_MS) })}
                 </Text>
                 <Pressable
                   style={({ pressed }) => [
@@ -158,7 +154,9 @@ export default function MeasureScreen() {
                   disabled={durationMs < MIN_RECORD_MS}
                 >
                   <Text style={styles.stopBtnText}>
-                    {durationMs < MIN_RECORD_MS ? 'Keep singing…' : '■ Stop & measure'}
+                    {durationMs < MIN_RECORD_MS
+                      ? t('Measure.keepSinging')
+                      : t('Measure.stopAndMeasure')}
                   </Text>
                 </Pressable>
               </View>
@@ -167,13 +165,13 @@ export default function MeasureScreen() {
             {phase === 'uploading' && (
               <View style={styles.recordingCard}>
                 <ActivityIndicator color="#38bdf8" />
-                <Text style={styles.recordingHint}>Measuring your recording…</Text>
+                <Text style={styles.recordingHint}>{t('Measure.measuring')}</Text>
               </View>
             )}
 
             {phase === 'done' && breakdown && (
               <View style={styles.resultCard}>
-                <Text style={styles.resultTitle}>Measured ✓</Text>
+                <Text style={styles.resultTitle}>{t('Measure.resultTitle')}</Text>
                 {Object.entries(breakdown).map(([criterion, value]) => (
                   <View key={criterion} style={styles.resultRow}>
                     <View>
@@ -181,21 +179,22 @@ export default function MeasureScreen() {
                         {CRITERION_LABELS[criterion as keyof typeof CRITERION_LABELS] ?? criterion}
                       </Text>
                       <Text style={styles.resultProxy}>
-                        from {MEASURED_PROXIES[criterion] ?? 'measurement'}
+                        {t('Measure.from', {
+                          proxy: MEASURED_PROXY_KEYS[criterion]
+                            ? t(MEASURED_PROXY_KEYS[criterion])
+                            : t('Measure.proxyMeasurement'),
+                        })}
                       </Text>
                     </View>
                     <Text style={styles.resultVal}>{value}</Text>
                   </View>
                 ))}
-                <Text style={styles.resultNote}>
-                  These four criteria now show as Measured on your performance; the rest keep the AI
-                  estimate and community votes. Your audio has been deleted.
-                </Text>
+                <Text style={styles.resultNote}>{t('Measure.resultNote')}</Text>
                 <Pressable
                   style={({ pressed }) => [styles.recordBtn, pressed && { opacity: 0.85 }]}
                   onPress={() => router.back()}
                 >
-                  <Text style={styles.recordBtnText}>Done</Text>
+                  <Text style={styles.recordBtnText}>{t('Measure.done')}</Text>
                 </Pressable>
               </View>
             )}
@@ -207,7 +206,7 @@ export default function MeasureScreen() {
                   style={({ pressed }) => [styles.recordBtn, pressed && { opacity: 0.85 }]}
                   onPress={() => setPhase('intro')}
                 >
-                  <Text style={styles.recordBtnText}>Try again</Text>
+                  <Text style={styles.recordBtnText}>{t('Measure.tryAgain')}</Text>
                 </Pressable>
               </View>
             )}

@@ -1,5 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -39,6 +40,7 @@ function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): ScoreRel 
  */
 export default function SongScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [song, setSong] = useState<SongRow | null>(null);
   const [items, setItems] = useState<Item[]>([]);
@@ -57,7 +59,7 @@ export default function SongScreen() {
     ]);
 
     if (songRes.error || perfRes.error) {
-      setError((songRes.error ?? perfRes.error)?.message ?? 'Could not load');
+      setError((songRes.error ?? perfRes.error)?.message ?? 'Unknown error');
       setState('error');
       return;
     }
@@ -69,7 +71,7 @@ export default function SongScreen() {
       const score = scoreRowOf(p.scores);
       return {
         id: p.id,
-        title: meta.title ?? 'Untitled',
+        title: meta.title ?? t('Common.untitled'),
         artist: meta.authorName ?? '',
         score: score?.current_score ?? null,
         isProvisional: score?.is_provisional !== false,
@@ -78,7 +80,7 @@ export default function SongScreen() {
     mapped.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
     setItems(mapped);
     setState('ready');
-  }, [id]);
+  }, [id, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -99,23 +101,25 @@ export default function SongScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Text style={styles.backText}>‹ Back</Text>
+          <Text style={styles.backText}>{t('Common.back')}</Text>
         </Pressable>
         <Text style={styles.title} numberOfLines={2}>
-          {song?.title ?? 'Song'}
+          {song?.title ?? t('Song.fallback')}
           {song?.artist ? <Text style={styles.titleArtist}> — {song.artist}</Text> : null}
         </Text>
-        <Text style={styles.sub}>Who sings this song best — ranked by score.</Text>
+        <Text style={styles.sub}>{t('Song.sub')}</Text>
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
-      {state === 'error' && <Text style={styles.error}>Could not load: {error}</Text>}
+      {state === 'error' && (
+        <Text style={styles.error}>{t('Common.loadError', { error })}</Text>
+      )}
       {state === 'ready' && (
         <FlatList
           data={items}
           keyExtractor={(i) => i.id}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={<Text style={styles.empty}>No performances of this song yet.</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>{t('Song.empty')}</Text>}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#22D3EE" />
           }
@@ -137,7 +141,7 @@ export default function SongScreen() {
                   </Text>
                 )}
                 {item.isProvisional && (
-                  <Text style={styles.provisional}>Provisional AI Estimate</Text>
+                  <Text style={styles.provisional}>{t('Common.provisionalBadge')}</Text>
                 )}
               </View>
               <Text style={styles.score}>{item.score != null ? item.score.toFixed(1) : '—'}</Text>

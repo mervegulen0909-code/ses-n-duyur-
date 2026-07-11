@@ -63,7 +63,8 @@
             "microphoneUsageDescription": "VoxScore records your own performance to measure real vocal scores. The audio is analyzed on our server and immediately deleted."
           }
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,
