@@ -52,13 +52,14 @@ function makeServiceClient(opts: {
   deleteResult?: { error: unknown };
   songsTable?: unknown;
 }) {
-  const perfSingle = vi.fn(
-    async () => opts.perfResult ?? { data: { id: 'perf-ok' }, error: null },
-  );
+  const perfSingle = vi.fn(async () => opts.perfResult ?? { data: { id: 'perf-ok' }, error: null });
   const perfInsert = vi.fn(() => ({ select: vi.fn(() => ({ single: perfSingle })) }));
   const scoreInsert = vi.fn(async () => opts.scoreResult ?? { error: null });
   const eq = vi.fn(async () => opts.deleteResult ?? { error: null });
   const del = vi.fn(() => ({ eq }));
+  // grantBadge('first_performance') fires on every successful score write —
+  // fire-and-forget, so a bare resolved rpc is enough for every test here.
+  const rpc = vi.fn(async () => ({ error: null }));
 
   const defaultSongs = {
     select: vi.fn(() => ({
@@ -78,7 +79,7 @@ function makeServiceClient(opts: {
     throw new Error(`unexpected table: ${table}`);
   });
 
-  return { client: { from } as never, from, perfInsert, scoreInsert, del, eq };
+  return { client: { from, rpc } as never, from, perfInsert, scoreInsert, del, eq, rpc };
 }
 
 describe('createScoredPerformance — score persistence is not best-effort', () => {
@@ -203,6 +204,32 @@ describe('createScoredPerformance — score persistence is not best-effort', () 
     expect(service.scoreInsert).toHaveBeenCalledTimes(1);
     expect(service.del).not.toHaveBeenCalled();
     expect(errorSpy).not.toHaveBeenCalled();
+  });
+
+  it('grants the first_performance badge (server-granted only) on success', async () => {
+    const service = makeServiceClient({});
+
+    await createScoredPerformance(service.client, {
+      userId: 'user-1',
+      youtubeUrl: YOUTUBE_URL,
+    });
+
+    expect(service.rpc).toHaveBeenCalledWith('grant_badge', {
+      p_user_id: 'user-1',
+      p_badge_key: 'first_performance',
+    });
+  });
+
+  it('does NOT grant a badge when the score insert fails (rollback path)', async () => {
+    const service = makeServiceClient({
+      scoreResult: { error: { message: 'insert boom' } },
+    });
+
+    await expect(
+      createScoredPerformance(service.client, { userId: 'user-1', youtubeUrl: YOUTUBE_URL }),
+    ).rejects.toThrow('Could not score performance');
+
+    expect(service.rpc).not.toHaveBeenCalled();
   });
 
   it('creates the performance for the explicit userId, not any ambient session', async () => {

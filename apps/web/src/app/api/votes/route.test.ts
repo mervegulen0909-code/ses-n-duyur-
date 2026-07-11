@@ -70,7 +70,13 @@ function makeCtx(
 // A valid listen owned by `userId` for PERF.
 const validListen = { id: LISTEN, is_valid: true, user_id: 'me', performance_id: PERF };
 
-function makeService(opts: { measured?: Record<string, number> | null; scoreRow?: unknown } = {}) {
+function makeService(
+  opts: {
+    measured?: Record<string, number> | null;
+    scoreRow?: unknown;
+    verifiedVoteCount?: number;
+  } = {},
+) {
   const scoresMaybeSingle = vi.fn(async () => ({
     data: opts.scoreRow ?? { initial_ai_score: 70, ai_breakdown: null },
   }));
@@ -84,7 +90,7 @@ function makeService(opts: { measured?: Record<string, number> | null; scoreRow?
         listener_score: 80,
         current_score: 71.5,
         trend_score: 1.5,
-        verified_vote_count: 1,
+        verified_vote_count: opts.verifiedVoteCount ?? 1,
       },
     ],
     error: null,
@@ -214,6 +220,34 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
     expect(createSupabaseServiceClient).toHaveBeenCalled();
     expect(trackServer).toHaveBeenCalledWith(expect.anything(), 'vote_submitted', 'me-real', {
       performanceId: PERF,
+    });
+  });
+
+  it('does NOT grant the centurion badge below the 100-vote threshold', async () => {
+    const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    const service = makeService({ verifiedVoteCount: 99 });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    await POST(makeRequest(validBody));
+
+    expect(service.rpc).not.toHaveBeenCalledWith('grant_badge', expect.anything());
+  });
+
+  it('grants the centurion badge to the PERFORMANCE OWNER at 100 verified votes', async () => {
+    const { ctx } = makeCtx('me-real', {
+      listen: { ...validListen, user_id: 'me-real' },
+      perfOwner: 'owner-1',
+    });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    const service = makeService({ verifiedVoteCount: 100 });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    await POST(makeRequest(validBody));
+
+    expect(service.rpc).toHaveBeenCalledWith('grant_badge', {
+      p_user_id: 'owner-1',
+      p_badge_key: 'centurion',
     });
   });
 

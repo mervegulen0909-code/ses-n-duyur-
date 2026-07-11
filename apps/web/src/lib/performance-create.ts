@@ -10,6 +10,7 @@ import type { Json } from '@voxscore/db';
 import type { createSupabaseServiceClient } from '@/lib/supabase/server';
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { getSongExtractor } from '@/lib/adapters/song';
+import { grantBadge } from '@/lib/badges';
 
 type ServiceClient = NonNullable<ReturnType<typeof createSupabaseServiceClient>>;
 
@@ -175,10 +176,7 @@ export async function createScoredPerformance(
       `[performance-create] score insert failed for ${perf.id}; rolling back`,
       scoreError,
     );
-    const { error: rollbackError } = await service
-      .from('performances')
-      .delete()
-      .eq('id', perf.id);
+    const { error: rollbackError } = await service.from('performances').delete().eq('id', perf.id);
     if (rollbackError) {
       console.error(
         `[performance-create] ROLLBACK FAILED — orphaned scoreless performance ${perf.id}`,
@@ -187,6 +185,10 @@ export async function createScoredPerformance(
     }
     throw new Error('Could not score performance');
   }
+
+  // Server-granted only (grantBadge is idempotent — safe to call on every
+  // performance, not just a caller-computed "first" one).
+  await grantBadge(service, params.userId, 'first_performance');
 
   return { id: perf.id };
 }

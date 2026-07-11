@@ -248,6 +248,18 @@ export interface PublicRows {
     meta: Json | null;
     created_at: Timestamp;
   };
+  badges: {
+    key: string;
+    title: string;
+    description: string;
+    icon: string;
+  };
+  profile_badges: {
+    id: Uuid;
+    user_id: Uuid;
+    badge_key: string;
+    awarded_at: Timestamp;
+  };
 }
 
 export type Database = {
@@ -283,6 +295,13 @@ export type Database = {
           trend_score: number;
           verified_vote_count: number;
         }[];
+      };
+      grant_badge: {
+        Args: {
+          p_user_id: Uuid;
+          p_badge_key: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: Record<string, never>;

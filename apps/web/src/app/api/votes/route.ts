@@ -1,13 +1,10 @@
-import {
-  measuredAdjustedInitial,
-  voteSchema,
-  type MeasuredBreakdown,
-} from '@voxscore/core';
+import { measuredAdjustedInitial, voteSchema, type MeasuredBreakdown } from '@voxscore/core';
 import { CRITERIA, type Criterion } from '@voxscore/scoring';
 import type { Database } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
 import { trackServer } from '@/lib/analytics-server';
+import { grantBadge } from '@/lib/badges';
 import { COLUMN } from './overall';
 
 type CriteriaRatingInsert = Database['public']['Tables']['criteria_ratings']['Insert'];
@@ -146,6 +143,12 @@ export async function POST(req: Request): Promise<Response> {
     await trackServer(service, 'vote_submitted', user.id, {
       performanceId: parsed.data.performanceId,
     });
+
+    // Server-granted only; grantBadge is idempotent so re-checking the
+    // threshold on every vote past 100 is a harmless no-op.
+    if (updated.verified_vote_count >= 100) {
+      await grantBadge(service, votedPerf.user_id, 'centurion');
+    }
 
     return Response.json(
       {

@@ -32,6 +32,25 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   if (!profile) notFound();
   const profileLinks = (profile.links ?? []) as { label: string; url: string }[];
 
+  // Badges: server-granted only (grant_badge RPC, service_role — see
+  // supabase/migrations/20260711170000_badges.sql). profile_badges is
+  // public-read RLS, so no service client is needed here. Two queries + a JS
+  // join, matching this file's existing pattern for follows/performances
+  // (nested Supabase embeds aren't used anywhere in this codebase).
+  const { data: earnedBadges } = await supabase
+    .from('profile_badges')
+    .select('badge_key, awarded_at')
+    .eq('user_id', profile.id)
+    .order('awarded_at', { ascending: true });
+  const badgeKeys = [...new Set((earnedBadges ?? []).map((b) => b.badge_key))];
+  const { data: badgeDefs } = badgeKeys.length
+    ? await supabase.from('badges').select('key, title, description, icon').in('key', badgeKeys)
+    : { data: [] };
+  const badgeByKey = new Map((badgeDefs ?? []).map((b) => [b.key, b]));
+  const badges = (earnedBadges ?? [])
+    .map((b) => badgeByKey.get(b.badge_key))
+    .filter((b): b is NonNullable<typeof b> => !!b);
+
   // Follow graph: public counts + (when signed in and not self) whether the
   // viewer already follows this creator. All reads pass the follows
   // select-all RLS policy — no service client needed on a public page.
@@ -120,6 +139,20 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
             </p>
             {profile.bio && (
               <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-300">{profile.bio}</p>
+            )}
+            {badges.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {badges.map((b) => (
+                  <span
+                    key={b.key}
+                    title={b.description}
+                    className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-neutral-900/70 px-2 py-0.5 text-xs text-neutral-300"
+                  >
+                    <span>{b.icon}</span>
+                    <span>{b.title}</span>
+                  </span>
+                ))}
+              </div>
             )}
             {profileLinks.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-3">
