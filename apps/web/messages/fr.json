@@ -108,6 +108,9 @@
     "empty": "Aucun duel pour l'instant. Ouvrez l'arène de duel pour en lancer un.",
     "viewScores": "Classement par score →"
   },
+  "Seasons": {
+    "allSeasons": "Toutes les saisons"
+  },
   "Performance": {
     "currentScore": "Score actuel",
     "trend": "tendance",

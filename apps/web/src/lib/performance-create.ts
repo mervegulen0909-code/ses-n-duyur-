@@ -11,6 +11,7 @@ import type { createSupabaseServiceClient } from '@/lib/supabase/server';
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { getSongExtractor } from '@/lib/adapters/song';
 import { grantBadge } from '@/lib/badges';
+import { currentSeasonId } from '@/lib/seasons';
 
 type ServiceClient = NonNullable<ReturnType<typeof createSupabaseServiceClient>>;
 
@@ -118,8 +119,9 @@ export async function createScoredPerformance(
     throw new OEmbedFetchError(err);
   }
 
-  // Score and resolve the song concurrently — two independent LLM/API calls.
-  const [scoring, resolvedSongId] = await Promise.all([
+  // Score, resolve the song, and read the open season concurrently — three
+  // independent reads (two LLM/API calls, one DB lookup).
+  const [scoring, resolvedSongId, seasonId] = await Promise.all([
     getScoringProvider().score({
       videoId,
       title: oembed.title,
@@ -133,6 +135,7 @@ export async function createScoredPerformance(
           authorName: oembed.authorName,
           category: params.category ?? null,
         }),
+    currentSeasonId(service),
   ]);
 
   const payload = buildPerformanceCreate({
@@ -170,6 +173,7 @@ export async function createScoredPerformance(
     performance_id: perf.id,
     ...payload.score,
     ai_breakdown: payload.score.ai_breakdown as unknown as Json,
+    season_id: seasonId,
   });
   if (scoreError) {
     console.error(

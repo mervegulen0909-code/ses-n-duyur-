@@ -108,6 +108,9 @@
     "empty": "Henüz düello yok. Başlatmak için Düello arenasını aç.",
     "viewScores": "Skor sıralaması →"
   },
+  "Seasons": {
+    "allSeasons": "Tüm sezonlar"
+  },
   "Performance": {
     "currentScore": "Güncel puan",
     "trend": "eğilim",

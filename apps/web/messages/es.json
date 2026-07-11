@@ -108,6 +108,9 @@
     "empty": "Aún no hay batallas. Abre la arena de batalla para iniciar una.",
     "viewScores": "Clasificación por puntuación →"
   },
+  "Seasons": {
+    "allSeasons": "Todas las temporadas"
+  },
   "Performance": {
     "currentScore": "Puntuación actual",
     "trend": "tendencia",

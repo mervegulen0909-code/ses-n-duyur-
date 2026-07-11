@@ -108,6 +108,9 @@
     "empty": "暂无对战记录。前往对战竞技场开始一场吧。",
     "viewScores": "得分排行榜 →"
   },
+  "Seasons": {
+    "allSeasons": "全部赛季"
+  },
   "Performance": {
     "currentScore": "当前得分",
     "trend": "趋势",

@@ -4,9 +4,11 @@ import { wilsonLowerBound } from '@voxscore/scoring';
 import { isSongCategory } from '@voxscore/core';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
 import { CategoryChips } from '@/components/category-chips';
+import { SeasonSwitcher } from '@/components/season-switcher';
 import { LeaderboardList, type LeaderboardDisplayRow } from '@/components/leaderboard-list';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { rankByScore, type LeaderboardRow } from '@/lib/leaderboard';
+import { listSeasons, resolveSeason } from '@/lib/seasons';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +20,9 @@ function titleOf(meta: unknown): string {
 export default async function LeaderboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; season?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, season } = await searchParams;
   const t = await getTranslations();
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
@@ -37,12 +39,18 @@ export default async function LeaderboardPage({
     .select('id, oembed_meta, battle_wins, battle_count, song_id, created_at')
     .eq('status', 'active');
 
-  const { data: scores } = await supabase
+  const seasons = await listSeasons(supabase);
+  const activeSeason = resolveSeason(seasons, season);
+  let scoresQuery = supabase
     .from('scores')
     .select('performance_id, current_score, trend_score, is_provisional, verified_vote_count');
+  if (activeSeason) scoresQuery = scoresQuery.eq('season_id', activeSeason.id);
+  const { data: scores } = await scoresQuery;
 
   const activeCategory = isSongCategory(category) ? category : null;
-  const songIds = [...new Set((perfs ?? []).map((p) => p.song_id).filter((id): id is string => !!id))];
+  const songIds = [
+    ...new Set((perfs ?? []).map((p) => p.song_id).filter((id): id is string => !!id)),
+  ];
   const { data: songs } = songIds.length
     ? await supabase.from('songs').select('id, category').in('id', songIds)
     : { data: [] };
@@ -87,6 +95,15 @@ export default async function LeaderboardPage({
         </Link>
       </div>
       <p className="mb-4 text-sm text-neutral-400">{t('Leaderboard.subtitle')}</p>
+
+      <div className="mb-3">
+        <SeasonSwitcher
+          seasons={seasons}
+          activeKey={activeSeason?.key ?? 'all'}
+          basePath="/leaderboard"
+          extraParams={{ category: activeCategory ?? undefined }}
+        />
+      </div>
 
       <div className="mb-6">
         <CategoryChips active={activeCategory ?? undefined} />

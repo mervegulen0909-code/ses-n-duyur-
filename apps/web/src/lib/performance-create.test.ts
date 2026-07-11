@@ -51,6 +51,7 @@ function makeServiceClient(opts: {
   scoreResult?: { error: unknown };
   deleteResult?: { error: unknown };
   songsTable?: unknown;
+  openSeasonId?: string | null;
 }) {
   const perfSingle = vi.fn(async () => opts.perfResult ?? { data: { id: 'perf-ok' }, error: null });
   const perfInsert = vi.fn(() => ({ select: vi.fn(() => ({ single: perfSingle })) }));
@@ -72,10 +73,23 @@ function makeServiceClient(opts: {
     })),
   };
 
+  // currentSeasonId(): seasons.select('id').is('ends_at', null).order(...).limit(1).maybeSingle()
+  const seasonMaybeSingle = vi.fn(async () => ({
+    data: opts.openSeasonId ? { id: opts.openSeasonId } : null,
+  }));
+  const seasonsTable = {
+    select: vi.fn(() => ({
+      is: vi.fn(() => ({
+        order: vi.fn(() => ({ limit: vi.fn(() => ({ maybeSingle: seasonMaybeSingle })) })),
+      })),
+    })),
+  };
+
   const from = vi.fn((table: string) => {
     if (table === 'performances') return { insert: perfInsert, delete: del };
     if (table === 'scores') return { insert: scoreInsert };
     if (table === 'songs') return opts.songsTable ?? defaultSongs;
+    if (table === 'seasons') return seasonsTable;
     throw new Error(`unexpected table: ${table}`);
   });
 
@@ -230,6 +244,30 @@ describe('createScoredPerformance — score persistence is not best-effort', () 
     ).rejects.toThrow('Could not score performance');
 
     expect(service.rpc).not.toHaveBeenCalled();
+  });
+
+  it('stamps the score row with the currently open season (never client-supplied)', async () => {
+    const service = makeServiceClient({ openSeasonId: 'season-open' });
+
+    await createScoredPerformance(service.client, {
+      userId: 'user-1',
+      youtubeUrl: YOUTUBE_URL,
+    });
+
+    expect(service.scoreInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ season_id: 'season-open' }),
+    );
+  });
+
+  it('stamps season_id null when no season has ever been opened', async () => {
+    const service = makeServiceClient({});
+
+    await createScoredPerformance(service.client, {
+      userId: 'user-1',
+      youtubeUrl: YOUTUBE_URL,
+    });
+
+    expect(service.scoreInsert).toHaveBeenCalledWith(expect.objectContaining({ season_id: null }));
   });
 
   it('creates the performance for the explicit userId, not any ambient session', async () => {

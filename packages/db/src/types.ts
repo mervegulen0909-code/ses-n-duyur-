@@ -71,6 +71,7 @@ export interface PublicRows {
     verified_vote_count: number;
     ai_provider: 'anthropic' | 'openai' | 'mock' | null;
     ai_model: string | null;
+    season_id: Uuid | null;
     updated_at: Timestamp;
   };
   measured_scores: {
@@ -115,6 +116,7 @@ export interface PublicRows {
     perf_a: Uuid;
     perf_b: Uuid;
     status: 'open' | 'closed';
+    season_id: Uuid | null;
     created_at: Timestamp;
   };
   battle_votes: {
@@ -272,6 +274,14 @@ export interface PublicRows {
       | 'performance_request_rejected';
     meta: Json | null;
     sent_at: Timestamp | null;
+    created_at: Timestamp;
+  };
+  seasons: {
+    id: Uuid;
+    key: string;
+    title: string;
+    starts_at: Timestamp;
+    ends_at: Timestamp | null;
     created_at: Timestamp;
   };
 }

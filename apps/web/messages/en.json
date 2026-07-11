@@ -108,6 +108,9 @@
     "empty": "No battles yet. Open the Battle arena to start one.",
     "viewScores": "Score leaderboard →"
   },
+  "Seasons": {
+    "allSeasons": "All seasons"
+  },
   "Performance": {
     "currentScore": "Current score",
     "trend": "trend",

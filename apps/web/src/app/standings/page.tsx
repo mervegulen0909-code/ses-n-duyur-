@@ -1,9 +1,13 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@voxscore/db';
 import { RankBadge } from '@/components/rank-badge';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
+import { SeasonSwitcher } from '@/components/season-switcher';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { rankByElo, winRate, type StandingsRow } from '@/lib/leaderboard';
+import { listSeasons, resolveSeason, type SeasonSummary } from '@/lib/seasons';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +16,60 @@ function titleOf(meta: unknown): string {
   return m.title ?? '';
 }
 
-export default async function StandingsPage() {
+/**
+ * Season-scoped W-L/battle-count, built from raw `battles`/`battle_votes`
+ * rows tagged to this season. Elo itself is a running rating that a season
+ * boundary never resets (see the seasons migration) — only the "battles
+ * fought during this window" record can be season-scoped, so the number
+ * shown alongside it is still the performance's CURRENT (all-time) rating.
+ */
+async function seasonStandingsRows(
+  supabase: SupabaseClient<Database>,
+  season: SeasonSummary,
+  perfs: readonly { id: string; oembed_meta: unknown; elo_rating: number }[],
+): Promise<StandingsRow[]> {
+  const { data: battles } = await supabase
+    .from('battles')
+    .select('id, perf_a, perf_b')
+    .eq('season_id', season.id);
+  const battleIds = (battles ?? []).map((b) => b.id);
+  const { data: votes } = battleIds.length
+    ? await supabase
+        .from('battle_votes')
+        .select('battle_id, winner_performance_id')
+        .in('battle_id', battleIds)
+    : { data: [] };
+
+  const battleById = new Map((battles ?? []).map((b) => [b.id, b]));
+  const battlesByPerf = new Map<string, number>();
+  const winsByPerf = new Map<string, number>();
+  // One battle_votes row = one apply_battle_result call = +1 battle for BOTH
+  // sides (mirrors performances.battle_count, which counts votes, not pairings).
+  for (const v of votes ?? []) {
+    const b = battleById.get(v.battle_id);
+    if (!b) continue;
+    battlesByPerf.set(b.perf_a, (battlesByPerf.get(b.perf_a) ?? 0) + 1);
+    battlesByPerf.set(b.perf_b, (battlesByPerf.get(b.perf_b) ?? 0) + 1);
+    winsByPerf.set(v.winner_performance_id, (winsByPerf.get(v.winner_performance_id) ?? 0) + 1);
+  }
+
+  return perfs
+    .filter((p) => battlesByPerf.has(p.id))
+    .map((p) => ({
+      id: p.id,
+      title: titleOf(p.oembed_meta),
+      elo: p.elo_rating,
+      wins: winsByPerf.get(p.id) ?? 0,
+      battles: battlesByPerf.get(p.id) ?? 0,
+    }));
+}
+
+export default async function StandingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
+  const { season } = await searchParams;
   const t = await getTranslations();
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
@@ -29,15 +86,20 @@ export default async function StandingsPage() {
     .select('id, oembed_meta, elo_rating, battle_wins, battle_count')
     .eq('status', 'active');
 
-  const rows: StandingsRow[] = (perfs ?? [])
-    .filter((p) => p.battle_count > 0)
-    .map((p) => ({
-      id: p.id,
-      title: titleOf(p.oembed_meta),
-      elo: p.elo_rating,
-      wins: p.battle_wins,
-      battles: p.battle_count,
-    }));
+  const seasons = await listSeasons(supabase);
+  const activeSeason = resolveSeason(seasons, season);
+
+  const rows: StandingsRow[] = activeSeason
+    ? await seasonStandingsRows(supabase, activeSeason, perfs ?? [])
+    : (perfs ?? [])
+        .filter((p) => p.battle_count > 0)
+        .map((p) => ({
+          id: p.id,
+          title: titleOf(p.oembed_meta),
+          elo: p.elo_rating,
+          wins: p.battle_wins,
+          battles: p.battle_count,
+        }));
   const ranked = rankByElo(rows);
 
   return (
@@ -49,7 +111,15 @@ export default async function StandingsPage() {
           {t('Standings.viewScores')}
         </Link>
       </div>
-      <p className="mb-6 text-sm text-neutral-400">{t('Standings.subtitle')}</p>
+      <p className="mb-4 text-sm text-neutral-400">{t('Standings.subtitle')}</p>
+
+      <div className="mb-6">
+        <SeasonSwitcher
+          seasons={seasons}
+          activeKey={activeSeason?.key ?? 'all'}
+          basePath="/standings"
+        />
+      </div>
 
       {ranked.length === 0 ? (
         <p className="text-neutral-400">{t('Standings.empty')}</p>

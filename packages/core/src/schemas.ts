@@ -235,6 +235,13 @@ export const NOTIFICATION_KINDS = [
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
+/** Admin: open a new season, closing the currently open one (if any). */
+export const seasonCreateSchema = z.object({
+  title: z.string().trim().min(1).max(100),
+  startsAt: z.string().datetime().optional(),
+});
+export type SeasonCreateInput = z.infer<typeof seasonCreateSchema>;
+
 export const moderateSchema = z.object({
   flagId: z.string().uuid(),
   status: z.enum(['resolved', 'dismissed']),

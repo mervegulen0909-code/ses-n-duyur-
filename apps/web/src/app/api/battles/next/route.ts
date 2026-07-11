@@ -1,6 +1,7 @@
 import { battleNextSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
+import { currentSeasonId } from '@/lib/seasons';
 
 interface PerfRow {
   id: string;
@@ -84,10 +85,17 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
   const [a, b] = pair;
+  const seasonId = await currentSeasonId(service);
 
   const { data: battle, error } = await service
     .from('battles')
-    .insert({ song_id: a.song_id ?? b.song_id ?? null, perf_a: a.id, perf_b: b.id, status: 'open' })
+    .insert({
+      song_id: a.song_id ?? b.song_id ?? null,
+      perf_a: a.id,
+      perf_b: b.id,
+      status: 'open',
+      season_id: seasonId,
+    })
     .select('id')
     .single();
 

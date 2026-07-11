@@ -36,7 +36,12 @@ const TWO_PERFS = [
 ];
 
 function makeService(
-  opts: { perfs?: unknown[]; battle?: Record<string, unknown> | null; insertError?: unknown } = {},
+  opts: {
+    perfs?: unknown[];
+    battle?: Record<string, unknown> | null;
+    insertError?: unknown;
+    openSeasonId?: string | null;
+  } = {},
 ): {
   service: Service;
   battleInsert: ReturnType<typeof vi.fn>;
@@ -53,9 +58,21 @@ function makeService(
     error: opts.insertError ?? null,
   }));
   const battleInsert = vi.fn(() => ({ select: () => ({ single: battleSingle }) }));
+  // currentSeasonId(): seasons.select('id').is('ends_at', null).order(...).limit(1).maybeSingle()
+  const seasonMaybeSingle = vi.fn(async () => ({
+    data: opts.openSeasonId ? { id: opts.openSeasonId } : null,
+  }));
+  const seasonsTable = {
+    select: vi.fn(() => ({
+      is: vi.fn(() => ({
+        order: vi.fn(() => ({ limit: vi.fn(() => ({ maybeSingle: seasonMaybeSingle })) })),
+      })),
+    })),
+  };
   const from = vi.fn((table: string) => {
     if (table === 'performances') return { select: () => ({ eq: () => ({ not: notChain }) }) };
     if (table === 'battles') return { insert: battleInsert };
+    if (table === 'seasons') return seasonsTable;
     return {};
   });
   return { service: { from } as unknown as Service, battleInsert, songIdEq };
@@ -102,6 +119,17 @@ describe('POST /api/battles/next — pairing creation', () => {
     // pickPair shuffles, so assert membership without depending on order.
     expect([body.a.performanceId, body.b.performanceId].sort()).toEqual([PERF_A, PERF_B].sort());
     expect(battleInsert).toHaveBeenCalledTimes(1);
+  });
+
+  it('stamps the battle with the currently open season (never client-supplied)', async () => {
+    const { service, battleInsert } = makeService({ openSeasonId: 'season-open' });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
+
+    expect((await POST(makeRequest())).status).toBe(200);
+    expect(battleInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ season_id: 'season-open' }),
+    );
   });
 
   it('500 when the battle insert fails', async () => {
