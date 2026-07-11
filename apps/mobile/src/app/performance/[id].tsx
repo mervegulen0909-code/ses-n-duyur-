@@ -11,9 +11,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import YoutubePlayer, { type YoutubeIframeRef } from 'react-native-youtube-iframe';
+import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
 import type { ListenEvent } from '@voxscore/core';
+import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { CRITERIA } from '@voxscore/scoring';
 import { postComment, submitVote } from '@/lib/api';
 import { CRITERION_LABELS } from '@/lib/criteria-labels';
@@ -201,6 +202,10 @@ export default function PerformanceScreen() {
       );
     } else {
       setVoteState('error');
+      if (res.status === 403 && res.error !== 'You cannot vote on your own performance') {
+        setVoteMsg(res.error ?? 'A completed Verified Listen is required to vote.');
+        return;
+      }
       // /api/votes is Turnstile-gated (botGuard) and native cannot supply a
       // browser token, so a 403 here for a user who DID complete the Verified
       // Listen is the bot-check — surface an honest message (mirrors add.tsx)
@@ -275,7 +280,7 @@ export default function PerformanceScreen() {
           )}
 
           <View style={styles.player}>
-            <YoutubePlayer
+            <NativeYouTubePlayer
               ref={playerRef}
               height={210}
               videoId={perf.youtube_video_id}

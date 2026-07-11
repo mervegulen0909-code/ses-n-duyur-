@@ -59,6 +59,7 @@ describe('mobile api client', () => {
 
     const { opts } = lastFetch();
     expect((opts.headers as Record<string, string>).authorization).toBe('Bearer tok-123');
+    expect((opts.headers as Record<string, string>)['x-voxscore-client']).toBe('mobile-app');
     expect(opts.method).toBe('POST');
     expect((opts.headers as Record<string, string>)['content-type']).toBe('application/json');
   });

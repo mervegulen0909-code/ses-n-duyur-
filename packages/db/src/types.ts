@@ -181,6 +181,19 @@ export type Database = {
         };
         Returns: { rating_a: number; rating_b: number }[];
       };
+      recompute_performance_score: {
+        Args: {
+          p_performance_id: Uuid;
+          p_initial_ai_score: number;
+          p_trend_baseline: number;
+        };
+        Returns: {
+          listener_score: number | null;
+          current_score: number;
+          trend_score: number;
+          verified_vote_count: number;
+        }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

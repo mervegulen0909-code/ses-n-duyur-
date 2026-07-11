@@ -2,9 +2,10 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import YoutubePlayer, { type YoutubeIframeRef } from 'react-native-youtube-iframe';
+import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
 import type { ListenEvent } from '@voxscore/core';
+import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { nextBattle, submitBattleVote } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
@@ -119,7 +120,7 @@ function BattleSide({ side, tracker }: { side: Side; tracker: ReturnType<typeof 
         </Text>
       )}
       <View style={styles.player}>
-        <YoutubePlayer
+        <NativeYouTubePlayer
           ref={playerRef}
           height={200}
           videoId={side.videoId}

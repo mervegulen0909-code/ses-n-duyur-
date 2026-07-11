@@ -3,6 +3,10 @@ import type { BattleVoteInput, ListenEvent } from '@voxscore/core';
 import { WEB_BASE as API_BASE } from './config';
 import { supabase } from './supabase';
 
+export const NATIVE_CLIENT_HEADERS = {
+  'x-voxscore-client': 'mobile-app',
+} as const;
+
 // The native app talks to the deployed Next.js API (same fairness/score logic
 // as web). Base URL is single-sourced in lib/config.ts (override per env with
 // EXPO_PUBLIC_API_BASE_URL for local/staging).
@@ -29,6 +33,7 @@ async function authedPost<T>(
       method: 'POST',
       headers: {
         'content-type': 'application/json',
+        ...NATIVE_CLIENT_HEADERS,
         ...(token ? { authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(body),

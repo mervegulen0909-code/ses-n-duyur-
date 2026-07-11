@@ -1,6 +1,5 @@
 import {
   measuredAdjustedInitial,
-  recomputeScore,
   voteSchema,
   type MeasuredBreakdown,
 } from '@voxscore/core';
@@ -8,7 +7,7 @@ import { CRITERIA, type Criterion } from '@voxscore/scoring';
 import type { Database } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
-import { COLUMN, rowToOverall } from './overall';
+import { COLUMN } from './overall';
 
 type CriteriaRatingInsert = Database['public']['Tables']['criteria_ratings']['Insert'];
 
@@ -59,8 +58,24 @@ export async function POST(req: Request): Promise<Response> {
     .select('user_id, has_video')
     .eq('id', parsed.data.performanceId)
     .maybeSingle();
-  if (votedPerf?.user_id === user.id) {
+  if (!votedPerf) {
+    return Response.json({ error: 'Performance not found' }, { status: 404 });
+  }
+  if (votedPerf.user_id === user.id) {
     return Response.json({ error: 'You cannot vote on your own performance' }, { status: 403 });
+  }
+
+  const requiredCriteria = CRITERIA.filter(
+    (criterion) => votedPerf.has_video || criterion !== 'stagePresence',
+  );
+  const missingCriteria = requiredCriteria.filter(
+    (criterion) => typeof parsed.data.ratings[criterion] !== 'number',
+  );
+  if (missingCriteria.length > 0) {
+    return Response.json(
+      { error: 'Every applicable criterion must be rated before voting' },
+      { status: 422 },
+    );
   }
 
   // Map camelCase ratings → snake_case columns.
@@ -101,36 +116,42 @@ export async function POST(req: Request): Promise<Response> {
       .eq('performance_id', parsed.data.performanceId)
       .maybeSingle();
 
-    const { data: ratings } = await service
-      .from('criteria_ratings')
-      .select('*')
-      .eq('performance_id', parsed.data.performanceId);
-
-    const storedInitial = scoreRow?.initial_ai_score ?? 0;
+    if (scoreRow?.initial_ai_score === null || scoreRow?.initial_ai_score === undefined) {
+      return Response.json({ error: 'Score row not found' }, { status: 500 });
+    }
+    const storedInitial = scoreRow.initial_ai_score;
     const initialAiScore = measuredRow
       ? (measuredAdjustedInitial({
-          aiBreakdown: scoreRow?.ai_breakdown as Partial<Record<Criterion, number>> | null,
+          aiBreakdown: scoreRow.ai_breakdown as Partial<Record<Criterion, number>> | null,
           measured: measuredRow.measured_breakdown as MeasuredBreakdown,
-          hasVideo: votedPerf?.has_video ?? true,
+          hasVideo: votedPerf.has_video,
         }) ?? storedInitial)
       : storedInitial;
-    const voteOveralls = (ratings ?? [])
-      .map((r) => rowToOverall(r))
-      .filter((v): v is number => v !== null);
 
-    const updated = recomputeScore({ initialAiScore, voteOveralls });
+    const { data: recomputed, error: recomputeError } = await service.rpc(
+      'recompute_performance_score',
+      {
+        p_performance_id: parsed.data.performanceId,
+        p_initial_ai_score: initialAiScore,
+        p_trend_baseline: storedInitial,
+      },
+    );
+    const updated = recomputed?.[0];
+    if (recomputeError || !updated) {
+      console.error('[votes] score recompute failed', recomputeError);
+      return Response.json({ error: 'Could not recompute score' }, { status: 500 });
+    }
 
-    await service
-      .from('scores')
-      .update({
-        listener_score: updated.listenerScore,
-        current_score: updated.currentScore,
-        trend_score: updated.trendScore,
-        verified_vote_count: updated.verifiedVoteCount,
-      })
-      .eq('performance_id', parsed.data.performanceId);
-
-    return Response.json({ ok: true, ...updated }, { status: 201 });
+    return Response.json(
+      {
+        ok: true,
+        listenerScore: updated.listener_score,
+        currentScore: updated.current_score,
+        trendScore: updated.trend_score,
+        verifiedVoteCount: updated.verified_vote_count,
+      },
+      { status: 201 },
+    );
   }
 
   return Response.json({ ok: true }, { status: 201 });

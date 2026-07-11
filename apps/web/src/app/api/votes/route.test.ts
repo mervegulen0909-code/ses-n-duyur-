@@ -11,6 +11,7 @@ vi.mock('@/lib/guard', () => ({
 
 import { botGuard, rateLimit } from '@/lib/guard';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { CRITERIA } from '@voxscore/scoring';
 import { POST } from './route';
 
 const PERF = '11111111-1111-1111-1111-111111111111';
@@ -27,7 +28,8 @@ function makeRequest(body: unknown): Request {
   });
 }
 
-const validBody = { performanceId: PERF, verifiedListenId: LISTEN, ratings: { vocalAccuracy: 80 } };
+const validRatings = Object.fromEntries(CRITERIA.map((criterion) => [criterion, 80]));
+const validBody = { performanceId: PERF, verifiedListenId: LISTEN, ratings: validRatings };
 
 // RLS-scoped client: reads the verified listen + the performance's owner, then
 // inserts the criteria rating.
@@ -41,7 +43,7 @@ function makeCtx(
 ) {
   const listenMaybeSingle = vi.fn(async () => ({ data: opts.listen ?? null, error: null }));
   const perfMaybeSingle = vi.fn(async () => ({
-    data: { user_id: opts.perfOwner ?? 'performance-owner' },
+    data: { user_id: opts.perfOwner ?? 'performance-owner', has_video: true },
     error: null,
   }));
   const ratingsInsert = vi.fn(async () => ({ error: opts.insertError ?? null }));
@@ -72,13 +74,21 @@ function makeService(opts: { measured?: Record<string, number> | null; scoreRow?
     data: opts.measured ? { measured_breakdown: opts.measured } : null,
   }));
   const ratingsEq = vi.fn(async () => ({ data: [{ vocal_accuracy: 80 }] }));
-  const scoresUpdateEq = vi.fn(async () => ({ error: null }));
-  const scoresUpdate = vi.fn(() => ({ eq: scoresUpdateEq }));
+  const rpc = vi.fn(async () => ({
+    data: [
+      {
+        listener_score: 80,
+        current_score: 71.5,
+        trend_score: 1.5,
+        verified_vote_count: 1,
+      },
+    ],
+    error: null,
+  }));
   const from = vi.fn((table: string) => {
     if (table === 'scores') {
       return {
         select: () => ({ eq: () => ({ maybeSingle: scoresMaybeSingle }) }),
-        update: scoresUpdate,
       };
     }
     if (table === 'measured_scores') {
@@ -87,7 +97,7 @@ function makeService(opts: { measured?: Record<string, number> | null; scoreRow?
     if (table === 'criteria_ratings') return { select: () => ({ eq: ratingsEq }) };
     return {};
   });
-  return { client: { from } as unknown as Service, scoresUpdate };
+  return { client: { from, rpc } as unknown as Service, rpc };
 }
 
 describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () => {
@@ -148,6 +158,18 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
     expect((await POST(makeRequest(validBody))).status).toBe(403);
   });
 
+  it('422 when an applicable criterion is missing', async () => {
+    const { ctx } = makeCtx('me', { listen: validListen });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    const res = await POST(
+      makeRequest({
+        ...validBody,
+        ratings: { vocalAccuracy: 80 },
+      }),
+    );
+    expect(res.status).toBe(422);
+  });
+
   it('403 when the voter OWNS the performance (no self-voting)', async () => {
     const { ctx, ratingsInsert } = makeCtx('me', { listen: validListen, perfOwner: 'me' });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
@@ -185,6 +207,7 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
         vocal_accuracy: 80,
       }),
     );
+    expect(createSupabaseServiceClient).toHaveBeenCalled();
   });
 
   it('blends from the MEASURED basis when a measurement exists (ADR 0003)', async () => {
@@ -208,9 +231,12 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
 
     // Basis lifted above the plain 70 estimate: with one 80-overall vote the
     // blended current must exceed the estimate-only blend (0.85*70 + 0.15*80).
-    const update = (service.scoresUpdate.mock.calls[0] as unknown[])[0] as {
-      current_score: number;
-    };
-    expect(update.current_score).toBeGreaterThan(0.85 * 70 + 0.15 * 80);
+    expect(service.rpc).toHaveBeenCalledWith(
+      'recompute_performance_score',
+      expect.objectContaining({
+        p_performance_id: PERF,
+        p_trend_baseline: 70,
+      }),
+    );
   });
 });
