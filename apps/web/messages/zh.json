@@ -202,7 +202,20 @@
     "performanceRequestsQueue": "表演申请队列",
     "noOpenPerformanceRequests": "没有待处理的申请。",
     "approve": "通过",
-    "rejectionReasonPlaceholder": "拒绝原因（必填）"
+    "rejectionReasonPlaceholder": "拒绝原因（必填）",
+    "cardAnalytics": "分析",
+    "analyticsSub": "漏斗、病毒式传播、类别需求",
+    "analyticsHeading": "分析",
+    "funnelHeading": "漏斗",
+    "eventColumn": "事件",
+    "windowDays": "最近 {count} 天",
+    "viralityHeading": "病毒式传播",
+    "inviteRate": "邀请转化率",
+    "inviteRateDetail": "{invites} 次邀请转化 / {shares} 次分享点击",
+    "viralCoefficient": "病毒系数",
+    "viralCoefficientDetail": "{invites} 次邀请注册 / {signups} 次注册",
+    "categoriesHeading": "最受欢迎的申请类别",
+    "noEvents": "该时间段内暂无事件。"
   },
   "Report": {
     "promptReason": "你举报的原因是？",

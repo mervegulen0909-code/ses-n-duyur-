@@ -202,7 +202,20 @@
     "performanceRequestsQueue": "File des demandes d'interprétation",
     "noOpenPerformanceRequests": "Aucune demande en attente.",
     "approve": "Approuver",
-    "rejectionReasonPlaceholder": "Motif du refus (obligatoire)"
+    "rejectionReasonPlaceholder": "Motif du refus (obligatoire)",
+    "cardAnalytics": "Analytique",
+    "analyticsSub": "Entonnoir, viralité, demande par catégorie",
+    "analyticsHeading": "Analytique",
+    "funnelHeading": "Entonnoir",
+    "eventColumn": "Événement",
+    "windowDays": "{count, plural, one {Dernier # jour} other {# derniers jours}}",
+    "viralityHeading": "Viralité",
+    "inviteRate": "Taux de conversion des invitations",
+    "inviteRateDetail": "{invites} invitations converties / {shares} clics de partage",
+    "viralCoefficient": "Coefficient viral",
+    "viralCoefficientDetail": "{invites} inscriptions par invitation / {signups} inscriptions",
+    "categoriesHeading": "Catégories les plus demandées",
+    "noEvents": "Aucun événement sur cette période pour le moment."
   },
   "Report": {
     "promptReason": "Pourquoi signalez-vous ce contenu ?",

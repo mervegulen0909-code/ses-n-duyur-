@@ -50,6 +50,11 @@ export default async function AdminPage() {
       title: t('Admin.cardCalibration'),
       sub: t('Admin.calibrationSub'),
     },
+    {
+      href: '/admin/analytics',
+      title: t('Admin.cardAnalytics'),
+      sub: t('Admin.analyticsSub'),
+    },
   ];
 
   return (

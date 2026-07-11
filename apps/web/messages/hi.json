@@ -202,7 +202,20 @@
     "performanceRequestsQueue": "प्रदर्शन अनुरोध कतार",
     "noOpenPerformanceRequests": "कोई लंबित अनुरोध नहीं है।",
     "approve": "स्वीकृत करें",
-    "rejectionReasonPlaceholder": "अस्वीकृति का कारण (आवश्यक)"
+    "rejectionReasonPlaceholder": "अस्वीकृति का कारण (आवश्यक)",
+    "cardAnalytics": "एनालिटिक्स",
+    "analyticsSub": "फ़नल, वायरैलिटी, श्रेणी माँग",
+    "analyticsHeading": "एनालिटिक्स",
+    "funnelHeading": "फ़नल",
+    "eventColumn": "इवेंट",
+    "windowDays": "पिछले {count} दिन",
+    "viralityHeading": "वायरैलिटी",
+    "inviteRate": "आमंत्रण रूपांतरण दर",
+    "inviteRateDetail": "{invites} आमंत्रण रूपांतरित / {shares} शेयर क्लिक",
+    "viralCoefficient": "वायरल गुणांक",
+    "viralCoefficientDetail": "{invites} आमंत्रण साइनअप / {signups} साइनअप",
+    "categoriesHeading": "सबसे अधिक माँगी गई श्रेणियाँ",
+    "noEvents": "इस अवधि में अभी कोई इवेंट नहीं।"
   },
   "Report": {
     "promptReason": "आप इसकी रिपोर्ट क्यों कर रहे हैं?",

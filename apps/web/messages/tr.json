@@ -202,7 +202,20 @@
     "performanceRequestsQueue": "Performans talep kuyruğu",
     "noOpenPerformanceRequests": "Bekleyen talep yok.",
     "approve": "Onayla",
-    "rejectionReasonPlaceholder": "Ret nedeni (zorunlu)"
+    "rejectionReasonPlaceholder": "Ret nedeni (zorunlu)",
+    "cardAnalytics": "Analitik",
+    "analyticsSub": "Huni, viral etki, kategori talebi",
+    "analyticsHeading": "Analitik",
+    "funnelHeading": "Huni",
+    "eventColumn": "Olay",
+    "windowDays": "Son {count} gün",
+    "viralityHeading": "Viral etki",
+    "inviteRate": "Davet dönüşüm oranı",
+    "inviteRateDetail": "{invites} dönüşen davet / {shares} paylaşım tıklaması",
+    "viralCoefficient": "Viral katsayı",
+    "viralCoefficientDetail": "{invites} davetli kayıt / {signups} kayıt",
+    "categoriesHeading": "En çok talep edilen kategoriler",
+    "noEvents": "Bu aralıkta henüz olay yok."
   },
   "Report": {
     "promptReason": "Bunu neden bildiriyorsun?",

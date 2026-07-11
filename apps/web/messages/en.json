@@ -202,7 +202,20 @@
     "performanceRequestsQueue": "Performance request queue",
     "noOpenPerformanceRequests": "No pending requests.",
     "approve": "Approve",
-    "rejectionReasonPlaceholder": "Reason for rejection (required)"
+    "rejectionReasonPlaceholder": "Reason for rejection (required)",
+    "cardAnalytics": "Analytics",
+    "analyticsSub": "Funnel, virality, category demand",
+    "analyticsHeading": "Analytics",
+    "funnelHeading": "Funnel",
+    "eventColumn": "Event",
+    "windowDays": "{count, plural, one {Last # day} other {Last # days}}",
+    "viralityHeading": "Virality",
+    "inviteRate": "Invite conversion rate",
+    "inviteRateDetail": "{invites} invites converted / {shares} share clicks",
+    "viralCoefficient": "Viral coefficient",
+    "viralCoefficientDetail": "{invites} ref signups / {signups} signups",
+    "categoriesHeading": "Top requested categories",
+    "noEvents": "No events in this window yet."
   },
   "Report": {
     "promptReason": "Why are you reporting this?",

@@ -202,7 +202,20 @@
     "performanceRequestsQueue": "Cola de solicitudes de interpretación",
     "noOpenPerformanceRequests": "No hay solicitudes pendientes.",
     "approve": "Aprobar",
-    "rejectionReasonPlaceholder": "Motivo del rechazo (obligatorio)"
+    "rejectionReasonPlaceholder": "Motivo del rechazo (obligatorio)",
+    "cardAnalytics": "Analítica",
+    "analyticsSub": "Embudo, viralidad, demanda por categoría",
+    "analyticsHeading": "Analítica",
+    "funnelHeading": "Embudo",
+    "eventColumn": "Evento",
+    "windowDays": "{count, plural, one {Último # día} other {Últimos # días}}",
+    "viralityHeading": "Viralidad",
+    "inviteRate": "Tasa de conversión de invitaciones",
+    "inviteRateDetail": "{invites} invitaciones convertidas / {shares} clics de compartir",
+    "viralCoefficient": "Coeficiente viral",
+    "viralCoefficientDetail": "{invites} registros por invitación / {signups} registros",
+    "categoriesHeading": "Categorías más solicitadas",
+    "noEvents": "Aún no hay eventos en este periodo."
   },
   "Report": {
     "promptReason": "¿Por qué estás reportando esto?",

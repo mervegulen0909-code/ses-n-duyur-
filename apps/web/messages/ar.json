@@ -202,7 +202,20 @@
     "performanceRequestsQueue": "قائمة انتظار طلبات الأداء",
     "noOpenPerformanceRequests": "لا توجد طلبات معلّقة.",
     "approve": "موافقة",
-    "rejectionReasonPlaceholder": "سبب الرفض (مطلوب)"
+    "rejectionReasonPlaceholder": "سبب الرفض (مطلوب)",
+    "cardAnalytics": "التحليلات",
+    "analyticsSub": "القمع، الانتشار، الطلب حسب الفئة",
+    "analyticsHeading": "التحليلات",
+    "funnelHeading": "القمع",
+    "eventColumn": "الحدث",
+    "windowDays": "آخر {count} يومًا",
+    "viralityHeading": "الانتشار",
+    "inviteRate": "معدل تحويل الدعوات",
+    "inviteRateDetail": "{invites} دعوة محوّلة / {shares} نقرة مشاركة",
+    "viralCoefficient": "المعامل الفيروسي",
+    "viralCoefficientDetail": "{invites} تسجيل عبر دعوة / {signups} تسجيل",
+    "categoriesHeading": "الفئات الأكثر طلبًا",
+    "noEvents": "لا أحداث في هذه الفترة بعد."
   },
   "Report": {
     "promptReason": "لماذا تُبلغ عن هذا؟",
