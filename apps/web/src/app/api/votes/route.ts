@@ -99,6 +99,10 @@ export async function POST(req: Request): Promise<Response> {
 
   // Voter trust weight (T9): stamped from the nightly-refit reputation so the
   // RPC's weighted aggregate discounts habitual outliers. Default 0 reads as 1.
+  // Authoritative enforcement is the DB trigger guard_criteria_rating_weight()
+  // (20260712150000) — it re-derives this same value server-side, so a direct
+  // PostgREST insert can never forge a weight. This client stamp is a
+  // convenience that the trigger overwrites with the identical value.
   const { data: voterProfile } = await supabase
     .from('profiles')
     .select('reputation')
@@ -164,17 +168,23 @@ export async function POST(req: Request): Promise<Response> {
       return Response.json({ error: 'Could not recompute score' }, { status: 500 });
     }
 
-    await trackServer(service, 'vote_submitted', user.id, {
-      performanceId: parsed.data.performanceId,
-    });
-    await notifyServer(service, votedPerf.user_id, 'new_vote', {
-      performanceId: parsed.data.performanceId,
-    });
-
-    // Server-granted only; grantBadge is idempotent so re-checking the
-    // threshold on every vote past 100 is a harmless no-op.
-    if (updated.verified_vote_count >= 100) {
-      await grantBadge(service, votedPerf.user_id, 'centurion');
+    // Best-effort side effects: the authoritative recompute already committed,
+    // so a failure here must NOT fail the vote — a 500 would make the client
+    // retry and hit the 409 duplicate guard on a vote that already counted.
+    try {
+      await trackServer(service, 'vote_submitted', user.id, {
+        performanceId: parsed.data.performanceId,
+      });
+      await notifyServer(service, votedPerf.user_id, 'new_vote', {
+        performanceId: parsed.data.performanceId,
+      });
+      // Server-granted only; grantBadge is idempotent so re-checking the
+      // threshold on every vote past 100 is a harmless no-op.
+      if (updated.verified_vote_count >= 100) {
+        await grantBadge(service, votedPerf.user_id, 'centurion');
+      }
+    } catch (err) {
+      console.error('[votes] post-recompute side effect failed', err);
     }
 
     return Response.json(
@@ -189,5 +199,11 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  return Response.json({ ok: true }, { status: 201 });
+  // The vote row is committed, but without the service role its score can't be
+  // recomputed — fail closed instead of returning success on a vote that would
+  // silently never move the leaderboard.
+  return Response.json(
+    { error: 'Vote recorded but scoring is temporarily unavailable' },
+    { status: 503 },
+  );
 }

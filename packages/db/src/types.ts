@@ -20,6 +20,7 @@ export interface PublicRows {
     handle: string;
     role: 'user' | 'admin';
     reputation: number;
+    reputation_fitted_at: Timestamp | null;
     bio: string | null;
     avatar_url: string | null;
     links: Json | null;
@@ -64,6 +65,7 @@ export interface PublicRows {
     scoring_version: number;
     initial_ai_score: number | null;
     ai_breakdown: Json | null;
+    ai_breakdown_raw: Json | null;
     is_provisional: boolean;
     listener_score: number | null;
     listener_stddev: number | null;
