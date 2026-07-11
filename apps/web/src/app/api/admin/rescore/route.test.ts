@@ -10,6 +10,12 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('@/lib/adapters/scoring', () => ({
   getScoringProvider: vi.fn(),
 }));
+// Keep the REAL core (SCORING_VERSION, schemas, measured math) and stub only
+// the networked caption read.
+vi.mock('@voxscore/core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@voxscore/core')>()),
+  fetchCaptionText: vi.fn(async () => null),
+}));
 
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { getProfileForContext } from '@/lib/auth';
@@ -106,6 +112,9 @@ function makeService(
           eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null })) })),
         })),
       };
+    }
+    if (table === 'scoring_calibration') {
+      return { select: vi.fn(async () => ({ data: [] })) };
     }
     throw new Error(`unexpected table ${table}`);
   });

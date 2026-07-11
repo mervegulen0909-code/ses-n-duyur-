@@ -30,6 +30,7 @@ vi.mock('@voxscore/core', async (importOriginal) => {
       thumbnailUrl: 'https://img/t.jpg',
       providerName: 'YouTube',
     })),
+    fetchCaptionText: vi.fn(async () => null),
   };
 });
 
@@ -52,6 +53,7 @@ function makeServiceClient(opts: {
   deleteResult?: { error: unknown };
   songsTable?: unknown;
   openSeasonId?: string | null;
+  calibrationRows?: { criterion: string; offset_value: number }[];
 }) {
   const perfSingle = vi.fn(async () => opts.perfResult ?? { data: { id: 'perf-ok' }, error: null });
   const perfInsert = vi.fn(() => ({ select: vi.fn(() => ({ single: perfSingle })) }));
@@ -85,11 +87,17 @@ function makeServiceClient(opts: {
     })),
   };
 
+  // loadCalibration(): scoring_calibration.select(...) — empty = identity.
+  const calibrationTable = {
+    select: vi.fn(async () => ({ data: opts.calibrationRows ?? [] })),
+  };
+
   const from = vi.fn((table: string) => {
     if (table === 'performances') return { insert: perfInsert, delete: del };
     if (table === 'scores') return { insert: scoreInsert };
     if (table === 'songs') return opts.songsTable ?? defaultSongs;
     if (table === 'seasons') return seasonsTable;
+    if (table === 'scoring_calibration') return calibrationTable;
     throw new Error(`unexpected table: ${table}`);
   });
 
@@ -268,6 +276,26 @@ describe('createScoredPerformance — score persistence is not best-effort', () 
     });
 
     expect(service.scoreInsert).toHaveBeenCalledWith(expect.objectContaining({ season_id: null }));
+  });
+
+  it('applies fitted calibration offsets to the persisted breakdown and score', async () => {
+    const service = makeServiceClient({
+      calibrationRows: [{ criterion: 'vocalAccuracy', offset_value: 10 }],
+    });
+
+    await createScoredPerformance(service.client, {
+      userId: 'user-1',
+      youtubeUrl: YOUTUBE_URL,
+    });
+
+    // Mock provider scores every criterion 73.5; +10 on vocalAccuracy (w=0.20)
+    // shifts the composed initial by exactly 2: 73.5 + 0.20·10 = 75.5.
+    const inserted = service.scoreInsert.mock.calls[0]![0] as {
+      initial_ai_score: number;
+      ai_breakdown: Record<string, number>;
+    };
+    expect(inserted.ai_breakdown.vocalAccuracy).toBe(83.5);
+    expect(inserted.initial_ai_score).toBe(75.5);
   });
 
   it('creates the performance for the explicit userId, not any ambient session', async () => {

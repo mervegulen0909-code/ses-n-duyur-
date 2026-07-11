@@ -284,6 +284,12 @@ export interface PublicRows {
     ends_at: Timestamp | null;
     created_at: Timestamp;
   };
+  scoring_calibration: {
+    criterion: string;
+    offset_value: number;
+    sample_count: number;
+    fitted_at: Timestamp;
+  };
 }
 
 export type Database = {

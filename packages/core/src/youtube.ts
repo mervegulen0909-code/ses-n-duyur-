@@ -97,3 +97,29 @@ export async function fetchOEmbed(
     providerName: asString(raw.provider_name) || 'YouTube',
   };
 }
+
+/**
+ * Best-effort public caption text for a video (YouTube timedtext endpoint —
+ * plain TEXT metadata, never audio/video; legitimately empty for many
+ * videos). Used only to enrich the provisional LLM estimate.
+ */
+export async function fetchCaptionText(videoId: string, lang = 'en'): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://video.google.com/timedtext?lang=${encodeURIComponent(lang)}&v=${encodeURIComponent(videoId)}`,
+    );
+    if (!res.ok) return null;
+    const xml = await res.text();
+    if (!xml.includes('<text')) return null;
+    const text = xml
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return text ? text.slice(0, 1500) : null;
+  } catch {
+    return null;
+  }
+}

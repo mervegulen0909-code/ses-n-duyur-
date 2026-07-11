@@ -1,9 +1,15 @@
 import type { Criterion } from '@voxscore/scoring';
-import { measuredAdjustedInitial, SCORING_VERSION, type MeasuredBreakdown } from '@voxscore/core';
+import {
+  fetchCaptionText,
+  measuredAdjustedInitial,
+  rescoreSchema,
+  SCORING_VERSION,
+  type MeasuredBreakdown,
+} from '@voxscore/core';
 import type { Json } from '@voxscore/db';
-import { rescoreSchema } from '@voxscore/core';
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { getProfileForContext } from '@/lib/auth';
+import { applyOffsets, loadCalibration } from '@/lib/calibration';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 
 /** LLM latency is seconds/row — keep batches small and let callers loop. */
@@ -65,6 +71,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const provider = getScoringProvider();
+  const calibration = await loadCalibration(service);
   let rescored = 0;
   let failed = 0;
   let providerName = '';
@@ -82,13 +89,15 @@ export async function POST(req: Request): Promise<Response> {
     }
     const meta = (perf.oembed_meta ?? {}) as OEmbedish;
 
-    const result = await provider.score({
+    const transcript = await fetchCaptionText(perf.youtube_video_id);
+    const rawResult = await provider.score({
       videoId: perf.youtube_video_id,
       title: meta.title ?? '',
       authorName: meta.authorName ?? '',
       hasVideo: perf.has_video,
+      transcript: transcript ?? undefined,
     });
-    if (result.provider === 'mock') {
+    if (rawResult.provider === 'mock') {
       // Real provider missing or degraded — stop without writing anything.
       return Response.json(
         {
@@ -100,6 +109,11 @@ export async function POST(req: Request): Promise<Response> {
         { status: 503 },
       );
     }
+    // Human-anchor calibration — skipped entirely when nothing is fitted
+    // (the provider result is already composed; no need to recompose).
+    const result = Object.keys(calibration).length
+      ? { ...rawResult, ...applyOffsets(rawResult.breakdown, calibration, perf.has_video) }
+      : rawResult;
     providerName = result.provider;
     modelName = result.model;
 
