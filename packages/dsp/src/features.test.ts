@@ -5,9 +5,11 @@ import {
   detectOnsets,
   estimateVibrato,
   extractFeatures,
+  fft,
   median,
   movingAverage,
   percentile,
+  spectralCentroidHz,
   type FrameAnalysis,
 } from './features';
 import { bursts, concat, noise, silence, sine, vibratoSine, SR } from './signals.test';
@@ -152,5 +154,74 @@ describe('extractFeatures', () => {
 
   it('rejects recordings with no audible singing', () => {
     expect(() => extractFeatures(audio(noise(2.5, 0.2)))).toThrow(/audible singing/);
+  });
+});
+
+describe('fft — radix-2 spectral backbone (T12)', () => {
+  it('rejects empty and non-power-of-two input', () => {
+    expect(() => fft(new Float64Array(0), new Float64Array(0))).toThrow(/power of two/);
+    expect(() => fft(new Float64Array(3), new Float64Array(3))).toThrow(/power of two/);
+  });
+
+  it('transforms a unit impulse into a flat spectrum', () => {
+    const re = new Float64Array(8);
+    const im = new Float64Array(8);
+    re[0] = 1;
+    fft(re, im);
+    for (let k = 0; k < 8; k++) {
+      expect(re[k]!).toBeCloseTo(1, 10);
+      expect(im[k]!).toBeCloseTo(0, 10);
+    }
+  });
+
+  it('concentrates a bin-aligned sine at its own bin', () => {
+    // 2 cycles over 16 samples -> all magnitude at bins 2 and 14 (conjugate).
+    const re = new Float64Array(16);
+    const im = new Float64Array(16);
+    for (let i = 0; i < 16; i++) re[i] = Math.sin((2 * Math.PI * 2 * i) / 16);
+    fft(re, im);
+    const mags = Array.from({ length: 16 }, (_, k) => Math.hypot(re[k]!, im[k]!));
+    expect(mags[2]!).toBeCloseTo(8, 8);
+    expect(mags[14]!).toBeCloseTo(8, 8);
+    expect(mags[0]! + mags[1]! + mags[3]!).toBeCloseTo(0, 8);
+  });
+});
+
+describe('spectralCentroidHz', () => {
+  it('a pure 440 Hz sine frame centers within 10 Hz of 440', () => {
+    const c = spectralCentroidHz(sine(440, 0.2).subarray(0, 2048), SR);
+    expect(c).not.toBeNull();
+    expect(Math.abs(c! - 440)).toBeLessThanOrEqual(10);
+  });
+
+  it('bright harmonics pull the centroid up', () => {
+    const base = sine(440, 0.2);
+    const harm = sine(3520, 0.2, 0.25);
+    const mixed = base.map((v, i) => v + harm[i]!);
+    const bright = spectralCentroidHz(mixed.subarray(0, 2048), SR)!;
+    const pure = spectralCentroidHz(base.subarray(0, 2048), SR)!;
+    expect(bright).toBeGreaterThan(pure + 500);
+  });
+
+  it('is deterministic for the same frame bytes', () => {
+    const frame = sine(523.25, 0.2).subarray(0, 2048);
+    expect(spectralCentroidHz(frame, SR)).toBe(spectralCentroidHz(frame, SR));
+  });
+
+  it('zero-pads non-power-of-two frames and stays near the true tone', () => {
+    const c = spectralCentroidHz(sine(440, 0.2).subarray(0, 1500), SR);
+    expect(Math.abs(c! - 440)).toBeLessThanOrEqual(25);
+  });
+
+  it('returns null for silence and degenerate frames', () => {
+    expect(spectralCentroidHz(silence(0.2).subarray(0, 2048), SR)).toBeNull();
+    expect(spectralCentroidHz(new Float32Array(1), SR)).toBeNull();
+  });
+});
+
+describe('extractFeatures spectral centroid (T12)', () => {
+  it('reports the mean voiced-frame centroid, unaffected by trailing silence', () => {
+    const features = extractFeatures(audio(concat(sine(440, 2.5), silence(0.7))));
+    expect(Math.abs(features.spectralCentroidHz - 440)).toBeLessThanOrEqual(10);
   });
 });

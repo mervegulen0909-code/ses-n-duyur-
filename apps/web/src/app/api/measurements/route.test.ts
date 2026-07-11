@@ -189,6 +189,7 @@ describe('POST /api/measurements — measure and delete (ADR 0003)', () => {
       'recordingQuality',
       'rhythmTiming',
       'technicalSkill',
+      'toneQuality',
       'vocalAccuracy',
     ]);
     for (const value of Object.values(body.breakdown)) {
@@ -202,7 +203,7 @@ describe('POST /api/measurements — measure and delete (ADR 0003)', () => {
       expect.objectContaining({
         performance_id: PERF_ID,
         user_id: 'user-1',
-        dsp_version: 1,
+        dsp_version: 2,
         measured_breakdown: body.breakdown,
       }),
       { onConflict: 'performance_id' },

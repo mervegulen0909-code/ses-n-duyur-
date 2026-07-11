@@ -21,8 +21,9 @@ const MAX_WAV_BYTES = 4 * 1024 * 1024;
 
 const querySchema = z.object({ performanceId: z.string().uuid() });
 
-/** DSP version stamped on rows; bump when the measurement math changes. */
-const DSP_VERSION = 1;
+/** DSP version stamped on rows; bump when the measurement math changes.
+ *  v2 (2026-07-12): spectral-centroid toneQuality joins the measured set. */
+const DSP_VERSION = 2;
 
 export async function POST(req: Request): Promise<Response> {
   const url = new URL(req.url);
