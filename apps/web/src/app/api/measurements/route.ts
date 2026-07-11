@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { measuredAdjustedInitial, type MeasuredBreakdown } from '@voxscore/core';
+import {
+  fetchVideoDurationSeconds,
+  measuredAdjustedInitial,
+  type MeasuredBreakdown,
+} from '@voxscore/core';
 import { MEASURED_CRITERIA, measureWav } from '@voxscore/dsp';
 import type { Criterion } from '@voxscore/scoring';
 import type { Json } from '@voxscore/db';
@@ -21,8 +25,9 @@ const MAX_WAV_BYTES = 4 * 1024 * 1024;
 
 const querySchema = z.object({ performanceId: z.string().uuid() });
 
-/** DSP version stamped on rows; bump when the measurement math changes. */
-const DSP_VERSION = 1;
+/** DSP version stamped on rows; bump when the measurement math changes.
+ *  v2 (2026-07-12): spectral-centroid toneQuality joins the measured set. */
+const DSP_VERSION = 2;
 
 export async function POST(req: Request): Promise<Response> {
   const url = new URL(req.url);
@@ -60,7 +65,7 @@ export async function POST(req: Request): Promise<Response> {
   // Only the performer may attach a measurement to their performance.
   const { data: perf } = await supabase
     .from('performances')
-    .select('id, user_id, has_video, status')
+    .select('id, user_id, has_video, status, youtube_video_id')
     .eq('id', parsed.data.performanceId)
     .maybeSingle();
   if (!perf || perf.status !== 'active') {
@@ -97,6 +102,19 @@ export async function POST(req: Request): Promise<Response> {
     breakdown[criterion as Criterion] = measurement.scores[measure];
   }
 
+  // "Duration-matched" badge (T13): does the measured take run the same
+  // length (±5%) as the linked YouTube video? Data API duration METADATA
+  // only (Hard Rule 1); null = unknown (no key / lookup failed) — an
+  // unknown must never be presented as either a match or a mismatch.
+  let durationMatched: boolean | null = null;
+  const videoSeconds = perf.youtube_video_id
+    ? await fetchVideoDurationSeconds(perf.youtube_video_id, process.env.YOUTUBE_API_KEY)
+    : null;
+  if (videoSeconds !== null && videoSeconds > 0) {
+    durationMatched =
+      Math.abs(measurement.features.durationS - videoSeconds) / videoSeconds <= 0.05;
+  }
+
   const { error: upsertError } = await service.from('measured_scores').upsert(
     {
       performance_id: perf.id,
@@ -104,6 +122,7 @@ export async function POST(req: Request): Promise<Response> {
       dsp_version: DSP_VERSION,
       features: measurement.features as unknown as Json,
       measured_breakdown: breakdown as Json,
+      duration_matched: durationMatched,
     },
     { onConflict: 'performance_id' },
   );
@@ -143,7 +162,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   return Response.json(
-    { ok: true, audioStored: false, breakdown, features: measurement.features },
+    { ok: true, audioStored: false, breakdown, features: measurement.features, durationMatched },
     { status: 201 },
   );
 }

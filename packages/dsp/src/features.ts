@@ -33,6 +33,8 @@ export interface VocalFeatures {
   /** Regularity of note onsets (1 = metronomic, 0 = erratic). */
   readonly onsetRegularity: number;
   readonly onsetCount: number;
+  /** Mean magnitude-weighted frequency over voiced frames — spectral balance. */
+  readonly spectralCentroidHz: number;
 }
 
 export interface AnalysisOptions extends YinOptions {
@@ -66,6 +68,82 @@ export function median(values: readonly number[]): number {
 
 export function centsBetween(f1: number, f2: number): number {
   return 1200 * Math.log2(f2 / f1);
+}
+
+/**
+ * In-place iterative radix-2 Cooley-Tukey FFT over parallel re/im arrays.
+ * Deterministic, dependency-free — spectral features must reproduce
+ * bit-identically for the same bytes (the package's honesty contract).
+ */
+export function fft(re: Float64Array, im: Float64Array): void {
+  const n = re.length;
+  if (n === 0 || (n & (n - 1)) !== 0) {
+    throw new Error('fft: length must be a power of two');
+  }
+  // Bit-reversal permutation.
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      const tr = re[i]!;
+      re[i] = re[j]!;
+      re[j] = tr;
+      const ti = im[i]!;
+      im[i] = im[j]!;
+      im[j] = ti;
+    }
+  }
+  // Butterfly passes.
+  for (let len = 2; len <= n; len <<= 1) {
+    const angle = (-2 * Math.PI) / len;
+    const wRe = Math.cos(angle);
+    const wIm = Math.sin(angle);
+    for (let start = 0; start < n; start += len) {
+      let curRe = 1;
+      let curIm = 0;
+      for (let k = 0; k < len >> 1; k++) {
+        const evenIdx = start + k;
+        const oddIdx = evenIdx + (len >> 1);
+        const oddRe = re[oddIdx]! * curRe - im[oddIdx]! * curIm;
+        const oddIm = re[oddIdx]! * curIm + im[oddIdx]! * curRe;
+        re[oddIdx] = re[evenIdx]! - oddRe;
+        im[oddIdx] = im[evenIdx]! - oddIm;
+        re[evenIdx] = re[evenIdx]! + oddRe;
+        im[evenIdx] = im[evenIdx]! + oddIm;
+        const nextRe = curRe * wRe - curIm * wIm;
+        curIm = curRe * wIm + curIm * wRe;
+        curRe = nextRe;
+      }
+    }
+  }
+}
+
+/**
+ * Magnitude-weighted mean frequency (spectral centroid) of one frame, in Hz.
+ * The frame is Hann-windowed, zero-padded to the next power of two, and read
+ * over the positive-frequency bins. Null for silent/degenerate input — there
+ * is no spectral mass to average.
+ */
+export function spectralCentroidHz(frame: Float32Array, sampleRate: number): number | null {
+  if (frame.length < 2) return null;
+  let size = 1;
+  while (size < frame.length) size <<= 1;
+  const re = new Float64Array(size);
+  const im = new Float64Array(size);
+  for (let i = 0; i < frame.length; i++) {
+    const hann = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (frame.length - 1)));
+    re[i] = frame[i]! * hann;
+  }
+  fft(re, im);
+  let weighted = 0;
+  let total = 0;
+  for (let k = 1; k <= size >> 1; k++) {
+    const magnitude = Math.hypot(re[k]!, im[k]!);
+    weighted += ((k * sampleRate) / size) * magnitude;
+    total += magnitude;
+  }
+  return total > 0 ? weighted / total : null;
 }
 
 /** Slice the audio into analysis frames and pitch-track each one. */
@@ -201,6 +279,19 @@ export function extractFeatures(audio: WavAudio, options: AnalysisOptions = {}):
 
   const onsets = detectOnsets(frames);
 
+  // Spectral balance over voiced frames only — silence and breaths would drag
+  // the centroid toward the noise floor. A voiced frame always carries energy
+  // (YIN required it), so its centroid is never null.
+  const frameSize = options.frameSize ?? 2048;
+  let centroidSum = 0;
+  for (const f of voiced) {
+    const start = Math.round(f.timeS * audio.sampleRate);
+    centroidSum += spectralCentroidHz(
+      audio.samples.subarray(start, start + frameSize),
+      audio.sampleRate,
+    )!;
+  }
+
   return {
     durationS,
     voicedRatio,
@@ -212,5 +303,6 @@ export function extractFeatures(audio: WavAudio, options: AnalysisOptions = {}):
     clippingRate,
     onsetRegularity: onsets.regularity,
     onsetCount: onsets.onsetTimesS.length,
+    spectralCentroidHz: centroidSum / voiced.length,
   };
 }

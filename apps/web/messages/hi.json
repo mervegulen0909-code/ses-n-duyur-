@@ -113,9 +113,11 @@
   },
   "Performance": {
     "currentScore": "मौजूदा स्कोर",
+    "scoreInterval": "±{margin}",
     "trend": "ट्रेंड",
     "aiStart": "AI शुरुआत",
     "measuredBadge": "मापा गया",
+    "durationMatched": "अवधि मेल खाती है",
     "measuredCaption": "मापे गए मानदंड कलाकार की खुद जमा की गई रिकॉर्डिंग से आते हैं — ऑडियो का विश्लेषण किया जाता है, फिर उसे हटा दिया जाता है।",
     "fallbackTitle": "परफॉर्मेंस",
     "addedBy": "<link>{handle}</link> द्वारा जोड़ा गया",

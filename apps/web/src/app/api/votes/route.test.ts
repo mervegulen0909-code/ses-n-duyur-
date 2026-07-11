@@ -44,11 +44,16 @@ function makeCtx(
     insertError?: unknown;
     perfOwner?: string;
     recentVotes?: number;
+    reputation?: number;
   } = {},
 ) {
   const listenMaybeSingle = vi.fn(async () => ({ data: opts.listen ?? null, error: null }));
   const perfMaybeSingle = vi.fn(async () => ({
     data: { user_id: opts.perfOwner ?? 'performance-owner', has_video: true },
+    error: null,
+  }));
+  const profileMaybeSingle = vi.fn(async () => ({
+    data: { reputation: opts.reputation ?? 0 },
     error: null,
   }));
   const ratingsInsert = vi.fn(async () => ({ error: opts.insertError ?? null }));
@@ -60,6 +65,9 @@ function makeCtx(
     }
     if (table === 'performances') {
       return { select: () => ({ eq: () => ({ maybeSingle: perfMaybeSingle }) }) };
+    }
+    if (table === 'profiles') {
+      return { select: () => ({ eq: () => ({ maybeSingle: profileMaybeSingle }) }) };
     }
     if (table === 'criteria_ratings') {
       return {
@@ -242,12 +250,24 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
         voter_id: 'me-real',
         verified_listen_id: LISTEN,
         vocal_accuracy: 80,
+        weight: 1,
       }),
     );
     expect(createSupabaseServiceClient).toHaveBeenCalled();
     expect(trackServer).toHaveBeenCalledWith(expect.anything(), 'vote_submitted', 'me-real', {
       performanceId: PERF,
     });
+  });
+
+  it('stamps the voter’s reputation-derived trust weight on the rating insert (T9)', async () => {
+    const { ctx, ratingsInsert } = makeCtx('me', { listen: validListen, reputation: 1500 });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
+
+    const res = await POST(makeRequest(validBody));
+
+    expect(res.status).toBe(201);
+    expect(ratingsInsert).toHaveBeenCalledWith(expect.objectContaining({ weight: 1.5 }));
   });
 
   it('does NOT grant the centurion badge below the 100-vote threshold', async () => {

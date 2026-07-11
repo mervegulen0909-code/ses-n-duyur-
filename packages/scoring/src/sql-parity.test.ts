@@ -9,12 +9,12 @@ import { BLEND_PRIOR_STRENGTH, LISTENER_WEIGHT_CAP } from './weights';
 // point this at the NEWEST recompute migration.
 const SQL = readFileSync(
   fileURLToPath(
-    new URL('../../../supabase/migrations/20260712090000_score_regime_v4.sql', import.meta.url),
+    new URL('../../../supabase/migrations/20260712120000_score_trimmed_mean.sql', import.meta.url),
   ),
   'utf8',
 );
 
-describe('SQL RPC mirrors the TS scoring constants (regime v4)', () => {
+describe('SQL RPC mirrors the TS scoring constants (RPC v5)', () => {
   it('embeds every criterion weight literal', () => {
     for (const [criterion, w] of Object.entries(DEFAULT_CRITERION_WEIGHTS)) {
       const col = criterion.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`);
@@ -28,7 +28,16 @@ describe('SQL RPC mirrors the TS scoring constants (regime v4)', () => {
   });
 
   it('aggregates with the per-rating trust weight', () => {
-    expect(SQL).toContain('sum(weight * (');
-    expect(SQL).toContain('nullif(sum(weight), 0)');
+    expect(SQL).toContain('sum(weight * overall)');
+    expect(SQL).toContain('nullif(sum(weight) filter');
+  });
+
+  it('trims the top and bottom 10% only at n >= 10 (T10)', () => {
+    expect(SQL).toContain('where n < 10 or (rn > floor(n * 0.1) and rn <= n - floor(n * 0.1))');
+  });
+
+  it('stores the per-vote overall stddev for the confidence interval (T11)', () => {
+    expect(SQL).toContain('stddev_samp(overall)');
+    expect(SQL).toContain('listener_stddev = v_listener_stddev');
   });
 });

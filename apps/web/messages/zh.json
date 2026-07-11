@@ -113,9 +113,11 @@
   },
   "Performance": {
     "currentScore": "当前得分",
+    "scoreInterval": "±{margin}",
     "trend": "趋势",
     "aiStart": "AI 初始分",
     "measuredBadge": "已实测",
+    "durationMatched": "时长匹配",
     "measuredCaption": "实测指标来自演唱者本人上传的录音——音频经过分析后即被删除。",
     "fallbackTitle": "表演",
     "addedBy": "由 <link>{handle}</link> 添加",

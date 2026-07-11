@@ -21,6 +21,8 @@ export interface MeasuredScores {
   readonly vibratoControl: number;
   /** Recording quality: signal-to-noise ratio, penalized for clipping. */
   readonly recordingQuality: number;
+  /** Proxy for toneQuality: spectral centroid vs the vocal presence region. */
+  readonly spectralBalance: number;
 }
 
 /** Which league criteria a measured sub-score may stand in for. */
@@ -29,6 +31,7 @@ export const MEASURED_CRITERIA = {
   rhythmTiming: 'timingSteadiness',
   technicalSkill: 'vibratoControl',
   recordingQuality: 'recordingQuality',
+  toneQuality: 'spectralBalance',
 } as const;
 
 function clamp01(x: number): number {
@@ -64,12 +67,22 @@ export function recordingQualityScore(snrDb: number, clippingRate: number): numb
   return Math.round(Math.max(0, snrScore - clippingPenalty));
 }
 
+/**
+ * Spectral balance: a voiced-frame centroid near ~2.2 kHz (the vocal
+ * "presence" region — fundamentals plus healthy upper harmonics) → 100,
+ * falling off linearly to 0 one full span away (muffled or shrill).
+ */
+export function spectralBalanceScore(centroidHz: number): number {
+  return Math.round(100 * clamp01(1 - Math.abs(centroidHz - 2200) / 2200));
+}
+
 export function measureScores(features: VocalFeatures): MeasuredScores {
   return {
     pitchControl: pitchControlScore(features.pitchJitterCents),
     timingSteadiness: timingSteadinessScore(features.onsetRegularity),
     vibratoControl: vibratoControlScore(features.vibratoRateHz, features.vibratoExtentCents),
     recordingQuality: recordingQualityScore(features.snrDb, features.clippingRate),
+    spectralBalance: spectralBalanceScore(features.spectralCentroidHz),
   };
 }
 

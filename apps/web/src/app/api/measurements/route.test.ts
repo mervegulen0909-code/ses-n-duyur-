@@ -57,7 +57,13 @@ function makeUserClient(perfRow: unknown) {
   return { ctx: ctx as unknown as RequestCtx, from };
 }
 
-const OWNED_PERF = { id: PERF_ID, user_id: 'user-1', has_video: true, status: 'active' };
+const OWNED_PERF = {
+  id: PERF_ID,
+  user_id: 'user-1',
+  has_video: true,
+  status: 'active',
+  youtube_video_id: 'dQw4w9WgXcQ',
+};
 
 // Service client covering the route's three tables.
 function makeServiceClient(opts: { upsertResult?: { error: unknown } } = {}) {
@@ -95,6 +101,8 @@ describe('POST /api/measurements — measure and delete (ADR 0003)', () => {
   });
 
   afterEach(() => {
+    delete process.env.YOUTUBE_API_KEY;
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
     vi.clearAllMocks();
   });
@@ -189,6 +197,7 @@ describe('POST /api/measurements — measure and delete (ADR 0003)', () => {
       'recordingQuality',
       'rhythmTiming',
       'technicalSkill',
+      'toneQuality',
       'vocalAccuracy',
     ]);
     for (const value of Object.values(body.breakdown)) {
@@ -202,8 +211,10 @@ describe('POST /api/measurements — measure and delete (ADR 0003)', () => {
       expect.objectContaining({
         performance_id: PERF_ID,
         user_id: 'user-1',
-        dsp_version: 1,
+        dsp_version: 2,
         measured_breakdown: body.breakdown,
+        // No YOUTUBE_API_KEY in this test → the badge is unknown, never faked.
+        duration_matched: null,
       }),
       { onConflict: 'performance_id' },
     );
@@ -215,6 +226,72 @@ describe('POST /api/measurements — measure and delete (ADR 0003)', () => {
         p_performance_id: PERF_ID,
         p_trend_baseline: 70,
       }),
+    );
+  });
+
+  it('flags duration_matched=true when the take runs within ±5% of the video (T13)', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-key';
+    // The synthetic take is exactly 3.0 s; the Data API reports PT3S.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ items: [{ contentDetails: { duration: 'PT3S' } }] }),
+      })),
+    );
+    authAs();
+    const service = makeServiceClient();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(201);
+    expect(service.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ duration_matched: true }),
+      { onConflict: 'performance_id' },
+    );
+  });
+
+  it('flags duration_matched=false on a clear length mismatch (T13)', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-key';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ items: [{ contentDetails: { duration: 'PT30S' } }] }),
+      })),
+    );
+    authAs();
+    const service = makeServiceClient();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(201);
+    expect(service.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ duration_matched: false }),
+      { onConflict: 'performance_id' },
+    );
+  });
+
+  it('stores null when the duration lookup fails even with a key (unknown ≠ mismatch)', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-key';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('net');
+      }),
+    );
+    authAs();
+    const service = makeServiceClient();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(201);
+    expect(service.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ duration_matched: null }),
+      { onConflict: 'performance_id' },
     );
   });
 });

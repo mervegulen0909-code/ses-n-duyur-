@@ -113,9 +113,11 @@
   },
   "Performance": {
     "currentScore": "النتيجة الحالية",
+    "scoreInterval": "±{margin}",
     "trend": "الاتجاه",
     "aiStart": "بداية الذكاء الاصطناعي",
     "measuredBadge": "مقاس فعليًا",
+    "durationMatched": "المدة متطابقة",
     "measuredCaption": "تأتي المعايير المقاسة من التسجيل الذي قدّمه الفنان نفسه — يُحلَّل الصوت ثم يُحذف.",
     "fallbackTitle": "أداء",
     "addedBy": "أضافه <link>{handle}</link>",

@@ -21,6 +21,9 @@ type Service = ReturnType<typeof createSupabaseServiceClient>;
 
 const INVITER = '11111111-2222-3333-4444-555555555555';
 const NEW_USER = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+const GUEST_1 = 'aaaaaaaa-1111-1111-1111-111111111111';
+const GUEST_2 = 'aaaaaaaa-2222-2222-2222-222222222222';
+const GUEST_3 = 'aaaaaaaa-3333-3333-3333-333333333333';
 
 function makeRequest(opts: { code?: string; refCookie?: string } = {}): Request {
   const url = `http://localhost/auth/callback${opts.code ? `?code=${opts.code}` : ''}`;
@@ -38,10 +41,42 @@ function makeSupabase(user: { id: string; created_at: string } | null) {
   } as unknown as ServerClient;
 }
 
-function makeService(conversionCount: number) {
-  const eqRef = vi.fn(async () => ({ count: conversionCount }));
-  const eqEvent = vi.fn(() => ({ eq: eqRef }));
-  const from = vi.fn(() => ({ select: vi.fn(() => ({ eq: eqEvent })) }));
+/**
+ * `conversions` = user ids with an invite_converted event for the ref;
+ * `validated` = user ids holding ≥1 is_valid verified listen. The
+ * verified_listens mock honors the `.in()` ids so the TS intersection
+ * in the route is exercised for real.
+ */
+function makeService(opts: { conversions?: string[]; validated?: string[] } = {}) {
+  const from = vi.fn((table: string) => {
+    if (table === 'analytics_events') {
+      return {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(async () => ({
+              data: (opts.conversions ?? []).map((user_id) => ({ user_id })),
+              error: null,
+            })),
+          })),
+        })),
+      };
+    }
+    if (table === 'verified_listens') {
+      return {
+        select: vi.fn(() => ({
+          in: vi.fn((_col: string, ids: string[]) => ({
+            eq: vi.fn(async () => ({
+              data: (opts.validated ?? [])
+                .filter((id) => ids.includes(id))
+                .map((user_id) => ({ user_id })),
+              error: null,
+            })),
+          })),
+        })),
+      };
+    }
+    throw new Error(`unexpected table ${table}`);
+  });
   return { service: { from } as unknown as Service, from };
 }
 
@@ -61,7 +96,7 @@ describe('GET /auth/callback — referral attribution', () => {
     vi.mocked(createSupabaseServerClient).mockResolvedValue(
       makeSupabase({ id: NEW_USER, created_at: new Date().toISOString() }),
     );
-    const svc = makeService(1);
+    const svc = makeService({ conversions: [NEW_USER] });
     vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
 
     const res = await GET(makeRequest({ code: 'abc', refCookie: INVITER }));
@@ -74,11 +109,14 @@ describe('GET /auth/callback — referral attribution', () => {
     expect(res.headers.get('set-cookie')).toContain('vs_ref=;');
   });
 
-  it('grants the inviter badge at the threshold (3rd conversion)', async () => {
+  it('grants the inviter badge at 3 VALIDATED conversions (each with a valid listen)', async () => {
     vi.mocked(createSupabaseServerClient).mockResolvedValue(
       makeSupabase({ id: NEW_USER, created_at: new Date().toISOString() }),
     );
-    const svc = makeService(3);
+    const svc = makeService({
+      conversions: [GUEST_1, GUEST_2, GUEST_3],
+      validated: [GUEST_1, GUEST_2, GUEST_3],
+    });
     vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
 
     await GET(makeRequest({ code: 'abc', refCookie: INVITER }));
@@ -86,11 +124,42 @@ describe('GET /auth/callback — referral attribution', () => {
     expect(grantBadge).toHaveBeenCalledWith(svc.service, INVITER, 'inviter');
   });
 
+  it('withholds the badge when only 2 of 3 conversions completed a valid listen', async () => {
+    vi.mocked(createSupabaseServerClient).mockResolvedValue(
+      makeSupabase({ id: NEW_USER, created_at: new Date().toISOString() }),
+    );
+    const svc = makeService({
+      conversions: [GUEST_1, GUEST_2, GUEST_3],
+      validated: [GUEST_1, GUEST_2],
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+
+    await GET(makeRequest({ code: 'abc', refCookie: INVITER }));
+
+    expect(grantBadge).not.toHaveBeenCalled();
+  });
+
+  it('counts a converted user once even with several valid listens (distinct users)', async () => {
+    vi.mocked(createSupabaseServerClient).mockResolvedValue(
+      makeSupabase({ id: NEW_USER, created_at: new Date().toISOString() }),
+    );
+    const svc = makeService({
+      conversions: [GUEST_1, GUEST_2, GUEST_3],
+      // GUEST_1 listened valid twice; still only 2 distinct validated users.
+      validated: [GUEST_1, GUEST_1, GUEST_2],
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+
+    await GET(makeRequest({ code: 'abc', refCookie: INVITER }));
+
+    expect(grantBadge).not.toHaveBeenCalled();
+  });
+
   it('ignores a RETURNING login (old account) — no conversion', async () => {
     vi.mocked(createSupabaseServerClient).mockResolvedValue(
       makeSupabase({ id: NEW_USER, created_at: '2026-01-01T00:00:00Z' }),
     );
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService(0).service);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().service);
 
     await GET(makeRequest({ code: 'abc', refCookie: INVITER }));
 
@@ -101,7 +170,7 @@ describe('GET /auth/callback — referral attribution', () => {
     vi.mocked(createSupabaseServerClient).mockResolvedValue(
       makeSupabase({ id: NEW_USER, created_at: new Date().toISOString() }),
     );
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService(0).service);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().service);
 
     await GET(makeRequest({ code: 'abc', refCookie: NEW_USER })); // self
     await GET(makeRequest({ code: 'abc', refCookie: 'not-a-uuid' }));

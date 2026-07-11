@@ -113,9 +113,11 @@
   },
   "Performance": {
     "currentScore": "Current score",
+    "scoreInterval": "±{margin}",
     "trend": "trend",
     "aiStart": "AI start",
     "measuredBadge": "Measured",
+    "durationMatched": "Duration-matched",
     "measuredCaption": "Measured criteria come from the artist's own submitted recording â the audio is analyzed, then deleted.",
     "fallbackTitle": "Performance",
     "addedBy": "Added by <link>{handle}</link>",

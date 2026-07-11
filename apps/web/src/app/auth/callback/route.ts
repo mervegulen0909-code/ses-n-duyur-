@@ -41,13 +41,28 @@ async function attributeReferral(request: Request, userId: string, createdAt?: s
 
     await trackServer(service, 'invite_converted', userId, { ref });
 
-    // Badge at N conversions — count is server-derived, never client-supplied.
-    const { count } = await service
+    // Badge at N conversions — but only conversions that became REAL users:
+    // the invited account must hold ≥1 VALID verified listen, so a farm of
+    // sign-up-only accounts can't earn the badge (A4). Both queries are
+    // server-derived, never client-supplied.
+    const { data: conversions } = await service
       .from('analytics_events')
-      .select('id', { count: 'exact', head: true })
+      .select('user_id')
       .eq('event', 'invite_converted')
       .eq('meta->>ref', ref);
-    if ((count ?? 0) >= INVITER_BADGE_THRESHOLD) {
+    const convertedIds = [
+      ...new Set((conversions ?? []).flatMap((c) => (c.user_id ? [c.user_id] : []))),
+    ];
+    // Validated ⊆ converted, so below-threshold conversions can never qualify.
+    if (convertedIds.length < INVITER_BADGE_THRESHOLD) return;
+
+    const { data: listens } = await service
+      .from('verified_listens')
+      .select('user_id')
+      .in('user_id', convertedIds)
+      .eq('is_valid', true);
+    const validated = new Set((listens ?? []).map((l) => l.user_id));
+    if (validated.size >= INVITER_BADGE_THRESHOLD) {
       await grantBadge(service, ref, 'inviter');
     }
   } catch {

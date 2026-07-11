@@ -5,6 +5,7 @@ import {
   measureWav,
   pitchControlScore,
   recordingQualityScore,
+  spectralBalanceScore,
   timingSteadinessScore,
   vibratoControlScore,
 } from './measure';
@@ -40,6 +41,14 @@ describe('score mappings (documented monotonic proxies)', () => {
     expect(recordingQualityScore(0, 1)).toBe(0); // bottom clamp
   });
 
+  it('spectralBalance: peaks at the 2.2 kHz presence region, falls off linearly (T12)', () => {
+    expect(spectralBalanceScore(2200)).toBe(100);
+    expect(spectralBalanceScore(1100)).toBe(50);
+    expect(spectralBalanceScore(3300)).toBe(50);
+    expect(spectralBalanceScore(4400)).toBe(0);
+    expect(spectralBalanceScore(6600)).toBe(0); // clamped past one span
+  });
+
   it('measureScores composes the four mappings', () => {
     const features: VocalFeatures = {
       durationS: 30,
@@ -52,12 +61,14 @@ describe('score mappings (documented monotonic proxies)', () => {
       clippingRate: 0,
       onsetRegularity: 0.9,
       onsetCount: 12,
+      spectralCentroidHz: 2200,
     };
     expect(measureScores(features)).toEqual({
       pitchControl: 90,
       timingSteadiness: 90,
       vibratoControl: 100,
       recordingQuality: 100,
+      spectralBalance: 100,
     });
   });
 
@@ -67,6 +78,7 @@ describe('score mappings (documented monotonic proxies)', () => {
       'rhythmTiming',
       'technicalSkill',
       'recordingQuality',
+      'toneQuality',
     ]);
   });
 });
