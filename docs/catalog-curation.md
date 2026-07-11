@@ -37,6 +37,14 @@ performances descending — never hand-order slots.
 4. Seed: `SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... pnpm seed:launch-catalog`
    — idempotent; re-running only inserts videos not already in the league.
    **Production seeding requires explicit user consent every time.**
+5. **Re-score with the real provider.** The seed script can only produce
+   MOCK scores (metadata-hash noise — the env-gated OpenAI/Anthropic
+   factories live in the web app, not in `@voxscore/core`), which is honest
+   but meaningless for ranking. As an admin, call
+   `POST /api/admin/rescore` (body `{"limit": 5}`) repeatedly until
+   `remaining: 0` — it runs the deployed app's real provider against the
+   same metadata and recomputes blends via the votes RPC. It refuses to
+   overwrite anything if the real provider isn't configured.
 
 ### Library health pass (periodic)
 
