@@ -31,7 +31,12 @@ export async function NavAuth() {
       >
         {t('addPerformance')}
       </Link>
-      <span className="hidden text-sm text-neutral-400 sm:inline">{profile.handle}</span>
+      <Link
+        href={`/profile/${encodeURIComponent(profile.handle)}`}
+        className="hidden text-sm text-neutral-400 hover:text-neutral-200 sm:inline"
+      >
+        {profile.handle}
+      </Link>
       <SignOutButton />
     </div>
   );
