@@ -4,5 +4,5 @@
  * back to the current production alias. No trailing slash.
  */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://web-seven-coral-88.vercel.app'
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://voxscore.app'
 ).replace(/\/$/, '');

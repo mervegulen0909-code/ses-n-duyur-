@@ -5,4 +5,4 @@
  * EXPO_PUBLIC_API_BASE_URL (local/staging).
  */
 export const WEB_BASE =
-  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://web-seven-coral-88.vercel.app';
+  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://voxscore.app';
