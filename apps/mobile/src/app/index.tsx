@@ -1,5 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -37,6 +38,7 @@ function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): ScoreRel 
 
 export default function LeaderboardScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useSession();
   const [items, setItems] = useState<Item[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -71,7 +73,7 @@ export default function LeaderboardScreen() {
       const score = scoreRowOf(p.scores);
       return {
         id: p.id,
-        title: meta.title ?? 'Untitled',
+        title: meta.title ?? t('Common.untitled'),
         artist: meta.authorName ?? '',
         score: score?.current_score ?? null,
         // Column is NOT NULL default true; absent score → treat as provisional.
@@ -116,50 +118,52 @@ export default function LeaderboardScreen() {
           </Text>
           <View style={styles.navRow}>
             <Pressable onPress={() => router.push('/battle')} hitSlop={8}>
-              <Text style={styles.authLink}>Battle</Text>
+              <Text style={styles.authLink}>{t('Common.battle')}</Text>
             </Pressable>
             {/* Design prototype (simulated recording/scoring) — dev/preview only.
                 Hidden in production/store builds so users never see the mock as
                 if it were a real voice-recording feature. */}
             {__DEV__ && (
               <Pressable onPress={() => router.push('/voxscore-demo')} hitSlop={8}>
-                <Text style={styles.authLink}>Demo</Text>
+                <Text style={styles.authLink}>{t('Common.demo')}</Text>
               </Pressable>
             )}
             {user ? (
               <>
                 <Pressable onPress={() => router.push('/add')} hitSlop={8}>
-                  <Text style={styles.authLink}>+ Add</Text>
+                  <Text style={styles.authLink}>{t('Leaderboard.addLink')}</Text>
                 </Pressable>
                 <Pressable onPress={() => router.push('/profile')} hitSlop={8}>
-                  <Text style={styles.authLink}>Profile</Text>
+                  <Text style={styles.authLink}>{t('Leaderboard.profile')}</Text>
                 </Pressable>
               </>
             ) : (
               <Pressable onPress={() => router.push('/login')} hitSlop={8}>
-                <Text style={styles.authLink}>Sign in</Text>
+                <Text style={styles.authLink}>{t('Common.signIn')}</Text>
               </Pressable>
             )}
           </View>
         </View>
         <Text style={styles.sub}>
           {user
-            ? (user.email ?? 'Signed in')
-            : `Leaderboard · AI-scored on ${CRITERIA.length} criteria`}
+            ? (user.email ?? t('Profile.signedIn'))
+            : t('Leaderboard.signedOutSub', { count: CRITERIA.length })}
         </Text>
         <Pressable onPress={() => router.push('/standings')} hitSlop={8}>
-          <Text style={styles.standingsLink}>Battle standings →</Text>
+          <Text style={styles.standingsLink}>{t('Leaderboard.battleStandingsLink')}</Text>
         </Pressable>
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
-      {state === 'error' && <Text style={styles.error}>Could not load: {error}</Text>}
+      {state === 'error' && (
+        <Text style={styles.error}>{t('Common.loadError', { error })}</Text>
+      )}
       {state === 'ready' && (
         <FlatList
           data={items}
           keyExtractor={(i) => i.id}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={<Text style={styles.empty}>No performances yet.</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>{t('Leaderboard.empty')}</Text>}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#22D3EE" />
           }
@@ -181,7 +185,7 @@ export default function LeaderboardScreen() {
                   </Text>
                 )}
                 {item.isProvisional && (
-                  <Text style={styles.provisional}>Provisional AI Estimate</Text>
+                  <Text style={styles.provisional}>{t('Common.provisionalBadge')}</Text>
                 )}
               </View>
               <Text style={styles.score}>{item.score != null ? item.score.toFixed(1) : '—'}</Text>

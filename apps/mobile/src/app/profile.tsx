@@ -1,5 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { LegalLinks } from '@/components/legal-links';
 import { deleteAccount } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
@@ -41,6 +43,7 @@ function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): ScoreRel 
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user, loading: sessionLoading } = useSession();
   // Key data-loading on the STABLE id string, not the `user` object identity:
   // Supabase mints a fresh user object on every token refresh, which would
@@ -65,39 +68,31 @@ export default function ProfileScreen() {
     } else {
       const msg =
         res.status === 401
-          ? 'Your session expired — please sign in again and retry.'
-          : (res.error ?? 'Could not delete your account. Please try again.');
-      Alert.alert('Deletion failed', msg);
+          ? t('Profile.sessionExpired')
+          : (res.error ?? t('Profile.deleteGenericError'));
+      Alert.alert(t('Profile.deletionFailedTitle'), msg);
     }
-  }, [router]);
+  }, [router, t]);
 
   // Store-required (Apple 5.1.1(v) / Google Play): in-app account deletion.
   // Genuinely two-step destructive confirm — this permanently cascades ALL of
   // the user's data server-side, so we gate it behind two deliberate taps.
   const onDeleteAccount = useCallback(() => {
     // Step 1 — explain what is erased and that it is irreversible.
-    Alert.alert(
-      'Delete account',
-      'This permanently deletes your account and all your performances, scores, votes, and listen history. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Continue',
-          style: 'destructive',
-          // Step 2 — final confirmation immediately before the destructive call.
-          onPress: () =>
-            Alert.alert(
-              'Are you sure?',
-              'This is your last chance to cancel. Your account will be permanently deleted.',
-              [
-                { text: 'Keep my account', style: 'cancel' },
-                { text: 'Delete forever', style: 'destructive', onPress: () => void runDelete() },
-              ],
-            ),
-        },
-      ],
-    );
-  }, [runDelete]);
+    Alert.alert(t('Profile.deleteConfirmTitle'), t('Profile.deleteConfirmBody'), [
+      { text: t('Profile.cancel'), style: 'cancel' },
+      {
+        text: t('Profile.continueBtn'),
+        style: 'destructive',
+        // Step 2 — final confirmation immediately before the destructive call.
+        onPress: () =>
+          Alert.alert(t('Profile.deleteFinalTitle'), t('Profile.deleteFinalBody'), [
+            { text: t('Profile.keepAccount'), style: 'cancel' },
+            { text: t('Profile.deleteForever'), style: 'destructive', onPress: () => void runDelete() },
+          ]),
+      },
+    ]);
+  }, [runDelete, t]);
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -136,7 +131,7 @@ export default function ProfileScreen() {
         const score = scoreRowOf(p.scores);
         return {
           id: p.id,
-          title: meta.title ?? 'Untitled',
+          title: meta.title ?? t('Common.untitled'),
           status: p.status,
           score: score?.current_score ?? null,
           // Column is NOT NULL default true; absent score → treat as provisional.
@@ -145,7 +140,7 @@ export default function ProfileScreen() {
       }),
     );
     setState('ready');
-  }, [userId]);
+  }, [userId, t]);
 
   // Refetch on focus so "Your performances" reflects anything added since the
   // last visit (not just the first mount).
@@ -177,17 +172,17 @@ export default function ProfileScreen() {
       <SafeAreaView style={styles.safe} edges={['top']}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Text style={styles.backText}>‹ Back</Text>
+            <Text style={styles.backText}>{t('Common.back')}</Text>
           </Pressable>
         </View>
         <View style={styles.signedOut}>
-          <Text style={styles.signedOutTitle}>You’re not signed in</Text>
-          <Text style={styles.signedOutSub}>Sign in to see your profile and performances.</Text>
+          <Text style={styles.signedOutTitle}>{t('Profile.notSignedInTitle')}</Text>
+          <Text style={styles.signedOutSub}>{t('Profile.notSignedInSub')}</Text>
           <Pressable
             style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
             onPress={() => router.push('/login')}
           >
-            <Text style={styles.buttonText}>Sign in</Text>
+            <Text style={styles.buttonText}>{t('Common.signIn')}</Text>
           </Pressable>
           <LegalLinks />
         </View>
@@ -201,33 +196,38 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Text style={styles.backText}>‹ Back</Text>
+            <Text style={styles.backText}>{t('Common.back')}</Text>
           </Pressable>
-          <Pressable onPress={() => supabase.auth.signOut()} hitSlop={8}>
-            <Text style={styles.authLink}>Sign out</Text>
-          </Pressable>
+          <View style={styles.headerActions}>
+            <LanguageSwitcher />
+            <Pressable onPress={() => supabase.auth.signOut()} hitSlop={8}>
+              <Text style={styles.authLink}>{t('Common.signOut')}</Text>
+            </Pressable>
+          </View>
         </View>
 
         <Text style={styles.handle} numberOfLines={1}>
-          {profile ? `@${profile.handle}` : (user?.email ?? 'Your profile')}
+          {profile ? `@${profile.handle}` : (user?.email ?? t('Profile.yourProfile'))}
         </Text>
         <View style={styles.repRow}>
           <Text style={styles.repValue}>{profile?.reputation ?? 0}</Text>
-          <Text style={styles.repLabel}>reputation</Text>
+          <Text style={styles.repLabel}>{t('Profile.reputation')}</Text>
         </View>
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
-      {state === 'error' && <Text style={styles.error}>Could not load: {error}</Text>}
+      {state === 'error' && (
+        <Text style={styles.error}>{t('Common.loadError', { error })}</Text>
+      )}
       {state === 'ready' && (
         <FlatList
           data={items}
           keyExtractor={(i) => i.id}
           contentContainerStyle={styles.list}
-          ListHeaderComponent={<Text style={styles.sectionLabel}>Your performances</Text>}
-          ListEmptyComponent={
-            <Text style={styles.empty}>You haven’t added any performances yet.</Text>
+          ListHeaderComponent={
+            <Text style={styles.sectionLabel}>{t('Profile.yourPerformances')}</Text>
           }
+          ListEmptyComponent={<Text style={styles.empty}>{t('Profile.empty')}</Text>}
           ListFooterComponent={
             <>
               <Pressable
@@ -243,7 +243,7 @@ export default function ProfileScreen() {
                 {deleting ? (
                   <ActivityIndicator color="#fb7185" />
                 ) : (
-                  <Text style={styles.deleteButtonText}>Delete account</Text>
+                  <Text style={styles.deleteButtonText}>{t('Profile.deleteAccount')}</Text>
                 )}
               </Pressable>
               <LegalLinks />
@@ -269,7 +269,7 @@ export default function ProfileScreen() {
                   </Text>
                 )}
                 {item.isProvisional && (
-                  <Text style={styles.provisional}>Provisional AI Estimate</Text>
+                  <Text style={styles.provisional}>{t('Common.provisionalBadge')}</Text>
                 )}
               </View>
               <Text style={styles.score}>{item.score != null ? item.score.toFixed(1) : '—'}</Text>
@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0a0a0a' },
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   backText: { color: '#22D3EE', fontSize: 16, fontWeight: '600' },
   authLink: { color: '#22D3EE', fontSize: 15, fontWeight: '600' },
   handle: { marginTop: 12, fontSize: 26, fontWeight: '800', color: '#fafafa' },

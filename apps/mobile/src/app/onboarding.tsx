@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Animated,
   FlatList,
@@ -27,46 +28,50 @@ type Slide = {
   body: string;
 };
 
-const SLIDES: Slide[] = [
-  {
-    key: 'hero',
-    kind: 'hero',
-    image: require('../../assets/brand/voxscore-hero.png'),
-    title: 'Know Your Voice.\nElevate Every Note.',
-    body: 'AI-powered vocal performance scoring, ranking and battles — for singers who want to get better.',
-  },
-  {
-    key: 'add',
-    kind: 'art',
-    image: require('../../assets/brand/slide-add.png'),
-    eyebrow: 'ADD A PERFORMANCE',
-    title: 'Share your voice\nin seconds',
-    body: 'Paste a YouTube link to any vocal performance. We embed it — never download or host the audio.',
-  },
-  {
-    key: 'score',
-    kind: 'score',
-    image: require('../../assets/brand/slide-score.png'),
-    eyebrow: 'AI SCORING',
-    title: 'Get scored on\n9 vocal criteria',
-    body: 'Pitch, tone, emotion, control and more — shown as a Provisional AI Estimate, calibrated by experts.',
-  },
-  {
-    key: 'battle',
-    kind: 'art',
-    image: require('../../assets/brand/slide-battle.png'),
-    eyebrow: 'COMPETE',
-    title: 'Battle & climb\nthe global league',
-    body: 'Go head-to-head, earn votes from verified listeners, and rise up the worldwide leaderboard.',
-  },
-];
+function useSlides(t: (key: string) => string): Slide[] {
+  return [
+    {
+      key: 'hero',
+      kind: 'hero',
+      image: require('../../assets/brand/voxscore-hero.png'),
+      title: t('Onboarding.slide1Title'),
+      body: t('Onboarding.slide1Body'),
+    },
+    {
+      key: 'add',
+      kind: 'art',
+      image: require('../../assets/brand/slide-add.png'),
+      eyebrow: t('Onboarding.slide2Eyebrow'),
+      title: t('Onboarding.slide2Title'),
+      body: t('Onboarding.slide2Body'),
+    },
+    {
+      key: 'score',
+      kind: 'score',
+      image: require('../../assets/brand/slide-score.png'),
+      eyebrow: t('Onboarding.slide3Eyebrow'),
+      title: t('Onboarding.slide3Title'),
+      body: t('Onboarding.slide3Body'),
+    },
+    {
+      key: 'battle',
+      kind: 'art',
+      image: require('../../assets/brand/slide-battle.png'),
+      eyebrow: t('Onboarding.slide4Eyebrow'),
+      title: t('Onboarding.slide4Title'),
+      body: t('Onboarding.slide4Body'),
+    },
+  ];
+}
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const scrollX = useRef(new Animated.Value(0)).current;
   const listRef = useRef<FlatList<Slide>>(null);
   const [index, setIndex] = useState(0);
+  const SLIDES = useSlides(t);
   const isLast = index === SLIDES.length - 1;
 
   const finish = async () => {
@@ -88,7 +93,7 @@ export default function OnboardingScreen() {
 
       <View style={styles.topBar}>
         <Pressable onPress={() => void finish()} hitSlop={12}>
-          <Text style={styles.skip}>{isLast ? '' : 'Skip'}</Text>
+          <Text style={styles.skip}>{isLast ? '' : t('Onboarding.skip')}</Text>
         </Pressable>
       </View>
 
@@ -118,7 +123,7 @@ export default function OnboardingScreen() {
                   {item.kind === 'score' && (
                     <View style={styles.scoreOverlay} pointerEvents="none">
                       <Text style={styles.scoreNum}>86</Text>
-                      <Text style={styles.scoreLabel}>AI SCORE</Text>
+                      <Text style={styles.scoreLabel}>{t('Onboarding.scoreLabel')}</Text>
                     </View>
                   )}
                 </View>
@@ -132,7 +137,7 @@ export default function OnboardingScreen() {
               {item.kind === 'score' && (
                 <View style={styles.chip}>
                   <View style={styles.chipDot} />
-                  <Text style={styles.chipText}>Provisional AI Estimate</Text>
+                  <Text style={styles.chipText}>{t('Common.provisionalBadge')}</Text>
                 </View>
               )}
             </View>
@@ -165,7 +170,9 @@ export default function OnboardingScreen() {
             imageStyle={styles.ctaImage}
             resizeMode="cover"
           >
-            <Text style={styles.ctaText}>{isLast ? 'Get Started' : 'Continue'}</Text>
+            <Text style={styles.ctaText}>
+              {isLast ? t('Onboarding.getStarted') : t('Onboarding.continue')}
+            </Text>
           </ImageBackground>
         </Pressable>
       </View>

@@ -1,4 +1,5 @@
 import { openBrowserAsync } from 'expo-web-browser';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { LEGAL_LINKS } from '@/lib/links';
@@ -11,19 +12,20 @@ import { LEGAL_LINKS } from '@/lib/links';
  * typed-route `Href` constraint for external URLs.
  */
 export function LegalLinks() {
+  const { t } = useTranslation();
   return (
     <View style={styles.wrap}>
-      <Text style={styles.label}>Legal</Text>
+      <Text style={styles.label}>{t('Legal.label')}</Text>
       {LEGAL_LINKS.map((link) => (
         <Pressable
           key={link.url}
           accessibilityRole="link"
-          accessibilityHint={`Opens ${link.label} in the browser`}
+          accessibilityHint={`Opens ${t(link.labelKey)} in the browser`}
           hitSlop={8}
           onPress={() => void openBrowserAsync(link.url)}
           style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
         >
-          <Text style={styles.link}>{link.label}</Text>
+          <Text style={styles.link}>{t(link.labelKey)}</Text>
         </Pressable>
       ))}
     </View>

@@ -2,6 +2,7 @@ import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -21,6 +22,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,7 +65,7 @@ export default function LoginScreen() {
       done();
       return;
     }
-    setNotice('Account created. Check your email to confirm, then sign in.');
+    setNotice(t('Login.signUpNotice'));
     setMode('login');
   }
 
@@ -80,7 +82,7 @@ export default function LoginScreen() {
         options: { redirectTo, skipBrowserRedirect: true },
       });
       if (oauthError) throw oauthError;
-      if (!data?.url) throw new Error('Could not start Google sign-in.');
+      if (!data?.url) throw new Error(t('Login.googleStartError'));
 
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
       if (result.type !== 'success' || !result.url) {
@@ -94,14 +96,14 @@ export default function LoginScreen() {
         typeof queryParams?.error_description === 'string' ? queryParams.error_description : null;
       if (errDesc) throw new Error(errDesc);
       const code = typeof queryParams?.code === 'string' ? queryParams.code : null;
-      if (!code) throw new Error('Google sign-in did not return a code.');
+      if (!code) throw new Error(t('Login.googleNoCodeError'));
 
       const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) throw exchangeError;
       setBusy(false);
       done();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Google sign-in failed.');
+      setError(e instanceof Error ? e.message : t('Login.googleFailError'));
       setBusy(false);
     }
   }
@@ -109,31 +111,33 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-        <Text style={styles.backText}>‹ Back</Text>
+        <Text style={styles.backText}>{t('Common.back')}</Text>
       </Pressable>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.center}
       >
-        <Text style={styles.heading}>{mode === 'login' ? 'Sign in' : 'Create account'}</Text>
+        <Text style={styles.heading}>
+          {mode === 'login' ? t('Login.signIn') : t('Login.createAccount')}
+        </Text>
 
         <Pressable
           style={({ pressed }) => [styles.googleButton, pressed && styles.buttonPressed]}
           onPress={signInWithGoogle}
           disabled={busy}
         >
-          <Text style={styles.googleText}>Continue with Google</Text>
+          <Text style={styles.googleText}>{t('Login.google')}</Text>
         </Pressable>
 
         <View style={styles.dividerRow}>
           <View style={styles.divider} />
-          <Text style={styles.dividerText}>or</Text>
+          <Text style={styles.dividerText}>{t('Login.or')}</Text>
           <View style={styles.divider} />
         </View>
 
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder={t('Login.emailPlaceholder')}
           placeholderTextColor="#6b7280"
           autoCapitalize="none"
           keyboardType="email-address"
@@ -143,7 +147,7 @@ export default function LoginScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder={t('Login.passwordPlaceholder')}
           placeholderTextColor="#6b7280"
           secureTextEntry
           autoCapitalize="none"
@@ -162,7 +166,9 @@ export default function LoginScreen() {
           {busy ? (
             <ActivityIndicator color="#06281d" />
           ) : (
-            <Text style={styles.buttonText}>{mode === 'login' ? 'Sign in' : 'Sign up'}</Text>
+            <Text style={styles.buttonText}>
+              {mode === 'login' ? t('Login.signIn') : t('Login.signUp')}
+            </Text>
           )}
         </Pressable>
 
@@ -175,7 +181,7 @@ export default function LoginScreen() {
           hitSlop={8}
         >
           <Text style={styles.toggle}>
-            {mode === 'login' ? 'Need an account? Sign up' : 'Have an account? Sign in'}
+            {mode === 'login' ? t('Login.needAccount') : t('Login.haveAccount')}
           </Text>
         </Pressable>
       </KeyboardAvoidingView>
