@@ -16,6 +16,10 @@
     {
       "path": "/api/cron/close-battles",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-reputation",
+      "schedule": "30 7 * * *"
     }
   ]
 }

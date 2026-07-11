@@ -6,6 +6,7 @@ import { botGuard, rateLimit } from '@/lib/guard';
 import { trackServer } from '@/lib/analytics-server';
 import { grantBadge } from '@/lib/badges';
 import { notifyServer } from '@/lib/notify';
+import { weightFromReputation } from '@/lib/reputation';
 import { COLUMN } from './overall';
 
 type CriteriaRatingInsert = Database['public']['Tables']['criteria_ratings']['Insert'];
@@ -96,11 +97,21 @@ export async function POST(req: Request): Promise<Response> {
     if (typeof v === 'number') ratingColumns[COLUMN[c]] = v;
   }
 
+  // Voter trust weight (T9): stamped from the nightly-refit reputation so the
+  // RPC's weighted aggregate discounts habitual outliers. Default 0 reads as 1.
+  const { data: voterProfile } = await supabase
+    .from('profiles')
+    .select('reputation')
+    .eq('id', user.id)
+    .maybeSingle();
+  const weight = weightFromReputation(voterProfile?.reputation ?? 0);
+
   // Insert the rating AS THE USER (RLS re-verifies the verified listen).
   const insertPayload = {
     performance_id: parsed.data.performanceId,
     voter_id: user.id,
     verified_listen_id: parsed.data.verifiedListenId,
+    weight,
     ...ratingColumns,
   } as unknown as CriteriaRatingInsert;
   const { error: insertError } = await supabase.from('criteria_ratings').insert(insertPayload);
