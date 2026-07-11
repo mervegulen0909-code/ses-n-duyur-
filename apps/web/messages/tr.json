@@ -117,6 +117,7 @@
     "trend": "eğilim",
     "aiStart": "YZ başlangıç",
     "measuredBadge": "Ölçüldü",
+    "durationMatched": "Süre eşleşti",
     "measuredCaption": "Ölçülen kriterler sanatçının kendi gönderdiği kayıttan gelir — ses analiz edilir, sonra silinir.",
     "fallbackTitle": "Performans",
     "addedBy": "<link>{handle}</link> tarafından eklendi",

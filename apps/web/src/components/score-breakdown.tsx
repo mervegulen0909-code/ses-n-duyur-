@@ -17,6 +17,8 @@ export interface ScoreBreakdownProps {
   verifiedVoteCount: number;
   /** Sample stddev of the per-vote overalls (scores.listener_stddev, RPC v5). */
   listenerStddev?: number | null;
+  /** The measured take ran the same length (±5%) as the linked video (T13). */
+  durationMatched?: boolean | null;
 }
 
 const CONFIDENCE_KEY = {
@@ -69,6 +71,11 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
         <span className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-neutral-800/60 px-2 py-0.5 text-xs font-medium text-neutral-300">
           {t(CONFIDENCE_KEY[confidenceForVotes(props.verifiedVoteCount)])}
         </span>
+        {props.durationMatched && (
+          <span className="inline-flex items-center gap-1 rounded-full border border-sky-800 bg-sky-500/15 px-2 py-0.5 text-xs font-medium text-sky-400">
+            {t('Performance.durationMatched')}
+          </span>
+        )}
       </div>
       {props.verifiedVoteCount > 0 && (
         <p className="mb-4 text-xs text-neutral-500">

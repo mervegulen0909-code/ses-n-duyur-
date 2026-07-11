@@ -117,6 +117,7 @@
     "trend": "tendencia",
     "aiStart": "Inicio con IA",
     "measuredBadge": "Medido",
+    "durationMatched": "Duración coincidente",
     "measuredCaption": "Los criterios medidos provienen de la grabación enviada por el propio artista — el audio se analiza y luego se elimina.",
     "fallbackTitle": "Interpretación",
     "addedBy": "Añadido por <link>{handle}</link>",

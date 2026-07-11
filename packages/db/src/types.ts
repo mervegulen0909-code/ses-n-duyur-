@@ -82,6 +82,7 @@ export interface PublicRows {
     dsp_version: number;
     features: Json;
     measured_breakdown: Json;
+    duration_matched: boolean | null;
     created_at: Timestamp;
     updated_at: Timestamp;
   };

@@ -99,7 +99,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
   // (ADR 0003) — surfaces per-criterion "Measured" badges in the breakdown.
   const { data: measuredRow } = await supabase
     .from('measured_scores')
-    .select('measured_breakdown')
+    .select('measured_breakdown, duration_matched')
     .eq('performance_id', id)
     .maybeSingle();
 
@@ -192,6 +192,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           hasVideo={perf.has_video}
           verifiedVoteCount={score?.verified_vote_count ?? 0}
           listenerStddev={score?.listener_stddev ?? null}
+          durationMatched={measuredRow?.duration_matched ?? null}
         />
         {perf.youtube_video_id && (
           <div className="mt-4">

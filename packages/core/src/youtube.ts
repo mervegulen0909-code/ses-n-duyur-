@@ -123,3 +123,36 @@ export async function fetchCaptionText(videoId: string, lang = 'en'): Promise<st
     return null;
   }
 }
+
+/** ISO-8601 duration (PT#H#M#S) → whole seconds; null when unparseable. */
+export function parseIsoDurationSeconds(iso: string): number | null {
+  const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(iso);
+  if (!match || (!match[1] && !match[2] && !match[3])) return null;
+  return Number(match[1] ?? 0) * 3600 + Number(match[2] ?? 0) * 60 + Number(match[3] ?? 0);
+}
+
+/**
+ * Video duration in seconds via the YouTube Data API videos.list
+ * `contentDetails` part — public METADATA only, never media (Hard Rule 1).
+ * Null when the key is absent or anything fails: callers must treat
+ * "unknown" and "mismatch" differently, so a failure never fakes a match.
+ */
+export async function fetchVideoDurationSeconds(
+  videoId: string,
+  apiKey: string | undefined,
+): Promise<number | null> {
+  if (!apiKey) return null;
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${encodeURIComponent(videoId)}&key=${encodeURIComponent(apiKey)}`,
+    );
+    if (!res.ok) return null;
+    const body = (await res.json()) as {
+      items?: { contentDetails?: { duration?: string } }[];
+    };
+    const duration = body.items?.[0]?.contentDetails?.duration;
+    return typeof duration === 'string' ? parseIsoDurationSeconds(duration) : null;
+  } catch {
+    return null;
+  }
+}

@@ -117,6 +117,7 @@
     "trend": "tendance",
     "aiStart": "Départ IA",
     "measuredBadge": "Mesuré",
+    "durationMatched": "Durée concordante",
     "measuredCaption": "Les critères mesurés proviennent de l'enregistrement soumis par l'artiste lui-même — l'audio est analysé, puis supprimé.",
     "fallbackTitle": "Performance",
     "addedBy": "Ajoutée par <link>{handle}</link>",
