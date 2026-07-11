@@ -91,6 +91,19 @@ describe('POST /api/performance-requests — user request queue', () => {
     expect(res.status).toBe(422);
   });
 
+  it('422 on an invalid category value', async () => {
+    const user = makeUserClient({ data: { id: 'req-1' }, error: null });
+    vi.mocked(getRequestContext).mockResolvedValue({
+      supabase: user.supabase,
+      user: { id: 'u1' },
+    } as unknown as RequestCtx);
+
+    const res = await POST(
+      makeRequest({ youtubeUrl: VALID_BODY.youtubeUrl, category: 'not-a-real-category' }),
+    );
+    expect(res.status).toBe(422);
+  });
+
   it('409 when the video is already an active performance', async () => {
     const user = makeUserClient({ data: { id: 'req-1' }, error: null });
     vi.mocked(getRequestContext).mockResolvedValue({

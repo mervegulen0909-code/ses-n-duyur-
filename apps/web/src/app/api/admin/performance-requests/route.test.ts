@@ -77,7 +77,7 @@ describe('POST /api/admin/performance-requests — approve/reject', () => {
     expect((await POST(makeRequest())).status).toBe(403);
   });
 
-  it('403 when the caller is not an admin', async () => {
+  it('403 when the caller is not an admin (approve)', async () => {
     vi.mocked(getRequestContext).mockResolvedValue(ctxFor('user-1'));
     vi.mocked(getProfileForContext).mockResolvedValue({
       id: 'user-1',
@@ -87,6 +87,19 @@ describe('POST /api/admin/performance-requests — approve/reject', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(403);
     expect(createScoredPerformance).not.toHaveBeenCalled();
+  });
+
+  it('403 when the caller is not an admin (reject)', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(ctxFor('user-1'));
+    vi.mocked(getProfileForContext).mockResolvedValue({
+      id: 'user-1',
+      handle: 'u',
+      role: 'user',
+    });
+    const res = await POST(
+      makeRequest({ requestId: REQUEST_ID, action: 'reject', rejectionReason: 'low quality' }),
+    );
+    expect(res.status).toBe(403);
   });
 
   it('422 on invalid input (missing rejectionReason for reject)', async () => {
