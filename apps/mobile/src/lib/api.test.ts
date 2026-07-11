@@ -9,14 +9,15 @@ vi.mock('./supabase', () => ({
 
 import { supabase } from './supabase';
 import {
-  addPerformance,
   completeListen,
   deleteAccount,
+  myPerformanceRequests,
   nextBattle,
   postComment,
   registerPushToken,
   startListen,
   submitBattleVote,
+  submitPerformanceRequest,
   submitVote,
 } from './api';
 
@@ -59,6 +60,7 @@ describe('mobile api client', () => {
 
     const { opts } = lastFetch();
     expect((opts.headers as Record<string, string>).authorization).toBe('Bearer tok-123');
+    expect((opts.headers as Record<string, string>)['x-voxscore-client']).toBe('mobile-app');
     expect(opts.method).toBe('POST');
     expect((opts.headers as Record<string, string>)['content-type']).toBe('application/json');
   });
@@ -132,12 +134,36 @@ describe('mobile api client', () => {
     });
   });
 
-  it('addPerformance is ok only when the server returns an id', async () => {
-    mockFetchOnce({ id: 'new-perf' });
-    expect(await addPerformance('https://youtu.be/x')).toMatchObject({ ok: true, id: 'new-perf' });
+  it('submitPerformanceRequest is ok only when the server returns an id', async () => {
+    mockFetchOnce({ id: 'req-1' });
+    expect(
+      await submitPerformanceRequest('https://youtu.be/x', 'pop'),
+    ).toMatchObject({ ok: true, id: 'req-1' });
+
+    const { url, opts } = lastFetch();
+    expect(url).toMatch(/\/api\/performance-requests$/);
+    expect(JSON.parse(opts.body as string)).toEqual({
+      youtubeUrl: 'https://youtu.be/x',
+      category: 'pop',
+      note: undefined,
+    });
 
     mockFetchOnce({ error: 'bad url' }, { ok: false, status: 422 });
-    expect(await addPerformance('nope')).toMatchObject({ ok: false, status: 422 });
+    expect(await submitPerformanceRequest('nope', 'pop')).toMatchObject({
+      ok: false,
+      status: 422,
+    });
+  });
+
+  it('myPerformanceRequests GETs the caller-scoped list', async () => {
+    mockFetchOnce({ requests: [{ id: 'req-1', status: 'pending' }] });
+    const res = await myPerformanceRequests();
+
+    expect(res).toMatchObject({ ok: true, status: 200 });
+    expect(res.requests).toEqual([{ id: 'req-1', status: 'pending' }]);
+    const { url, opts } = lastFetch();
+    expect(url).toMatch(/\/api\/performance-requests$/);
+    expect(opts.method).toBe('GET');
   });
 
   it('nextBattle passes through the pairing payload', async () => {

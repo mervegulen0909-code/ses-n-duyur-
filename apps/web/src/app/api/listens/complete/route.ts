@@ -2,6 +2,7 @@ import { listenCompleteSchema, validateListen, MIN_VERIFIED_LISTEN_SECONDS } fro
 import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
+import { trackServer } from '@/lib/analytics-server';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -62,6 +63,12 @@ export async function POST(req: Request): Promise<Response> {
     .eq('id', parsed.data.listenId);
 
   if (error) return Response.json({ error: 'Could not finalize listen' }, { status: 500 });
+
+  if (result.isValid) {
+    await trackServer(service, 'verified_listen_completed', user.id, {
+      performanceId: parsed.data.performanceId,
+    });
+  }
 
   return Response.json({
     isValid: result.isValid,

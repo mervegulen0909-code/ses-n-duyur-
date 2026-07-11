@@ -1,6 +1,7 @@
 import { File } from 'expo-file-system';
 import { fetch as expoFetch } from 'expo/fetch';
 
+import { NATIVE_CLIENT_HEADERS } from './api';
 import { WEB_BASE as API_BASE } from './config';
 import { supabase } from './supabase';
 
@@ -50,6 +51,7 @@ export async function uploadMeasurement(
         method: 'POST',
         headers: {
           'content-type': 'audio/wav',
+          ...NATIVE_CLIENT_HEADERS,
           ...(token ? { authorization: `Bearer ${token}` } : {}),
         },
         body: file,

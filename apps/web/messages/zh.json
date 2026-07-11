@@ -31,7 +31,14 @@
     "heroTitle": "发现谁唱得<hl>最好</hl>。",
     "heroSubtitle": "添加一段 YouTube 表演，获取 AI 初步估分，再让通过验证的听众投票、对战。",
     "supabaseHint": "Supabase 尚未配置。请先启动本地环境（<code>pnpm db:start</code>）并设置 <code>.env.local</code>，然后再添加表演。",
-    "addFirst": "添加第一个 →"
+    "addFirst": "添加第一个 →",
+    "featuredHeading": "本周精选挑战",
+    "ctaChallengeTitle": "发起挑战",
+    "ctaChallengeBody": "选一首歌，邀请好友对战。",
+    "ctaRequestTitle": "提交表演",
+    "ctaRequestBody": "把你的翻唱加入联赛——每个申请都会由管理员审核。",
+    "ctaInviteTitle": "邀请好友",
+    "ctaInviteBody": "分享 VoxScore，一起壮大联赛。"
   },
   "Login": {
     "signIn": "登录",
@@ -51,7 +58,21 @@
     "signInPrompt": "请<link>登录</link>以添加表演。",
     "urlLabel": "YouTube 表演链接",
     "submit": "添加表演",
-    "adding": "添加中…"
+    "adding": "添加中…",
+    "reviewNote": "申请在进入联赛前会由管理员审核。",
+    "categoryLabel": "分类",
+    "notePlaceholder": "给审核员的备注（可选）",
+    "requestSubmit": "提交申请",
+    "requestSubmitting": "提交中…",
+    "requestSuccessTitle": "你的申请正在审核队列中",
+    "requestSuccessBody": "申请编号：{id}。管理员会尽快审核。",
+    "myRequestsHeading": "我的申请",
+    "noRequests": "你还没有提交过申请。",
+    "statusPending": "审核中",
+    "statusApproved": "已通过",
+    "statusRejected": "已拒绝",
+    "rejectionReasonPrefix": "原因：{reason}",
+    "viewPerformance": "查看表演 →"
   },
   "Battle": {
     "subtitle": "两段表演，一位赢家。完整听完两者，再做决定。",
@@ -71,7 +92,13 @@
   "Leaderboard": {
     "subtitle": "按当前得分排序。",
     "battleRecord": "{wins}胜{losses}负 · 对战",
-    "viewStandings": "对战积分榜 →"
+    "viewStandings": "对战积分榜 →",
+    "searchPlaceholder": "按歌曲或艺人搜索",
+    "allCategories": "全部分类",
+    "sortScore": "最高分",
+    "sortBattles": "对战最多",
+    "sortNewest": "最新",
+    "noResults": "没有符合筛选条件的表演。"
   },
   "Standings": {
     "title": "对战积分榜",
@@ -80,6 +107,9 @@
     "winRate": "胜率 {rate}%",
     "empty": "暂无对战记录。前往对战竞技场开始一场吧。",
     "viewScores": "得分排行榜 →"
+  },
+  "Seasons": {
+    "allSeasons": "全部赛季"
   },
   "Performance": {
     "currentScore": "当前得分",
@@ -91,7 +121,17 @@
     "addedBy": "由 <link>{handle}</link> 添加",
     "noVideo": "暂无视频。",
     "signInToVote": "<link>登录</link>并完成验证收听后即可投票。",
-    "signInToComment": "<link>登录</link>后即可评论。"
+    "signInToComment": "<link>登录</link>后即可评论。",
+    "confidenceNone": "仅为 AI 估分",
+    "confidenceEarly": "初期投票",
+    "confidenceCommunity": "社区已确认",
+    "verifiedVotes": "{count, plural, other {# 个已验证投票}}",
+    "shareHeading": "分享",
+    "copyLink": "复制链接",
+    "linkCopied": "已复制！",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X",
+    "challengeCta": "邀请好友参加这场对决"
   },
   "Criteria": {
     "vocalAccuracy": "音准",
@@ -129,7 +169,25 @@
     "performanceCount": "{count, plural, one {# 个表演} other {# 个表演}}",
     "battleRecord": "对战 {wins}胜{losses}负",
     "winRate": "胜率 {rate}%",
-    "noPublic": "暂无公开表演。"
+    "noPublic": "暂无公开表演。",
+    "follow": "关注",
+    "unfollow": "取消关注",
+    "followFailed": "无法更新关注。",
+    "followerCount": "{count} 位粉丝",
+    "followingCount": "关注 {count} 人",
+    "editProfile": "编辑个人资料",
+    "changeAvatar": "更换头像",
+    "uploading": "上传中…",
+    "avatarUploadError": "头像上传失败。",
+    "bioLabel": "简介",
+    "linksLabel": "链接",
+    "linkLabelPlaceholder": "标签",
+    "addLink": "+ 添加链接",
+    "removeLink": "移除",
+    "save": "保存",
+    "saving": "保存中…",
+    "saveError": "个人资料保存失败。",
+    "cancelEdit": "取消"
   },
   "Admin": {
     "accessRequired": "需要管理员权限。",
@@ -154,7 +212,30 @@
     "saving": "保存中…",
     "saveCalibration": "保存校准",
     "calibrationSaved": "校准已保存 ✓",
-    "calibrationFailed": "保存失败"
+    "calibrationFailed": "保存失败",
+    "cardPerformanceRequests": "表演申请",
+    "openPerformanceRequests": "{count, plural, other {# 个待处理申请}}",
+    "performanceRequestsQueue": "表演申请队列",
+    "noOpenPerformanceRequests": "没有待处理的申请。",
+    "approve": "通过",
+    "rejectionReasonPlaceholder": "拒绝原因（必填）",
+    "cardAnalytics": "分析",
+    "analyticsSub": "漏斗、病毒式传播、类别需求",
+    "analyticsHeading": "分析",
+    "funnelHeading": "漏斗",
+    "eventColumn": "事件",
+    "windowDays": "最近 {count} 天",
+    "viralityHeading": "病毒式传播",
+    "inviteRate": "邀请转化率",
+    "inviteRateDetail": "{invites} 次邀请转化 / {shares} 次分享点击",
+    "viralCoefficient": "病毒系数",
+    "viralCoefficientDetail": "{invites} 次邀请注册 / {signups} 次注册",
+    "categoriesHeading": "最受欢迎的申请类别",
+    "noEvents": "该时间段内暂无事件。",
+    "cardAppeals": "申诉",
+    "openAppeals": "{count} 条待处理申诉",
+    "appealsQueue": "申诉队列",
+    "noOpenAppeals": "暂无待处理申诉。"
   },
   "Report": {
     "promptReason": "你举报的原因是？",
@@ -174,6 +255,28 @@
   },
   "Song": {
     "subtitle": "谁唱这首歌最好——按得分排名。",
-    "viewRanking": "看看谁唱《{title}》最好"
+    "viewRanking": "看看谁唱《{title}》最好",
+    "challengeCta": "邀请好友为这首歌对战",
+    "battleThisSong": "为这首歌对战 →"
+  },
+  "Category": {
+    "pop": "流行",
+    "rock": "摇滚",
+    "rnbSoul": "R&B / 灵魂乐",
+    "ballad": "抒情曲",
+    "turkishGlobal": "土耳其语 / 国际",
+    "indieAlternative": "独立 / 另类",
+    "musicalClassical": "音乐剧 / 古典",
+    "other": "其他"
+  },
+  "Appeals": {
+    "appealThis": "对此提出申诉",
+    "reasonPlaceholder": "为什么应该撤销这个决定？",
+    "submit": "提交申诉",
+    "submitting": "提交中…",
+    "submitted": "申诉已提交——管理员将进行审核。",
+    "cancel": "取消",
+    "genericError": "申诉提交失败。",
+    "hiddenBanner": "此表演已被管理员隐藏。你可以对此决定提出申诉。"
   }
 }

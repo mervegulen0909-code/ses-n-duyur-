@@ -31,7 +31,14 @@
     "heroTitle": "Discover who sings a song <hl>best</hl>.",
     "heroSubtitle": "Add a YouTube performance, get a Provisional AI Estimate, then let verified listeners vote and battle.",
     "supabaseHint": "Supabase is not configured yet. Start the local stack (<code>pnpm db:start</code>) and set <code>.env.local</code>, then add a performance.",
-    "addFirst": "Add the first one →"
+    "addFirst": "Add the first one →",
+    "featuredHeading": "Featured challenge",
+    "ctaChallengeTitle": "Start a challenge",
+    "ctaChallengeBody": "Pick a song and invite friends to battle.",
+    "ctaRequestTitle": "Submit a performance",
+    "ctaRequestBody": "Add your cover to the league — admins review every request.",
+    "ctaInviteTitle": "Invite a friend",
+    "ctaInviteBody": "Share VoxScore and grow the league."
   },
   "Login": {
     "signIn": "Sign in",
@@ -51,7 +58,21 @@
     "signInPrompt": "Please <link>sign in</link> to add a performance.",
     "urlLabel": "YouTube performance URL",
     "submit": "Add performance",
-    "adding": "Adding…"
+    "adding": "Adding…",
+    "reviewNote": "Requests are reviewed by an admin before they appear in the league.",
+    "categoryLabel": "Category",
+    "notePlaceholder": "Note for the reviewer (optional)",
+    "requestSubmit": "Submit request",
+    "requestSubmitting": "Submitting…",
+    "requestSuccessTitle": "Your request is in the review queue",
+    "requestSuccessBody": "Request ID: {id}. An admin will review it soon.",
+    "myRequestsHeading": "My requests",
+    "noRequests": "You haven't submitted any requests yet.",
+    "statusPending": "Pending review",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "rejectionReasonPrefix": "Reason: {reason}",
+    "viewPerformance": "View performance →"
   },
   "Battle": {
     "subtitle": "Two performances, one winner. Listen to both fully, then decide.",
@@ -71,7 +92,13 @@
   "Leaderboard": {
     "subtitle": "Ranked by current score.",
     "battleRecord": "{wins}–{losses} · battles",
-    "viewStandings": "Battle standings →"
+    "viewStandings": "Battle standings →",
+    "searchPlaceholder": "Search by song or artist",
+    "allCategories": "All categories",
+    "sortScore": "Top score",
+    "sortBattles": "Most battles",
+    "sortNewest": "Newest",
+    "noResults": "No performances match your filters."
   },
   "Standings": {
     "title": "Battle standings",
@@ -80,6 +107,9 @@
     "winRate": "{rate}% wins",
     "empty": "No battles yet. Open the Battle arena to start one.",
     "viewScores": "Score leaderboard →"
+  },
+  "Seasons": {
+    "allSeasons": "All seasons"
   },
   "Performance": {
     "currentScore": "Current score",
@@ -91,7 +121,17 @@
     "addedBy": "Added by <link>{handle}</link>",
     "noVideo": "No video.",
     "signInToVote": "<link>Sign in</link> and complete a Verified Listen to vote.",
-    "signInToComment": "<link>Sign in</link> to comment."
+    "signInToComment": "<link>Sign in</link> to comment.",
+    "confidenceNone": "AI estimate only",
+    "confidenceEarly": "Early votes",
+    "confidenceCommunity": "Community confirmed",
+    "verifiedVotes": "{count, plural, one {# verified vote} other {# verified votes}}",
+    "shareHeading": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Copied!",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X",
+    "challengeCta": "Challenge a friend to this duel"
   },
   "Criteria": {
     "vocalAccuracy": "Vocal accuracy",
@@ -129,7 +169,25 @@
     "performanceCount": "{count, plural, one {# performance} other {# performances}}",
     "battleRecord": "{wins}–{losses} in battles",
     "winRate": "{rate}% win rate",
-    "noPublic": "No public performances yet."
+    "noPublic": "No public performances yet.",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "followFailed": "Could not update follow.",
+    "followerCount": "{count, plural, one {# follower} other {# followers}}",
+    "followingCount": "{count} following",
+    "editProfile": "Edit profile",
+    "changeAvatar": "Change avatar",
+    "uploading": "Uploading…",
+    "avatarUploadError": "Could not upload avatar.",
+    "bioLabel": "Bio",
+    "linksLabel": "Links",
+    "linkLabelPlaceholder": "Label",
+    "addLink": "+ Add link",
+    "removeLink": "Remove",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveError": "Could not save profile.",
+    "cancelEdit": "Cancel"
   },
   "Admin": {
     "accessRequired": "Admin access required.",
@@ -154,7 +212,30 @@
     "saving": "Saving…",
     "saveCalibration": "Save calibration",
     "calibrationSaved": "Calibration saved ✓",
-    "calibrationFailed": "Failed to save"
+    "calibrationFailed": "Failed to save",
+    "cardPerformanceRequests": "Performance requests",
+    "openPerformanceRequests": "{count, plural, one {# pending request} other {# pending requests}}",
+    "performanceRequestsQueue": "Performance request queue",
+    "noOpenPerformanceRequests": "No pending requests.",
+    "approve": "Approve",
+    "rejectionReasonPlaceholder": "Reason for rejection (required)",
+    "cardAnalytics": "Analytics",
+    "analyticsSub": "Funnel, virality, category demand",
+    "analyticsHeading": "Analytics",
+    "funnelHeading": "Funnel",
+    "eventColumn": "Event",
+    "windowDays": "{count, plural, one {Last # day} other {Last # days}}",
+    "viralityHeading": "Virality",
+    "inviteRate": "Invite conversion rate",
+    "inviteRateDetail": "{invites} invites converted / {shares} share clicks",
+    "viralCoefficient": "Viral coefficient",
+    "viralCoefficientDetail": "{invites} ref signups / {signups} signups",
+    "categoriesHeading": "Top requested categories",
+    "noEvents": "No events in this window yet.",
+    "cardAppeals": "Appeals",
+    "openAppeals": "{count, plural, one {# open appeal} other {# open appeals}}",
+    "appealsQueue": "Appeals queue",
+    "noOpenAppeals": "No open appeals."
   },
   "Report": {
     "promptReason": "Why are you reporting this?",
@@ -174,6 +255,28 @@
   },
   "Song": {
     "subtitle": "Who sings this song best — ranked by score.",
-    "viewRanking": "See who sings “{title}” best"
+    "viewRanking": "See who sings “{title}” best",
+    "challengeCta": "Invite a friend to battle over this song",
+    "battleThisSong": "Battle this song →"
+  },
+  "Category": {
+    "pop": "Pop",
+    "rock": "Rock",
+    "rnbSoul": "R&B / Soul",
+    "ballad": "Ballad",
+    "turkishGlobal": "Turkish / Global",
+    "indieAlternative": "Indie / Alternative",
+    "musicalClassical": "Musical / Classical",
+    "other": "Other"
+  },
+  "Appeals": {
+    "appealThis": "Appeal this",
+    "reasonPlaceholder": "Why should this decision be reversed?",
+    "submit": "Submit appeal",
+    "submitting": "Submitting…",
+    "submitted": "Appeal submitted — an admin will review it.",
+    "cancel": "Cancel",
+    "genericError": "Could not submit appeal.",
+    "hiddenBanner": "This performance was hidden by a moderator. You can appeal this decision."
   }
 }

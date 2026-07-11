@@ -4,10 +4,13 @@ import { getTranslations } from 'next-intl/server';
 import { wilsonLowerBound } from '@voxscore/scoring';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
+import { ShareButtons } from '@/components/share-buttons';
+import { ChallengeSection } from '@/components/challenge-section';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { rankByScore, type LeaderboardRow } from '@/lib/leaderboard';
 import { RankBadge } from '@/components/rank-badge';
 import { TrendTag } from '@/components/trend-tag';
+import { getCurrentUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,9 +23,17 @@ function titleOf(meta: unknown): string {
  * Per-song ranking — the product's core promise: "who sings THIS song best".
  * Same ranking math as the global leaderboard, scoped to one song_id.
  */
-export default async function SongPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SongPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ challenge?: string }>;
+}) {
   const { id } = await params;
+  const { challenge } = await searchParams;
   const t = await getTranslations();
+  const user = await getCurrentUser();
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return (
@@ -81,7 +92,25 @@ export default async function SongPage({ params }: { params: Promise<{ id: strin
           {t('Nav.leaderboard')}
         </Link>
       </div>
-      <p className="mb-6 text-sm text-neutral-400">{t('Song.subtitle')}</p>
+      <p className="mb-2 text-sm text-neutral-400">{t('Song.subtitle')}</p>
+
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <Link
+          href={`/song/${id}?challenge=1`}
+          className="text-sm font-medium text-emerald-400 hover:underline"
+        >
+          {t('Song.battleThisSong')}
+        </Link>
+      </div>
+
+      {challenge === '1' && (
+        <div className="mb-8">
+          <ChallengeSection songId={id} isSignedIn={!!user} />
+          <div className="mt-3">
+            <ShareButtons url={`/song/${id}?challenge=1`} title={t('Song.challengeCta')} />
+          </div>
+        </div>
+      )}
 
       {ranked.length === 0 ? (
         <p className="text-neutral-400">{t('Common.noPerformances')}</p>

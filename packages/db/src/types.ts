@@ -20,6 +20,9 @@ export interface PublicRows {
     handle: string;
     role: 'user' | 'admin';
     reputation: number;
+    bio: string | null;
+    avatar_url: string | null;
+    links: Json | null;
     created_at: Timestamp;
   };
   songs: {
@@ -27,6 +30,17 @@ export interface PublicRows {
     title: string;
     artist: string | null;
     normalized_key: string | null;
+    category:
+      | 'pop'
+      | 'rock'
+      | 'rnb-soul'
+      | 'ballad'
+      | 'turkish-global'
+      | 'indie-alternative'
+      | 'musical-classical'
+      | 'other'
+      | null;
+    difficulty: 'easy' | 'medium' | 'hard' | null;
     created_at: Timestamp;
   };
   performances: {
@@ -55,6 +69,9 @@ export interface PublicRows {
     current_score: number | null;
     trend_score: number | null;
     verified_vote_count: number;
+    ai_provider: 'anthropic' | 'openai' | 'mock' | null;
+    ai_model: string | null;
+    season_id: Uuid | null;
     updated_at: Timestamp;
   };
   measured_scores: {
@@ -99,6 +116,7 @@ export interface PublicRows {
     perf_a: Uuid;
     perf_b: Uuid;
     status: 'open' | 'closed';
+    season_id: Uuid | null;
     created_at: Timestamp;
   };
   battle_votes: {
@@ -158,6 +176,114 @@ export interface PublicRows {
     meta: Json | null;
     created_at: Timestamp;
   };
+  performance_requests: {
+    id: Uuid;
+    user_id: Uuid;
+    youtube_video_id: string;
+    youtube_url: string;
+    category:
+      | 'pop'
+      | 'rock'
+      | 'rnb-soul'
+      | 'ballad'
+      | 'turkish-global'
+      | 'indie-alternative'
+      | 'musical-classical'
+      | 'other';
+    note: string | null;
+    status: 'pending' | 'approved' | 'rejected';
+    reviewer_id: Uuid | null;
+    reviewed_at: Timestamp | null;
+    rejection_reason: string | null;
+    approved_performance_id: Uuid | null;
+    created_at: Timestamp;
+  };
+  featured_challenges: {
+    id: Uuid;
+    song_id: Uuid;
+    title: string;
+    starts_at: Timestamp;
+    ends_at: Timestamp | null;
+    created_at: Timestamp;
+  };
+  follows: {
+    follower_id: Uuid;
+    followee_id: Uuid;
+    created_at: Timestamp;
+  };
+  appeals: {
+    id: Uuid;
+    user_id: Uuid;
+    target_type: 'performance' | 'comment' | 'performance_request';
+    target_id: Uuid;
+    reason: string;
+    status: 'pending' | 'upheld' | 'denied';
+    reviewer_id: Uuid | null;
+    reviewed_at: Timestamp | null;
+    resolution_note: string | null;
+    created_at: Timestamp;
+  };
+  appeals_audit: {
+    id: Uuid;
+    appeal_id: Uuid;
+    actor: Uuid | null;
+    action: 'submitted' | 'upheld' | 'denied';
+    note: string | null;
+    created_at: Timestamp;
+  };
+  analytics_events: {
+    id: Uuid;
+    event:
+      | 'landing_view'
+      | 'signup_started'
+      | 'signup_completed'
+      | 'performance_request_submitted'
+      | 'performance_request_approved'
+      | 'verified_listen_completed'
+      | 'vote_submitted'
+      | 'battle_completed'
+      | 'share_clicked'
+      | 'challenge_opened'
+      | 'invite_converted';
+    session_id: Uuid;
+    user_id: Uuid | null;
+    meta: Json | null;
+    created_at: Timestamp;
+  };
+  badges: {
+    key: string;
+    title: string;
+    description: string;
+    icon: string;
+  };
+  profile_badges: {
+    id: Uuid;
+    user_id: Uuid;
+    badge_key: string;
+    awarded_at: Timestamp;
+  };
+  notification_events: {
+    id: Uuid;
+    user_id: Uuid;
+    kind:
+      | 'battle_challenge'
+      | 'new_vote'
+      | 'rank_change'
+      | 'comment_reply'
+      | 'performance_request_approved'
+      | 'performance_request_rejected';
+    meta: Json | null;
+    sent_at: Timestamp | null;
+    created_at: Timestamp;
+  };
+  seasons: {
+    id: Uuid;
+    key: string;
+    title: string;
+    starts_at: Timestamp;
+    ends_at: Timestamp | null;
+    created_at: Timestamp;
+  };
 }
 
 export type Database = {
@@ -180,6 +306,26 @@ export type Database = {
           p_k?: number;
         };
         Returns: { rating_a: number; rating_b: number }[];
+      };
+      recompute_performance_score: {
+        Args: {
+          p_performance_id: Uuid;
+          p_initial_ai_score: number;
+          p_trend_baseline: number;
+        };
+        Returns: {
+          listener_score: number | null;
+          current_score: number;
+          trend_score: number;
+          verified_vote_count: number;
+        }[];
+      };
+      grant_badge: {
+        Args: {
+          p_user_id: Uuid;
+          p_badge_key: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: Record<string, never>;

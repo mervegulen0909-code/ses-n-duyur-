@@ -31,7 +31,14 @@
     "heroTitle": "Descubre quién canta <hl>mejor</hl> una canción.",
     "heroSubtitle": "Añade una interpretación de YouTube, obtén una estimación provisional de IA y deja que los oyentes verificados voten y compitan.",
     "supabaseHint": "Supabase aún no está configurado. Inicia el stack local (<code>pnpm db:start</code>) y configura <code>.env.local</code>, luego añade una interpretación.",
-    "addFirst": "Añade la primera →"
+    "addFirst": "Añade la primera →",
+    "featuredHeading": "Reto destacado",
+    "ctaChallengeTitle": "Inicia un reto",
+    "ctaChallengeBody": "Elige una canción e invita a amigos a un duelo.",
+    "ctaRequestTitle": "Envía una interpretación",
+    "ctaRequestBody": "Añade tu versión a la liga — cada solicitud es revisada por un admin.",
+    "ctaInviteTitle": "Invita a un amigo",
+    "ctaInviteBody": "Comparte VoxScore y haz crecer la liga."
   },
   "Login": {
     "signIn": "Iniciar sesión",
@@ -51,7 +58,21 @@
     "signInPrompt": "Por favor, <link>inicia sesión</link> para añadir una interpretación.",
     "urlLabel": "URL de la interpretación en YouTube",
     "submit": "Añadir interpretación",
-    "adding": "Añadiendo…"
+    "adding": "Añadiendo…",
+    "reviewNote": "Un administrador revisa las solicitudes antes de que aparezcan en la liga.",
+    "categoryLabel": "Categoría",
+    "notePlaceholder": "Nota para el revisor (opcional)",
+    "requestSubmit": "Enviar solicitud",
+    "requestSubmitting": "Enviando…",
+    "requestSuccessTitle": "Tu solicitud está en la cola de revisión",
+    "requestSuccessBody": "ID de solicitud: {id}. Un administrador la revisará pronto.",
+    "myRequestsHeading": "Mis solicitudes",
+    "noRequests": "Aún no has enviado ninguna solicitud.",
+    "statusPending": "En revisión",
+    "statusApproved": "Aprobada",
+    "statusRejected": "Rechazada",
+    "rejectionReasonPrefix": "Motivo: {reason}",
+    "viewPerformance": "Ver interpretación →"
   },
   "Battle": {
     "subtitle": "Dos interpretaciones, un ganador. Escucha ambas por completo y luego decide.",
@@ -71,7 +92,13 @@
   "Leaderboard": {
     "subtitle": "Clasificadas por puntuación actual.",
     "battleRecord": "{wins}–{losses} · batallas",
-    "viewStandings": "Posiciones de batalla →"
+    "viewStandings": "Posiciones de batalla →",
+    "searchPlaceholder": "Buscar por canción o artista",
+    "allCategories": "Todas las categorías",
+    "sortScore": "Puntuación más alta",
+    "sortBattles": "Más duelos",
+    "sortNewest": "Más recientes",
+    "noResults": "Ninguna interpretación coincide con tus filtros."
   },
   "Standings": {
     "title": "Posiciones de batalla",
@@ -80,6 +107,9 @@
     "winRate": "{rate}% de victorias",
     "empty": "Aún no hay batallas. Abre la arena de batalla para iniciar una.",
     "viewScores": "Clasificación por puntuación →"
+  },
+  "Seasons": {
+    "allSeasons": "Todas las temporadas"
   },
   "Performance": {
     "currentScore": "Puntuación actual",
@@ -91,7 +121,17 @@
     "addedBy": "Añadido por <link>{handle}</link>",
     "noVideo": "Sin video.",
     "signInToVote": "<link>Inicia sesión</link> y completa una Escucha Verificada para votar.",
-    "signInToComment": "<link>Inicia sesión</link> para comentar."
+    "signInToComment": "<link>Inicia sesión</link> para comentar.",
+    "confidenceNone": "Solo estimación de IA",
+    "confidenceEarly": "Votos iniciales",
+    "confidenceCommunity": "Confirmado por la comunidad",
+    "verifiedVotes": "{count, plural, one {# voto verificado} other {# votos verificados}}",
+    "shareHeading": "Compartir",
+    "copyLink": "Copiar enlace",
+    "linkCopied": "¡Copiado!",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X",
+    "challengeCta": "Reta a un amigo a este duelo"
   },
   "Criteria": {
     "vocalAccuracy": "Precisión vocal",
@@ -129,7 +169,25 @@
     "performanceCount": "{count, plural, one {# interpretación} other {# interpretaciones}}",
     "battleRecord": "{wins}–{losses} en batallas",
     "winRate": "{rate}% de victorias",
-    "noPublic": "Aún no hay interpretaciones públicas."
+    "noPublic": "Aún no hay interpretaciones públicas.",
+    "follow": "Seguir",
+    "unfollow": "Dejar de seguir",
+    "followFailed": "No se pudo actualizar el seguimiento.",
+    "followerCount": "{count, plural, one {# seguidor} other {# seguidores}}",
+    "followingCount": "{count} siguiendo",
+    "editProfile": "Editar perfil",
+    "changeAvatar": "Cambiar avatar",
+    "uploading": "Subiendo…",
+    "avatarUploadError": "No se pudo subir el avatar.",
+    "bioLabel": "Biografía",
+    "linksLabel": "Enlaces",
+    "linkLabelPlaceholder": "Etiqueta",
+    "addLink": "+ Añadir enlace",
+    "removeLink": "Quitar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saveError": "No se pudo guardar el perfil.",
+    "cancelEdit": "Cancelar"
   },
   "Admin": {
     "accessRequired": "Se requiere acceso de administrador.",
@@ -154,7 +212,30 @@
     "saving": "Guardando…",
     "saveCalibration": "Guardar calibración",
     "calibrationSaved": "Calibración guardada ✓",
-    "calibrationFailed": "Error al guardar"
+    "calibrationFailed": "Error al guardar",
+    "cardPerformanceRequests": "Solicitudes de interpretación",
+    "openPerformanceRequests": "{count, plural, one {# solicitud pendiente} other {# solicitudes pendientes}}",
+    "performanceRequestsQueue": "Cola de solicitudes de interpretación",
+    "noOpenPerformanceRequests": "No hay solicitudes pendientes.",
+    "approve": "Aprobar",
+    "rejectionReasonPlaceholder": "Motivo del rechazo (obligatorio)",
+    "cardAnalytics": "Analítica",
+    "analyticsSub": "Embudo, viralidad, demanda por categoría",
+    "analyticsHeading": "Analítica",
+    "funnelHeading": "Embudo",
+    "eventColumn": "Evento",
+    "windowDays": "{count, plural, one {Último # día} other {Últimos # días}}",
+    "viralityHeading": "Viralidad",
+    "inviteRate": "Tasa de conversión de invitaciones",
+    "inviteRateDetail": "{invites} invitaciones convertidas / {shares} clics de compartir",
+    "viralCoefficient": "Coeficiente viral",
+    "viralCoefficientDetail": "{invites} registros por invitación / {signups} registros",
+    "categoriesHeading": "Categorías más solicitadas",
+    "noEvents": "Aún no hay eventos en este periodo.",
+    "cardAppeals": "Apelaciones",
+    "openAppeals": "{count, plural, one {# apelación abierta} other {# apelaciones abiertas}}",
+    "appealsQueue": "Cola de apelaciones",
+    "noOpenAppeals": "No hay apelaciones abiertas."
   },
   "Report": {
     "promptReason": "¿Por qué estás reportando esto?",
@@ -174,6 +255,28 @@
   },
   "Song": {
     "subtitle": "Quién canta mejor esta canción — clasificados por puntuación.",
-    "viewRanking": "Descubre quién canta mejor “{title}”"
+    "viewRanking": "Descubre quién canta mejor “{title}”",
+    "challengeCta": "Invita a un amigo a un duelo con esta canción",
+    "battleThisSong": "Duelo con esta canción →"
+  },
+  "Category": {
+    "pop": "Pop",
+    "rock": "Rock",
+    "rnbSoul": "R&B / Soul",
+    "ballad": "Balada",
+    "turkishGlobal": "Turco / Global",
+    "indieAlternative": "Indie / Alternativo",
+    "musicalClassical": "Musical / Clásico",
+    "other": "Otro"
+  },
+  "Appeals": {
+    "appealThis": "Apelar esto",
+    "reasonPlaceholder": "¿Por qué debería revertirse esta decisión?",
+    "submit": "Enviar apelación",
+    "submitting": "Enviando…",
+    "submitted": "Apelación enviada — un administrador la revisará.",
+    "cancel": "Cancelar",
+    "genericError": "No se pudo enviar la apelación.",
+    "hiddenBanner": "Esta actuación fue ocultada por un moderador. Puedes apelar esta decisión."
   }
 }

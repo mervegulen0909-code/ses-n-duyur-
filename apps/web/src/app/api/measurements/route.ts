@@ -1,11 +1,10 @@
 import { z } from 'zod';
-import { measuredAdjustedInitial, recomputeScore, type MeasuredBreakdown } from '@voxscore/core';
+import { measuredAdjustedInitial, type MeasuredBreakdown } from '@voxscore/core';
 import { MEASURED_CRITERIA, measureWav } from '@voxscore/dsp';
 import type { Criterion } from '@voxscore/scoring';
 import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
-import { rowToOverall } from '../votes/overall';
 
 /**
  * POST /api/measurements?performanceId=<uuid> — ADR 0003 "measure and delete".
@@ -131,24 +130,16 @@ export async function POST(req: Request): Promise<Response> {
       scoreRow.initial_ai_score ??
       0;
 
-    const { data: ratings } = await service
-      .from('criteria_ratings')
-      .select('*')
-      .eq('performance_id', perf.id);
-    const voteOveralls = (ratings ?? [])
-      .map((r) => rowToOverall(r))
-      .filter((v): v is number => v !== null);
-
-    const updated = recomputeScore({ initialAiScore: basis, voteOveralls });
-    await service
-      .from('scores')
-      .update({
-        listener_score: updated.listenerScore,
-        current_score: updated.currentScore,
-        trend_score: updated.trendScore,
-        verified_vote_count: updated.verifiedVoteCount,
-      })
-      .eq('performance_id', perf.id);
+    const trendBaseline = scoreRow.initial_ai_score ?? basis;
+    const { error: recomputeError } = await service.rpc('recompute_performance_score', {
+      p_performance_id: perf.id,
+      p_initial_ai_score: basis,
+      p_trend_baseline: trendBaseline,
+    });
+    if (recomputeError) {
+      console.error(`[measurements] score recompute failed for ${perf.id}`, recomputeError);
+      return Response.json({ error: 'Could not recompute score' }, { status: 500 });
+    }
   }
 
   return Response.json(

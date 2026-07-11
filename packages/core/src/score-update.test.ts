@@ -32,4 +32,14 @@ describe('recomputeScore', () => {
     expect(r.listenerScore).toBe(75);
     expect(r.verifiedVoteCount).toBe(2);
   });
+
+  it('keeps trend anchored to the original AI score after a measured basis change', () => {
+    const r = recomputeScore({
+      initialAiScore: 80,
+      trendBaseline: 70,
+      voteOveralls: [],
+    });
+    expect(r.currentScore).toBe(80);
+    expect(r.trendScore).toBe(10);
+  });
 });

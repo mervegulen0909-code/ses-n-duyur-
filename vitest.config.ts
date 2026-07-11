@@ -22,6 +22,8 @@ export default defineConfig({
       // Mobile pure-logic tests (e.g. the api client). These mock './supabase'
       // and any expo native modules, so they run in the node env like the rest.
       'apps/mobile/src/**/*.{test,spec}.ts',
+      // Standalone Node scripts (e.g. the launch-catalog seed template validator).
+      'scripts/**/*.{test,spec}.ts',
     ],
     coverage: {
       provider: 'v8',

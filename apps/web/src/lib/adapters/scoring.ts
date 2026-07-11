@@ -111,11 +111,14 @@ export class OpenAIScoringProvider implements ScoringProvider {
         breakdown,
         provisional: true,
         model: SCORING_MODEL,
+        provider: 'openai',
       };
     } catch (err) {
       // Degrade to the deterministic mock so adding a performance never fails,
       // but surface WHY (invalid key, rate limit, bad model id) in server logs —
       // otherwise a misconfigured OPENAI_API_KEY silently scores as mock forever.
+      // The fallback result self-identifies as provider 'mock', so the score
+      // row records the truth even on this degraded path.
       console.error('[scoring] OpenAI provider failed; falling back to mock estimate:', err);
       return this.fallback.score(input);
     }
@@ -177,6 +180,7 @@ export class AnthropicScoringProvider implements ScoringProvider {
         breakdown,
         provisional: true,
         model: ANTHROPIC_MODEL,
+        provider: 'anthropic',
       };
     } catch (err) {
       // Degrade to the deterministic mock so adding a performance never fails,

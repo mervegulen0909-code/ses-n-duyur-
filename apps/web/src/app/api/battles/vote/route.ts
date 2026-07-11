@@ -1,6 +1,8 @@
 import { battleVoteSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
+import { trackServer } from '@/lib/analytics-server';
+import { grantBadge } from '@/lib/badges';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -85,6 +87,20 @@ export async function POST(req: Request): Promise<Response> {
     });
     const row = applied?.[0];
     if (row) {
+      await trackServer(service, 'battle_completed', user.id, { battleId });
+
+      // Server-granted only; look up the WINNING performance's owner (not
+      // the voter) — grantBadge is idempotent, so awarding on every win is a
+      // harmless no-op after the first.
+      const { data: winnerPerf } = await service
+        .from('performances')
+        .select('user_id')
+        .eq('id', winnerPerformanceId)
+        .maybeSingle();
+      if (winnerPerf) {
+        await grantBadge(service, winnerPerf.user_id, 'battle_champion');
+      }
+
       return Response.json(
         { ok: true, ratingA: row.rating_a, ratingB: row.rating_b },
         { status: 201 },

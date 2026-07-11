@@ -31,7 +31,14 @@
     "heroTitle": "Bir şarkıyı <hl>en iyi</hl> kimin söylediğini keşfet.",
     "heroSubtitle": "Bir YouTube performansı ekle, Geçici YZ Tahmini al, sonra doğrulanmış dinleyiciler oylayıp düello yapsın.",
     "supabaseHint": "Supabase henüz yapılandırılmadı. Yerel ortamı başlat (<code>pnpm db:start</code>) ve <code>.env.local</code> ayarla, sonra performans ekle.",
-    "addFirst": "İlkini ekle →"
+    "addFirst": "İlkini ekle →",
+    "featuredHeading": "Haftanın öne çıkan şarkısı",
+    "ctaChallengeTitle": "Bir düello başlat",
+    "ctaChallengeBody": "Bir şarkı seç, arkadaşlarını düelloya davet et.",
+    "ctaRequestTitle": "Bir performans gönder",
+    "ctaRequestBody": "Kendi coverını lige ekle — her talep bir yönetici tarafından incelenir.",
+    "ctaInviteTitle": "Bir arkadaşını davet et",
+    "ctaInviteBody": "VoxScore'u paylaş, ligi büyüt."
   },
   "Login": {
     "signIn": "Giriş yap",
@@ -51,7 +58,21 @@
     "signInPrompt": "Performans eklemek için lütfen <link>giriş yap</link>.",
     "urlLabel": "YouTube performans bağlantısı",
     "submit": "Performans ekle",
-    "adding": "Ekleniyor…"
+    "adding": "Ekleniyor…",
+    "reviewNote": "Talepler, lige eklenmeden önce bir yönetici tarafından incelenir.",
+    "categoryLabel": "Kategori",
+    "notePlaceholder": "İnceleyen için not (opsiyonel)",
+    "requestSubmit": "Talebi gönder",
+    "requestSubmitting": "Gönderiliyor…",
+    "requestSuccessTitle": "Talebin inceleme kuyruğunda",
+    "requestSuccessBody": "Talep no: {id}. Bir yönetici yakında inceleyecek.",
+    "myRequestsHeading": "Taleplerim",
+    "noRequests": "Henüz bir talep göndermedin.",
+    "statusPending": "İnceleniyor",
+    "statusApproved": "Onaylandı",
+    "statusRejected": "Reddedildi",
+    "rejectionReasonPrefix": "Neden: {reason}",
+    "viewPerformance": "Performansı görüntüle →"
   },
   "Battle": {
     "subtitle": "İki performans, tek kazanan. İkisini de tam dinle, sonra karar ver.",
@@ -71,7 +92,13 @@
   "Leaderboard": {
     "subtitle": "Güncel puana göre sıralanır.",
     "battleRecord": "{wins}–{losses} · düello",
-    "viewStandings": "Puan durumu →"
+    "viewStandings": "Puan durumu →",
+    "searchPlaceholder": "Şarkı veya sanatçıya göre ara",
+    "allCategories": "Tüm kategoriler",
+    "sortScore": "En yüksek skor",
+    "sortBattles": "En çok düello",
+    "sortNewest": "En yeni",
+    "noResults": "Filtrelerine uyan performans yok."
   },
   "Standings": {
     "title": "Puan durumu",
@@ -80,6 +107,9 @@
     "winRate": "%{rate} galibiyet",
     "empty": "Henüz düello yok. Başlatmak için Düello arenasını aç.",
     "viewScores": "Skor sıralaması →"
+  },
+  "Seasons": {
+    "allSeasons": "Tüm sezonlar"
   },
   "Performance": {
     "currentScore": "Güncel puan",
@@ -91,7 +121,17 @@
     "addedBy": "<link>{handle}</link> tarafından eklendi",
     "noVideo": "Video yok.",
     "signInToVote": "Oylamak için <link>giriş yap</link> ve bir Doğrulanmış Dinleme tamamla.",
-    "signInToComment": "Yorum yapmak için <link>giriş yap</link>."
+    "signInToComment": "Yorum yapmak için <link>giriş yap</link>.",
+    "confidenceNone": "Sadece AI tahmini",
+    "confidenceEarly": "İlk oylar",
+    "confidenceCommunity": "Topluluk onaylı",
+    "verifiedVotes": "{count, plural, one {# doğrulanmış oy} other {# doğrulanmış oy}}",
+    "shareHeading": "Paylaş",
+    "copyLink": "Bağlantıyı kopyala",
+    "linkCopied": "Kopyalandı!",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X",
+    "challengeCta": "Bir arkadaşını bu düelloya çağır"
   },
   "Criteria": {
     "vocalAccuracy": "Vokal doğruluk",
@@ -129,7 +169,25 @@
     "performanceCount": "{count, plural, other {# performans}}",
     "battleRecord": "düellolarda {wins}–{losses}",
     "winRate": "%{rate} kazanma oranı",
-    "noPublic": "Henüz herkese açık performans yok."
+    "noPublic": "Henüz herkese açık performans yok.",
+    "follow": "Takip et",
+    "unfollow": "Takibi bırak",
+    "followFailed": "Takip güncellenemedi.",
+    "followerCount": "{count} takipçi",
+    "followingCount": "{count} takip edilen",
+    "editProfile": "Profili düzenle",
+    "changeAvatar": "Avatarı değiştir",
+    "uploading": "Yükleniyor…",
+    "avatarUploadError": "Avatar yüklenemedi.",
+    "bioLabel": "Biyografi",
+    "linksLabel": "Bağlantılar",
+    "linkLabelPlaceholder": "Etiket",
+    "addLink": "+ Bağlantı ekle",
+    "removeLink": "Kaldır",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor…",
+    "saveError": "Profil kaydedilemedi.",
+    "cancelEdit": "Vazgeç"
   },
   "Admin": {
     "accessRequired": "Yönetici erişimi gerekli.",
@@ -154,7 +212,30 @@
     "saving": "Kaydediliyor…",
     "saveCalibration": "Kalibrasyonu kaydet",
     "calibrationSaved": "Kalibrasyon kaydedildi ✓",
-    "calibrationFailed": "Kaydedilemedi"
+    "calibrationFailed": "Kaydedilemedi",
+    "cardPerformanceRequests": "Performans talepleri",
+    "openPerformanceRequests": "{count, plural, one {# bekleyen talep} other {# bekleyen talep}}",
+    "performanceRequestsQueue": "Performans talep kuyruğu",
+    "noOpenPerformanceRequests": "Bekleyen talep yok.",
+    "approve": "Onayla",
+    "rejectionReasonPlaceholder": "Ret nedeni (zorunlu)",
+    "cardAnalytics": "Analitik",
+    "analyticsSub": "Huni, viral etki, kategori talebi",
+    "analyticsHeading": "Analitik",
+    "funnelHeading": "Huni",
+    "eventColumn": "Olay",
+    "windowDays": "Son {count} gün",
+    "viralityHeading": "Viral etki",
+    "inviteRate": "Davet dönüşüm oranı",
+    "inviteRateDetail": "{invites} dönüşen davet / {shares} paylaşım tıklaması",
+    "viralCoefficient": "Viral katsayı",
+    "viralCoefficientDetail": "{invites} davetli kayıt / {signups} kayıt",
+    "categoriesHeading": "En çok talep edilen kategoriler",
+    "noEvents": "Bu aralıkta henüz olay yok.",
+    "cardAppeals": "İtirazlar",
+    "openAppeals": "{count} açık itiraz",
+    "appealsQueue": "İtiraz kuyruğu",
+    "noOpenAppeals": "Açık itiraz yok."
   },
   "Report": {
     "promptReason": "Bunu neden bildiriyorsun?",
@@ -174,6 +255,28 @@
   },
   "Song": {
     "subtitle": "Bu şarkıyı en iyi kim söylüyor — puana göre sıralı.",
-    "viewRanking": "“{title}” şarkısını en iyi kim söylüyor?"
+    "viewRanking": "“{title}” şarkısını en iyi kim söylüyor?",
+    "challengeCta": "Bu şarkı için bir arkadaşını düelloya davet et",
+    "battleThisSong": "Bu şarkıyla düello yap →"
+  },
+  "Category": {
+    "pop": "Pop",
+    "rock": "Rock",
+    "rnbSoul": "R&B / Soul",
+    "ballad": "Balad",
+    "turkishGlobal": "Türkçe / Global",
+    "indieAlternative": "Indie / Alternatif",
+    "musicalClassical": "Müzikal / Klasik",
+    "other": "Diğer"
+  },
+  "Appeals": {
+    "appealThis": "Bunu itiraz et",
+    "reasonPlaceholder": "Bu karar neden geri alınmalı?",
+    "submit": "İtirazı gönder",
+    "submitting": "Gönderiliyor…",
+    "submitted": "İtiraz gönderildi — bir admin inceleyecek.",
+    "cancel": "Vazgeç",
+    "genericError": "İtiraz gönderilemedi.",
+    "hiddenBanner": "Bu performans bir moderatör tarafından gizlendi. Bu karara itiraz edebilirsin."
   }
 }

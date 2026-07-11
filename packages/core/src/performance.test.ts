@@ -17,6 +17,7 @@ const scoring: ScoringResult = {
   breakdown: Object.fromEntries(CRITERIA.map((c) => [c, 73.5])) as ScoringResult['breakdown'],
   provisional: true,
   model: 'mock-provisional-v0',
+  provider: 'mock',
 };
 
 describe('buildPerformanceCreate', () => {
@@ -49,6 +50,8 @@ describe('buildPerformanceCreate', () => {
     expect(score.listener_score).toBeNull();
     expect(score.verified_vote_count).toBe(0);
     expect(score.is_provisional).toBe(true);
+    expect(score.ai_provider).toBe('mock');
+    expect(score.ai_model).toBe('mock-provisional-v0');
   });
 
   it('passes through songId, hasVideo, and durationS overrides', () => {

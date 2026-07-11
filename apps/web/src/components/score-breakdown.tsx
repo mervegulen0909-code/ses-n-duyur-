@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { CRITERIA, type Criterion } from '@voxscore/scoring';
+import { CRITERIA, confidenceForVotes, type Criterion } from '@voxscore/scoring';
 import { ProvisionalBadge } from './provisional-badge';
 import { trendDirection } from '@/lib/leaderboard';
 
@@ -14,7 +14,14 @@ export interface ScoreBreakdownProps {
   /** Real DSP values measured from the artist's own recording (ADR 0003). */
   measured?: Partial<Record<Criterion, number>> | null;
   hasVideo: boolean;
+  verifiedVoteCount: number;
 }
+
+const CONFIDENCE_KEY = {
+  aiOnly: 'Performance.confidenceNone',
+  earlyVotes: 'Performance.confidenceEarly',
+  communityConfirmed: 'Performance.confidenceCommunity',
+} as const;
 
 function fmt(value: number | null): string {
   return value === null ? '—' : value.toFixed(1);
@@ -47,10 +54,16 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
         </div>
       </header>
 
-      {props.isProvisional && (
-        <div className="mb-4">
-          <ProvisionalBadge />
-        </div>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        {props.isProvisional && <ProvisionalBadge />}
+        <span className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-neutral-800/60 px-2 py-0.5 text-xs font-medium text-neutral-300">
+          {t(CONFIDENCE_KEY[confidenceForVotes(props.verifiedVoteCount)])}
+        </span>
+      </div>
+      {props.verifiedVoteCount > 0 && (
+        <p className="mb-4 text-xs text-neutral-500">
+          {t('Performance.verifiedVotes', { count: props.verifiedVoteCount })}
+        </p>
       )}
 
       {props.measured && (

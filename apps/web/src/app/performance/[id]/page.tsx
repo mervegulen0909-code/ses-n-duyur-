@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import type { Criterion } from '@voxscore/scoring';
 import { YouTubeEmbed } from '@/components/youtube-embed';
 import { ScoreBreakdown } from '@/components/score-breakdown';
 import { VotePanel } from '@/components/vote-panel';
 import { ReportButton } from '@/components/report-button';
+import { AppealForm } from '@/components/appeal-form';
 import { CommentComposer } from '@/components/comment-composer';
+import { ShareButtons } from '@/components/share-buttons';
 import { withAuthors } from '@/lib/comments';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
@@ -16,6 +19,37 @@ export const dynamic = 'force-dynamic';
 interface OEmbedish {
   title?: string;
   authorName?: string;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return {};
+
+  const { data: perf } = await supabase
+    .from('performances')
+    .select('oembed_meta')
+    .eq('id', id)
+    .maybeSingle();
+  const { data: score } = await supabase
+    .from('scores')
+    .select('current_score')
+    .eq('performance_id', id)
+    .maybeSingle();
+
+  const meta = (perf?.oembed_meta ?? {}) as OEmbedish;
+  const songTitle = meta.title ?? 'Performance';
+  const scoreLabel =
+    score?.current_score !== null && score?.current_score !== undefined
+      ? score.current_score.toFixed(1)
+      : '—';
+  const title = `${songTitle} — ${scoreLabel} on VoxScore`;
+
+  return { title, openGraph: { title }, twitter: { title } };
 }
 
 export default async function PerformancePage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,10 +67,13 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
   const { data: perf } = await supabase
     .from('performances')
-    .select('id, user_id, youtube_video_id, oembed_meta, has_video, song_id')
+    .select('id, user_id, youtube_video_id, oembed_meta, has_video, song_id, status')
     .eq('id', id)
     .maybeSingle();
 
+  // RLS already restricts a hidden performance to its owner + admins
+  // (performances_select_all: status = 'active' or user_id = auth.uid() or
+  // is_admin()) — a stranger's request simply gets no row here.
   if (!perf) notFound();
 
   const { data: uploader } = await supabase
@@ -52,7 +89,9 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
   const { data: score } = await supabase
     .from('scores')
-    .select('initial_ai_score, current_score, trend_score, is_provisional, ai_breakdown')
+    .select(
+      'initial_ai_score, current_score, trend_score, is_provisional, ai_breakdown, verified_vote_count',
+    )
     .eq('performance_id', id)
     .maybeSingle();
 
@@ -89,6 +128,12 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           <h1 className="text-xl font-bold">{meta.title ?? t('Performance.fallbackTitle')}</h1>
           {user && <ReportButton targetType="performance" targetId={perf.id} />}
         </div>
+        {perf.status === 'hidden' && user?.id === perf.user_id && (
+          <div className="space-y-2 rounded-lg border border-amber-700/40 bg-amber-500/10 p-3">
+            <p className="text-sm text-amber-300">{t('Appeals.hiddenBanner')}</p>
+            <AppealForm targetType="performance" targetId={perf.id} />
+          </div>
+        )}
         {meta.authorName && <p className="text-sm text-neutral-500">{meta.authorName}</p>}
         {song && (
           <p className="text-sm">
@@ -145,7 +190,24 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           breakdown={breakdown}
           measured={measured}
           hasVideo={perf.has_video}
+          verifiedVoteCount={score?.verified_vote_count ?? 0}
         />
+        {perf.youtube_video_id && (
+          <div className="mt-4">
+            <ShareButtons
+              url={`/performance/${perf.id}`}
+              title={meta.title ?? t('Performance.fallbackTitle')}
+            />
+            {song && (
+              <Link
+                href={`/song/${song.id}?challenge=1`}
+                className="mt-3 block text-center text-sm font-medium text-emerald-400 hover:underline"
+              >
+                {t('Performance.challengeCta')} →
+              </Link>
+            )}
+          </div>
+        )}
       </aside>
 
       <section className="lg:col-span-2">

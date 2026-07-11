@@ -1,6 +1,7 @@
 import Slider from '@react-native-community/slider';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -11,12 +12,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import YoutubePlayer, { type YoutubeIframeRef } from 'react-native-youtube-iframe';
+import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
 import type { ListenEvent } from '@voxscore/core';
+import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { CRITERIA } from '@voxscore/scoring';
 import { postComment, submitVote } from '@/lib/api';
-import { CRITERION_LABELS } from '@/lib/criteria-labels';
+import { useCriterionLabels } from '@/lib/criteria-labels';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
 import { useVerifiedListen } from '@/lib/use-verified-listen';
@@ -49,13 +51,15 @@ type CommentRow = {
   created_at: string;
   profiles: { handle: string } | { handle: string }[] | null;
 };
-function handleOf(p: CommentRow['profiles']): string {
+function handleOf(p: CommentRow['profiles']): string | null {
   const row = Array.isArray(p) ? p[0] : p;
-  return row?.handle ? `@${row.handle}` : 'anonymous';
+  return row?.handle ? `@${row.handle}` : null;
 }
 
 export default function PerformanceScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const criterionLabels = useCriterionLabels();
   const { user } = useSession();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -196,26 +200,31 @@ export default function PerformanceScreen() {
       setVoteState('done');
       setVoteMsg(
         res.currentScore != null
-          ? `Thanks! New current score: ${res.currentScore.toFixed(1)}`
-          : 'Thanks for voting!',
+          ? t('Performance.voteThanksScore', { score: res.currentScore.toFixed(1) })
+          : t('Performance.voteThanks'),
       );
     } else {
       setVoteState('error');
+      if (res.status === 403 && res.error !== 'You cannot vote on your own performance') {
+        setVoteMsg(res.error ?? t('Performance.listenRequired'));
+        return;
+      }
       // /api/votes is Turnstile-gated (botGuard) and native cannot supply a
       // browser token, so a 403 here for a user who DID complete the Verified
       // Listen is the bot-check — surface an honest message (mirrors add.tsx)
       // instead of the engine's cryptic "Bot check failed."; self-vote 403s
-      // carry their own message and pass through.
+      // carry their own server message (English) — matched literally, shown
+      // translated.
       setVoteMsg(
         res.status === 401
-          ? 'Your session expired — sign in again to vote.'
+          ? t('Performance.sessionExpiredVote')
           : res.status === 403
             ? res.error === 'You cannot vote on your own performance'
-              ? res.error
-              : 'Verification required. Voting from the app unlocks once device attestation ships — you can vote on the web for now.'
+              ? t('Performance.selfVote')
+              : t('Performance.attestationGate')
             : res.status === 409
-              ? 'You have already voted on this performance.'
-              : (res.error ?? `Failed (${res.status})`),
+              ? t('Performance.alreadyVoted')
+              : (res.error ?? t('Performance.failed', { status: res.status })),
       );
     }
   }
@@ -232,7 +241,9 @@ export default function PerformanceScreen() {
       await loadComments();
     } else {
       setCommentErr(
-        res.status === 401 ? 'Sign in again to comment.' : (res.error ?? `Failed (${res.status})`),
+        res.status === 401
+          ? t('Performance.commentSessionExpired')
+          : (res.error ?? t('Performance.failed', { status: res.status })),
       );
     }
   }
@@ -243,39 +254,39 @@ export default function PerformanceScreen() {
   const activeCriteria = CRITERIA.filter((c) => perf?.has_video !== false || c !== 'stagePresence');
 
   const hint = embedBlocked
-    ? 'The uploader disabled embedding, so this video only plays on YouTube — an in-app Verified Listen (required to vote) isn’t possible for it.'
+    ? t('Performance.embedBlockedHint')
     : listen.status === 'verified'
-      ? 'Verified Listen complete — you can vote now.'
+      ? t('Performance.verifiedHint')
       : listen.status === 'listening'
-        ? 'Keep watching to the end to unlock voting…'
+        ? t('Performance.listeningHint')
         : listen.status === 'invalid'
-          ? (listen.reason ?? 'Listen not verified. Watch the full performance to vote.')
-          : 'Press play and watch to the end to unlock voting.';
+          ? (listen.reason ?? t('Performance.invalidHint'))
+          : t('Performance.idleHint');
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-        <Text style={styles.backText}>‹ Back</Text>
+        <Text style={styles.backText}>{t('Common.back')}</Text>
       </Pressable>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
-      {state === 'error' && <Text style={styles.error}>Could not load: {error}</Text>}
+      {state === 'error' && <Text style={styles.error}>{t('Common.loadError', { error })}</Text>}
 
       {state === 'ready' && perf && (
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.title}>{meta.title ?? 'Untitled'}</Text>
+          <Text style={styles.title}>{meta.title ?? t('Common.untitled')}</Text>
           {!!meta.authorName && <Text style={styles.artist}>{meta.authorName}</Text>}
           {!!perf.song_id && (
             <Pressable
               onPress={() => router.push({ pathname: '/song/[id]', params: { id: perf.song_id! } })}
               hitSlop={8}
             >
-              <Text style={styles.songLink}>Song ranking →</Text>
+              <Text style={styles.songLink}>{t('Performance.songRanking')}</Text>
             </Pressable>
           )}
 
           <View style={styles.player}>
-            <YoutubePlayer
+            <NativeYouTubePlayer
               ref={playerRef}
               height={210}
               videoId={perf.youtube_video_id}
@@ -301,15 +312,15 @@ export default function PerformanceScreen() {
             <View style={styles.voteCard}>
               {!user ? (
                 <Pressable onPress={() => router.push('/login')}>
-                  <Text style={styles.signinPrompt}>Sign in to submit your vote ›</Text>
+                  <Text style={styles.signinPrompt}>{t('Performance.signInToVote')}</Text>
                 </Pressable>
               ) : (
                 <>
-                  <Text style={styles.voteTitle}>Rate this performance</Text>
+                  <Text style={styles.voteTitle}>{t('Performance.rateTitle')}</Text>
                   {activeCriteria.map((c) => (
                     <View key={c} style={styles.critEdit}>
                       <View style={styles.critEditTop}>
-                        <Text style={styles.critLabel}>{CRITERION_LABELS[c]}</Text>
+                        <Text style={styles.critLabel}>{criterionLabels[c]}</Text>
                         <Text style={styles.critVal}>{Math.round(ratings[c])}</Text>
                       </View>
                       <Slider
@@ -332,7 +343,7 @@ export default function PerformanceScreen() {
                     {voteState === 'submitting' ? (
                       <ActivityIndicator color="#06281d" />
                     ) : (
-                      <Text style={styles.voteBtnText}>Submit vote</Text>
+                      <Text style={styles.voteBtnText}>{t('Performance.submitVote')}</Text>
                     )}
                   </Pressable>
                   {voteState === 'error' && <Text style={styles.error}>{voteMsg}</Text>}
@@ -348,30 +359,32 @@ export default function PerformanceScreen() {
                 <Text style={styles.scoreBig}>
                   {score?.current_score != null ? score.current_score.toFixed(1) : '—'}
                 </Text>
-                <Text style={styles.scoreLabel}>Current score</Text>
+                <Text style={styles.scoreLabel}>{t('Performance.currentScore')}</Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={styles.trend}>
-                  {score?.trend_score != null
-                    ? `${score.trend_score >= 0 ? '+' : ''}${score.trend_score.toFixed(1)} trend`
-                    : '0.0 trend'}
+                  {t('Performance.trend', {
+                    value:
+                      score?.trend_score != null
+                        ? `${score.trend_score >= 0 ? '+' : ''}${score.trend_score.toFixed(1)}`
+                        : '0.0',
+                  })}
                 </Text>
                 <Text style={styles.aiStart}>
-                  AI start{' '}
-                  {score?.initial_ai_score != null ? score.initial_ai_score.toFixed(1) : '—'}
+                  {t('Performance.aiStart', {
+                    value:
+                      score?.initial_ai_score != null ? score.initial_ai_score.toFixed(1) : '—',
+                  })}
                 </Text>
               </View>
             </View>
 
             {score?.is_provisional !== false && (
-              <Text style={styles.badge}>Provisional AI Estimate</Text>
+              <Text style={styles.badge}>{t('Common.provisionalBadge')}</Text>
             )}
 
             {measured && (
-              <Text style={styles.measuredCaption}>
-                Measured criteria come from the artist’s own submitted recording — the audio is
-                analyzed, then deleted.
-              </Text>
+              <Text style={styles.measuredCaption}>{t('Performance.measuredCaption')}</Text>
             )}
 
             <View style={styles.criteria}>
@@ -381,8 +394,10 @@ export default function PerformanceScreen() {
                 return (
                   <View key={c} style={styles.critRow}>
                     <View style={styles.critNameWrap}>
-                      <Text style={styles.critLabel}>{CRITERION_LABELS[c]}</Text>
-                      {measuredValue != null && <Text style={styles.measuredChip}>Measured</Text>}
+                      <Text style={styles.critLabel}>{criterionLabels[c]}</Text>
+                      {measuredValue != null && (
+                        <Text style={styles.measuredChip}>{t('Performance.measuredChip')}</Text>
+                      )}
                     </View>
                     <Text style={[styles.critVal, measuredValue != null && styles.critValMeasured]}>
                       {value != null ? Number(value).toFixed(0) : '—'}
@@ -399,7 +414,7 @@ export default function PerformanceScreen() {
                 onPress={() => router.push({ pathname: '/measure/[id]', params: { id: perf.id } })}
               >
                 <Text style={styles.measureBtnText}>
-                  {measured ? 'Re-measure my recording' : 'Measure my recording'} 🎙
+                  {measured ? t('Performance.remeasureBtn') : t('Performance.measureBtn')} 🎙
                 </Text>
               </Pressable>
             )}
@@ -407,12 +422,12 @@ export default function PerformanceScreen() {
 
           {/* Comments — readable by all; posting requires sign-in. */}
           <View style={styles.commentsCard}>
-            <Text style={styles.commentsTitle}>Comments</Text>
+            <Text style={styles.commentsTitle}>{t('Performance.comments')}</Text>
             {user ? (
               <View style={styles.commentForm}>
                 <TextInput
                   style={styles.commentInput}
-                  placeholder="Add a comment…"
+                  placeholder={t('Performance.commentPlaceholder')}
                   placeholderTextColor="#6b7280"
                   value={commentText}
                   onChangeText={setCommentText}
@@ -431,22 +446,24 @@ export default function PerformanceScreen() {
                   {posting ? (
                     <ActivityIndicator color="#06281d" />
                   ) : (
-                    <Text style={styles.commentBtnText}>Post</Text>
+                    <Text style={styles.commentBtnText}>{t('Performance.post')}</Text>
                   )}
                 </Pressable>
               </View>
             ) : (
               <Pressable onPress={() => router.push('/login')}>
-                <Text style={styles.signinPrompt}>Sign in to comment ›</Text>
+                <Text style={styles.signinPrompt}>{t('Performance.signInToComment')}</Text>
               </Pressable>
             )}
             {commentErr ? <Text style={styles.error}>{commentErr}</Text> : null}
             {comments.length === 0 ? (
-              <Text style={styles.commentEmpty}>No comments yet — be the first.</Text>
+              <Text style={styles.commentEmpty}>{t('Performance.noComments')}</Text>
             ) : (
               comments.map((c) => (
                 <View key={c.id} style={styles.commentRow}>
-                  <Text style={styles.commentHandle}>{handleOf(c.profiles)}</Text>
+                  <Text style={styles.commentHandle}>
+                    {handleOf(c.profiles) ?? t('Performance.anonymous')}
+                  </Text>
                   <Text style={styles.commentBody}>{c.body}</Text>
                 </View>
               ))

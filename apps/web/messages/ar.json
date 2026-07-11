@@ -31,7 +31,14 @@
     "heroTitle": "اكتشف من يغني الأغنية <hl>بأفضل أداء</hl>.",
     "heroSubtitle": "أضف أداءً من يوتيوب، احصل على تقدير مبدئي بالذكاء الاصطناعي، ثم دع المستمعين الموثّقين يصوّتون ويتنافسون.",
     "supabaseHint": "لم يتم إعداد Supabase بعد. شغّل البيئة المحلية (<code>pnpm db:start</code>) واضبط <code>.env.local</code>، ثم أضف أداءً.",
-    "addFirst": "أضف الأول →"
+    "addFirst": "أضف الأول →",
+    "featuredHeading": "التحدي المميز",
+    "ctaChallengeTitle": "ابدأ تحديًا",
+    "ctaChallengeBody": "اختر أغنية وادعُ أصدقاءك للمبارزة.",
+    "ctaRequestTitle": "أرسل أداءً",
+    "ctaRequestBody": "أضف نسختك إلى الدوري — يراجع أحد المشرفين كل طلب.",
+    "ctaInviteTitle": "ادعُ صديقًا",
+    "ctaInviteBody": "شارك VoxScore ونمِّ الدوري."
   },
   "Login": {
     "signIn": "تسجيل الدخول",
@@ -51,7 +58,21 @@
     "signInPrompt": "يرجى <link>تسجيل الدخول</link> لإضافة أداء.",
     "urlLabel": "رابط أداء يوتيوب",
     "submit": "إضافة أداء",
-    "adding": "جارٍ الإضافة…"
+    "adding": "جارٍ الإضافة…",
+    "reviewNote": "يراجع أحد المشرفين الطلبات قبل ظهورها في الدوري.",
+    "categoryLabel": "الفئة",
+    "notePlaceholder": "ملاحظة للمراجع (اختياري)",
+    "requestSubmit": "إرسال الطلب",
+    "requestSubmitting": "جارٍ الإرسال…",
+    "requestSuccessTitle": "طلبك في قائمة انتظار المراجعة",
+    "requestSuccessBody": "رقم الطلب: {id}. سيقوم أحد المشرفين بمراجعته قريبًا.",
+    "myRequestsHeading": "طلباتي",
+    "noRequests": "لم ترسل أي طلب بعد.",
+    "statusPending": "قيد المراجعة",
+    "statusApproved": "تمت الموافقة",
+    "statusRejected": "مرفوض",
+    "rejectionReasonPrefix": "السبب: {reason}",
+    "viewPerformance": "عرض الأداء ←"
   },
   "Battle": {
     "subtitle": "أداءان، وفائز واحد. استمع إليهما بالكامل، ثم قرّر.",
@@ -71,7 +92,13 @@
   "Leaderboard": {
     "subtitle": "مرتّبة حسب النتيجة الحالية.",
     "battleRecord": "{wins}–{losses} · تحديات",
-    "viewStandings": "ترتيب التحديات →"
+    "viewStandings": "ترتيب التحديات →",
+    "searchPlaceholder": "ابحث حسب الأغنية أو الفنان",
+    "allCategories": "كل الفئات",
+    "sortScore": "الأعلى تقييمًا",
+    "sortBattles": "الأكثر مبارزات",
+    "sortNewest": "الأحدث",
+    "noResults": "لا توجد أداءات تطابق مرشحاتك."
   },
   "Standings": {
     "title": "ترتيب التحديات",
@@ -80,6 +107,9 @@
     "winRate": "نسبة الفوز {rate}%",
     "empty": "لا توجد تحديات بعد. افتح ساحة التحدي لبدء واحدة.",
     "viewScores": "لوحة صدارة النتائج →"
+  },
+  "Seasons": {
+    "allSeasons": "كل المواسم"
   },
   "Performance": {
     "currentScore": "النتيجة الحالية",
@@ -91,7 +121,17 @@
     "addedBy": "أضافه <link>{handle}</link>",
     "noVideo": "لا يوجد فيديو.",
     "signInToVote": "<link>سجّل الدخول</link> وأكمل استماعًا موثّقًا للتصويت.",
-    "signInToComment": "<link>سجّل الدخول</link> للتعليق."
+    "signInToComment": "<link>سجّل الدخول</link> للتعليق.",
+    "confidenceNone": "تقدير الذكاء الاصطناعي فقط",
+    "confidenceEarly": "أصوات مبكرة",
+    "confidenceCommunity": "مؤكد من المجتمع",
+    "verifiedVotes": "{count, plural, other {# صوت موثّق}}",
+    "shareHeading": "مشاركة",
+    "copyLink": "نسخ الرابط",
+    "linkCopied": "تم النسخ!",
+    "shareWhatsapp": "واتساب",
+    "shareX": "X",
+    "challengeCta": "تحدَّ صديقًا في هذه المبارزة"
   },
   "Criteria": {
     "vocalAccuracy": "دقة الأداء الصوتي",
@@ -129,7 +169,25 @@
     "performanceCount": "{count, plural, one {# أداء} other {# أداءات}}",
     "battleRecord": "{wins}–{losses} في التحديات",
     "winRate": "نسبة الفوز {rate}%",
-    "noPublic": "لا توجد أداءات عامة بعد."
+    "noPublic": "لا توجد أداءات عامة بعد.",
+    "follow": "متابعة",
+    "unfollow": "إلغاء المتابعة",
+    "followFailed": "تعذّر تحديث المتابعة.",
+    "followerCount": "{count} متابع",
+    "followingCount": "يتابع {count}",
+    "editProfile": "تعديل الملف الشخصي",
+    "changeAvatar": "تغيير الصورة الرمزية",
+    "uploading": "جارٍ الرفع…",
+    "avatarUploadError": "تعذّر رفع الصورة الرمزية.",
+    "bioLabel": "نبذة",
+    "linksLabel": "الروابط",
+    "linkLabelPlaceholder": "التسمية",
+    "addLink": "+ إضافة رابط",
+    "removeLink": "إزالة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "saveError": "تعذّر حفظ الملف الشخصي.",
+    "cancelEdit": "إلغاء"
   },
   "Admin": {
     "accessRequired": "يتطلب صلاحية إدارة.",
@@ -154,7 +212,30 @@
     "saving": "جارٍ الحفظ…",
     "saveCalibration": "حفظ المعايرة",
     "calibrationSaved": "تم حفظ المعايرة ✓",
-    "calibrationFailed": "فشل الحفظ"
+    "calibrationFailed": "فشل الحفظ",
+    "cardPerformanceRequests": "طلبات الأداء",
+    "openPerformanceRequests": "{count, plural, other {# طلب معلّق}}",
+    "performanceRequestsQueue": "قائمة انتظار طلبات الأداء",
+    "noOpenPerformanceRequests": "لا توجد طلبات معلّقة.",
+    "approve": "موافقة",
+    "rejectionReasonPlaceholder": "سبب الرفض (مطلوب)",
+    "cardAnalytics": "التحليلات",
+    "analyticsSub": "القمع، الانتشار، الطلب حسب الفئة",
+    "analyticsHeading": "التحليلات",
+    "funnelHeading": "القمع",
+    "eventColumn": "الحدث",
+    "windowDays": "آخر {count} يومًا",
+    "viralityHeading": "الانتشار",
+    "inviteRate": "معدل تحويل الدعوات",
+    "inviteRateDetail": "{invites} دعوة محوّلة / {shares} نقرة مشاركة",
+    "viralCoefficient": "المعامل الفيروسي",
+    "viralCoefficientDetail": "{invites} تسجيل عبر دعوة / {signups} تسجيل",
+    "categoriesHeading": "الفئات الأكثر طلبًا",
+    "noEvents": "لا أحداث في هذه الفترة بعد.",
+    "cardAppeals": "الاستئنافات",
+    "openAppeals": "{count} استئناف مفتوح",
+    "appealsQueue": "قائمة الاستئنافات",
+    "noOpenAppeals": "لا توجد استئنافات مفتوحة."
   },
   "Report": {
     "promptReason": "لماذا تُبلغ عن هذا؟",
@@ -174,6 +255,28 @@
   },
   "Song": {
     "subtitle": "من يغني هذه الأغنية بأفضل أداء — مرتّبة حسب النتيجة.",
-    "viewRanking": "شاهد من يغني «{title}» بأفضل أداء"
+    "viewRanking": "شاهد من يغني «{title}» بأفضل أداء",
+    "challengeCta": "ادعُ صديقًا لمبارزة على هذه الأغنية",
+    "battleThisSong": "بارز على هذه الأغنية ←"
+  },
+  "Category": {
+    "pop": "بوب",
+    "rock": "روك",
+    "rnbSoul": "آر آند بي / سول",
+    "ballad": "بالاد",
+    "turkishGlobal": "تركي / عالمي",
+    "indieAlternative": "إندي / بديل",
+    "musicalClassical": "مسرح غنائي / كلاسيكي",
+    "other": "أخرى"
+  },
+  "Appeals": {
+    "appealThis": "استأنف هذا",
+    "reasonPlaceholder": "لماذا يجب التراجع عن هذا القرار؟",
+    "submit": "إرسال الاستئناف",
+    "submitting": "جارٍ الإرسال…",
+    "submitted": "تم إرسال الاستئناف — سيراجعه أحد المشرفين.",
+    "cancel": "إلغاء",
+    "genericError": "تعذّر إرسال الاستئناف.",
+    "hiddenBanner": "تم إخفاء هذا الأداء بواسطة مشرف. يمكنك استئناف هذا القرار."
   }
 }

@@ -69,16 +69,15 @@ function makeServiceClient(opts: { upsertResult?: { error: unknown } } = {}) {
   }));
   const scoreSelectEq = vi.fn(() => ({ maybeSingle: scoreMaybeSingle }));
   const scoreSelect = vi.fn(() => ({ eq: scoreSelectEq }));
-  const scoreUpdateEq = vi.fn(async () => ({ error: null }));
-  const scoreUpdate = vi.fn(() => ({ eq: scoreUpdateEq }));
+  const rpc = vi.fn(async () => ({ data: [{ current_score: 70 }], error: null }));
   const ratingsEq = vi.fn(async () => ({ data: [], error: null }));
   const ratingsSelect = vi.fn(() => ({ eq: ratingsEq }));
   const from = vi.fn((table: string) => {
     if (table === 'measured_scores') return { upsert };
-    if (table === 'scores') return { select: scoreSelect, update: scoreUpdate };
+    if (table === 'scores') return { select: scoreSelect };
     return { select: ratingsSelect };
   });
-  return { client: { from } as unknown as ServiceClient, upsert, scoreUpdate };
+  return { client: { from, rpc } as unknown as ServiceClient, upsert, rpc };
 }
 
 function authAs(perfRow: unknown = OWNED_PERF) {
@@ -210,8 +209,12 @@ describe('POST /api/measurements — measure and delete (ADR 0003)', () => {
     );
 
     // The denormalized score was re-blended with the measured basis.
-    expect(service.scoreUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({ current_score: expect.any(Number), trend_score: 0 }),
+    expect(service.rpc).toHaveBeenCalledWith(
+      'recompute_performance_score',
+      expect.objectContaining({
+        p_performance_id: PERF_ID,
+        p_trend_baseline: 70,
+      }),
     );
   });
 });

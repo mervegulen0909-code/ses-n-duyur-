@@ -1,0 +1,192 @@
+[
+  {
+    "title": "Someone Like You",
+    "artist": "Adele",
+    "category": "pop",
+    "difficulty": "hard",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Shape of You",
+    "artist": "Ed Sheeran",
+    "category": "pop",
+    "difficulty": "easy",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Blinding Lights",
+    "artist": "The Weeknd",
+    "category": "pop",
+    "difficulty": "medium",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Bohemian Rhapsody",
+    "artist": "Queen",
+    "category": "rock",
+    "difficulty": "hard",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Hotel California",
+    "artist": "Eagles",
+    "category": "rock",
+    "difficulty": "medium",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Sweet Child O' Mine",
+    "artist": "Guns N' Roses",
+    "category": "rock",
+    "difficulty": "hard",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "My Heart Will Go On",
+    "artist": "Celine Dion",
+    "category": "ballad",
+    "difficulty": "hard",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Nothing Compares 2 U",
+    "artist": "Sinéad O'Connor",
+    "category": "ballad",
+    "difficulty": "medium",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Hallelujah",
+    "artist": "Leonard Cohen",
+    "category": "ballad",
+    "difficulty": "medium",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Ain't No Sunshine",
+    "artist": "Bill Withers",
+    "category": "rnb-soul",
+    "difficulty": "easy",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "I Will Always Love You",
+    "artist": "Whitney Houston",
+    "category": "rnb-soul",
+    "difficulty": "hard",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Bella Ciao",
+    "artist": "Traditional",
+    "category": "turkish-global",
+    "difficulty": "easy",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Aşk Yeniden",
+    "artist": "Sezen Aksu",
+    "category": "turkish-global",
+    "difficulty": "medium",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Mr. Brightside",
+    "artist": "The Killers",
+    "category": "indie-alternative",
+    "difficulty": "easy",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Take Me Out",
+    "artist": "Franz Ferdinand",
+    "category": "indie-alternative",
+    "difficulty": "medium",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Defying Gravity",
+    "artist": "Stephen Schwartz (Wicked)",
+    "category": "musical-classical",
+    "difficulty": "hard",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Ave Maria",
+    "artist": "Franz Schubert",
+    "category": "musical-classical",
+    "difficulty": "medium",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Happy Birthday to You",
+    "artist": "Traditional",
+    "category": "other",
+    "difficulty": "easy",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  },
+  {
+    "title": "Amazing Grace",
+    "artist": "Traditional",
+    "category": "other",
+    "difficulty": "easy",
+    "performances": [
+      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
+      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+    ]
+  }
+]

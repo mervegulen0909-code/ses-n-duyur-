@@ -7,8 +7,12 @@ vi.mock('@/lib/supabase/server', () => ({
 vi.mock('@/lib/guard', () => ({
   rateLimit: vi.fn(async () => null),
 }));
+vi.mock('@/lib/analytics-server', () => ({
+  trackServer: vi.fn(async () => {}),
+}));
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { trackServer } from '@/lib/analytics-server';
 import { POST } from './route';
 
 const PERF = '11111111-1111-1111-1111-111111111111';
@@ -118,5 +122,35 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
     // The server writes the verdict it computed (the client can never set it).
     expect(svc.update).toHaveBeenCalledWith(expect.objectContaining({ is_valid: json.isValid }));
     expect(svc.updateEq).toHaveBeenCalledWith('id', LISTEN);
+    // This body's single event yields 0% coverage — never a Verified Listen.
+    expect(json.isValid).toBe(false);
+    expect(trackServer).not.toHaveBeenCalled();
+  });
+
+  it('fires verified_listen_completed analytics only when the listen is actually valid', async () => {
+    const recentListen = {
+      ...ownedListen,
+      created_at: new Date(Date.now() - 210_000).toISOString(),
+    };
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen));
+    const svc = makeService();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+
+    const res = await POST(
+      makeRequest({
+        ...validBody,
+        durationS: 200,
+        events: [
+          { kind: 'playing', atSeconds: 0, clientTs: 0 },
+          { kind: 'ended', atSeconds: 200, clientTs: 200_000 },
+        ],
+      }),
+    );
+
+    const json = (await res.json()) as { isValid: boolean };
+    expect(json.isValid).toBe(true);
+    expect(trackServer).toHaveBeenCalledWith(svc.service, 'verified_listen_completed', 'me', {
+      performanceId: PERF,
+    });
   });
 });

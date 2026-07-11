@@ -1,7 +1,11 @@
-import type { BattleVoteInput, ListenEvent } from '@voxscore/core';
+import type { BattleVoteInput, ListenEvent, SongCategory } from '@voxscore/core';
 
 import { WEB_BASE as API_BASE } from './config';
 import { supabase } from './supabase';
+
+export const NATIVE_CLIENT_HEADERS = {
+  'x-voxscore-client': 'mobile-app',
+} as const;
 
 // The native app talks to the deployed Next.js API (same fairness/score logic
 // as web). Base URL is single-sourced in lib/config.ts (override per env with
@@ -29,6 +33,7 @@ async function authedPost<T>(
       method: 'POST',
       headers: {
         'content-type': 'application/json',
+        ...NATIVE_CLIENT_HEADERS,
         ...(token ? { authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(body),
@@ -39,6 +44,24 @@ async function authedPost<T>(
     // Network failure (offline, DNS, TLS, timeout) REJECTS fetch on-device.
     // Surface a synthetic failure so every caller's `if (!res.ok)` / error
     // branch fires instead of the promise rejecting and freezing the screen.
+    return { ok: false, status: 0, data: {} as T };
+  }
+}
+
+async function authedGet<T>(path: string): Promise<{ ok: boolean; status: number; data: T }> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: 'GET',
+      headers: {
+        ...NATIVE_CLIENT_HEADERS,
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    const json = (await res.json().catch(() => ({}))) as T;
+    return { ok: res.ok, status: res.status, data: json };
+  } catch {
     return { ok: false, status: 0, data: {} as T };
   }
 }
@@ -163,22 +186,43 @@ export async function postComment(
 }
 
 /**
- * Submit a new performance from a YouTube URL. The server fetches oEmbed
- * metadata, runs the provisional AI score, and inserts it (returns the new id).
- *
- * GATING: /api/performances uses botGuard, so — like single-vote — this is gated
- * on web Turnstile / native attestation (N2b): it 403s from native in prod until
- * that lands (Bearer-auth itself is live). It works in dev (Noop
- * bot-check), so the screen is fully usable for local/preview QA.
+ * Submit a YouTube URL for review. Normal users never create performances
+ * directly — this lands in the admin approval queue
+ * (`POST /api/performance-requests`). rateLimit + botGuard apply the same as
+ * web: gated on native attestation (N2b) until that lands; works today in
+ * dev (Noop bot-check).
  */
-export async function addPerformance(
+export async function submitPerformanceRequest(
   youtubeUrl: string,
+  category: SongCategory,
+  note?: string,
 ): Promise<{ ok: boolean; status: number; id?: string; error?: string }> {
   const { ok, status, data } = await authedPost<{ id?: string; error?: string }>(
-    '/api/performances',
-    { youtubeUrl },
+    '/api/performance-requests',
+    { youtubeUrl, category, note },
   );
   return { ok: ok && !!data.id, status, id: data.id, error: data.error };
+}
+
+export interface PerformanceRequestRow {
+  id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  category: SongCategory;
+  youtube_url: string;
+  rejection_reason: string | null;
+  created_at: string;
+}
+
+/** The signed-in user's own request history, newest first. */
+export async function myPerformanceRequests(): Promise<{
+  ok: boolean;
+  status: number;
+  requests: PerformanceRequestRow[];
+}> {
+  const { ok, status, data } = await authedGet<{ requests?: PerformanceRequestRow[] }>(
+    '/api/performance-requests',
+  );
+  return { ok, status, requests: data.requests ?? [] };
 }
 
 /**

@@ -7,9 +7,13 @@ vi.mock('@/lib/supabase/server', () => ({
 vi.mock('@/lib/guard', () => ({
   rateLimit: vi.fn(async () => null),
 }));
+vi.mock('@/lib/analytics-server', () => ({
+  trackServer: vi.fn(async () => {}),
+}));
 
 import { rateLimit } from '@/lib/guard';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { trackServer } from '@/lib/analytics-server';
 import { POST } from './route';
 
 const BATTLE = '11111111-1111-1111-1111-111111111111';
@@ -67,10 +71,21 @@ function makeCtx(
   };
 }
 
-function makeService(): Service {
+function makeService(opts: { winnerOwnerId?: string } = {}) {
   // Elo is now applied atomically server-side via the apply_battle_result RPC.
   const rpc = vi.fn(async () => ({ data: [{ rating_a: 1516, rating_b: 1484 }], error: null }));
-  return { rpc } as unknown as Service;
+  // grantBadge('battle_champion') looks up the WINNING performance's owner
+  // after a successful apply_battle_result.
+  const perfMaybeSingle = vi.fn(async () => ({
+    data: { user_id: opts.winnerOwnerId ?? 'winner-owner' },
+  }));
+  const from = vi.fn((table: string) => {
+    if (table === 'performances') {
+      return { select: () => ({ eq: () => ({ maybeSingle: perfMaybeSingle }) }) };
+    }
+    throw new Error(`unexpected table: ${table}`);
+  });
+  return { client: { rpc, from } as unknown as Service, rpc, from };
 }
 
 describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5)', () => {
@@ -139,14 +154,14 @@ describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5
   it('409 when the user already voted in this battle', async () => {
     const { ctx } = makeCtx('me', { insertError: { message: 'duplicate' } });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService());
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
     expect((await POST(makeRequest(validBody))).status).toBe(409);
   });
 
   it('201 on success, recording the vote with the SESSION voter id', async () => {
     const { ctx, votesInsert } = makeCtx('me');
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService());
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
 
     const res = await POST(makeRequest(validBody));
 
@@ -161,5 +176,23 @@ describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5
         is_verified: true,
       }),
     );
+    expect(trackServer).toHaveBeenCalledWith(expect.anything(), 'battle_completed', 'me', {
+      battleId: BATTLE,
+    });
+  });
+
+  it('grants battle_champion to the WINNING performance owner, not the voter', async () => {
+    const { ctx } = makeCtx('me');
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    const service = makeService({ winnerOwnerId: 'champion-1' });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    await POST(makeRequest(validBody));
+
+    expect(service.from).toHaveBeenCalledWith('performances');
+    expect(service.rpc).toHaveBeenCalledWith('grant_badge', {
+      p_user_id: 'champion-1',
+      p_badge_key: 'battle_champion',
+    });
   });
 });
