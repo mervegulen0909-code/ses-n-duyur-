@@ -1,17 +1,30 @@
 import {
   CRITERIA,
   currentScore,
+  DEFAULT_CRITERION_WEIGHTS,
   listenerScore,
   round,
   trendScore,
   type Criterion,
 } from '@voxscore/scoring';
 
-/** Average of the provided criterion ratings → a single 0–100 "overall". */
+/**
+ * Criterion-weighted mean of the provided ratings → a single 0–100 "overall".
+ * Uses the SAME weights as the AI composition (renormalized over the criteria
+ * actually present) so both blend inputs measure the same thing (regime v4).
+ */
 export function criteriaOverall(ratings: Partial<Record<Criterion, number>>): number | null {
-  const values = CRITERIA.map((c) => ratings[c]).filter((v): v is number => typeof v === 'number');
-  if (values.length === 0) return null;
-  return round(values.reduce((sum, v) => sum + v, 0) / values.length, 2);
+  let weightSum = 0;
+  let weighted = 0;
+  for (const c of CRITERIA) {
+    const v = ratings[c];
+    if (typeof v !== 'number') continue;
+    const w = DEFAULT_CRITERION_WEIGHTS[c];
+    weightSum += w;
+    weighted += v * w;
+  }
+  if (weightSum <= 0) return null;
+  return round(weighted / weightSum, 2);
 }
 
 export interface ScoreRecomputeInput {
