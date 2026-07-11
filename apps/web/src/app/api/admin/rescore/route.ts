@@ -48,15 +48,17 @@ export async function POST(req: Request): Promise<Response> {
 
   const { data: mockScores, error: loadError } = await service
     .from('scores')
+    // Queue: mock rows (hash noise) OR anything scored under an older regime —
+    // bumping SCORING_VERSION re-queues the whole league for one rescore pass.
     .select('performance_id')
-    .eq('ai_provider', 'mock')
+    .or(`ai_provider.eq.mock,scoring_version.lt.${SCORING_VERSION}`)
     .limit(parsed.data.limit);
   if (loadError) return Response.json({ error: 'Could not load scores' }, { status: 500 });
 
   const { count: totalMock } = await service
     .from('scores')
     .select('performance_id', { count: 'exact', head: true })
-    .eq('ai_provider', 'mock');
+    .or(`ai_provider.eq.mock,scoring_version.lt.${SCORING_VERSION}`);
 
   if (!mockScores || mockScores.length === 0) {
     return Response.json({ rescored: 0, failed: 0, remaining: 0 });
