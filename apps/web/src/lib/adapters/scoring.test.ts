@@ -167,4 +167,13 @@ describe('scoring determinism contract (league fairness)', () => {
     expect(res.model).toBe('mock-provisional-v0');
     vi.unstubAllGlobals();
   });
+
+  it('regime v4: version bumped and rubric is fame-free', async () => {
+    const { SCORING_VERSION } = await import('@voxscore/core');
+    const { SYSTEM } = await import('./scoring');
+    expect(SCORING_VERSION).toBe(4);
+    expect(SYSTEM).not.toMatch(/established artist/i);
+    expect(SYSTEM).toMatch(/do not reward performer fame/i);
+    expect(SYSTEM).toMatch(/multiple of 5/);
+  });
 });

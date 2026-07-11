@@ -77,6 +77,18 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
+  // Velocity cap: bounds any remaining bot-farm throughput to a human pace.
+  const MAX_VOTES_PER_DAY = 50;
+  const daySince = new Date(Date.now() - 24 * 3600_000).toISOString();
+  const { count: recentVotes } = await supabase
+    .from('criteria_ratings')
+    .select('id', { count: 'exact', head: true })
+    .eq('voter_id', user.id)
+    .gt('created_at', daySince);
+  if ((recentVotes ?? 0) >= MAX_VOTES_PER_DAY) {
+    return Response.json({ error: 'Daily voting limit reached' }, { status: 429 });
+  }
+
   // Map camelCase ratings → snake_case columns.
   const ratingColumns: Record<string, number> = {};
   for (const c of CRITERIA) {

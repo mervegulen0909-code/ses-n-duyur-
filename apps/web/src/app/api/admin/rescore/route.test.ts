@@ -10,6 +10,12 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('@/lib/adapters/scoring', () => ({
   getScoringProvider: vi.fn(),
 }));
+// Keep the REAL core (SCORING_VERSION, schemas, measured math) and stub only
+// the networked caption read.
+vi.mock('@voxscore/core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@voxscore/core')>()),
+  fetchCaptionText: vi.fn(async () => null),
+}));
 
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { getProfileForContext } from '@/lib/auth';
@@ -62,21 +68,21 @@ function makeService(
   const scoresUpdate = vi.fn(() => ({ eq: scoresUpdateEq }));
   const rpc = vi.fn(async () => ({ data: [{}], error: null }));
 
+  const queueOr = vi.fn(() => ({
+    limit: vi.fn(async () => ({
+      data: opts.mockRows ?? [{ performance_id: PERF }],
+      error: null,
+    })),
+  }));
+
   const from = vi.fn((table: string) => {
     if (table === 'scores') {
       return {
         select: vi.fn((_cols: string, selOpts?: { head?: boolean }) => {
           if (selOpts?.head) {
-            return { eq: vi.fn(async () => ({ count: opts.totalMock ?? 1 })) };
+            return { or: vi.fn(async () => ({ count: opts.totalMock ?? 1 })) };
           }
-          return {
-            eq: vi.fn(() => ({
-              limit: vi.fn(async () => ({
-                data: opts.mockRows ?? [{ performance_id: PERF }],
-                error: null,
-              })),
-            })),
-          };
+          return { or: queueOr };
         }),
         update: scoresUpdate,
       };
@@ -107,10 +113,13 @@ function makeService(
         })),
       };
     }
+    if (table === 'scoring_calibration') {
+      return { select: vi.fn(async () => ({ data: [] })) };
+    }
     throw new Error(`unexpected table ${table}`);
   });
 
-  return { service: { from, rpc } as unknown as Service, scoresUpdate, rpc };
+  return { service: { from, rpc } as unknown as Service, scoresUpdate, rpc, queueOr };
 }
 
 describe('POST /api/admin/rescore', () => {
@@ -207,6 +216,22 @@ describe('POST /api/admin/rescore', () => {
 
     await expect(res.json()).resolves.toMatchObject({ rescored: 0, failed: 1 });
     expect(svc.scoresUpdate).not.toHaveBeenCalled();
+  });
+
+  it('queues rows below the current scoring version, not only mock ones', async () => {
+    mockAdmin();
+    const svc = makeService({ totalMock: 1 });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+    vi.mocked(getScoringProvider).mockReturnValue({
+      score: vi.fn(async () => REAL_RESULT),
+    } as unknown as Provider);
+
+    await POST(makeRequest({}));
+
+    const { SCORING_VERSION } = await import('@voxscore/core');
+    expect(svc.queueOr).toHaveBeenCalledWith(
+      `ai_provider.eq.mock,scoring_version.lt.${SCORING_VERSION}`,
+    );
   });
 
   it('accepts an empty body (defaults limit)', async () => {

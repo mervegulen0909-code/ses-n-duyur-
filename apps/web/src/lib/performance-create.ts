@@ -1,6 +1,7 @@
 import 'server-only';
 import {
   buildPerformanceCreate,
+  fetchCaptionText,
   fetchOEmbed,
   normalizeSongKey,
   parseYouTubeId,
@@ -11,6 +12,7 @@ import type { createSupabaseServiceClient } from '@/lib/supabase/server';
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { getSongExtractor } from '@/lib/adapters/song';
 import { grantBadge } from '@/lib/badges';
+import { applyOffsets, loadCalibration } from '@/lib/calibration';
 import { currentSeasonId } from '@/lib/seasons';
 
 type ServiceClient = NonNullable<ReturnType<typeof createSupabaseServiceClient>>;
@@ -119,15 +121,19 @@ export async function createScoredPerformance(
     throw new OEmbedFetchError(err);
   }
 
-  // Score, resolve the song, and read the open season concurrently — three
-  // independent reads (two LLM/API calls, one DB lookup).
-  const [scoring, resolvedSongId, seasonId] = await Promise.all([
-    getScoringProvider().score({
-      videoId,
-      title: oembed.title,
-      authorName: oembed.authorName,
-      hasVideo: true,
-    }),
+  // Score (caption-enriched), resolve the song, read the open season, and
+  // load the calibration offsets concurrently — four independent reads.
+  const [rawScoring, resolvedSongId, seasonId, calibration] = await Promise.all([
+    (async () => {
+      const transcript = await fetchCaptionText(videoId);
+      return getScoringProvider().score({
+        videoId,
+        title: oembed.title,
+        authorName: oembed.authorName,
+        hasVideo: true,
+        transcript: transcript ?? undefined,
+      });
+    })(),
     params.songId
       ? Promise.resolve<string | null>(null) // caller pinned the song explicitly
       : resolveSongId(service, {
@@ -136,7 +142,17 @@ export async function createScoredPerformance(
           category: params.category ?? null,
         }),
     currentSeasonId(service),
+    loadCalibration(service),
   ]);
+
+  // Human-anchor calibration: shift the LLM estimate by the fitted offsets
+  // (identity when nothing has been fitted yet).
+  const calibrated = applyOffsets(rawScoring.breakdown, calibration, true);
+  const scoring = {
+    ...rawScoring,
+    breakdown: calibrated.breakdown,
+    initialAiScore: calibrated.initialAiScore,
+  };
 
   const payload = buildPerformanceCreate({
     userId: params.userId,

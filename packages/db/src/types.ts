@@ -117,6 +117,7 @@ export interface PublicRows {
     perf_b: Uuid;
     status: 'open' | 'closed';
     season_id: Uuid | null;
+    closed_at: Timestamp | null;
     created_at: Timestamp;
   };
   battle_votes: {
@@ -283,6 +284,12 @@ export interface PublicRows {
     starts_at: Timestamp;
     ends_at: Timestamp | null;
     created_at: Timestamp;
+  };
+  scoring_calibration: {
+    criterion: string;
+    offset_value: number;
+    sample_count: number;
+    fitted_at: Timestamp;
   };
 }
 

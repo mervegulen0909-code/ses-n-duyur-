@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -8,6 +8,8 @@ import { track } from '@/lib/analytics';
 import { isValidRefCode, REF_COOKIE, REF_COOKIE_MAX_AGE_S } from '@/lib/referral';
 
 type Mode = 'login' | 'signup';
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,6 +19,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
+
+  // Signup bot check: Cloudflare Turnstile, verified server-side by Supabase
+  // Auth (enable "Bot and Abuse Protection" in the dashboard with the same
+  // key pair). Skipped entirely when the site key isn't configured (local dev).
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY) return;
+    (window as unknown as Record<string, unknown>).onVsTurnstile = (token: string) =>
+      setCaptchaToken(token);
+    const s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    s.async = true;
+    document.head.appendChild(s);
+    return () => {
+      s.remove();
+    };
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +48,11 @@ export default function LoginPage() {
     const { error: authError } =
       mode === 'login'
         ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+        : await supabase.auth.signUp({
+            email,
+            password,
+            ...(TURNSTILE_SITE_KEY && captchaToken ? { options: { captchaToken } } : {}),
+          });
 
     setBusy(false);
     if (authError) {
@@ -123,6 +146,14 @@ export default function LoginPage() {
           placeholder={t('passwordPlaceholder')}
           className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 outline-none focus:border-emerald-500"
         />
+        {TURNSTILE_SITE_KEY && mode === 'signup' && (
+          <div
+            className="cf-turnstile"
+            data-sitekey={TURNSTILE_SITE_KEY}
+            data-callback="onVsTurnstile"
+            data-theme="dark"
+          />
+        )}
         <button
           type="submit"
           disabled={busy}

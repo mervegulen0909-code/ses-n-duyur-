@@ -22,9 +22,11 @@ export interface ScoringInput {
  * snapshots, temperature 0, rubric-anchored prompt, multiples-of-5 scores).
  * v3 (2026-07-11) = provider order becomes OpenAI → Gemini → mock (Anthropic
  * retired from the default order for cost); same determinism rules.
+ * v4 (2026-07-12) = fame-free rubric, criterion-weighted listener overall,
+ * smooth n/(n+60) blend capped at 0.55.
  * Persisted on every score row so old and new regimes stay distinguishable.
  */
-export const SCORING_VERSION = 3;
+export const SCORING_VERSION = 4;
 
 /** Which backend produced an AI estimate — persisted for provenance. */
 export type ScoringProviderName = 'anthropic' | 'openai' | 'gemini' | 'mock';

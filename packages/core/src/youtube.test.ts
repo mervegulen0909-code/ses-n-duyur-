@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchOEmbed, parseYouTubeId, watchUrl } from './youtube';
+import { fetchCaptionText, fetchOEmbed, parseYouTubeId, watchUrl } from './youtube';
 
 const ID = 'dQw4w9WgXcQ';
 
@@ -82,5 +82,36 @@ describe('fetchOEmbed', () => {
     vi.stubGlobal('fetch', fakeFetch({ title: 'Default Fetch' }));
     const meta = await fetchOEmbed(ID);
     expect(meta.title).toBe('Default Fetch');
+  });
+});
+
+describe('fetchCaptionText — public captions as scoring metadata', () => {
+  it('strips XML and entity escapes into plain text, capped at 1500 chars', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          `<?xml version="1.0"?><transcript><text start="0">Hello &amp; welcome</text><text start="2">it&#39;s me</text></transcript>`,
+      })),
+    );
+    await expect(fetchCaptionText('dQw4w9WgXcQ')).resolves.toBe("Hello & welcome it's me");
+    vi.unstubAllGlobals();
+  });
+
+  it('returns null when captions are absent or the request fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, text: async () => '' })),
+    );
+    await expect(fetchCaptionText('x')).resolves.toBeNull();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('net');
+      }),
+    );
+    await expect(fetchCaptionText('x')).resolves.toBeNull();
+    vi.unstubAllGlobals();
   });
 });

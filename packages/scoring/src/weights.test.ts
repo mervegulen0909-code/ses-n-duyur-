@@ -1,5 +1,37 @@
 import { describe, expect, it } from 'vitest';
-import { VOTE_WEIGHT_TIERS, weightForVotes } from './weights';
+import {
+  BLEND_PRIOR_STRENGTH,
+  LISTENER_WEIGHT_CAP,
+  listenerWeightForVotes,
+  VOTE_WEIGHT_TIERS,
+  weightForVotes,
+} from './weights';
+
+describe('listenerWeightForVotes — smooth n/(n+k) curve (regime v4)', () => {
+  it('is 0 with no votes and tiny for the first vote (no single-vote lever)', () => {
+    expect(listenerWeightForVotes(0)).toBe(0);
+    expect(listenerWeightForVotes(1)).toBeCloseTo(1 / 61, 6);
+  });
+
+  it('is monotonically increasing', () => {
+    let prev = -1;
+    for (const n of [0, 1, 2, 5, 10, 20, 60, 100, 500]) {
+      const w = listenerWeightForVotes(n);
+      expect(w).toBeGreaterThanOrEqual(prev);
+      prev = w;
+    }
+  });
+
+  it('reaches 50% at n = k and caps at LISTENER_WEIGHT_CAP', () => {
+    expect(listenerWeightForVotes(BLEND_PRIOR_STRENGTH)).toBeCloseTo(0.5, 6);
+    expect(listenerWeightForVotes(100000)).toBe(LISTENER_WEIGHT_CAP);
+  });
+
+  it('rejects negatives and non-finite input', () => {
+    expect(() => listenerWeightForVotes(-1)).toThrow(RangeError);
+    expect(() => listenerWeightForVotes(Number.NaN)).toThrow();
+  });
+});
 
 describe('VOTE_WEIGHT_TIERS', () => {
   it('every tier sums to 1.0', () => {
