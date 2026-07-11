@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
@@ -96,18 +97,20 @@ function useSideTracker(performanceId: string) {
 }
 
 function statusHint(
+  t: (key: string) => string,
   status: ReturnType<typeof useVerifiedListen>['status'],
   reason: string | null,
   embedBlocked: boolean,
 ) {
-  if (embedBlocked) return 'Embedding disabled — plays on YouTube only, can’t verify here.';
-  if (status === 'verified') return 'Listened ✓';
-  if (status === 'listening') return 'Keep watching to the end…';
-  if (status === 'invalid') return reason ?? 'Not fully listened — watch again to count.';
-  return 'Press play and watch fully.';
+  if (embedBlocked) return t('Battle.embedBlockedHint');
+  if (status === 'verified') return t('Battle.listenedOk');
+  if (status === 'listening') return t('Battle.keepWatching');
+  if (status === 'invalid') return reason ?? t('Battle.notFullyListened');
+  return t('Battle.pressPlay');
 }
 
 function BattleSide({ side, tracker }: { side: Side; tracker: ReturnType<typeof useSideTracker> }) {
+  const { t } = useTranslation();
   const { listen, playerRef, onChangeState, embedBlocked, setEmbedBlocked } = tracker;
   return (
     <View style={styles.sideCard}>
@@ -137,7 +140,7 @@ function BattleSide({ side, tracker }: { side: Side; tracker: ReturnType<typeof 
           (listen.status === 'invalid' || embedBlocked) && styles.sideStatusBad,
         ]}
       >
-        {statusHint(listen.status, listen.reason, embedBlocked)}
+        {statusHint(t, listen.status, listen.reason, embedBlocked)}
       </Text>
     </View>
   );
@@ -145,6 +148,7 @@ function BattleSide({ side, tracker }: { side: Side; tracker: ReturnType<typeof 
 
 function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useSession();
   const trackerA = useSideTracker(battle.a.performanceId);
   const trackerB = useSideTracker(battle.b.performanceId);
@@ -172,7 +176,7 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
     });
     if (res.ok) {
       setVoteState('done');
-      setVoteMsg('Vote recorded. Thanks for judging!');
+      setVoteMsg(t('Battle.voteRecorded'));
     } else {
       setVoteState('error');
       // /api/battles/vote uses only rateLimit (NO botGuard) and authenticates via
@@ -181,12 +185,12 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
       // both-listens-must-be-valid hard-rule check; a 409 is a duplicate vote.
       setVoteMsg(
         res.status === 401
-          ? 'Your session expired — sign in again to vote.'
+          ? t('Battle.sessionExpiredVote')
           : res.status === 403
-            ? (res.error ?? 'Both performances must be fully listened to vote.')
+            ? (res.error ?? t('Battle.bothMustBeListened'))
             : res.status === 409
-              ? 'You have already voted in this battle.'
-              : (res.error ?? `Could not record vote (${res.status}).`),
+              ? t('Battle.alreadyVoted')
+              : (res.error ?? t('Battle.voteFailed', { status: res.status })),
       );
     }
   }
@@ -194,13 +198,11 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <Text style={styles.gate}>
-        {bothVerified
-          ? 'Both performances listened — pick your winner.'
-          : 'Listen to BOTH performances fully to unlock the winner pick.'}
+        {bothVerified ? t('Battle.gateUnlocked') : t('Battle.gateLocked')}
       </Text>
 
       <BattleSide side={battle.a} tracker={trackerA} />
-      <Text style={styles.vs}>VS</Text>
+      <Text style={styles.vs}>{t('Battle.vs')}</Text>
       <BattleSide side={battle.b} tracker={trackerB} />
 
       {voteState === 'done' ? (
@@ -210,12 +212,12 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
             style={({ pressed }) => [styles.nextBtn, pressed && { opacity: 0.85 }]}
             onPress={onNext}
           >
-            <Text style={styles.nextBtnText}>Next battle ›</Text>
+            <Text style={styles.nextBtnText}>{t('Battle.nextBattle')}</Text>
           </Pressable>
         </View>
       ) : !user ? (
         <Pressable style={styles.signinCard} onPress={() => router.push('/login')}>
-          <Text style={styles.signinPrompt}>Sign in to pick a winner ›</Text>
+          <Text style={styles.signinPrompt}>{t('Battle.signInToPick')}</Text>
         </Pressable>
       ) : (
         <View style={styles.pickRow}>
@@ -229,7 +231,7 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
             onPress={() => pickWinner(battle.a.performanceId)}
           >
             <Text style={styles.pickBtnText} numberOfLines={2}>
-              {battle.a.title} wins
+              {t('Battle.wins', { title: battle.a.title })}
             </Text>
           </Pressable>
           <Pressable
@@ -242,7 +244,7 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
             onPress={() => pickWinner(battle.b.performanceId)}
           >
             <Text style={styles.pickBtnText} numberOfLines={2}>
-              {battle.b.title} wins
+              {t('Battle.wins', { title: battle.b.title })}
             </Text>
           </Pressable>
         </View>
@@ -256,7 +258,7 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
           battle would otherwise dead-end — Next only appeared after a vote. */}
       {voteState !== 'done' && (
         <Pressable onPress={onNext} hitSlop={8} style={styles.skipBtn}>
-          <Text style={styles.skipText}>Skip — next battle ›</Text>
+          <Text style={styles.skipText}>{t('Battle.skip')}</Text>
         </Pressable>
       )}
     </ScrollView>
@@ -265,6 +267,7 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
 
 export default function BattleScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user, loading } = useSession();
   const userId = user?.id ?? null;
   const [battle, setBattle] = useState<Battle | null>(null);
@@ -299,8 +302,8 @@ export default function BattleScreen() {
       if (!res.ok || !res.data?.battleId) {
         setError(
           res.status === 401
-            ? 'Your session expired — sign in again and retry.'
-            : (res.data?.error ?? `Could not load a battle (${res.status}).`),
+            ? t('Battle.sessionExpiredLoad')
+            : (res.data?.error ?? t('Battle.loadFailed', { status: res.status })),
         );
         setState('error');
         return;
@@ -311,7 +314,7 @@ export default function BattleScreen() {
       // nullable youtube_video_id). Guard for a missing video before narrowing —
       // the web arena does the same (body.a.videoId && body.b.videoId).
       if (!a.videoId || !b.videoId) {
-        setError('This battle is missing a video. Try another.');
+        setError(t('Battle.missingVideo'));
         setState('error');
         return;
       }
@@ -329,7 +332,7 @@ export default function BattleScreen() {
         return {
           performanceId: side.performanceId,
           videoId: side.videoId,
-          title: meta.title ?? side.title ?? 'Performance',
+          title: meta.title ?? side.title ?? t('Battle.fallbackTitle'),
           authorName: meta.authorName ?? '',
         };
       };
@@ -345,7 +348,7 @@ export default function BattleScreen() {
     return () => {
       active = false;
     };
-  }, [nonce, userId, loading]);
+  }, [nonce, userId, loading, t]);
 
   // ---- Signed-out gate (mirrors /add and /profile) ------------------------
   if (!loading && !user) {
@@ -353,22 +356,19 @@ export default function BattleScreen() {
       <SafeAreaView style={styles.safe} edges={['top']}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-            <Text style={styles.backText}>‹ Back</Text>
+            <Text style={styles.backText}>{t('Common.back')}</Text>
           </Pressable>
-          <Text style={styles.heading}>Battle</Text>
-          <Text style={styles.sub}>Two performances, one winner. Listen to both, then decide.</Text>
+          <Text style={styles.heading}>{t('Common.battle')}</Text>
+          <Text style={styles.sub}>{t('Battle.sub')}</Text>
         </View>
         <View style={styles.emptyWrap}>
-          <Text style={styles.emptyTitle}>Sign in to battle</Text>
-          <Text style={styles.emptyText}>
-            Battles pit two performances head-to-head. Sign in to listen to both and pick the
-            winner.
-          </Text>
+          <Text style={styles.emptyTitle}>{t('Battle.signInTitle')}</Text>
+          <Text style={styles.emptyText}>{t('Battle.signInBody')}</Text>
           <Pressable
             style={({ pressed }) => [styles.nextBtn, pressed && { opacity: 0.85 }]}
             onPress={() => router.push('/login')}
           >
-            <Text style={styles.nextBtnText}>Sign in</Text>
+            <Text style={styles.nextBtnText}>{t('Common.signIn')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -379,25 +379,23 @@ export default function BattleScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <Text style={styles.backText}>‹ Back</Text>
+          <Text style={styles.backText}>{t('Common.back')}</Text>
         </Pressable>
-        <Text style={styles.heading}>Battle</Text>
-        <Text style={styles.sub}>Two performances, one winner. Listen to both, then decide.</Text>
+        <Text style={styles.heading}>{t('Common.battle')}</Text>
+        <Text style={styles.sub}>{t('Battle.sub')}</Text>
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
 
       {state === 'empty' && (
         <View style={styles.emptyWrap}>
-          <Text style={styles.emptyTitle}>No open battles</Text>
-          <Text style={styles.emptyText}>
-            Not enough performances to battle yet. Add more from the leaderboard, then check back.
-          </Text>
+          <Text style={styles.emptyTitle}>{t('Battle.emptyTitle')}</Text>
+          <Text style={styles.emptyText}>{t('Battle.emptyBody')}</Text>
           <Pressable
             style={({ pressed }) => [styles.nextBtn, pressed && { opacity: 0.85 }]}
             onPress={() => setNonce((n) => n + 1)}
           >
-            <Text style={styles.nextBtnText}>Try again</Text>
+            <Text style={styles.nextBtnText}>{t('Battle.tryAgain')}</Text>
           </Pressable>
         </View>
       )}
@@ -409,7 +407,7 @@ export default function BattleScreen() {
             style={({ pressed }) => [styles.nextBtn, pressed && { opacity: 0.85 }]}
             onPress={() => setNonce((n) => n + 1)}
           >
-            <Text style={styles.nextBtnText}>Try again</Text>
+            <Text style={styles.nextBtnText}>{t('Battle.tryAgain')}</Text>
           </Pressable>
         </View>
       )}
