@@ -62,17 +62,36 @@ export async function GET(req: Request): Promise<Response> {
     deviations.set(voterId, list);
   }
 
-  const voters = [...deviations.entries()]
-    .filter(([, list]) => list.length >= MIN_COMPARISONS)
-    .sort(([a], [b]) => a.localeCompare(b))
+  const eligible = [...deviations.entries()].filter(([, list]) => list.length >= MIN_COMPARISONS);
+
+  // Round-robin cursor: refit the voters not touched in the longest time first
+  // (never-fitted sorts first), so a population larger than one batch drains
+  // over successive nights instead of starving everyone past the lowest-id 200.
+  const eligibleIds = eligible.map(([id]) => id);
+  const { data: fittedRows } = eligibleIds.length
+    ? await service.from('profiles').select('id, reputation_fitted_at').in('id', eligibleIds)
+    : { data: [] };
+  const fittedAt = new Map(
+    (fittedRows ?? []).map((r) => [
+      r.id as string,
+      (r.reputation_fitted_at as string | null) ?? '',
+    ]),
+  );
+  const voters = eligible
+    .sort(([a], [b]) => {
+      const fa = fittedAt.get(a) ?? '';
+      const fb = fittedAt.get(b) ?? '';
+      return fa === fb ? a.localeCompare(b) : fa < fb ? -1 : 1;
+    })
     .slice(0, VOTER_BATCH);
 
+  const nowIso = new Date().toISOString();
   let updated = 0;
   for (const [voterId, list] of voters) {
     const mad = list.reduce((s, d) => s + d, 0) / list.length;
     const { error: updateError } = await service
       .from('profiles')
-      .update({ reputation: reputationFromMad(mad) })
+      .update({ reputation: reputationFromMad(mad), reputation_fitted_at: nowIso })
       .eq('id', voterId);
     if (updateError) {
       console.error('[refresh-reputation] update failed', voterId, updateError);

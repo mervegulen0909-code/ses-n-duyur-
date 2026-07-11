@@ -33,14 +33,19 @@ function ratingRow(voterId: string, performanceId: string, value: number) {
 function makeService(opts: {
   consensus?: { performance_id: string; listener_score: number }[];
   ratings?: Record<string, unknown>[];
+  fittedAt?: { id: string; reputation_fitted_at: string | null }[];
 }) {
   const updates: { id: string; reputation: number }[] = [];
-  const profilesUpdate = vi.fn((payload: { reputation: number }) => ({
-    eq: vi.fn(async (_col: string, id: string) => {
-      updates.push({ id, reputation: payload.reputation });
-      return { error: null };
+  const fittedStamps: { id: string; fittedAt: string | undefined }[] = [];
+  const profilesUpdate = vi.fn(
+    (payload: { reputation: number; reputation_fitted_at?: string }) => ({
+      eq: vi.fn(async (_col: string, id: string) => {
+        updates.push({ id, reputation: payload.reputation });
+        fittedStamps.push({ id, fittedAt: payload.reputation_fitted_at });
+        return { error: null };
+      }),
     }),
-  }));
+  );
 
   const from = vi.fn((table: string) => {
     if (table === 'scores') {
@@ -60,12 +65,17 @@ function makeService(opts: {
       };
     }
     if (table === 'profiles') {
-      return { update: profilesUpdate };
+      return {
+        update: profilesUpdate,
+        select: vi.fn(() => ({
+          in: vi.fn(async () => ({ data: opts.fittedAt ?? [], error: null })),
+        })),
+      };
     }
     throw new Error(`unexpected table ${table}`);
   });
 
-  return { service: { from } as unknown as Service, profilesUpdate, updates };
+  return { service: { from } as unknown as Service, profilesUpdate, updates, fittedStamps };
 }
 
 describe('GET /api/cron/refresh-reputation', () => {
@@ -128,6 +138,37 @@ describe('GET /api/cron/refresh-reputation', () => {
       ]),
     );
     expect(svc.updates).toHaveLength(2);
+  });
+
+  it('round-robin: refits the never-fitted / oldest voters first and stamps reputation_fitted_at', async () => {
+    const consensus = [
+      { performance_id: PERF_1, listener_score: 80 },
+      { performance_id: PERF_2, listener_score: 60 },
+      { performance_id: PERF_3, listener_score: 70 },
+    ];
+    const svc = makeService({
+      consensus,
+      ratings: [
+        ratingRow('v-old', PERF_1, 80),
+        ratingRow('v-old', PERF_2, 60),
+        ratingRow('v-old', PERF_3, 70),
+        ratingRow('v-new', PERF_1, 80),
+        ratingRow('v-new', PERF_2, 60),
+        ratingRow('v-new', PERF_3, 70),
+      ],
+      fittedAt: [
+        { id: 'v-new', reputation_fitted_at: '2026-07-12T00:00:00.000Z' }, // fitted recently
+        { id: 'v-old', reputation_fitted_at: null }, // never fitted → drains first
+      ],
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+
+    await GET(makeRequest('cron-test-secret'));
+
+    // Never-fitted voter is refit before the recently-fitted one.
+    expect(svc.updates.map((u) => u.id)).toEqual(['v-old', 'v-new']);
+    // Every refit stamps the round-robin cursor.
+    expect(svc.fittedStamps.every((s) => typeof s.fittedAt === 'string')).toBe(true);
   });
 
   it('a moderate deviation lands between the clamps (mad 12.5 → neutral 1000)', async () => {
