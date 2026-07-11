@@ -78,7 +78,29 @@ export default function TermsPage() {
       </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">9. Governing law</h2>
-      <p>[Governing law and jurisdiction — to be confirmed with counsel.]</p>
+      <p>
+        These terms are governed by the laws of the Republic of Turkey, and any dispute not resolved
+        informally will be subject to the exclusive jurisdiction of the courts of Istanbul, Turkey,
+        without regard to conflict-of-laws principles.
+      </p>
+      <p>
+        This choice does not remove any protection you are entitled to under the mandatory consumer
+        protection, data privacy, or other statutory laws of the country where you live, which
+        continue to apply where local law requires it. If you are a consumer in the European Union or
+        the United Kingdom, you may also be able to bring a claim in the courts of your own country of
+        residence, and EU consumers can use the European Commission&apos;s Online Dispute Resolution
+        platform at{' '}
+        <a
+          className="text-emerald-400"
+          href="https://ec.europa.eu/consumers/odr"
+          target="_blank"
+          rel="noreferrer"
+        >
+          ec.europa.eu/consumers/odr
+        </a>
+        . If you are a California resident, nothing here waives any right you have under California
+        law that cannot be waived by agreement.
+      </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">10. Changes to these terms</h2>
       <p>
