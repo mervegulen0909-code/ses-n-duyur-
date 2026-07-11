@@ -35,6 +35,9 @@ const OPENAI_SEED = 42;
 // for a small JSON estimate. Override with ANTHROPIC_SCORING_MODEL.
 const ANTHROPIC_MODEL = process.env.ANTHROPIC_SCORING_MODEL ?? 'claude-haiku-4-5-20251001';
 
+// Default Gemini scoring model. Override with GEMINI_SCORING_MODEL.
+const GEMINI_MODEL = process.env.GEMINI_SCORING_MODEL ?? 'gemini-2.5-flash';
+
 const SYSTEM = `You estimate vocal-performance quality for a music league.
 You are given ONLY text metadata (title, artist/channel, optional transcript) for
 a YouTube performance — you are NOT given the audio. Produce a PROVISIONAL,
@@ -193,14 +196,89 @@ export class AnthropicScoringProvider implements ScoringProvider {
 }
 
 /**
+ * GeminiScoringProvider — clearly-provisional Gemini estimate of the 9
+ * criteria from metadata (never audio). REST-based (no SDK dependency).
+ * Activated by getScoringProvider() when GEMINI_API_KEY is set and no OpenAI
+ * key is. Falls back to the mock on any API/parse error (including the
+ * depleted-credits 429) so adding a performance never hard-fails.
+ */
+export class GeminiScoringProvider implements ScoringProvider {
+  private readonly fallback = new MockScoringProvider();
+
+  constructor(private readonly apiKey: string) {}
+
+  async score(input: ScoringInput): Promise<ScoringResult> {
+    try {
+      const transcript = input.transcript ? `\nTranscript excerpt:\n${input.transcript}` : '';
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${this.apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: SYSTEM }] },
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `Title: ${input.title}\nArtist/Channel: ${input.authorName}\nHas video: ${input.hasVideo}${transcript}`,
+                  },
+                ],
+              },
+            ],
+            // Determinism: greedy decoding + JSON-only output (see contract).
+            generationConfig: { temperature: 0, responseMimeType: 'application/json' },
+          }),
+        },
+      );
+      if (!res.ok) {
+        console.error(
+          `[scoring] Gemini HTTP ${res.status}; falling back to mock estimate:`,
+          (await res.text()).slice(0, 300),
+        );
+        return this.fallback.score(input);
+      }
+      const body = (await res.json()) as {
+        candidates?: { content?: { parts?: { text?: string }[] } }[];
+      };
+      const raw = body.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!raw) {
+        console.error('[scoring] Gemini returned no text part; falling back to mock estimate');
+        return this.fallback.score(input);
+      }
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+
+      const breakdown = Object.fromEntries(
+        CRITERIA.map((c) => [c, quantize(parsed[c])]),
+      ) as CriteriaScores;
+
+      return {
+        initialAiScore: composeInitialAiScore(breakdown, { hasVideo: input.hasVideo }),
+        breakdown,
+        provisional: true,
+        model: GEMINI_MODEL,
+        provider: 'gemini',
+      };
+    } catch (err) {
+      console.error('[scoring] Gemini provider failed; falling back to mock estimate:', err);
+      return this.fallback.score(input);
+    }
+  }
+}
+
+/**
  * Returns the real scoring provider based on which API key is configured:
- * Anthropic (Claude, preferred) → OpenAI → deterministic dev mock. All embed
- * scores stay PROVISIONAL regardless of provider.
+ * OpenAI (primary) → Gemini → Anthropic (retired from the default order for
+ * cost; still honored if it's the only key) → deterministic dev mock. Keep
+ * ONE provider active per league season (see the consistency contract). All
+ * embed scores stay PROVISIONAL regardless of provider.
  */
 export function getScoringProvider(): ScoringProvider {
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (anthropicKey) return new AnthropicScoringProvider(anthropicKey);
   const openaiKey = process.env.OPENAI_API_KEY;
   if (openaiKey) return new OpenAIScoringProvider(openaiKey);
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey) return new GeminiScoringProvider(geminiKey);
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (anthropicKey) return new AnthropicScoringProvider(anthropicKey);
   return new MockScoringProvider();
 }

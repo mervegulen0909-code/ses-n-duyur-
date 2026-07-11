@@ -20,12 +20,14 @@ export interface ScoringInput {
  * DISTRIBUTION changes: provider switch, model switch, prompt/rubric edits,
  * quantization rules. v2 (2026-07-10) = deterministic regime (pinned model
  * snapshots, temperature 0, rubric-anchored prompt, multiples-of-5 scores).
+ * v3 (2026-07-11) = provider order becomes OpenAI → Gemini → mock (Anthropic
+ * retired from the default order for cost); same determinism rules.
  * Persisted on every score row so old and new regimes stay distinguishable.
  */
-export const SCORING_VERSION = 2;
+export const SCORING_VERSION = 3;
 
 /** Which backend produced an AI estimate — persisted for provenance. */
-export type ScoringProviderName = 'anthropic' | 'openai' | 'mock';
+export type ScoringProviderName = 'anthropic' | 'openai' | 'gemini' | 'mock';
 
 export interface ScoringResult {
   readonly initialAiScore: number;

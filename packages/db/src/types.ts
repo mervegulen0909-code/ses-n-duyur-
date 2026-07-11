@@ -69,7 +69,7 @@ export interface PublicRows {
     current_score: number | null;
     trend_score: number | null;
     verified_vote_count: number;
-    ai_provider: 'anthropic' | 'openai' | 'mock' | null;
+    ai_provider: 'anthropic' | 'openai' | 'gemini' | 'mock' | null;
     ai_model: string | null;
     season_id: Uuid | null;
     updated_at: Timestamp;
