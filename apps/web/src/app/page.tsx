@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { ProvisionalBadge } from '@/components/provisional-badge';
+import { CategoryChips } from '@/components/category-chips';
+import { InviteFriendCard } from '@/components/invite-friend-card';
 import { toScoreView, type ScoreRow } from '@/lib/score';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -18,11 +20,18 @@ interface PerformanceCard {
   oembed_meta: unknown;
 }
 
+interface FeaturedChallenge {
+  title: string;
+  songId: string;
+  songTitle: string;
+}
+
 export default async function HomePage() {
   const t = await getTranslations();
   const supabase = await createSupabaseServerClient();
   let performances: PerformanceCard[] = [];
   let scoreByPerf = new Map<string, ScoreRow>();
+  let featured: FeaturedChallenge | null = null;
 
   if (supabase) {
     const { data } = await supabase
@@ -40,6 +49,17 @@ export default async function HomePage() {
         .select('performance_id, current_score, is_provisional')
         .in('performance_id', ids);
       scoreByPerf = new Map((scores ?? []).map((s) => [s.performance_id, s]));
+    }
+
+    const { data: challenge } = await supabase
+      .from('featured_challenges')
+      .select('title, song_id, songs(title)')
+      .order('starts_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (challenge) {
+      const song = challenge.songs as unknown as { title: string } | null;
+      featured = { title: challenge.title, songId: challenge.song_id, songTitle: song?.title ?? '' };
     }
   }
 
@@ -60,14 +80,47 @@ export default async function HomePage() {
         <p className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 text-center text-neutral-400">
           {t.rich('Home.supabaseHint', { code: (chunks) => <code>{chunks}</code> })}
         </p>
-      ) : performances.length === 0 ? (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-8 text-center">
-          <p className="text-neutral-400">{t('Common.noPerformances')}</p>
-          <Link href="/add" className="mt-3 inline-block font-medium text-emerald-400">
-            {t('Home.addFirst')}
-          </Link>
-        </div>
       ) : (
+        <>
+          {featured && (
+            <section className="mb-8 rounded-xl border border-emerald-800/50 bg-emerald-500/5 p-5">
+              <div className="text-xs font-medium uppercase tracking-wide text-emerald-400">
+                {t('Home.featuredHeading')}
+              </div>
+              <Link
+                href={`/song/${featured.songId}?challenge=1`}
+                className="mt-1 block text-lg font-semibold hover:underline"
+              >
+                {featured.title || featured.songTitle}
+              </Link>
+            </section>
+          )}
+
+          <section className="mb-8">
+            <CategoryChips />
+          </section>
+
+          <section className="mb-10 grid gap-4 sm:grid-cols-3">
+            <Link
+              href="/leaderboard"
+              className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 hover:border-neutral-600"
+            >
+              <div className="font-semibold">{t('Home.ctaChallengeTitle')}</div>
+              <div className="mt-1 text-sm text-neutral-500">{t('Home.ctaChallengeBody')}</div>
+            </Link>
+            <Link
+              href="/add"
+              className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 hover:border-neutral-600"
+            >
+              <div className="font-semibold">{t('Home.ctaRequestTitle')}</div>
+              <div className="mt-1 text-sm text-neutral-500">{t('Home.ctaRequestBody')}</div>
+            </Link>
+            <InviteFriendCard />
+          </section>
+        </>
+      )}
+
+      {!supabase ? null : performances.length === 0 ? null : (
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {performances.map((p) => {
             const meta = (p.oembed_meta ?? {}) as OEmbedish;

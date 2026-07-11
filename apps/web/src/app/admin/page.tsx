@@ -24,6 +24,10 @@ export default async function AdminPage() {
     .from('dmca_requests')
     .select('*', { count: 'exact', head: true })
     .eq('status', 'open');
+  const { count: performanceRequests } = await supabase!
+    .from('performance_requests')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'pending');
 
   const cards = [
     {
@@ -37,6 +41,11 @@ export default async function AdminPage() {
       sub: t('Admin.openRequests', { count: dmca ?? 0 }),
     },
     {
+      href: '/admin/performance-requests',
+      title: t('Admin.cardPerformanceRequests'),
+      sub: t('Admin.openPerformanceRequests', { count: performanceRequests ?? 0 }),
+    },
+    {
       href: '/admin/calibrate',
       title: t('Admin.cardCalibration'),
       sub: t('Admin.calibrationSub'),
@@ -46,7 +55,7 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="mb-6 text-2xl font-bold">{t('Nav.admin')}</h1>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         {cards.map((c) => (
           <Link
             key={c.href}

@@ -31,7 +31,14 @@
     "heroTitle": "जानिए कौन किसी गाने को <hl>सबसे बेहतर</hl> गाता है।",
     "heroSubtitle": "एक YouTube परफॉर्मेंस जोड़ें, प्रोविजनल AI अनुमान पाएं, फिर वेरिफाइड श्रोताओं को वोट और बैटल करने दें।",
     "supabaseHint": "Supabase अभी कॉन्फ़िगर नहीं किया गया है। लोकल स्टैक शुरू करें (<code>pnpm db:start</code>) और <code>.env.local</code> सेट करें, फिर एक परफॉर्मेंस जोड़ें।",
-    "addFirst": "पहला जोड़ें →"
+    "addFirst": "पहला जोड़ें →",
+    "featuredHeading": "फ़ीचर्ड चैलेंज",
+    "ctaChallengeTitle": "एक चैलेंज शुरू करें",
+    "ctaChallengeBody": "एक गाना चुनें और दोस्तों को मुकाबले के लिए आमंत्रित करें।",
+    "ctaRequestTitle": "एक प्रदर्शन सबमिट करें",
+    "ctaRequestBody": "अपना कवर लीग में जोड़ें — हर अनुरोध की समीक्षा एक एडमिन करता है।",
+    "ctaInviteTitle": "किसी दोस्त को आमंत्रित करें",
+    "ctaInviteBody": "VoxScore शेयर करें और लीग को बढ़ाएं।"
   },
   "Login": {
     "signIn": "साइन इन करें",
@@ -51,7 +58,21 @@
     "signInPrompt": "परफॉर्मेंस जोड़ने के लिए कृपया <link>साइन इन करें</link>।",
     "urlLabel": "YouTube परफॉर्मेंस URL",
     "submit": "परफॉर्मेंस जोड़ें",
-    "adding": "जोड़ा जा रहा है…"
+    "adding": "जोड़ा जा रहा है…",
+    "reviewNote": "लीग में शामिल होने से पहले अनुरोधों की समीक्षा एक एडमिन करता है।",
+    "categoryLabel": "श्रेणी",
+    "notePlaceholder": "समीक्षक के लिए नोट (वैकल्पिक)",
+    "requestSubmit": "अनुरोध भेजें",
+    "requestSubmitting": "भेजा जा रहा है…",
+    "requestSuccessTitle": "आपका अनुरोध समीक्षा कतार में है",
+    "requestSuccessBody": "अनुरोध आईडी: {id}। एडमिन जल्द ही इसकी समीक्षा करेगा।",
+    "myRequestsHeading": "मेरे अनुरोध",
+    "noRequests": "आपने अभी तक कोई अनुरोध नहीं भेजा है।",
+    "statusPending": "समीक्षा में",
+    "statusApproved": "स्वीकृत",
+    "statusRejected": "अस्वीकृत",
+    "rejectionReasonPrefix": "कारण: {reason}",
+    "viewPerformance": "प्रदर्शन देखें →"
   },
   "Battle": {
     "subtitle": "दो परफॉर्मेंस, एक विजेता। दोनों को पूरा सुनें, फिर तय करें।",
@@ -71,7 +92,13 @@
   "Leaderboard": {
     "subtitle": "मौजूदा स्कोर के अनुसार रैंक किया गया।",
     "battleRecord": "{wins}–{losses} · बैटल्स",
-    "viewStandings": "बैटल स्टैंडिंग्स →"
+    "viewStandings": "बैटल स्टैंडिंग्स →",
+    "searchPlaceholder": "गाने या कलाकार से खोजें",
+    "allCategories": "सभी श्रेणियाँ",
+    "sortScore": "सर्वोच्च स्कोर",
+    "sortBattles": "सबसे ज़्यादा मुकाबले",
+    "sortNewest": "सबसे नया",
+    "noResults": "आपके फ़िल्टर से कोई प्रदर्शन मेल नहीं खाता।"
   },
   "Standings": {
     "title": "बैटल स्टैंडिंग्स",
@@ -91,7 +118,17 @@
     "addedBy": "<link>{handle}</link> द्वारा जोड़ा गया",
     "noVideo": "कोई वीडियो नहीं है।",
     "signInToVote": "वोट करने के लिए <link>साइन इन करें</link> और वेरिफाइड लिसन पूरा करें।",
-    "signInToComment": "कमेंट करने के लिए <link>साइन इन करें</link>।"
+    "signInToComment": "कमेंट करने के लिए <link>साइन इन करें</link>।",
+    "confidenceNone": "केवल AI अनुमान",
+    "confidenceEarly": "शुरुआती वोट",
+    "confidenceCommunity": "समुदाय द्वारा पुष्टि",
+    "verifiedVotes": "{count, plural, one {# सत्यापित वोट} other {# सत्यापित वोट}}",
+    "shareHeading": "शेयर करें",
+    "copyLink": "लिंक कॉपी करें",
+    "linkCopied": "कॉपी हो गया!",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X",
+    "challengeCta": "किसी दोस्त को इस मुकाबले की चुनौती दें"
   },
   "Criteria": {
     "vocalAccuracy": "वोकल सटीकता",
@@ -154,7 +191,13 @@
     "saving": "सेव किया जा रहा है…",
     "saveCalibration": "कैलिब्रेशन सेव करें",
     "calibrationSaved": "कैलिब्रेशन सेव हो गया ✓",
-    "calibrationFailed": "सेव करने में विफल"
+    "calibrationFailed": "सेव करने में विफल",
+    "cardPerformanceRequests": "प्रदर्शन अनुरोध",
+    "openPerformanceRequests": "{count, plural, one {# लंबित अनुरोध} other {# लंबित अनुरोध}}",
+    "performanceRequestsQueue": "प्रदर्शन अनुरोध कतार",
+    "noOpenPerformanceRequests": "कोई लंबित अनुरोध नहीं है।",
+    "approve": "स्वीकृत करें",
+    "rejectionReasonPlaceholder": "अस्वीकृति का कारण (आवश्यक)"
   },
   "Report": {
     "promptReason": "आप इसकी रिपोर्ट क्यों कर रहे हैं?",
@@ -174,6 +217,18 @@
   },
   "Song": {
     "subtitle": "कौन इस गाने को सबसे बेहतर गाता है — स्कोर के अनुसार रैंक किया गया।",
-    "viewRanking": "देखें कौन “{title}” को सबसे बेहतर गाता है"
+    "viewRanking": "देखें कौन “{title}” को सबसे बेहतर गाता है",
+    "challengeCta": "इस गाने पर किसी दोस्त को मुकाबले के लिए आमंत्रित करें",
+    "battleThisSong": "इस गाने पर मुकाबला करें →"
+  },
+  "Category": {
+    "pop": "पॉप",
+    "rock": "रॉक",
+    "rnbSoul": "आर&बी / सोल",
+    "ballad": "बैलड",
+    "turkishGlobal": "तुर्की / वैश्विक",
+    "indieAlternative": "इंडी / ऑल्टरनेटिव",
+    "musicalClassical": "म्यूज़िकल / शास्त्रीय",
+    "other": "अन्य"
   }
 }

@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { wilsonLowerBound } from '@voxscore/scoring';
-import { ProvisionalBadge } from '@/components/provisional-badge';
+import { isSongCategory } from '@voxscore/core';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
+import { CategoryChips } from '@/components/category-chips';
+import { LeaderboardList, type LeaderboardDisplayRow } from '@/components/leaderboard-list';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { rankByScore, type LeaderboardRow } from '@/lib/leaderboard';
-import { RankBadge } from '@/components/rank-badge';
-import { TrendTag } from '@/components/trend-tag';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +15,12 @@ function titleOf(meta: unknown): string {
   return m.title ?? '';
 }
 
-export default async function LeaderboardPage() {
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
   const t = await getTranslations();
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
@@ -29,16 +34,27 @@ export default async function LeaderboardPage() {
 
   const { data: perfs } = await supabase
     .from('performances')
-    .select('id, oembed_meta, battle_wins, battle_count')
+    .select('id, oembed_meta, battle_wins, battle_count, song_id, created_at')
     .eq('status', 'active');
 
   const { data: scores } = await supabase
     .from('scores')
-    .select('performance_id, current_score, trend_score, is_provisional');
+    .select('performance_id, current_score, trend_score, is_provisional, verified_vote_count');
+
+  const activeCategory = isSongCategory(category) ? category : null;
+  const songIds = [...new Set((perfs ?? []).map((p) => p.song_id).filter((id): id is string => !!id))];
+  const { data: songs } = songIds.length
+    ? await supabase.from('songs').select('id, category').in('id', songIds)
+    : { data: [] };
+  const categoryBySong = new Map((songs ?? []).map((s) => [s.id, s.category]));
 
   const scoreByPerf = new Map((scores ?? []).map((s) => [s.performance_id, s]));
 
-  const rows: LeaderboardRow[] = (perfs ?? []).map((p) => {
+  const perfsInCategory = activeCategory
+    ? (perfs ?? []).filter((p) => p.song_id && categoryBySong.get(p.song_id) === activeCategory)
+    : (perfs ?? []);
+
+  const rows: LeaderboardRow[] = perfsInCategory.map((p) => {
     const s = scoreByPerf.get(p.id);
     return {
       id: p.id,
@@ -52,6 +68,14 @@ export default async function LeaderboardPage() {
     };
   });
   const ranked = rankByScore(rows);
+  const displayRows: LeaderboardDisplayRow[] = ranked.map((r) => {
+    const p = perfsInCategory.find((x) => x.id === r.id)!;
+    return {
+      ...r,
+      verifiedVoteCount: scoreByPerf.get(r.id)?.verified_vote_count ?? 0,
+      createdAt: p.created_at,
+    };
+  });
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -62,36 +86,16 @@ export default async function LeaderboardPage() {
           {t('Leaderboard.viewStandings')}
         </Link>
       </div>
-      <p className="mb-6 text-sm text-neutral-400">{t('Leaderboard.subtitle')}</p>
+      <p className="mb-4 text-sm text-neutral-400">{t('Leaderboard.subtitle')}</p>
 
-      {ranked.length === 0 ? (
+      <div className="mb-6">
+        <CategoryChips active={activeCategory ?? undefined} />
+      </div>
+
+      {displayRows.length === 0 && !activeCategory ? (
         <p className="text-neutral-400">{t('Common.noPerformances')}</p>
       ) : (
-        <ol className="space-y-2">
-          {ranked.map((r, i) => (
-            <li key={r.id}>
-              <Link
-                href={`/performance/${r.id}`}
-                className="flex items-center gap-4 rounded-lg border border-neutral-800 bg-neutral-900/50 px-4 py-3 hover:border-neutral-600"
-              >
-                <RankBadge rank={i + 1} />
-                <span className="flex-1 truncate text-sm">
-                  {r.title || t('Common.untitledPerformance')}
-                </span>
-                {r.isProvisional && <ProvisionalBadge />}
-                {r.battles > 0 && (
-                  <span className="hidden text-xs text-neutral-500 sm:inline">
-                    {t('Leaderboard.battleRecord', { wins: r.wins, losses: r.battles - r.wins })}
-                  </span>
-                )}
-                <TrendTag trend={r.trendScore} />
-                <span className="w-12 text-right font-semibold tabular-nums">
-                  {r.currentScore === null ? '—' : r.currentScore.toFixed(1)}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ol>
+        <LeaderboardList rows={displayRows} />
       )}
     </main>
   );

@@ -1,13 +1,26 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { AddPerformanceForm } from '@/components/add-performance-form';
+import { MyRequestsList, type MyRequestRow } from '@/components/my-requests-list';
 import { getCurrentUser } from '@/lib/auth';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AddPage() {
   const t = await getTranslations();
   const user = await getCurrentUser();
+
+  let requests: MyRequestRow[] = [];
+  if (user) {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase!
+      .from('performance_requests')
+      .select('id, status, category, youtube_url, rejection_reason, approved_performance_id')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    requests = data ?? [];
+  }
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-6 py-12">
@@ -17,7 +30,10 @@ export default async function AddPage() {
       </div>
 
       {user ? (
-        <AddPerformanceForm />
+        <>
+          <AddPerformanceForm />
+          <MyRequestsList requests={requests} />
+        </>
       ) : (
         <p className="text-sm text-neutral-400">
           {t.rich('Add.signInPrompt', {

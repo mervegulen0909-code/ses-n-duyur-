@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import type { Criterion } from '@voxscore/scoring';
 import { YouTubeEmbed } from '@/components/youtube-embed';
@@ -7,6 +8,7 @@ import { ScoreBreakdown } from '@/components/score-breakdown';
 import { VotePanel } from '@/components/vote-panel';
 import { ReportButton } from '@/components/report-button';
 import { CommentComposer } from '@/components/comment-composer';
+import { ShareButtons } from '@/components/share-buttons';
 import { withAuthors } from '@/lib/comments';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
@@ -16,6 +18,36 @@ export const dynamic = 'force-dynamic';
 interface OEmbedish {
   title?: string;
   authorName?: string;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return {};
+
+  const { data: perf } = await supabase
+    .from('performances')
+    .select('oembed_meta')
+    .eq('id', id)
+    .maybeSingle();
+  const { data: score } = await supabase
+    .from('scores')
+    .select('current_score')
+    .eq('performance_id', id)
+    .maybeSingle();
+
+  const meta = (perf?.oembed_meta ?? {}) as OEmbedish;
+  const songTitle = meta.title ?? 'Performance';
+  const scoreLabel = score?.current_score !== null && score?.current_score !== undefined
+    ? score.current_score.toFixed(1)
+    : '—';
+  const title = `${songTitle} — ${scoreLabel} on VoxScore`;
+
+  return { title, openGraph: { title }, twitter: { title } };
 }
 
 export default async function PerformancePage({ params }: { params: Promise<{ id: string }> }) {
@@ -52,7 +84,9 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
   const { data: score } = await supabase
     .from('scores')
-    .select('initial_ai_score, current_score, trend_score, is_provisional, ai_breakdown')
+    .select(
+      'initial_ai_score, current_score, trend_score, is_provisional, ai_breakdown, verified_vote_count',
+    )
     .eq('performance_id', id)
     .maybeSingle();
 
@@ -145,7 +179,24 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           breakdown={breakdown}
           measured={measured}
           hasVideo={perf.has_video}
+          verifiedVoteCount={score?.verified_vote_count ?? 0}
         />
+        {perf.youtube_video_id && (
+          <div className="mt-4">
+            <ShareButtons
+              url={`/performance/${perf.id}`}
+              title={meta.title ?? t('Performance.fallbackTitle')}
+            />
+            {song && (
+              <Link
+                href={`/song/${song.id}?challenge=1`}
+                className="mt-3 block text-center text-sm font-medium text-emerald-400 hover:underline"
+              >
+                {t('Performance.challengeCta')} →
+              </Link>
+            )}
+          </div>
+        )}
       </aside>
 
       <section className="lg:col-span-2">

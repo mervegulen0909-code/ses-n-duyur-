@@ -31,7 +31,14 @@
     "heroTitle": "Descubre quién canta <hl>mejor</hl> una canción.",
     "heroSubtitle": "Añade una interpretación de YouTube, obtén una estimación provisional de IA y deja que los oyentes verificados voten y compitan.",
     "supabaseHint": "Supabase aún no está configurado. Inicia el stack local (<code>pnpm db:start</code>) y configura <code>.env.local</code>, luego añade una interpretación.",
-    "addFirst": "Añade la primera →"
+    "addFirst": "Añade la primera →",
+    "featuredHeading": "Reto destacado",
+    "ctaChallengeTitle": "Inicia un reto",
+    "ctaChallengeBody": "Elige una canción e invita a amigos a un duelo.",
+    "ctaRequestTitle": "Envía una interpretación",
+    "ctaRequestBody": "Añade tu versión a la liga — cada solicitud es revisada por un admin.",
+    "ctaInviteTitle": "Invita a un amigo",
+    "ctaInviteBody": "Comparte VoxScore y haz crecer la liga."
   },
   "Login": {
     "signIn": "Iniciar sesión",
@@ -51,7 +58,21 @@
     "signInPrompt": "Por favor, <link>inicia sesión</link> para añadir una interpretación.",
     "urlLabel": "URL de la interpretación en YouTube",
     "submit": "Añadir interpretación",
-    "adding": "Añadiendo…"
+    "adding": "Añadiendo…",
+    "reviewNote": "Un administrador revisa las solicitudes antes de que aparezcan en la liga.",
+    "categoryLabel": "Categoría",
+    "notePlaceholder": "Nota para el revisor (opcional)",
+    "requestSubmit": "Enviar solicitud",
+    "requestSubmitting": "Enviando…",
+    "requestSuccessTitle": "Tu solicitud está en la cola de revisión",
+    "requestSuccessBody": "ID de solicitud: {id}. Un administrador la revisará pronto.",
+    "myRequestsHeading": "Mis solicitudes",
+    "noRequests": "Aún no has enviado ninguna solicitud.",
+    "statusPending": "En revisión",
+    "statusApproved": "Aprobada",
+    "statusRejected": "Rechazada",
+    "rejectionReasonPrefix": "Motivo: {reason}",
+    "viewPerformance": "Ver interpretación →"
   },
   "Battle": {
     "subtitle": "Dos interpretaciones, un ganador. Escucha ambas por completo y luego decide.",
@@ -71,7 +92,13 @@
   "Leaderboard": {
     "subtitle": "Clasificadas por puntuación actual.",
     "battleRecord": "{wins}–{losses} · batallas",
-    "viewStandings": "Posiciones de batalla →"
+    "viewStandings": "Posiciones de batalla →",
+    "searchPlaceholder": "Buscar por canción o artista",
+    "allCategories": "Todas las categorías",
+    "sortScore": "Puntuación más alta",
+    "sortBattles": "Más duelos",
+    "sortNewest": "Más recientes",
+    "noResults": "Ninguna interpretación coincide con tus filtros."
   },
   "Standings": {
     "title": "Posiciones de batalla",
@@ -91,7 +118,17 @@
     "addedBy": "Añadido por <link>{handle}</link>",
     "noVideo": "Sin video.",
     "signInToVote": "<link>Inicia sesión</link> y completa una Escucha Verificada para votar.",
-    "signInToComment": "<link>Inicia sesión</link> para comentar."
+    "signInToComment": "<link>Inicia sesión</link> para comentar.",
+    "confidenceNone": "Solo estimación de IA",
+    "confidenceEarly": "Votos iniciales",
+    "confidenceCommunity": "Confirmado por la comunidad",
+    "verifiedVotes": "{count, plural, one {# voto verificado} other {# votos verificados}}",
+    "shareHeading": "Compartir",
+    "copyLink": "Copiar enlace",
+    "linkCopied": "¡Copiado!",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X",
+    "challengeCta": "Reta a un amigo a este duelo"
   },
   "Criteria": {
     "vocalAccuracy": "Precisión vocal",
@@ -154,7 +191,13 @@
     "saving": "Guardando…",
     "saveCalibration": "Guardar calibración",
     "calibrationSaved": "Calibración guardada ✓",
-    "calibrationFailed": "Error al guardar"
+    "calibrationFailed": "Error al guardar",
+    "cardPerformanceRequests": "Solicitudes de interpretación",
+    "openPerformanceRequests": "{count, plural, one {# solicitud pendiente} other {# solicitudes pendientes}}",
+    "performanceRequestsQueue": "Cola de solicitudes de interpretación",
+    "noOpenPerformanceRequests": "No hay solicitudes pendientes.",
+    "approve": "Aprobar",
+    "rejectionReasonPlaceholder": "Motivo del rechazo (obligatorio)"
   },
   "Report": {
     "promptReason": "¿Por qué estás reportando esto?",
@@ -174,6 +217,18 @@
   },
   "Song": {
     "subtitle": "Quién canta mejor esta canción — clasificados por puntuación.",
-    "viewRanking": "Descubre quién canta mejor “{title}”"
+    "viewRanking": "Descubre quién canta mejor “{title}”",
+    "challengeCta": "Invita a un amigo a un duelo con esta canción",
+    "battleThisSong": "Duelo con esta canción →"
+  },
+  "Category": {
+    "pop": "Pop",
+    "rock": "Rock",
+    "rnbSoul": "R&B / Soul",
+    "ballad": "Balada",
+    "turkishGlobal": "Turco / Global",
+    "indieAlternative": "Indie / Alternativo",
+    "musicalClassical": "Musical / Clásico",
+    "other": "Otro"
   }
 }

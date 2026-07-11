@@ -11,3 +11,4 @@ export * from './weights';
 export * from './score';
 export * from './elo';
 export * from './wilson';
+export * from './confidence';

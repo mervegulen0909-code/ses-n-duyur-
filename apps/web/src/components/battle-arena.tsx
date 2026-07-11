@@ -145,7 +145,7 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
   );
 }
 
-export function BattleArena() {
+export function BattleArena({ songId }: { songId?: string } = {}) {
   const t = useTranslations('Battle');
   const [battle, setBattle] = useState<Battle | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
@@ -157,7 +157,11 @@ export function BattleArena() {
     setBattle(null);
     (async () => {
       try {
-        const res = await fetch('/api/battles/next', { method: 'POST' });
+        const res = await fetch('/api/battles/next', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(songId ? { songId } : {}),
+        });
         if (res.status === 404) {
           if (!cancelled) setState('empty');
           return;
@@ -178,7 +182,7 @@ export function BattleArena() {
     return () => {
       cancelled = true;
     };
-  }, [nonce]);
+  }, [nonce, songId]);
 
   if (state === 'loading') return <p className="text-neutral-400">{t('finding')}</p>;
   if (state === 'empty') return <p className="text-neutral-400">{t('notEnough')}</p>;
