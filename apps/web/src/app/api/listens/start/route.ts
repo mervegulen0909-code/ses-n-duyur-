@@ -2,6 +2,14 @@ import { listenStartSchema } from '@voxscore/core';
 import { getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 
+/**
+ * The verified-listen time-anchor is the core anti-bot cost — but only if
+ * sessions can't run in PARALLEL (100 concurrent listens would pay the
+ * wall-clock cost once for all of them). Cap open sessions per user.
+ */
+const MAX_OPEN_LISTENS = 3;
+const OPEN_WINDOW_MIN = 30;
+
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
   try {
@@ -21,6 +29,20 @@ export async function POST(req: Request): Promise<Response> {
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;
+
+  const openSince = new Date(Date.now() - OPEN_WINDOW_MIN * 60_000).toISOString();
+  const { count: openCount } = await supabase
+    .from('verified_listens')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('is_valid', false)
+    .gt('created_at', openSince);
+  if ((openCount ?? 0) >= MAX_OPEN_LISTENS) {
+    return Response.json(
+      { error: 'Too many listening sessions in progress — finish one first' },
+      { status: 429 },
+    );
+  }
 
   const { data, error } = await supabase
     .from('verified_listens')

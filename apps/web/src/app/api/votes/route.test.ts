@@ -43,6 +43,7 @@ function makeCtx(
     listen?: Record<string, unknown> | null;
     insertError?: unknown;
     perfOwner?: string;
+    recentVotes?: number;
   } = {},
 ) {
   const listenMaybeSingle = vi.fn(async () => ({ data: opts.listen ?? null, error: null }));
@@ -51,6 +52,8 @@ function makeCtx(
     error: null,
   }));
   const ratingsInsert = vi.fn(async () => ({ error: opts.insertError ?? null }));
+  // Velocity cap probe: select('id', {head}).eq('voter_id').gt('created_at')
+  const ratingsCountGt = vi.fn(async () => ({ count: opts.recentVotes ?? 0 }));
   const from = vi.fn((table: string) => {
     if (table === 'verified_listens') {
       return { select: () => ({ eq: () => ({ maybeSingle: listenMaybeSingle }) }) };
@@ -58,7 +61,12 @@ function makeCtx(
     if (table === 'performances') {
       return { select: () => ({ eq: () => ({ maybeSingle: perfMaybeSingle }) }) };
     }
-    if (table === 'criteria_ratings') return { insert: ratingsInsert };
+    if (table === 'criteria_ratings') {
+      return {
+        insert: ratingsInsert,
+        select: vi.fn(() => ({ eq: vi.fn(() => ({ gt: ratingsCountGt })) })),
+      };
+    }
     return {};
   });
   return {
@@ -190,6 +198,16 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
     await expect(res.json()).resolves.toMatchObject({
       error: 'You cannot vote on your own performance',
     });
+    expect(ratingsInsert).not.toHaveBeenCalled();
+  });
+
+  it('429 after 50 votes in 24h (velocity cap), before any insert', async () => {
+    const { ctx, ratingsInsert } = makeCtx('me', { listen: validListen, recentVotes: 50 });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+
+    const res = await POST(makeRequest(validBody));
+
+    expect(res.status).toBe(429);
     expect(ratingsInsert).not.toHaveBeenCalled();
   });
 

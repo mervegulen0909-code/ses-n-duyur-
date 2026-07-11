@@ -117,6 +117,7 @@ export interface PublicRows {
     perf_b: Uuid;
     status: 'open' | 'closed';
     season_id: Uuid | null;
+    closed_at: Timestamp | null;
     created_at: Timestamp;
   };
   battle_votes: {

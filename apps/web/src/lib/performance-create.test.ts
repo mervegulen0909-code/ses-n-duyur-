@@ -290,10 +290,10 @@ describe('createScoredPerformance — score persistence is not best-effort', () 
 
     // Mock provider scores every criterion 73.5; +10 on vocalAccuracy (w=0.20)
     // shifts the composed initial by exactly 2: 73.5 + 0.20·10 = 75.5.
-    const inserted = service.scoreInsert.mock.calls[0]![0] as {
-      initial_ai_score: number;
-      ai_breakdown: Record<string, number>;
-    };
+    const calls = service.scoreInsert.mock.calls as unknown as Array<
+      [{ initial_ai_score: number; ai_breakdown: Record<string, number> }]
+    >;
+    const inserted = calls[0]![0];
     expect(inserted.ai_breakdown.vocalAccuracy).toBe(83.5);
     expect(inserted.initial_ai_score).toBe(75.5);
   });

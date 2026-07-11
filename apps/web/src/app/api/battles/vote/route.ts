@@ -2,7 +2,6 @@ import { battleVoteSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 import { trackServer } from '@/lib/analytics-server';
-import { grantBadge } from '@/lib/badges';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -25,10 +24,13 @@ export async function POST(req: Request): Promise<Response> {
 
   const { data: battle } = await supabase
     .from('battles')
-    .select('id, perf_a, perf_b')
+    .select('id, perf_a, perf_b, status')
     .eq('id', battleId)
     .maybeSingle();
   if (!battle) return Response.json({ error: 'Battle not found' }, { status: 404 });
+  if (battle.status === 'closed') {
+    return Response.json({ error: 'Battle already closed' }, { status: 409 });
+  }
 
   if (winnerPerformanceId !== battle.perf_a && winnerPerformanceId !== battle.perf_b) {
     return Response.json({ error: 'Winner must be one of the two performances' }, { status: 422 });
@@ -72,40 +74,12 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'You have already voted in this battle' }, { status: 409 });
   }
 
-  // Apply the Elo update + win/battle counters ATOMICALLY. apply_battle_result
-  // locks BOTH performance rows, recomputes Elo (mirrors @voxscore/scoring), and
-  // increments the counters in one transaction — so concurrent battle votes that
-  // share a performance can no longer lose updates (the old JS read-modify-write
-  // race that leaked Elo points and undercounted battles).
+  // Elo is NOT applied per vote anymore. The close-battles cron applies ONE
+  // margin-weighted apply_battle_result per battle when it closes (24h after
+  // creation) — N voters no longer mean N full K-factor swings.
   const service = createSupabaseServiceClient();
   if (service) {
-    const resultForA = winnerPerformanceId === battle.perf_a ? 1 : 0;
-    const { data: applied } = await service.rpc('apply_battle_result', {
-      p_perf_a: battle.perf_a,
-      p_perf_b: battle.perf_b,
-      p_result_for_a: resultForA,
-    });
-    const row = applied?.[0];
-    if (row) {
-      await trackServer(service, 'battle_completed', user.id, { battleId });
-
-      // Server-granted only; look up the WINNING performance's owner (not
-      // the voter) — grantBadge is idempotent, so awarding on every win is a
-      // harmless no-op after the first.
-      const { data: winnerPerf } = await service
-        .from('performances')
-        .select('user_id')
-        .eq('id', winnerPerformanceId)
-        .maybeSingle();
-      if (winnerPerf) {
-        await grantBadge(service, winnerPerf.user_id, 'battle_champion');
-      }
-
-      return Response.json(
-        { ok: true, ratingA: row.rating_a, ratingB: row.rating_b },
-        { status: 201 },
-      );
-    }
+    await trackServer(service, 'battle_completed', user.id, { battleId });
   }
 
   return Response.json({ ok: true }, { status: 201 });

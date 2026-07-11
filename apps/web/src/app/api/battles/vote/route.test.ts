@@ -181,18 +181,24 @@ describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5
     });
   });
 
-  it('grants battle_champion to the WINNING performance owner, not the voter', async () => {
+  it('409 when the battle is already closed (votes only while the window is open)', async () => {
+    const { ctx, votesInsert } = makeCtx('me', { battle: { ...battle, status: 'closed' } });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+
+    const res = await POST(makeRequest(validBody));
+
+    expect(res.status).toBe(409);
+    expect(votesInsert).not.toHaveBeenCalled();
+  });
+
+  it('does NOT apply Elo per vote — that moved to the close-battles cron', async () => {
     const { ctx } = makeCtx('me');
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    const service = makeService({ winnerOwnerId: 'champion-1' });
+    const service = makeService();
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
 
     await POST(makeRequest(validBody));
 
-    expect(service.from).toHaveBeenCalledWith('performances');
-    expect(service.rpc).toHaveBeenCalledWith('grant_badge', {
-      p_user_id: 'champion-1',
-      p_badge_key: 'battle_champion',
-    });
+    expect(service.rpc).not.toHaveBeenCalled();
   });
 });

@@ -23,14 +23,22 @@ function makeRequest(body: unknown): Request {
   });
 }
 
-function makeCtx(userId = 'me', opts: { insertError?: unknown } = {}) {
+function makeCtx(userId = 'me', opts: { insertError?: unknown; openCount?: number } = {}) {
   const single = vi.fn(async () => ({
     data: opts.insertError ? null : { id: 'listen-1' },
     error: opts.insertError ?? null,
   }));
-  const select = vi.fn(() => ({ single }));
-  const insert = vi.fn(() => ({ select }));
-  const from = vi.fn(() => ({ insert }));
+  const insertSelect = vi.fn(() => ({ single }));
+  const insert = vi.fn(() => ({ select: insertSelect }));
+  // Concurrency probe: select('id', {head}).eq().eq().gt() → { count }
+  const countGt = vi.fn(async () => ({ count: opts.openCount ?? 0 }));
+  const countSelect = vi.fn(() => ({
+    eq: vi.fn(() => ({ eq: vi.fn(() => ({ gt: countGt })) })),
+  }));
+  const from = vi.fn(() => ({
+    insert,
+    select: countSelect,
+  }));
   return { ctx: { supabase: { from }, user: { id: userId } } as unknown as RequestCtx, insert };
 }
 
@@ -55,6 +63,16 @@ describe('POST /api/listens/start', () => {
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
     vi.mocked(rateLimit).mockResolvedValueOnce(Response.json({ error: 'rl' }, { status: 429 }));
     expect((await POST(makeRequest({ performanceId: PERF }))).status).toBe(429);
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it('429 when the user already has 3 open listen sessions (parallel-farm guard)', async () => {
+    const { ctx, insert } = makeCtx('me', { openCount: 3 });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+
+    const res = await POST(makeRequest({ performanceId: PERF }));
+
+    expect(res.status).toBe(429);
     expect(insert).not.toHaveBeenCalled();
   });
 
