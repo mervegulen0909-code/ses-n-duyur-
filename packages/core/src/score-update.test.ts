@@ -60,4 +60,16 @@ describe('recomputeScore', () => {
     expect(r.currentScore).toBe(80);
     expect(r.trendScore).toBe(10);
   });
+
+  it('rejects an out-of-range or non-finite trendBaseline', () => {
+    expect(() =>
+      recomputeScore({ initialAiScore: 80, trendBaseline: 101, voteOveralls: [] }),
+    ).toThrow(RangeError);
+    expect(() =>
+      recomputeScore({ initialAiScore: 80, trendBaseline: -1, voteOveralls: [] }),
+    ).toThrow(RangeError);
+    expect(() =>
+      recomputeScore({ initialAiScore: 80, trendBaseline: NaN, voteOveralls: [] }),
+    ).toThrow(RangeError);
+  });
 });
