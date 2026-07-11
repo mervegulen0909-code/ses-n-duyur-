@@ -242,6 +242,12 @@ export const seasonCreateSchema = z.object({
 });
 export type SeasonCreateInput = z.infer<typeof seasonCreateSchema>;
 
+/** Admin: re-score mock-scored rows with the real provider, in small batches. */
+export const rescoreSchema = z.object({
+  limit: z.number().int().min(1).max(10).default(5),
+});
+export type RescoreInput = z.infer<typeof rescoreSchema>;
+
 export const moderateSchema = z.object({
   flagId: z.string().uuid(),
   status: z.enum(['resolved', 'dismissed']),
