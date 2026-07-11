@@ -66,6 +66,7 @@ export interface PublicRows {
     ai_breakdown: Json | null;
     is_provisional: boolean;
     listener_score: number | null;
+    listener_stddev: number | null;
     current_score: number | null;
     trend_score: number | null;
     verified_vote_count: number;
@@ -325,6 +326,7 @@ export type Database = {
           current_score: number;
           trend_score: number;
           verified_vote_count: number;
+          listener_stddev: number | null;
         }[];
       };
       grant_badge: {
