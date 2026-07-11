@@ -113,6 +113,7 @@
   },
   "Performance": {
     "currentScore": "Puntuación actual",
+    "scoreInterval": "±{margin}",
     "trend": "tendencia",
     "aiStart": "Inicio con IA",
     "measuredBadge": "Medido",

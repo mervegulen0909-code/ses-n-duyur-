@@ -113,6 +113,7 @@
   },
   "Performance": {
     "currentScore": "النتيجة الحالية",
+    "scoreInterval": "±{margin}",
     "trend": "الاتجاه",
     "aiStart": "بداية الذكاء الاصطناعي",
     "measuredBadge": "مقاس فعليًا",

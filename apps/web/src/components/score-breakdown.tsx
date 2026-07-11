@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { CRITERIA, confidenceForVotes, type Criterion } from '@voxscore/scoring';
+import { CRITERIA, confidenceForVotes, confidenceMargin, type Criterion } from '@voxscore/scoring';
 import { ProvisionalBadge } from './provisional-badge';
 import { trendDirection } from '@/lib/leaderboard';
 
@@ -15,6 +15,8 @@ export interface ScoreBreakdownProps {
   measured?: Partial<Record<Criterion, number>> | null;
   hasVideo: boolean;
   verifiedVoteCount: number;
+  /** Sample stddev of the per-vote overalls (scores.listener_stddev, RPC v5). */
+  listenerStddev?: number | null;
 }
 
 const CONFIDENCE_KEY = {
@@ -29,6 +31,7 @@ function fmt(value: number | null): string {
 
 export function ScoreBreakdown(props: ScoreBreakdownProps) {
   const t = useTranslations();
+  const margin = confidenceMargin(props.listenerStddev ?? null, props.verifiedVoteCount);
   const trend = props.trendScore ?? 0;
   // Use the leaderboard's flat band (|trend| < 0.05 → flat) so a value that
   // rounds to 0.0 shows neutral with no '+' — matching the leaderboard arrow.
@@ -40,7 +43,14 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
     <section className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
       <header className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <div className="text-3xl font-bold">{fmt(props.currentScore)}</div>
+          <div className="text-3xl font-bold">
+            {fmt(props.currentScore)}
+            {margin !== null && (
+              <span className="ml-1.5 align-middle text-sm font-medium text-neutral-500">
+                {t('Performance.scoreInterval', { margin: margin.toFixed(1) })}
+              </span>
+            )}
+          </div>
           <div className="text-xs text-neutral-500">{t('Performance.currentScore')}</div>
         </div>
         <div className="text-right">

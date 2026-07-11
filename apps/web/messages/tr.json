@@ -113,6 +113,7 @@
   },
   "Performance": {
     "currentScore": "Güncel puan",
+    "scoreInterval": "±{margin}",
     "trend": "eğilim",
     "aiStart": "YZ başlangıç",
     "measuredBadge": "Ölçüldü",

@@ -113,6 +113,7 @@
   },
   "Performance": {
     "currentScore": "当前得分",
+    "scoreInterval": "±{margin}",
     "trend": "趋势",
     "aiStart": "AI 初始分",
     "measuredBadge": "已实测",

@@ -1,4 +1,4 @@
-import { assertFinite } from './util';
+import { assertFinite, round } from './util';
 
 /**
  * How much crowd signal backs a performance's Current Score, for the
@@ -19,4 +19,25 @@ export function confidenceForVotes(verifiedVotes: number): ConfidenceLevel {
   if (v === 0) return 'aiOnly';
   if (v < 10) return 'earlyVotes';
   return 'communityConfirmed';
+}
+
+/** Fewer votes than this and an interval would be noise, not information. */
+const MARGIN_MIN_VOTES = 5;
+
+/**
+ * Half-width of the 95% confidence interval around the listener score:
+ * ±1.96·sd/√n, 1 decimal. Null when the stddev is unknown or fewer than
+ * 5 votes back it — callers hide the interval instead of showing a fake one.
+ */
+export function confidenceMargin(
+  listenerStddev: number | null,
+  verifiedVotes: number,
+): number | null {
+  if (listenerStddev === null) return null;
+  assertFinite(listenerStddev, 'listenerStddev');
+  if (listenerStddev < 0) throw new RangeError('listenerStddev must be >= 0');
+  assertFinite(verifiedVotes, 'verifiedVotes');
+  const n = Math.floor(verifiedVotes);
+  if (n < MARGIN_MIN_VOTES) return null;
+  return round((1.96 * listenerStddev) / Math.sqrt(n), 1);
 }

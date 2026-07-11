@@ -113,6 +113,7 @@
   },
   "Performance": {
     "currentScore": "मौजूदा स्कोर",
+    "scoreInterval": "±{margin}",
     "trend": "ट्रेंड",
     "aiStart": "AI शुरुआत",
     "measuredBadge": "मापा गया",
