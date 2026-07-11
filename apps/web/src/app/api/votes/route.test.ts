@@ -84,6 +84,7 @@ function makeService(
     data: opts.measured ? { measured_breakdown: opts.measured } : null,
   }));
   const ratingsEq = vi.fn(async () => ({ data: [{ vocal_accuracy: 80 }] }));
+  const notificationInsert = vi.fn(async () => ({ error: null }));
   const rpc = vi.fn(async () => ({
     data: [
       {
@@ -105,9 +106,10 @@ function makeService(
       return { select: () => ({ eq: () => ({ maybeSingle: measuredMaybeSingle }) }) };
     }
     if (table === 'criteria_ratings') return { select: () => ({ eq: ratingsEq }) };
+    if (table === 'notification_events') return { insert: notificationInsert };
     return {};
   });
-  return { client: { from, rpc } as unknown as Service, rpc };
+  return { client: { from, rpc } as unknown as Service, rpc, notificationInsert };
 }
 
 describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () => {
@@ -203,12 +205,19 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
       listen: { ...validListen, user_id: 'me-real' },
     });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
+    const service = makeService();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
 
     const res = await POST(makeRequest(validBody));
 
     expect(res.status).toBe(201);
     await expect(res.json()).resolves.toMatchObject({ ok: true });
+    expect(service.notificationInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: 'performance-owner',
+        kind: 'new_vote',
+      }),
+    );
     expect(ratingsInsert).toHaveBeenCalledWith(
       expect.objectContaining({
         performance_id: PERF,

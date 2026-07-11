@@ -38,10 +38,12 @@ function ctxFor(userId: string): RequestCtx {
   return { supabase: {}, user: { id: userId } } as unknown as RequestCtx;
 }
 
-function makeService(opts: {
-  requestRow?: unknown;
-  updateResult?: { error: unknown };
-}): { service: Service; update: ReturnType<typeof vi.fn>; eq: ReturnType<typeof vi.fn> } {
+function makeService(opts: { requestRow?: unknown; updateResult?: { error: unknown } }): {
+  service: Service;
+  update: ReturnType<typeof vi.fn>;
+  eq: ReturnType<typeof vi.fn>;
+  notificationInsert: ReturnType<typeof vi.fn>;
+} {
   const maybeSingle = vi.fn(async () => ({
     data:
       'requestRow' in opts
@@ -59,8 +61,12 @@ function makeService(opts: {
   const select = vi.fn(() => ({ eq: selectEq }));
   const eq = vi.fn(async () => opts.updateResult ?? { error: null });
   const update = vi.fn(() => ({ eq }));
-  const from = vi.fn(() => ({ select, update }));
-  return { service: { from } as unknown as Service, update, eq };
+  const notificationInsert = vi.fn(async () => ({ error: null }));
+  const from = vi.fn((table: string) => {
+    if (table === 'notification_events') return { insert: notificationInsert };
+    return { select, update };
+  });
+  return { service: { from } as unknown as Service, update, eq, notificationInsert };
 }
 
 describe('POST /api/admin/performance-requests — approve/reject', () => {
@@ -156,7 +162,7 @@ describe('POST /api/admin/performance-requests — approve/reject', () => {
       handle: 'a',
       role: 'admin',
     });
-    const { service, update, eq } = makeService({});
+    const { service, update, eq, notificationInsert } = makeService({});
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
 
     const res = await POST(
@@ -173,6 +179,9 @@ describe('POST /api/admin/performance-requests — approve/reject', () => {
     );
     expect(eq).toHaveBeenCalledWith('id', REQUEST_ID);
     expect(createScoredPerformance).not.toHaveBeenCalled();
+    expect(notificationInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ user_id: 'requester-1', kind: 'performance_request_rejected' }),
+    );
   });
 
   it('approve creates the performance for the REQUESTER and marks approved', async () => {
@@ -182,7 +191,7 @@ describe('POST /api/admin/performance-requests — approve/reject', () => {
       handle: 'a',
       role: 'admin',
     });
-    const { service, update } = makeService({});
+    const { service, update, notificationInsert } = makeService({});
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
     vi.mocked(createScoredPerformance).mockResolvedValue({ id: 'perf-new' });
 
@@ -202,6 +211,9 @@ describe('POST /api/admin/performance-requests — approve/reject', () => {
       'performance_request_approved',
       'requester-1',
       expect.objectContaining({ requestId: REQUEST_ID }),
+    );
+    expect(notificationInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ user_id: 'requester-1', kind: 'performance_request_approved' }),
     );
   });
 

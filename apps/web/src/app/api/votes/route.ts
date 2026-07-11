@@ -5,6 +5,7 @@ import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/s
 import { botGuard, rateLimit } from '@/lib/guard';
 import { trackServer } from '@/lib/analytics-server';
 import { grantBadge } from '@/lib/badges';
+import { notifyServer } from '@/lib/notify';
 import { COLUMN } from './overall';
 
 type CriteriaRatingInsert = Database['public']['Tables']['criteria_ratings']['Insert'];
@@ -141,6 +142,9 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     await trackServer(service, 'vote_submitted', user.id, {
+      performanceId: parsed.data.performanceId,
+    });
+    await notifyServer(service, votedPerf.user_id, 'new_vote', {
       performanceId: parsed.data.performanceId,
     });
 

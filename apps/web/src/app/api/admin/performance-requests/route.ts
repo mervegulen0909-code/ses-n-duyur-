@@ -3,6 +3,7 @@ import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/s
 import { getProfileForContext } from '@/lib/auth';
 import { createScoredPerformance, DuplicateVideoError } from '@/lib/performance-create';
 import { trackServer } from '@/lib/analytics-server';
+import { notifyServer } from '@/lib/notify';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -47,6 +48,9 @@ export async function POST(req: Request): Promise<Response> {
       })
       .eq('id', request.id);
     if (error) return Response.json({ error: 'Could not reject request' }, { status: 500 });
+    await notifyServer(service, request.user_id, 'performance_request_rejected', {
+      requestId: request.id,
+    });
     return Response.json({ ok: true });
   }
 
@@ -79,6 +83,9 @@ export async function POST(req: Request): Promise<Response> {
       );
     }
     await trackServer(service, 'performance_request_approved', request.user_id, {
+      requestId: request.id,
+    });
+    await notifyServer(service, request.user_id, 'performance_request_approved', {
       requestId: request.id,
     });
     return Response.json({ id: perf.id }, { status: 201 });

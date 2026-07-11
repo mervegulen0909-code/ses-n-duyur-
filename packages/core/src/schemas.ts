@@ -216,6 +216,25 @@ export const analyticsEventSchema = z.object({
 export type AnalyticsEventInput = z.infer<typeof analyticsEventSchema>;
 
 /** Admin: resolve/dismiss a moderation flag, optionally hiding a performance. */
+/**
+ * The notifications SEND-queue kind catalog (mirrors ANALYTICS_EVENTS).
+ * Rows are written server-side only (service role); a scheduled sender
+ * drains sent_at IS NULL rows via the Expo Push API. Not every kind has a
+ * real trigger wired yet (battle_challenge / rank_change / comment_reply
+ * have no corresponding server event in this codebase today) — the enum
+ * stays complete per the design doc so the check constraint and future
+ * wiring do not need a migration.
+ */
+export const NOTIFICATION_KINDS = [
+  'battle_challenge',
+  'new_vote',
+  'rank_change',
+  'comment_reply',
+  'performance_request_approved',
+  'performance_request_rejected',
+] as const;
+export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
+
 export const moderateSchema = z.object({
   flagId: z.string().uuid(),
   status: z.enum(['resolved', 'dismissed']),

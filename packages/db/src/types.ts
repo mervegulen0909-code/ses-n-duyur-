@@ -260,6 +260,20 @@ export interface PublicRows {
     badge_key: string;
     awarded_at: Timestamp;
   };
+  notification_events: {
+    id: Uuid;
+    user_id: Uuid;
+    kind:
+      | 'battle_challenge'
+      | 'new_vote'
+      | 'rank_change'
+      | 'comment_reply'
+      | 'performance_request_approved'
+      | 'performance_request_rejected';
+    meta: Json | null;
+    sent_at: Timestamp | null;
+    created_at: Timestamp;
+  };
 }
 
 export type Database = {
