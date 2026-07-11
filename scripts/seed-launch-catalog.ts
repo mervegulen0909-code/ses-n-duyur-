@@ -35,6 +35,12 @@ import type { Database, Json } from '@voxscore/db';
 interface TemplatePerformance {
   youtubeUrl: string | null;
   note: string;
+  /** Enrichment written by scripts/curate-catalog.ts — informational here.
+   *  Slot ORDER is what matters: index 0 = most-viewed = primary video. */
+  viewCount?: number | null;
+  oembedTitle?: string;
+  author?: string;
+  verifiedAt?: string;
 }
 interface TemplateSong {
   title: string;
@@ -100,6 +106,17 @@ async function main(): Promise<void> {
     throw new Error('No admin profile found — create one before seeding the launch catalog.');
   }
   const seedUserId = admin.id;
+
+  // Stamp new score rows with the currently open season (mirrors
+  // currentSeasonId() in the app's write path — never client-supplied).
+  const { data: openSeason } = await service
+    .from('seasons')
+    .select('id')
+    .is('ends_at', null)
+    .order('starts_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const seasonId = openSeason?.id ?? null;
 
   const scoring = createScoringProvider();
   let created = 0;
@@ -189,6 +206,7 @@ async function main(): Promise<void> {
           performance_id: insertedPerf.id,
           ...payload.score,
           ai_breakdown: payload.score.ai_breakdown as unknown as Json,
+          season_id: seasonId,
         });
         if (scoreError) {
           console.error(
