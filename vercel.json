@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/send-notifications",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/rotate-challenge",
+      "schedule": "0 8 * * *"
     }
   ]
 }
