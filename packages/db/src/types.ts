@@ -201,6 +201,11 @@ export interface PublicRows {
     ends_at: Timestamp | null;
     created_at: Timestamp;
   };
+  follows: {
+    follower_id: Uuid;
+    followee_id: Uuid;
+    created_at: Timestamp;
+  };
   analytics_events: {
     id: Uuid;
     event:

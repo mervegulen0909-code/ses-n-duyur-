@@ -166,7 +166,12 @@
     "performanceCount": "{count, plural, one {# performance} other {# performances}}",
     "battleRecord": "{wins}–{losses} en duels",
     "winRate": "{rate}% de victoires",
-    "noPublic": "Aucune performance publique pour l'instant."
+    "noPublic": "Aucune performance publique pour l'instant.",
+    "follow": "Suivre",
+    "unfollow": "Ne plus suivre",
+    "followFailed": "Impossible de mettre à jour le suivi.",
+    "followerCount": "{count, plural, one {# abonné} other {# abonnés}}",
+    "followingCount": "{count} abonnements"
   },
   "Admin": {
     "accessRequired": "Accès administrateur requis.",

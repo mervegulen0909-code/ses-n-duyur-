@@ -166,7 +166,12 @@
     "performanceCount": "{count, plural, one {# interpretación} other {# interpretaciones}}",
     "battleRecord": "{wins}–{losses} en batallas",
     "winRate": "{rate}% de victorias",
-    "noPublic": "Aún no hay interpretaciones públicas."
+    "noPublic": "Aún no hay interpretaciones públicas.",
+    "follow": "Seguir",
+    "unfollow": "Dejar de seguir",
+    "followFailed": "No se pudo actualizar el seguimiento.",
+    "followerCount": "{count, plural, one {# seguidor} other {# seguidores}}",
+    "followingCount": "{count} siguiendo"
   },
   "Admin": {
     "accessRequired": "Se requiere acceso de administrador.",

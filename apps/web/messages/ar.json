@@ -166,7 +166,12 @@
     "performanceCount": "{count, plural, one {# أداء} other {# أداءات}}",
     "battleRecord": "{wins}–{losses} في التحديات",
     "winRate": "نسبة الفوز {rate}%",
-    "noPublic": "لا توجد أداءات عامة بعد."
+    "noPublic": "لا توجد أداءات عامة بعد.",
+    "follow": "متابعة",
+    "unfollow": "إلغاء المتابعة",
+    "followFailed": "تعذّر تحديث المتابعة.",
+    "followerCount": "{count} متابع",
+    "followingCount": "يتابع {count}"
   },
   "Admin": {
     "accessRequired": "يتطلب صلاحية إدارة.",

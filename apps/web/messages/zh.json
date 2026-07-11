@@ -166,7 +166,12 @@
     "performanceCount": "{count, plural, one {# 个表演} other {# 个表演}}",
     "battleRecord": "对战 {wins}胜{losses}负",
     "winRate": "胜率 {rate}%",
-    "noPublic": "暂无公开表演。"
+    "noPublic": "暂无公开表演。",
+    "follow": "关注",
+    "unfollow": "取消关注",
+    "followFailed": "无法更新关注。",
+    "followerCount": "{count} 位粉丝",
+    "followingCount": "关注 {count} 人"
   },
   "Admin": {
     "accessRequired": "需要管理员权限。",

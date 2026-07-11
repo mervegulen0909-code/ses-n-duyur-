@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { FollowButton } from '@/components/follow-button';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { summarizeCreator } from '@/lib/creator';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -28,6 +29,32 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
     .maybeSingle();
 
   if (!profile) notFound();
+
+  // Follow graph: public counts + (when signed in and not self) whether the
+  // viewer already follows this creator. All reads pass the follows
+  // select-all RLS policy — no service client needed on a public page.
+  const [{ count: followerCount }, { count: followingCount }, viewer] = await Promise.all([
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('followee_id', profile.id),
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', profile.id),
+    supabase.auth.getUser(),
+  ]);
+  const viewerId = viewer.data.user?.id ?? null;
+  let viewerFollows = false;
+  if (viewerId && viewerId !== profile.id) {
+    const { data: edge } = await supabase
+      .from('follows')
+      .select('follower_id')
+      .eq('follower_id', viewerId)
+      .eq('followee_id', profile.id)
+      .maybeSingle();
+    viewerFollows = !!edge;
+  }
 
   // Public view: active performances only (RLS would also surface the owner's
   // own non-active ones, but a profile page is the public creator view).
@@ -57,8 +84,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
               {t('Nav.admin')}
             </span>
           )}
+          {viewerId && viewerId !== profile.id && (
+            <FollowButton handle={profile.handle} initialFollowing={viewerFollows} />
+          )}
         </div>
         <p className="mt-2 text-sm text-neutral-400">
+          {t('Profile.followerCount', { count: followerCount ?? 0 })}
+          {' · '}
+          {t('Profile.followingCount', { count: followingCount ?? 0 })}
+          {' · '}
           {t('Profile.performanceCount', { count: summary.totalPerformances })}
           {summary.battles > 0 && (
             <>

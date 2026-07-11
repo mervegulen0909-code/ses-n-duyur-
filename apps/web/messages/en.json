@@ -166,7 +166,12 @@
     "performanceCount": "{count, plural, one {# performance} other {# performances}}",
     "battleRecord": "{wins}–{losses} in battles",
     "winRate": "{rate}% win rate",
-    "noPublic": "No public performances yet."
+    "noPublic": "No public performances yet.",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "followFailed": "Could not update follow.",
+    "followerCount": "{count, plural, one {# follower} other {# followers}}",
+    "followingCount": "{count} following"
   },
   "Admin": {
     "accessRequired": "Admin access required.",

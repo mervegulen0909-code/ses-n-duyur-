@@ -166,7 +166,12 @@
     "performanceCount": "{count, plural, other {# performans}}",
     "battleRecord": "düellolarda {wins}–{losses}",
     "winRate": "%{rate} kazanma oranı",
-    "noPublic": "Henüz herkese açık performans yok."
+    "noPublic": "Henüz herkese açık performans yok.",
+    "follow": "Takip et",
+    "unfollow": "Takibi bırak",
+    "followFailed": "Takip güncellenemedi.",
+    "followerCount": "{count} takipçi",
+    "followingCount": "{count} takip edilen"
   },
   "Admin": {
     "accessRequired": "Yönetici erişimi gerekli.",

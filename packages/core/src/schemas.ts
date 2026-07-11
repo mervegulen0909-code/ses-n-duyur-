@@ -93,6 +93,15 @@ export const pushRegisterSchema = z.object({
 });
 export type PushRegisterInput = z.infer<typeof pushRegisterSchema>;
 
+/**
+ * Follow/unfollow another creator by handle. The server resolves the handle to
+ * an id; RLS enforces follower_id = auth.uid() and the DB blocks self-follows.
+ */
+export const followSchema = z.object({
+  followeeHandle: z.string().trim().min(1).max(64),
+});
+export type FollowInput = z.infer<typeof followSchema>;
+
 /** A user reports content for moderation. */
 export const reportSchema = z.object({
   targetType: z.enum(['performance', 'comment', 'profile']),

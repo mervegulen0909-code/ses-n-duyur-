@@ -166,7 +166,12 @@
     "performanceCount": "{count, plural, one {# परफॉर्मेंस} other {# परफॉर्मेंस}}",
     "battleRecord": "बैटल्स में {wins}–{losses}",
     "winRate": "{rate}% जीत दर",
-    "noPublic": "अभी तक कोई सार्वजनिक परफॉर्मेंस नहीं है।"
+    "noPublic": "अभी तक कोई सार्वजनिक परफॉर्मेंस नहीं है।",
+    "follow": "फ़ॉलो करें",
+    "unfollow": "अनफ़ॉलो करें",
+    "followFailed": "फ़ॉलो अपडेट नहीं हो सका।",
+    "followerCount": "{count} फ़ॉलोअर",
+    "followingCount": "{count} फ़ॉलोइंग"
   },
   "Admin": {
     "accessRequired": "एडमिन एक्सेस आवश्यक है।",
