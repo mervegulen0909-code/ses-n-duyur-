@@ -12,9 +12,12 @@ export default function PrivacyPage() {
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Who we are</h2>
       <p>
-        VoxScore is operated by [VoxScore&apos;s legal entity name — to be confirmed]. Questions
-        about this policy or your data can be sent to [privacy contact email — to be confirmed]. If
-        VoxScore has a registered business address, it will be listed here once confirmed.
+        VoxScore is operated by Fersa Ltd. Şti. Questions about this policy or your data can be sent
+        to{' '}
+        <a className="text-emerald-400" href="mailto:support@voxscore.app">
+          support@voxscore.app
+        </a>
+        .
       </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">What we collect and why</h2>

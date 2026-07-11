@@ -10,8 +10,8 @@ export default async function DmcaPage() {
       <h1 className="mb-2 text-2xl font-bold text-neutral-100">{t('formTitle')}</h1>
       <p className="rounded-md border border-amber-700/40 bg-amber-950/30 p-3 text-amber-200">
         This policy is written and maintained by the VoxScore team and has not yet been reviewed by
-        a lawyer. The designated agent details below are placeholders — do not treat this as a
-        final, store-ready DMCA policy until that review is complete.
+        a lawyer. Do not treat this as a final, store-ready DMCA policy until that review is
+        complete.
       </p>
       <p>{t('intro')}</p>
 
@@ -40,8 +40,12 @@ export default async function DmcaPage() {
         </li>
       </ul>
       <p>
-        Send notices to our designated agent at [DMCA agent name and email — to be confirmed], or use
-        the form below.
+        Send notices to Fersa Ltd. Şti. at{' '}
+        <a className="text-emerald-400" href="mailto:support@voxscore.app">
+          support@voxscore.app
+        </a>
+        , or use the form below. We have not yet registered a formal Designated Agent with the U.S.
+        Copyright Office; this contact receives and processes takedown notices in the meantime.
       </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Counter-notification</h2>
