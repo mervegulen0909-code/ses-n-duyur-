@@ -5,8 +5,22 @@
     "category": "pop",
     "difficulty": "hard",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=Y8iw6_EQIdk",
+        "note": "Davina Michelle cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Someone Like You - Adele (Cover By: Davina Michelle)",
+        "author": "Davina Michelle",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 5959423
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=TdXVKLFfYQA",
+        "note": "Allie Sherlock cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Someone Like You - Adele | Allie Sherlock cover & Ata Etminan",
+        "author": "Allie Sherlock",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 739550
+      }
     ]
   },
   {
@@ -15,8 +29,22 @@
     "category": "pop",
     "difficulty": "easy",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=MhQKe-aERsU",
+        "note": "J.Fla cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Ed Sheeran - Shape Of You ( cover by J.Fla )",
+        "author": "JFlaMusic",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 360304858
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=Jm4B-A_e8Zc",
+        "note": "Boyce Avenue acoustic cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Shape of You - Ed Sheeran (Boyce Avenue acoustic cover) on Spotify & Apple",
+        "author": "Boyce Avenue",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 20166095
+      }
     ]
   },
   {
@@ -25,8 +53,22 @@
     "category": "pop",
     "difficulty": "medium",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=E5zDVXshx2Y",
+        "note": "Teddy Swims cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Teddy Swims - Blinding Lights (The Weeknd Cover)",
+        "author": "Teddy Swims",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 18718029
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=YzvfDEVzGfI",
+        "note": "Andie Case cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "The Weeknd - Blinding Lights (Andie Case Cover)",
+        "author": "Andie Case",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 1741478
+      }
     ]
   },
   {
@@ -35,8 +77,22 @@
     "category": "rock",
     "difficulty": "hard",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=QkCxE2Lh458",
+        "note": "Marc Martel cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Marc Martel - Bohemian Rhapsody (Queen cover)",
+        "author": "Marc Martel",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 60801288
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=I7v5gpWe8ds",
+        "note": "David Fowler a cappella cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Queen - BOHEMIAN RHAPSODY - David Fowler A Cappella Official",
+        "author": "DavidFowlerMusic",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 168373
+      }
     ]
   },
   {
@@ -45,8 +101,22 @@
     "category": "rock",
     "difficulty": "medium",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=Mifx15EdB0Y",
+        "note": "Fabio Rodrigues & Allie Sherlock cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "HOTEL CALIFORNIA by the EAGLES | Fabio Rodrigues & Allie Sherlock Cover",
+        "author": "Fabio Rodrigues",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 49098056
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=914P7Dt9lzQ",
+        "note": "Our Last Night cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "The Eagles - \"Hotel California\"  (Cover By Our Last Night)",
+        "author": "Our Last Night",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 8974965
+      }
     ]
   },
   {
@@ -55,8 +125,22 @@
     "category": "rock",
     "difficulty": "hard",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=aIxjgNNigu8",
+        "note": "Jess Greenberg cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Sweet Child O' Mine - Guns N' Roses (cover) Jess Greenberg",
+        "author": "JessGreenberg1",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 6627878
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=56PJliOGJns",
+        "note": "Jada Facer ft. Kyson Facer acoustic cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Sweet Child O' Mine (Acoustic) by Guns N' Roses | cover by Jada Facer ft. Kyson Facer",
+        "author": "Jada Facer",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 606784
+      }
     ]
   },
   {
@@ -65,8 +149,22 @@
     "category": "ballad",
     "difficulty": "hard",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=Hvp-EXUc_ww",
+        "note": "Boyce Avenue ft. Connie Talbot cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "My Heart Will Go On - Celine Dion (Boyce Avenue ft. Connie Talbot piano acoustic cover)(Titanic)",
+        "author": "Boyce Avenue",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 4994225
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=QqXvz9_AmxQ",
+        "note": "Corvyx male cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "My Heart Will Go On (TITANIC) - Celine Dion (Male Cover ORIGINAL KEY*) | Cover by Corvyx",
+        "author": "CORVYX",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 4506068
+      }
     ]
   },
   {
@@ -75,8 +173,22 @@
     "category": "ballad",
     "difficulty": "medium",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=61XdPtGMErs",
+        "note": "Chris Cornell cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Chris Cornell - \"Nothing Compares 2 U\" Prince Cover",
+        "author": "Chris Cornell",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 1099206
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=PcAwfJqpraQ",
+        "note": "Giulia Falcone cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Giulia Falcone - Nothing Compares 2 U – Prince (Cover Inspired by Sinead O’Connor)",
+        "author": "Giulia Falcone",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 107245
+      }
     ]
   },
   {
@@ -85,8 +197,22 @@
     "category": "ballad",
     "difficulty": "medium",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=lAmuEnePHHo",
+        "note": "Boyce Avenue acoustic cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Hallelujah - Leonard Cohen /Jeff Buckley (Boyce Avenue acoustic cover) on Spotify & Apple",
+        "author": "Boyce Avenue",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 42478352
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=ZxIw9uXLH8g",
+        "note": "Davina Michelle cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Hallelujah - Leonard Cohen (Cover By: Davina Michelle)",
+        "author": "Davina Michelle",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 2552418
+      }
     ]
   },
   {
@@ -95,8 +221,22 @@
     "category": "rnb-soul",
     "difficulty": "easy",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=fIdnpjceg9A",
+        "note": "Shawn James cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Shawn James – Ain't No Sunshine (Bill Withers Cover)",
+        "author": "Shawn James",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 41952146
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=PvMDwJkvZaw",
+        "note": "Elise LeGrow cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Bill Withers \"Ain't No Sunshine\" cover by Elise LeGrow",
+        "author": "Elise LeGrow",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 34112027
+      }
     ]
   },
   {
@@ -105,8 +245,14 @@
     "category": "rnb-soul",
     "difficulty": "hard",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 1 (batch 3 research pending)"
+      },
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 2 (batch 3 research pending)"
+      }
     ]
   },
   {
@@ -115,8 +261,14 @@
     "category": "turkish-global",
     "difficulty": "easy",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 1 (batch 3 research pending)"
+      },
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 2 (batch 3 research pending)"
+      }
     ]
   },
   {
@@ -125,8 +277,14 @@
     "category": "turkish-global",
     "difficulty": "medium",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 1 (batch 3 research pending)"
+      },
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 2 (batch 3 research pending)"
+      }
     ]
   },
   {
@@ -135,8 +293,14 @@
     "category": "indie-alternative",
     "difficulty": "easy",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 1 (batch 3 research pending)"
+      },
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 2 (batch 3 research pending)"
+      }
     ]
   },
   {
@@ -145,8 +309,14 @@
     "category": "indie-alternative",
     "difficulty": "medium",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 1 (batch 3 research pending)"
+      },
+      {
+        "youtubeUrl": null,
+        "note": "REPLACE with real link 2 (batch 3 research pending)"
+      }
     ]
   },
   {
@@ -155,8 +325,22 @@
     "category": "musical-classical",
     "difficulty": "hard",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=fzffCPUjk2I",
+        "note": "Beau Dermott BGT audition cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Unforgettable Audition: GOLDEN BUZZER Beau Dermott BELTS 'Defying Gravity' | Britain's Got Talent",
+        "author": "Britain's Got Talent",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 1012839
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=CnELbxI1XlM",
+        "note": "Jasmine Clarke cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "WICKED - DEFYING GRAVITY (COVER) - JASMINE CLARKE",
+        "author": "Jasmine Clarke",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 12795
+      }
     ]
   },
   {
@@ -165,8 +349,22 @@
     "category": "musical-classical",
     "difficulty": "medium",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=XpYGgtrMTYs",
+        "note": "Luciano Pavarotti rendition (Warner Classics) — oEmbed verified 2026-07-11",
+        "oembedTitle": "Luciano Pavarotti - Ave Maria (Schubert)",
+        "author": "Warner Classics",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 35674243
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=ja5hQH9USIU",
+        "note": "Aida Garifullina rendition — oEmbed verified 2026-07-11",
+        "oembedTitle": "Aida Garifullina - Ave Maria (Schubert)",
+        "author": "Aida Garifullina",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 13449405
+      }
     ]
   },
   {
@@ -175,8 +373,22 @@
     "category": "other",
     "difficulty": "easy",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=K4Ei6x1ofCk",
+        "note": "Sonny Vande Putte a cappella cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Happy birthday - A cappella",
+        "author": "Sonny Vande Putte",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 12605038
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=kid6T83AfcA",
+        "note": "Luiz Valadez a cappella cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Happy Birthday song (Luiz Valadez) A cappella cover",
+        "author": "Luiz Valadez",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 370091
+      }
     ]
   },
   {
@@ -185,8 +397,22 @@
     "category": "other",
     "difficulty": "easy",
     "performances": [
-      { "youtubeUrl": null, "note": "REPLACE with real link 1" },
-      { "youtubeUrl": null, "note": "REPLACE with real link 2" }
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=X6Mtpk4jeVA",
+        "note": "BYU Noteworthy a cappella cover — oEmbed verified 2026-07-11",
+        "oembedTitle": "Amazing Grace (My Chains Are Gone) | BYU Noteworthy (Chris Tomlin A Cappella Cover)",
+        "author": "BYU Noteworthy",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 83153929
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=27Gcmyx7FSc",
+        "note": "BYU Vocal Point a cappella — oEmbed verified 2026-07-11",
+        "oembedTitle": "Amazing Grace | BYU Vocal Point & Friends (A Cappella)",
+        "author": "BYU Vocal Point",
+        "verifiedAt": "2026-07-11T13:21:37.741Z",
+        "viewCount": 484715
+      }
     ]
   }
 ]
