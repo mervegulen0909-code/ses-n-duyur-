@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavAuth } from '@/components/nav-auth';
+import { LOCALE_DIR, isLocale } from '@/i18n/config';
 import { SITE_URL } from '@/lib/site';
 import './globals.css';
 
@@ -41,8 +42,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const messages = await getMessages();
   const t = await getTranslations('Nav');
 
+  const dir = isLocale(locale) ? LOCALE_DIR[locale] : 'ltr';
+
   return (
-    <html lang={locale} translate="no" className="notranslate">
+    <html lang={locale} dir={dir} translate="no" className="notranslate">
       <body>
         <NextIntlClientProvider messages={messages}>
           <header className="border-b border-neutral-800">
