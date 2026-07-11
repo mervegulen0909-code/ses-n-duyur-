@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "tsc --noEmit && pnpm -r typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -21,7 +21,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:migrate": "supabase migration up",
-    "db:types": "supabase gen types typescript --local > packages/db/src/types.ts"
+    "db:types": "supabase gen types typescript --local > packages/db/src/types.ts",
+    "seed:launch-catalog": "tsx scripts/seed-launch-catalog.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
@@ -30,8 +31,14 @@
     "eslint": "^9.18.0",
     "prettier": "^3.4.2",
     "supabase": "^2.105.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0",
     "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.0",
+    "@voxscore/core": "workspace:*",
+    "@voxscore/db": "workspace:*"
   }
 }
