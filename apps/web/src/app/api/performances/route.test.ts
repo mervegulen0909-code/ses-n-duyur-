@@ -27,6 +27,7 @@ vi.mock('@/lib/adapters/scoring', async () => {
         breakdown: Object.fromEntries(CRITERIA.map((c) => [c, 73.5])),
         provisional: true,
         model: 'mock-provisional-v0',
+        provider: 'mock',
       }),
     }),
   };

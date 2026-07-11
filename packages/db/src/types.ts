@@ -27,6 +27,17 @@ export interface PublicRows {
     title: string;
     artist: string | null;
     normalized_key: string | null;
+    category:
+      | 'pop'
+      | 'rock'
+      | 'rnb-soul'
+      | 'ballad'
+      | 'turkish-global'
+      | 'indie-alternative'
+      | 'musical-classical'
+      | 'other'
+      | null;
+    difficulty: 'easy' | 'medium' | 'hard' | null;
     created_at: Timestamp;
   };
   performances: {
@@ -55,6 +66,8 @@ export interface PublicRows {
     current_score: number | null;
     trend_score: number | null;
     verified_vote_count: number;
+    ai_provider: 'anthropic' | 'openai' | 'mock' | null;
+    ai_model: string | null;
     updated_at: Timestamp;
   };
   measured_scores: {
@@ -155,6 +168,55 @@ export interface PublicRows {
     actor: Uuid | null;
     action: string;
     target: string | null;
+    meta: Json | null;
+    created_at: Timestamp;
+  };
+  performance_requests: {
+    id: Uuid;
+    user_id: Uuid;
+    youtube_video_id: string;
+    youtube_url: string;
+    category:
+      | 'pop'
+      | 'rock'
+      | 'rnb-soul'
+      | 'ballad'
+      | 'turkish-global'
+      | 'indie-alternative'
+      | 'musical-classical'
+      | 'other';
+    note: string | null;
+    status: 'pending' | 'approved' | 'rejected';
+    reviewer_id: Uuid | null;
+    reviewed_at: Timestamp | null;
+    rejection_reason: string | null;
+    approved_performance_id: Uuid | null;
+    created_at: Timestamp;
+  };
+  featured_challenges: {
+    id: Uuid;
+    song_id: Uuid;
+    title: string;
+    starts_at: Timestamp;
+    ends_at: Timestamp | null;
+    created_at: Timestamp;
+  };
+  analytics_events: {
+    id: Uuid;
+    event:
+      | 'landing_view'
+      | 'signup_started'
+      | 'signup_completed'
+      | 'performance_request_submitted'
+      | 'performance_request_approved'
+      | 'verified_listen_completed'
+      | 'vote_submitted'
+      | 'battle_completed'
+      | 'share_clicked'
+      | 'challenge_opened'
+      | 'invite_converted';
+    session_id: Uuid;
+    user_id: Uuid | null;
     meta: Json | null;
     created_at: Timestamp;
   };
