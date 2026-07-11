@@ -20,6 +20,9 @@ export interface PublicRows {
     handle: string;
     role: 'user' | 'admin';
     reputation: number;
+    bio: string | null;
+    avatar_url: string | null;
+    links: Json | null;
     created_at: Timestamp;
   };
   songs: {

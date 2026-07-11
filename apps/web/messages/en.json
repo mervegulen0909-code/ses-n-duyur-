@@ -171,7 +171,20 @@
     "unfollow": "Unfollow",
     "followFailed": "Could not update follow.",
     "followerCount": "{count, plural, one {# follower} other {# followers}}",
-    "followingCount": "{count} following"
+    "followingCount": "{count} following",
+    "editProfile": "Edit profile",
+    "changeAvatar": "Change avatar",
+    "uploading": "Uploading…",
+    "avatarUploadError": "Could not upload avatar.",
+    "bioLabel": "Bio",
+    "linksLabel": "Links",
+    "linkLabelPlaceholder": "Label",
+    "addLink": "+ Add link",
+    "removeLink": "Remove",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveError": "Could not save profile.",
+    "cancelEdit": "Cancel"
   },
   "Admin": {
     "accessRequired": "Admin access required.",

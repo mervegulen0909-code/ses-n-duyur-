@@ -171,7 +171,20 @@
     "unfollow": "Takibi bırak",
     "followFailed": "Takip güncellenemedi.",
     "followerCount": "{count} takipçi",
-    "followingCount": "{count} takip edilen"
+    "followingCount": "{count} takip edilen",
+    "editProfile": "Profili düzenle",
+    "changeAvatar": "Avatarı değiştir",
+    "uploading": "Yükleniyor…",
+    "avatarUploadError": "Avatar yüklenemedi.",
+    "bioLabel": "Biyografi",
+    "linksLabel": "Bağlantılar",
+    "linkLabelPlaceholder": "Etiket",
+    "addLink": "+ Bağlantı ekle",
+    "removeLink": "Kaldır",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor…",
+    "saveError": "Profil kaydedilemedi.",
+    "cancelEdit": "Vazgeç"
   },
   "Admin": {
     "accessRequired": "Yönetici erişimi gerekli.",

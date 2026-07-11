@@ -171,7 +171,20 @@
     "unfollow": "अनफ़ॉलो करें",
     "followFailed": "फ़ॉलो अपडेट नहीं हो सका।",
     "followerCount": "{count} फ़ॉलोअर",
-    "followingCount": "{count} फ़ॉलोइंग"
+    "followingCount": "{count} फ़ॉलोइंग",
+    "editProfile": "प्रोफ़ाइल संपादित करें",
+    "changeAvatar": "एवतार बदलें",
+    "uploading": "अपलोड हो रहा है…",
+    "avatarUploadError": "एवतार अपलोड नहीं हो सका।",
+    "bioLabel": "बायो",
+    "linksLabel": "लिंक",
+    "linkLabelPlaceholder": "लेबल",
+    "addLink": "+ लिंक जोड़ें",
+    "removeLink": "हटाएं",
+    "save": "सहेजें",
+    "saving": "सहेजा जा रहा है…",
+    "saveError": "प्रोफ़ाइल सहेजी नहीं जा सकी।",
+    "cancelEdit": "रद्द करें"
   },
   "Admin": {
     "accessRequired": "एडमिन एक्सेस आवश्यक है।",

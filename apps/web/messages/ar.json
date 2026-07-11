@@ -171,7 +171,20 @@
     "unfollow": "إلغاء المتابعة",
     "followFailed": "تعذّر تحديث المتابعة.",
     "followerCount": "{count} متابع",
-    "followingCount": "يتابع {count}"
+    "followingCount": "يتابع {count}",
+    "editProfile": "تعديل الملف الشخصي",
+    "changeAvatar": "تغيير الصورة الرمزية",
+    "uploading": "جارٍ الرفع…",
+    "avatarUploadError": "تعذّر رفع الصورة الرمزية.",
+    "bioLabel": "نبذة",
+    "linksLabel": "الروابط",
+    "linkLabelPlaceholder": "التسمية",
+    "addLink": "+ إضافة رابط",
+    "removeLink": "إزالة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "saveError": "تعذّر حفظ الملف الشخصي.",
+    "cancelEdit": "إلغاء"
   },
   "Admin": {
     "accessRequired": "يتطلب صلاحية إدارة.",

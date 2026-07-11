@@ -171,7 +171,20 @@
     "unfollow": "Ne plus suivre",
     "followFailed": "Impossible de mettre à jour le suivi.",
     "followerCount": "{count, plural, one {# abonné} other {# abonnés}}",
-    "followingCount": "{count} abonnements"
+    "followingCount": "{count} abonnements",
+    "editProfile": "Modifier le profil",
+    "changeAvatar": "Changer l'avatar",
+    "uploading": "Envoi…",
+    "avatarUploadError": "Impossible d'envoyer l'avatar.",
+    "bioLabel": "Bio",
+    "linksLabel": "Liens",
+    "linkLabelPlaceholder": "Libellé",
+    "addLink": "+ Ajouter un lien",
+    "removeLink": "Retirer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saveError": "Impossible d'enregistrer le profil.",
+    "cancelEdit": "Annuler"
   },
   "Admin": {
     "accessRequired": "Accès administrateur requis.",

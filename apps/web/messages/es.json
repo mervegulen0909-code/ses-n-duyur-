@@ -171,7 +171,20 @@
     "unfollow": "Dejar de seguir",
     "followFailed": "No se pudo actualizar el seguimiento.",
     "followerCount": "{count, plural, one {# seguidor} other {# seguidores}}",
-    "followingCount": "{count} siguiendo"
+    "followingCount": "{count} siguiendo",
+    "editProfile": "Editar perfil",
+    "changeAvatar": "Cambiar avatar",
+    "uploading": "Subiendo…",
+    "avatarUploadError": "No se pudo subir el avatar.",
+    "bioLabel": "Biografía",
+    "linksLabel": "Enlaces",
+    "linkLabelPlaceholder": "Etiqueta",
+    "addLink": "+ Añadir enlace",
+    "removeLink": "Quitar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saveError": "No se pudo guardar el perfil.",
+    "cancelEdit": "Cancelar"
   },
   "Admin": {
     "accessRequired": "Se requiere acceso de administrador.",

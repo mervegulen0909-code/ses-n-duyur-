@@ -171,7 +171,20 @@
     "unfollow": "取消关注",
     "followFailed": "无法更新关注。",
     "followerCount": "{count} 位粉丝",
-    "followingCount": "关注 {count} 人"
+    "followingCount": "关注 {count} 人",
+    "editProfile": "编辑个人资料",
+    "changeAvatar": "更换头像",
+    "uploading": "上传中…",
+    "avatarUploadError": "头像上传失败。",
+    "bioLabel": "简介",
+    "linksLabel": "链接",
+    "linkLabelPlaceholder": "标签",
+    "addLink": "+ 添加链接",
+    "removeLink": "移除",
+    "save": "保存",
+    "saving": "保存中…",
+    "saveError": "个人资料保存失败。",
+    "cancelEdit": "取消"
   },
   "Admin": {
     "accessRequired": "需要管理员权限。",

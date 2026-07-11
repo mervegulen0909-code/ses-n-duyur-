@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { FollowButton } from '@/components/follow-button';
+import { ProfileEditor } from '@/components/profile-editor';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { summarizeCreator } from '@/lib/creator';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -24,11 +25,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, handle, role')
+    .select('id, handle, role, bio, avatar_url, links')
     .eq('handle', handle)
     .maybeSingle();
 
   if (!profile) notFound();
+  const profileLinks = (profile.links ?? []) as { label: string; url: string }[];
 
   // Follow graph: public counts + (when signed in and not self) whether the
   // viewer already follows this creator. All reads pass the follows
@@ -77,33 +79,75 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <header className="mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold">@{profile.handle}</h1>
-          {profile.role === 'admin' && (
-            <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-300">
-              {t('Nav.admin')}
-            </span>
+        <div className="flex items-start gap-4">
+          {profile.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt=""
+              className="h-16 w-16 shrink-0 rounded-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="h-16 w-16 shrink-0 rounded-full bg-neutral-800" />
           )}
-          {viewerId && viewerId !== profile.id && (
-            <FollowButton handle={profile.handle} initialFollowing={viewerFollows} />
-          )}
-        </div>
-        <p className="mt-2 text-sm text-neutral-400">
-          {t('Profile.followerCount', { count: followerCount ?? 0 })}
-          {' · '}
-          {t('Profile.followingCount', { count: followingCount ?? 0 })}
-          {' · '}
-          {t('Profile.performanceCount', { count: summary.totalPerformances })}
-          {summary.battles > 0 && (
-            <>
-              {' · '}
-              {t('Profile.battleRecord', { wins: summary.wins, losses: summary.losses })}
-              {summary.winRate !== null && (
-                <> · {t('Profile.winRate', { rate: (summary.winRate * 100).toFixed(0) })}</>
+          <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold">@{profile.handle}</h1>
+              {profile.role === 'admin' && (
+                <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-300">
+                  {t('Nav.admin')}
+                </span>
               )}
-            </>
-          )}
-        </p>
+              {viewerId && viewerId !== profile.id && (
+                <FollowButton handle={profile.handle} initialFollowing={viewerFollows} />
+              )}
+            </div>
+            <p className="mt-2 text-sm text-neutral-400">
+              {t('Profile.followerCount', { count: followerCount ?? 0 })}
+              {' · '}
+              {t('Profile.followingCount', { count: followingCount ?? 0 })}
+              {' · '}
+              {t('Profile.performanceCount', { count: summary.totalPerformances })}
+              {summary.battles > 0 && (
+                <>
+                  {' · '}
+                  {t('Profile.battleRecord', { wins: summary.wins, losses: summary.losses })}
+                  {summary.winRate !== null && (
+                    <> · {t('Profile.winRate', { rate: (summary.winRate * 100).toFixed(0) })}</>
+                  )}
+                </>
+              )}
+            </p>
+            {profile.bio && (
+              <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-300">{profile.bio}</p>
+            )}
+            {profileLinks.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-3">
+                {profileLinks.map((l, i) => (
+                  <a
+                    key={i}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer nofollow"
+                    className="text-sm text-emerald-400 hover:underline"
+                  >
+                    {l.label}
+                  </a>
+                ))}
+              </div>
+            )}
+            {viewerId === profile.id && (
+              <div>
+                <ProfileEditor
+                  userId={profile.id}
+                  initialBio={profile.bio}
+                  initialAvatarUrl={profile.avatar_url}
+                  initialLinks={profileLinks}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       {summary.rows.length === 0 ? (

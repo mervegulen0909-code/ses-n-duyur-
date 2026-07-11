@@ -93,6 +93,26 @@ export const pushRegisterSchema = z.object({
 });
 export type PushRegisterInput = z.infer<typeof pushRegisterSchema>;
 
+/** One entry in a profile's external link list (max 5, enforced by profileUpdateSchema). */
+export const profileLinkSchema = z.object({
+  label: z.string().trim().min(1).max(40),
+  url: z.string().trim().url().max(300),
+});
+export type ProfileLink = z.infer<typeof profileLinkSchema>;
+
+/**
+ * Self-service profile edit: bio, avatar, and up to 5 links. avatarUrl's
+ * SHAPE is validated here; the server additionally checks it is a same-
+ * origin Supabase Storage URL under the caller's own avatars/<uid>/ folder
+ * (never an arbitrary external URL — stored-XSS-via-profile risk otherwise).
+ */
+export const profileUpdateSchema = z.object({
+  bio: z.string().trim().max(500).nullable().optional(),
+  avatarUrl: z.string().trim().url().max(500).nullable().optional(),
+  links: z.array(profileLinkSchema).max(5).optional(),
+});
+export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
+
 /**
  * Follow/unfollow another creator by handle. The server resolves the handle to
  * an id; RLS enforces follower_id = auth.uid() and the DB blocks self-follows.
