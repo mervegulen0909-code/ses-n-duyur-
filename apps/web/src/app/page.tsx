@@ -33,8 +33,13 @@ export default async function HomePage() {
   let performances: PerformanceCard[] = [];
   let scoreByPerf = new Map<string, ScoreRow>();
   let featured: FeaturedChallenge | null = null;
+  let viewerId: string | null = null;
 
   if (supabase) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    viewerId = user?.id ?? null;
     const { data } = await supabase
       .from('performances')
       .select('id, youtube_video_id, oembed_meta')
@@ -52,15 +57,24 @@ export default async function HomePage() {
       scoreByPerf = new Map((scores ?? []).map((s) => [s.performance_id, s]));
     }
 
+    // Only a challenge whose window is OPEN right now — an expired row with
+    // the newest starts_at must not linger on the homepage forever.
+    const nowIso = new Date().toISOString();
     const { data: challenge } = await supabase
       .from('featured_challenges')
       .select('title, song_id, songs(title)')
+      .lte('starts_at', nowIso)
+      .or(`ends_at.is.null,ends_at.gt.${nowIso}`)
       .order('starts_at', { ascending: false })
       .limit(1)
       .maybeSingle();
     if (challenge) {
       const song = challenge.songs as unknown as { title: string } | null;
-      featured = { title: challenge.title, songId: challenge.song_id, songTitle: song?.title ?? '' };
+      featured = {
+        title: challenge.title,
+        songId: challenge.song_id,
+        songTitle: song?.title ?? '',
+      };
     }
   }
 
@@ -117,7 +131,7 @@ export default async function HomePage() {
               <div className="font-semibold">{t('Home.ctaRequestTitle')}</div>
               <div className="mt-1 text-sm text-neutral-500">{t('Home.ctaRequestBody')}</div>
             </Link>
-            <InviteFriendCard />
+            <InviteFriendCard refCode={viewerId} />
           </section>
         </>
       )}

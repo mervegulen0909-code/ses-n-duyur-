@@ -197,6 +197,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
             <ShareButtons
               url={`/performance/${perf.id}`}
               title={meta.title ?? t('Performance.fallbackTitle')}
+              storyImagePath={`/performance/${perf.id}/story-image`}
             />
             {song && (
               <Link

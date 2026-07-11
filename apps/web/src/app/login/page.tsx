@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { track } from '@/lib/analytics';
+import { isValidRefCode, REF_COOKIE, REF_COOKIE_MAX_AGE_S } from '@/lib/referral';
 
 type Mode = 'login' | 'signup';
 
@@ -47,6 +48,12 @@ export default function LoginPage() {
   async function onGoogle() {
     setBusy(true);
     setError('');
+    // The ?ref= param won't survive the Google redirect chain — persist it in
+    // a short-lived cookie the auth callback reads for server-side attribution.
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (isValidRefCode(ref)) {
+      document.cookie = `${REF_COOKIE}=${ref}; Max-Age=${REF_COOKIE_MAX_AGE_S}; Path=/; SameSite=Lax`;
+    }
     const supabase = createSupabaseBrowserClient();
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'google',

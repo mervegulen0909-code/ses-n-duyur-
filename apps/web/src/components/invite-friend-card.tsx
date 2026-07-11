@@ -3,17 +3,22 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { track } from '@/lib/analytics';
+import { inviteUrl } from '@/lib/referral';
 import { SITE_URL } from '@/lib/site';
 
-/** Home-page CTA card: copies the site link and fires `share_clicked`. */
-export function InviteFriendCard() {
+/**
+ * Home-page CTA card: copies the viewer's PERSONAL invite link (`?ref=<their
+ * id>`) so signups can be attributed back to them; signed-out visitors just
+ * copy the plain site URL.
+ */
+export function InviteFriendCard({ refCode }: { refCode?: string | null }) {
   const t = useTranslations();
   const [copied, setCopied] = useState(false);
 
   async function invite() {
     track('share_clicked', { channel: 'invite_card' });
     try {
-      await navigator.clipboard.writeText(SITE_URL);
+      await navigator.clipboard.writeText(inviteUrl(SITE_URL, refCode));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {

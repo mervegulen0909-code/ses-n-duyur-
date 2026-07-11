@@ -9,9 +9,12 @@ export interface ShareButtonsProps {
   /** Site-relative path, e.g. `/performance/{id}`. */
   url: string;
   title: string;
+  /** Site-relative path of a story-format (9:16) score-card image; renders
+   *  an extra "story card" button when provided. */
+  storyImagePath?: string;
 }
 
-export function ShareButtons({ url, title }: ShareButtonsProps) {
+export function ShareButtons({ url, title, storyImagePath }: ShareButtonsProps) {
   const t = useTranslations('Performance');
   const [copied, setCopied] = useState(false);
   // Avoid an SSR/client hydration mismatch: `navigator.share` only exists in
@@ -80,6 +83,17 @@ export function ShareButtons({ url, title }: ShareButtonsProps) {
         >
           {t('shareX')}
         </a>
+        {storyImagePath && (
+          <a
+            href={storyImagePath}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => fire('story')}
+            className="rounded-md border border-neutral-700 px-2.5 py-1 text-xs hover:border-neutral-500"
+          >
+            {t('storyCard')}
+          </a>
+        )}
         {canNativeShare && (
           <button
             type="button"
