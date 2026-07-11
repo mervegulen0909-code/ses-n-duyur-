@@ -122,6 +122,8 @@ export async function POST(req: Request): Promise<Response> {
       .update({
         initial_ai_score: result.initialAiScore,
         ai_breakdown: result.breakdown as unknown as Json,
+        // Raw (pre-calibration) breakdown for an idempotent calibration refit.
+        ai_breakdown_raw: rawResult.breakdown as unknown as Json,
         is_provisional: true,
         ai_provider: result.provider,
         ai_model: result.model,

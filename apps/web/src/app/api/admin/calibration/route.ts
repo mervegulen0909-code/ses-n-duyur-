@@ -23,14 +23,18 @@ export async function POST(req: Request): Promise<Response> {
     .select('performance_id, criteria');
   if (error) return Response.json({ error: 'Could not load anchors' }, { status: 500 });
 
+  // Fit against the RAW (uncalibrated) LLM breakdown, never scores.ai_breakdown
+  // (which already has the prior offset baked in — fitting against it makes the
+  // offset regress toward zero). Rows without a raw breakdown (created before
+  // the column existed) yield an empty `ai` and are dropped below.
   const perfIds = [...new Set((anchors ?? []).map((a) => a.performance_id))];
   const { data: scoreRows } = perfIds.length
     ? await service
         .from('scores')
-        .select('performance_id, ai_breakdown')
+        .select('performance_id, ai_breakdown_raw')
         .in('performance_id', perfIds)
     : { data: [] };
-  const aiByPerf = new Map((scoreRows ?? []).map((s) => [s.performance_id, s.ai_breakdown]));
+  const aiByPerf = new Map((scoreRows ?? []).map((s) => [s.performance_id, s.ai_breakdown_raw]));
 
   const pairs: AnchorPair[] = (anchors ?? [])
     .map((a) => ({

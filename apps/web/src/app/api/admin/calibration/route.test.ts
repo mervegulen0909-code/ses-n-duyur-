@@ -49,7 +49,8 @@ function makeService(opts: {
           in: vi.fn(async () => ({
             data: (opts.anchors ?? []).map((a) => ({
               performance_id: a.performance_id,
-              ai_breakdown: opts.aiBreakdown ?? { vocalAccuracy: 70 },
+              // The refit reads the RAW breakdown, never the calibrated one.
+              ai_breakdown_raw: opts.aiBreakdown ?? { vocalAccuracy: 70 },
             })),
           })),
         })),

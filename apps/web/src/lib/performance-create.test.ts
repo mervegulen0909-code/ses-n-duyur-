@@ -291,11 +291,20 @@ describe('createScoredPerformance — score persistence is not best-effort', () 
     // Mock provider scores every criterion 73.5; +10 on vocalAccuracy (w=0.20)
     // shifts the composed initial by exactly 2: 73.5 + 0.20·10 = 75.5.
     const calls = service.scoreInsert.mock.calls as unknown as Array<
-      [{ initial_ai_score: number; ai_breakdown: Record<string, number> }]
+      [
+        {
+          initial_ai_score: number;
+          ai_breakdown: Record<string, number>;
+          ai_breakdown_raw: Record<string, number>;
+        },
+      ]
     >;
     const inserted = calls[0]![0];
     expect(inserted.ai_breakdown.vocalAccuracy).toBe(83.5);
     expect(inserted.initial_ai_score).toBe(75.5);
+    // The RAW breakdown keeps the uncalibrated value, so the next calibration
+    // refit fits against 73.5, not the already-corrected 83.5.
+    expect(inserted.ai_breakdown_raw.vocalAccuracy).toBe(73.5);
   });
 
   it('creates the performance for the explicit userId, not any ambient session', async () => {

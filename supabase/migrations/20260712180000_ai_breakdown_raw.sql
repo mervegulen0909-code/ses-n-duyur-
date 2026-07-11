@@ -1,0 +1,14 @@
+-- Scoring hardening (HIGH): store the RAW (uncalibrated) LLM breakdown so the
+-- calibration refit is idempotent.
+--
+-- scores.ai_breakdown holds the breakdown AFTER calibration offsets are applied
+-- (performance-create + admin rescore). The calibration endpoint fit
+-- mean(anchor - ai_breakdown), i.e. against already-corrected values, then
+-- OVERWROTE the offset — so offsets regressed/oscillated toward zero as
+-- post-calibration performances entered the anchor set. Fitting against the raw
+-- breakdown makes the offset converge to the true model bias.
+--
+-- Nullable + backfilled going forward: rows created before this column exists
+-- have no raw breakdown, so the calibration fit simply skips them (it already
+-- requires >= 5 usable pairs).
+alter table public.scores add column ai_breakdown_raw jsonb;
