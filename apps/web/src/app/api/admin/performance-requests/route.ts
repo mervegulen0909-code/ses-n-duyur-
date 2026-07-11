@@ -2,6 +2,7 @@ import { performanceRequestActionSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { getProfileForContext } from '@/lib/auth';
 import { createScoredPerformance, DuplicateVideoError } from '@/lib/performance-create';
+import { trackServer } from '@/lib/analytics-server';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -77,6 +78,9 @@ export async function POST(req: Request): Promise<Response> {
         error,
       );
     }
+    await trackServer(service, 'performance_request_approved', request.user_id, {
+      requestId: request.id,
+    });
     return Response.json({ id: perf.id }, { status: 201 });
   } catch (err) {
     if (err instanceof DuplicateVideoError) {

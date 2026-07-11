@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { track } from '@/lib/analytics';
 
 type Mode = 'login' | 'signup';
 
@@ -21,6 +22,8 @@ export default function LoginPage() {
     setBusy(true);
     setError('');
 
+    if (mode === 'signup') track('signup_started');
+
     const supabase = createSupabaseBrowserClient();
     const { error: authError } =
       mode === 'login'
@@ -31,6 +34,11 @@ export default function LoginPage() {
     if (authError) {
       setError(authError.message);
       return;
+    }
+    if (mode === 'signup') {
+      const ref = new URLSearchParams(window.location.search).get('ref');
+      track('signup_completed');
+      if (ref) track('invite_converted', { ref });
     }
     router.push('/');
     router.refresh();

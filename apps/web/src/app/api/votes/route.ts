@@ -7,6 +7,7 @@ import { CRITERIA, type Criterion } from '@voxscore/scoring';
 import type { Database } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
+import { trackServer } from '@/lib/analytics-server';
 import { COLUMN } from './overall';
 
 type CriteriaRatingInsert = Database['public']['Tables']['criteria_ratings']['Insert'];
@@ -141,6 +142,10 @@ export async function POST(req: Request): Promise<Response> {
       console.error('[votes] score recompute failed', recomputeError);
       return Response.json({ error: 'Could not recompute score' }, { status: 500 });
     }
+
+    await trackServer(service, 'vote_submitted', user.id, {
+      performanceId: parsed.data.performanceId,
+    });
 
     return Response.json(
       {

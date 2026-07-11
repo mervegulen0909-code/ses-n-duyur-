@@ -1,6 +1,7 @@
 import { parseYouTubeId, performanceRequestSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
+import { trackServer } from '@/lib/analytics-server';
 
 /**
  * Normal users never create performances directly — they submit a request
@@ -95,6 +96,8 @@ export async function POST(req: Request): Promise<Response> {
     }
     return Response.json({ error: 'Could not submit request' }, { status: 500 });
   }
+
+  await trackServer(service, 'performance_request_submitted', user.id, { category: parsed.data.category });
 
   return Response.json({ id: created.id }, { status: 201 });
 }

@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { CategoryChips } from '@/components/category-chips';
 import { InviteFriendCard } from '@/components/invite-friend-card';
+import { TrackLandingView } from '@/components/track-landing-view';
 import { toScoreView, type ScoreRow } from '@/lib/score';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -65,6 +66,7 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
+      <TrackLandingView />
       <section className="mb-10 text-center">
         <h1 className="text-balance text-4xl font-bold sm:text-5xl">
           {t.rich('Home.heroTitle', {

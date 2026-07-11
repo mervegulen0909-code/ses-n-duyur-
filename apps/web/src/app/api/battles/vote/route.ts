@@ -1,6 +1,7 @@
 import { battleVoteSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
+import { trackServer } from '@/lib/analytics-server';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -85,6 +86,7 @@ export async function POST(req: Request): Promise<Response> {
     });
     const row = applied?.[0];
     if (row) {
+      await trackServer(service, 'battle_completed', user.id, { battleId });
       return Response.json(
         { ok: true, ratingA: row.rating_a, ratingB: row.rating_b },
         { status: 201 },

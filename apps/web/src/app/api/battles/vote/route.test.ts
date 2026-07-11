@@ -7,9 +7,13 @@ vi.mock('@/lib/supabase/server', () => ({
 vi.mock('@/lib/guard', () => ({
   rateLimit: vi.fn(async () => null),
 }));
+vi.mock('@/lib/analytics-server', () => ({
+  trackServer: vi.fn(async () => {}),
+}));
 
 import { rateLimit } from '@/lib/guard';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { trackServer } from '@/lib/analytics-server';
 import { POST } from './route';
 
 const BATTLE = '11111111-1111-1111-1111-111111111111';
@@ -161,5 +165,8 @@ describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5
         is_verified: true,
       }),
     );
+    expect(trackServer).toHaveBeenCalledWith(expect.anything(), 'battle_completed', 'me', {
+      battleId: BATTLE,
+    });
   });
 });

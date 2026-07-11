@@ -11,10 +11,14 @@ vi.mock('@/lib/performance-create', () => ({
   createScoredPerformance: vi.fn(),
   DuplicateVideoError: class DuplicateVideoError extends Error {},
 }));
+vi.mock('@/lib/analytics-server', () => ({
+  trackServer: vi.fn(async () => {}),
+}));
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { getProfileForContext } from '@/lib/auth';
 import { createScoredPerformance, DuplicateVideoError } from '@/lib/performance-create';
+import { trackServer } from '@/lib/analytics-server';
 import { POST } from './route';
 
 const REQUEST_ID = '11111111-1111-1111-1111-111111111111';
@@ -179,6 +183,12 @@ describe('POST /api/admin/performance-requests — approve/reject', () => {
     );
     expect(update).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'approved', approved_performance_id: 'perf-new' }),
+    );
+    expect(trackServer).toHaveBeenCalledWith(
+      service,
+      'performance_request_approved',
+      'requester-1',
+      expect.objectContaining({ requestId: REQUEST_ID }),
     );
   });
 

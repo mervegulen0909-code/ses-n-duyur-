@@ -8,9 +8,13 @@ vi.mock('@/lib/guard', () => ({
   rateLimit: vi.fn(async () => null),
   botGuard: vi.fn(async () => null),
 }));
+vi.mock('@/lib/analytics-server', () => ({
+  trackServer: vi.fn(async () => {}),
+}));
 
 import { botGuard, rateLimit } from '@/lib/guard';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { trackServer } from '@/lib/analytics-server';
 import { CRITERIA } from '@voxscore/scoring';
 import { POST } from './route';
 
@@ -208,6 +212,9 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
       }),
     );
     expect(createSupabaseServiceClient).toHaveBeenCalled();
+    expect(trackServer).toHaveBeenCalledWith(expect.anything(), 'vote_submitted', 'me-real', {
+      performanceId: PERF,
+    });
   });
 
   it('blends from the MEASURED basis when a measurement exists (ADR 0003)', async () => {

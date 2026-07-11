@@ -8,8 +8,12 @@ vi.mock('@/lib/guard', () => ({
   rateLimit: vi.fn(async () => null),
   botGuard: vi.fn(async () => null),
 }));
+vi.mock('@/lib/analytics-server', () => ({
+  trackServer: vi.fn(async () => {}),
+}));
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
+import { trackServer } from '@/lib/analytics-server';
 import { GET, POST } from './route';
 
 const VALID_BODY = {
@@ -149,6 +153,12 @@ describe('POST /api/performance-requests — user request queue', () => {
         youtube_video_id: 'dQw4w9WgXcQ',
         category: 'pop',
       }),
+    );
+    expect(trackServer).toHaveBeenCalledWith(
+      expect.anything(),
+      'performance_request_submitted',
+      'u1',
+      expect.objectContaining({ category: 'pop' }),
     );
   });
 });
