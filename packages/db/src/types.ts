@@ -21,6 +21,7 @@ export interface PublicRows {
     role: 'user' | 'admin';
     reputation: number;
     reputation_fitted_at: Timestamp | null;
+    prediction_points: number;
     bio: string | null;
     avatar_url: string | null;
     links: Json | null;
@@ -133,6 +134,14 @@ export interface PublicRows {
     listen_a_id: Uuid;
     listen_b_id: Uuid;
     is_verified: boolean;
+    created_at: Timestamp;
+  };
+  battle_predictions: {
+    id: Uuid;
+    battle_id: Uuid;
+    user_id: Uuid;
+    predicted: Uuid;
+    is_correct: boolean | null;
     created_at: Timestamp;
   };
   comments: {
@@ -343,6 +352,13 @@ export type Database = {
         Args: {
           p_user_id: Uuid;
           p_badge_key: string;
+        };
+        Returns: undefined;
+      };
+      score_battle_predictions: {
+        Args: {
+          p_battle_id: Uuid;
+          p_winner: Uuid;
         };
         Returns: undefined;
       };
