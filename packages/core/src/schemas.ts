@@ -205,6 +205,12 @@ export const ANALYTICS_EVENTS = [
   'share_clicked',
   'challenge_opened',
   'invite_converted',
+  // k-factor funnel: artifact shown → link visited → guest engaged.
+  'share_rendered',
+  'challenge_link_visited',
+  'guest_battle_started',
+  // Prediction pools (listener game — NOT a vote).
+  'prediction_submitted',
 ] as const;
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number];
 

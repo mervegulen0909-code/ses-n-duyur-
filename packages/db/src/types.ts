@@ -250,7 +250,11 @@ export interface PublicRows {
       | 'battle_completed'
       | 'share_clicked'
       | 'challenge_opened'
-      | 'invite_converted';
+      | 'invite_converted'
+      | 'share_rendered'
+      | 'challenge_link_visited'
+      | 'guest_battle_started'
+      | 'prediction_submitted';
     session_id: Uuid;
     user_id: Uuid | null;
     meta: Json | null;
