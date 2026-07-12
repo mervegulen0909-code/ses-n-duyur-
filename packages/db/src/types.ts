@@ -22,6 +22,7 @@ export interface PublicRows {
     reputation: number;
     reputation_fitted_at: Timestamp | null;
     prediction_points: number;
+    league_tier: number;
     bio: string | null;
     avatar_url: string | null;
     links: Json | null;
@@ -143,6 +144,18 @@ export interface PublicRows {
     predicted: Uuid;
     is_correct: boolean | null;
     created_at: Timestamp;
+  };
+  league_cohorts: {
+    id: Uuid;
+    week_start: string; // date
+    tier: number;
+    created_at: Timestamp;
+  };
+  league_memberships: {
+    cohort_id: Uuid;
+    user_id: Uuid;
+    week_start: string; // date
+    points: number;
   };
   comments: {
     id: Uuid;
