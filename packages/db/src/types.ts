@@ -165,6 +165,10 @@ export interface PublicRows {
     delta: number;
     created_at: Timestamp;
   };
+  league_rotation_weeks: {
+    week_start: string; // date
+    movement_completed_at: Timestamp;
+  };
   comments: {
     id: Uuid;
     performance_id: Uuid;
@@ -312,7 +316,8 @@ export interface PublicRows {
       | 'comment_reply'
       | 'performance_request_approved'
       | 'performance_request_rejected'
-      | 'day1_comeback';
+      | 'day1_comeback'
+      | 'league_week_started';
     meta: Json | null;
     sent_at: Timestamp | null;
     scheduled_for: Timestamp;

@@ -250,6 +250,7 @@ export const NOTIFICATION_KINDS = [
   'performance_request_approved',
   'performance_request_rejected',
   'day1_comeback',
+  'league_week_started',
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 

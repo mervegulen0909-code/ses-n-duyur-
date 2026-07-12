@@ -5,6 +5,10 @@ import { sendExpoPush, type ExpoPushMessage } from '@/lib/expo-push';
 /** Bounds one cron invocation's work; the next run drains any remainder. */
 const BATCH_LIMIT = 200;
 
+// There is no persisted user locale on profiles/push_tokens yet, so push
+// delivery has one explicit English fallback catalog. Localized weekly-league
+// copy lives in the web UI; add locale-specific push copy only with a real
+// stored-locale selection path (never as an unused constant).
 const COPY: Record<NotificationKind, { title: string; body: string }> = {
   battle_challenge: { title: 'New battle', body: 'A new battle pairing is ready for you.' },
   new_vote: { title: 'New vote', body: 'Someone just voted on your performance.' },
@@ -21,6 +25,10 @@ const COPY: Record<NotificationKind, { title: string; body: string }> = {
   day1_comeback: {
     title: 'Your league is waiting',
     body: 'Your league is waiting — today’s battles are live.',
+  },
+  league_week_started: {
+    title: 'New league week',
+    body: 'New league week — your cohort is live.',
   },
 };
 

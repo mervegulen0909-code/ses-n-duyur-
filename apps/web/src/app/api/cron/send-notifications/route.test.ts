@@ -120,6 +120,24 @@ describe('GET /api/cron/send-notifications', () => {
     expect(service.notifUpdateIn).toHaveBeenCalledWith('id', ['evt-1']);
   });
 
+  it('uses the league-week English fallback copy', async () => {
+    const service = makeService({
+      pending: [{ id: 'evt-league', user_id: 'user-1', kind: 'league_week_started', meta: null }],
+      tokens: [{ id: 'tok-1', user_id: 'user-1', token: 'ExponentPushToken[a]' }],
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+    vi.mocked(sendExpoPush).mockResolvedValue([{ status: 'ok', id: 'ticket-1' }]);
+
+    await GET(makeRequest('Bearer test-secret'));
+
+    expect(sendExpoPush).toHaveBeenCalledWith([
+      expect.objectContaining({
+        title: 'New league week',
+        body: 'New league week — your cohort is live.',
+      }),
+    ]);
+  });
+
   it('marks an event processed even when its user has zero tokens', async () => {
     const service = makeService({ tokens: [] });
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);

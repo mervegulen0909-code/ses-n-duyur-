@@ -6,6 +6,10 @@
   "outputDirectory": "apps/web/.next",
   "crons": [
     {
+      "path": "/api/cron/rotate-leagues",
+      "schedule": "0 0 * * *"
+    },
+    {
       "path": "/api/cron/send-notifications",
       "schedule": "0 9 * * *"
     },
