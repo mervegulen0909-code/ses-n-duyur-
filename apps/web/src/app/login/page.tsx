@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { track } from '@/lib/analytics';
 import { isValidRefCode, REF_COOKIE, REF_COOKIE_MAX_AGE_S } from '@/lib/referral';
+import { safeInternalPath } from '@/lib/safe-path';
 
 type Mode = 'login' | 'signup';
 
@@ -64,7 +65,7 @@ export default function LoginPage() {
       track('signup_completed');
       if (ref) track('invite_converted', { ref });
     }
-    router.push('/');
+    router.push(safeInternalPath(new URLSearchParams(window.location.search).get('next')));
     router.refresh();
   }
 
