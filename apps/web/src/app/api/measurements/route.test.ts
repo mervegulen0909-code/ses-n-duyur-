@@ -219,14 +219,74 @@ describe('POST /api/measurements — measure and delete (ADR 0003)', () => {
       { onConflict: 'performance_id' },
     );
 
-    // The denormalized score was re-blended with the measured basis.
+    // A YouTube embed with no duration verification (no key → null) blends from
+    // the LLM basis, not the measurement — the measured take isn't confirmed to
+    // match the embedded video, so it must not inflate the objective criteria.
     expect(service.rpc).toHaveBeenCalledWith(
       'recompute_performance_score',
       expect.objectContaining({
         p_performance_id: PERF_ID,
+        p_initial_ai_score: 70,
         p_trend_baseline: 70,
       }),
     );
+  });
+
+  // Helper: the p_initial_ai_score the recompute RPC was called with.
+  function rpcBasis(rpc: ReturnType<typeof vi.fn>): number {
+    const call = rpc.mock.calls.find((c) => c[0] === 'recompute_performance_score');
+    return (call?.[1] as { p_initial_ai_score: number }).p_initial_ai_score;
+  }
+
+  it('applies the measured basis to a YouTube embed only when the take is duration-matched', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-key';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ items: [{ contentDetails: { duration: 'PT3S' } }] }),
+      })),
+    );
+    authAs();
+    const service = makeServiceClient();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(201);
+    // Duration matched → measured criteria replace the estimate → basis moves.
+    expect(rpcBasis(service.rpc)).not.toBe(70);
+  });
+
+  it('blends a duration-MISMATCHED YouTube take from the LLM basis, not the measurement', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-key';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ items: [{ contentDetails: { duration: 'PT30S' } }] }),
+      })),
+    );
+    authAs();
+    const service = makeServiceClient();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(201);
+    expect(rpcBasis(service.rpc)).toBe(70);
+  });
+
+  it('always applies the measured basis to an owned upload (no linked video)', async () => {
+    authAs({ ...OWNED_PERF, youtube_video_id: null });
+    const service = makeServiceClient();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(201);
+    // No video to match against, but the WAV IS the performance (Hard Rule 3).
+    expect(rpcBasis(service.rpc)).not.toBe(70);
   });
 
   it('flags duration_matched=true when the take runs within ±5% of the video (T13)', async () => {

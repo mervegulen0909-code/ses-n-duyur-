@@ -1,4 +1,4 @@
-import { assertScore, round } from './util';
+import { assertFinite, assertScore, round } from './util';
 
 /**
  * The 9 scoring criteria. `stagePresence` is video-only: when a performance has
@@ -69,7 +69,10 @@ export function composeInitialAiScore(scores: CriteriaScores, opts: ComposeOptio
   let weighted = 0;
   for (const criterion of activeCriteria) {
     const score = assertScore(scores[criterion], `criteria.${criterion}`);
-    const weight = weights[criterion];
+    // Guard the weight too: a malformed custom `opts.weights` (missing key →
+    // undefined, or NaN/Infinity) would otherwise slip past `weight < 0` and
+    // yield a silent NaN — this package fails loudly on out-of-band input.
+    const weight = assertFinite(weights[criterion], `weight.${criterion}`);
     if (weight < 0) throw new RangeError(`weight.${criterion} must be >= 0`);
     weightSum += weight;
     weighted += score * weight;

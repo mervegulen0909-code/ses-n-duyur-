@@ -189,6 +189,10 @@ export async function createScoredPerformance(
     performance_id: perf.id,
     ...payload.score,
     ai_breakdown: payload.score.ai_breakdown as unknown as Json,
+    // Store the RAW (pre-calibration) breakdown too so the calibration refit
+    // fits against uncorrected values and converges (idempotent), instead of
+    // re-fitting against its own prior offset.
+    ai_breakdown_raw: rawScoring.breakdown as unknown as Json,
     season_id: seasonId,
   });
   if (scoreError) {

@@ -14,9 +14,15 @@ const MAX_WEIGHT = 1.5;
 /** A mean absolute deviation of this many points costs a full weight unit. */
 const MAD_SCALE = 25;
 
-/** profiles.reputation → the criteria_ratings.weight to stamp on new votes. */
+/**
+ * profiles.reputation → the criteria_ratings.weight to stamp on new votes.
+ * 0 (or a non-finite value) is "no history yet" → full weight 1.0. A stored
+ * value is scaled by 1/1000 and clamped to [0.5, 1.5]; a negative (corrupt)
+ * value therefore floors to 0.5, never 1.0. MUST match the SQL formula in
+ * guard_criteria_rating_weight() — see criteria-weight-parity.test.ts.
+ */
 export function weightFromReputation(reputation: number): number {
-  if (!Number.isFinite(reputation) || reputation <= 0) return 1;
+  if (!Number.isFinite(reputation) || reputation === 0) return 1;
   return clamp(reputation / 1000, MIN_WEIGHT, MAX_WEIGHT);
 }
 

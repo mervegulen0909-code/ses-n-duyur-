@@ -270,6 +270,27 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
     expect(ratingsInsert).toHaveBeenCalledWith(expect.objectContaining({ weight: 1.5 }));
   });
 
+  it('503 (fails closed) when the service role is unavailable — the vote is not silently accepted', async () => {
+    const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(null);
+
+    const res = await POST(makeRequest(validBody));
+
+    expect(res.status).toBe(503);
+  });
+
+  it('still returns 201 when a post-recompute side effect fails (best-effort, vote already counted)', async () => {
+    const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
+    vi.mocked(trackServer).mockRejectedValueOnce(new Error('analytics down'));
+
+    const res = await POST(makeRequest(validBody));
+
+    expect(res.status).toBe(201);
+  });
+
   it('does NOT grant the centurion badge below the 100-vote threshold', async () => {
     const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);

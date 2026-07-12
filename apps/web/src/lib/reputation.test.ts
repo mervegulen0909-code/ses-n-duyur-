@@ -12,6 +12,14 @@ describe('weightFromReputation — profiles.reputation (int) → vote weight', (
     expect(weightFromReputation(2000)).toBe(1.5); // clamped
     expect(weightFromReputation(100)).toBe(0.5); // clamped low
   });
+  it('floors a negative (corrupt) reputation to 0.5, not 1.0', () => {
+    expect(weightFromReputation(-100)).toBe(0.5);
+    expect(weightFromReputation(-1)).toBe(0.5);
+  });
+  it('treats a non-finite reputation as no-history full weight', () => {
+    expect(weightFromReputation(Number.NaN)).toBe(1);
+    expect(weightFromReputation(Number.POSITIVE_INFINITY)).toBe(1);
+  });
 });
 
 describe('reputationFromMad — consensus agreement → stored reputation', () => {

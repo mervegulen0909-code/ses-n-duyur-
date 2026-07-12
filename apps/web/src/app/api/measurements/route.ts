@@ -140,14 +140,21 @@ export async function POST(req: Request): Promise<Response> {
     .maybeSingle();
 
   if (scoreRow) {
-    const basis =
-      measuredAdjustedInitial({
-        aiBreakdown: scoreRow.ai_breakdown as Partial<Record<Criterion, number>> | null,
-        measured: breakdown,
-        hasVideo: perf.has_video,
-      }) ??
-      scoreRow.initial_ai_score ??
-      0;
+    // Fairness gate: the measured DSP breakdown only replaces the estimate in
+    // the score basis when it plausibly corresponds to THIS performance —
+    // always for an owned upload (the WAV is the performance), but for a
+    // YouTube embed only when the take length matches the video (±5%). This
+    // stops an unrelated WAV from inflating a YouTube entry's objective
+    // criteria; the measurement + badge are still stored either way.
+    const measuredApplies = !perf.youtube_video_id || durationMatched === true;
+    const measuredBasis = measuredApplies
+      ? measuredAdjustedInitial({
+          aiBreakdown: scoreRow.ai_breakdown as Partial<Record<Criterion, number>> | null,
+          measured: breakdown,
+          hasVideo: perf.has_video,
+        })
+      : null;
+    const basis = measuredBasis ?? scoreRow.initial_ai_score ?? 0;
 
     const trendBaseline = scoreRow.initial_ai_score ?? basis;
     const { error: recomputeError } = await service.rpc('recompute_performance_score', {

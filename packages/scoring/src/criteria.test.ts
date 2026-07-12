@@ -63,6 +63,27 @@ describe('composeInitialAiScore', () => {
     );
   });
 
+  it('throws (loudly, not NaN) on a missing or non-finite weight', () => {
+    const missing = { ...DEFAULT_CRITERION_WEIGHTS } as Record<string, number>;
+    delete missing.stagePresence; // undefined → must throw, not silently NaN
+    expect(() =>
+      composeInitialAiScore(scoresOf(80), {
+        hasVideo: true,
+        weights: missing as typeof DEFAULT_CRITERION_WEIGHTS,
+      }),
+    ).toThrow(/stagePresence/);
+
+    const nan = { ...DEFAULT_CRITERION_WEIGHTS, toneQuality: Number.NaN };
+    expect(() => composeInitialAiScore(scoresOf(80), { hasVideo: true, weights: nan })).toThrow(
+      /toneQuality/,
+    );
+
+    const inf = { ...DEFAULT_CRITERION_WEIGHTS, rhythmTiming: Number.POSITIVE_INFINITY };
+    expect(() => composeInitialAiScore(scoresOf(80), { hasVideo: true, weights: inf })).toThrow(
+      /rhythmTiming/,
+    );
+  });
+
   it('throws when active weights sum to zero', () => {
     const zero = Object.fromEntries(CRITERIA.map((c) => [c, 0])) as Record<
       (typeof CRITERIA)[number],
