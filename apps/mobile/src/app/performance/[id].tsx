@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -14,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
-import { measuredDisplayApplies, type ListenEvent } from '@voxscore/core';
+import { buildShareLine, measuredDisplayApplies, scoreBar, type ListenEvent } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { CRITERIA } from '@voxscore/scoring';
 import { postComment, submitVote } from '@/lib/api';
@@ -262,6 +263,18 @@ export default function PerformanceScreen() {
   // "Measured" when it actually counted toward current_score.
   const measuredApplies = measuredDisplayApplies(!!perf?.youtube_video_id, durationMatched);
 
+  // Native share of the same Wordle-style result line the web emits — one
+  // stable artifact shape across every surface (packages/core/share-line).
+  async function onShare() {
+    await Share.share({
+      message: buildShareLine({
+        headline: `🎤 VoxScore ${score?.current_score?.toFixed(1) ?? '—'} — ${meta.title ?? t('Common.untitled')}`,
+        bar: score?.current_score == null ? undefined : scoreBar(score.current_score),
+        url: `https://voxscore.app/performance/${id}`,
+      }),
+    });
+  }
+
   const hint = embedBlocked
     ? t('Performance.embedBlockedHint')
     : listen.status === 'verified'
@@ -416,6 +429,13 @@ export default function PerformanceScreen() {
               })}
             </View>
 
+            <Pressable
+              style={({ pressed }) => [styles.shareBtn, pressed && { opacity: 0.85 }]}
+              onPress={onShare}
+            >
+              <Text style={styles.shareBtnText}>{t('Performance.shareResult')}</Text>
+            </Pressable>
+
             {/* Owner-only: attach a real measurement to this performance. */}
             {user && perf.user_id === user.id && (
               <Pressable
@@ -554,6 +574,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     overflow: 'hidden',
   },
+  shareBtn: {
+    marginTop: 16,
+    backgroundColor: 'rgba(34,211,238,0.15)',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  shareBtnText: { color: '#22D3EE', fontSize: 14, fontWeight: '800' },
   measureBtn: {
     marginTop: 16,
     backgroundColor: 'rgba(56,189,248,0.15)',
