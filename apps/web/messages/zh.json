@@ -8,6 +8,7 @@
     "battle": "对战",
     "standings": "积分榜",
     "wrapped": "我的赛季",
+    "league": "联赛",
     "storyboard": "故事板",
     "signIn": "登录",
     "admin": "管理",
@@ -129,6 +130,22 @@
     "listens": "已验证收听",
     "predictionPoints": "预测积分",
     "shareHeadline": "🏆 我的 VoxScore 赛季：{wins} 场对战胜利"
+  },
+  "League": {
+    "title": "每周联赛",
+    "tierBronze": "青铜",
+    "tierSilver": "白银",
+    "tierGold": "黄金",
+    "tierDiamond": "钻石",
+    "promotionZone": "晋级区",
+    "relegationZone": "降级区",
+    "noCohort": "你将在下周一加入一个联赛——继续收听和投票来赢取积分。",
+    "members": "{count}/30 位听众",
+    "nextRotation": "{days}天 {hours}小时后轮换",
+    "points": "{count} 分",
+    "pointsGuide": "完成认证收听 +1 · 完成认证对战投票 +2 · 赢得对战 +5",
+    "you": "你",
+    "loadError": "无法加载每周联赛。"
   },
   "Seasons": {
     "allSeasons": "全部赛季"

@@ -8,6 +8,7 @@
     "battle": "التحدي",
     "standings": "جدول الترتيب",
     "wrapped": "موسمي",
+    "league": "الدوري",
     "storyboard": "المخطط التصويري",
     "signIn": "تسجيل الدخول",
     "admin": "الإدارة",
@@ -129,6 +130,22 @@
     "listens": "استماعات موثّقة",
     "predictionPoints": "نقاط التوقعات",
     "shareHeadline": "🏆 موسمي على VoxScore: {wins} فوزًا في التحدي"
+  },
+  "League": {
+    "title": "الدوري الأسبوعي",
+    "tierBronze": "برونزي",
+    "tierSilver": "فضي",
+    "tierGold": "ذهبي",
+    "tierDiamond": "ماسي",
+    "promotionZone": "منطقة الترقية",
+    "relegationZone": "منطقة الهبوط",
+    "noCohort": "سيتم وضعك في دوري يوم الاثنين المقبل — واصل الاستماع والتصويت لكسب النقاط.",
+    "members": "{count}/30 مستمعًا",
+    "nextRotation": "التدوير التالي خلال {days} ي {hours} س",
+    "points": "{count} نقطة",
+    "pointsGuide": "استماع موثّق +1 · تصويت مواجهة موثّق +2 · فوز بالمواجهة +5",
+    "you": "أنت",
+    "loadError": "تعذر تحميل الدوري الأسبوعي."
   },
   "Seasons": {
     "allSeasons": "كل المواسم"

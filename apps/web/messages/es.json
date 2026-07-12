@@ -8,6 +8,7 @@
     "battle": "Batalla",
     "standings": "Posiciones",
     "wrapped": "Mi temporada",
+    "league": "Liga",
     "storyboard": "Storyboard",
     "signIn": "Iniciar sesión",
     "admin": "Administración",
@@ -129,6 +130,22 @@
     "listens": "Escuchas verificadas",
     "predictionPoints": "Puntos de predicción",
     "shareHeadline": "🏆 Mi temporada en VoxScore: {wins} victorias en batalla"
+  },
+  "League": {
+    "title": "Liga semanal",
+    "tierBronze": "Bronce",
+    "tierSilver": "Plata",
+    "tierGold": "Oro",
+    "tierDiamond": "Diamante",
+    "promotionZone": "Zona de ascenso",
+    "relegationZone": "Zona de descenso",
+    "noCohort": "Entrarás en una liga el próximo lunes — sigue escuchando y votando para ganar puntos.",
+    "members": "{count}/30 oyentes",
+    "nextRotation": "Próxima rotación en {days} d {hours} h",
+    "points": "{count} pts",
+    "pointsGuide": "Escucha verificada +1 · voto de batalla verificado +2 · victoria en batalla +5",
+    "you": "Tú",
+    "loadError": "No se pudo cargar la liga semanal."
   },
   "Seasons": {
     "allSeasons": "Todas las temporadas"

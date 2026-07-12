@@ -8,6 +8,7 @@
     "battle": "Duel",
     "standings": "Classement Elo",
     "wrapped": "Ma saison",
+    "league": "Ligue",
     "storyboard": "Storyboard",
     "signIn": "Se connecter",
     "admin": "Admin",
@@ -129,6 +130,22 @@
     "listens": "Écoutes vérifiées",
     "predictionPoints": "Points de pronostic",
     "shareHeadline": "🏆 Ma saison VoxScore : {wins} duels gagnés"
+  },
+  "League": {
+    "title": "Ligue hebdomadaire",
+    "tierBronze": "Bronze",
+    "tierSilver": "Argent",
+    "tierGold": "Or",
+    "tierDiamond": "Diamant",
+    "promotionZone": "Zone de promotion",
+    "relegationZone": "Zone de relégation",
+    "noCohort": "Tu rejoindras une ligue lundi prochain — continue à écouter et voter pour gagner des points.",
+    "members": "{count}/30 auditeurs",
+    "nextRotation": "Prochaine rotation dans {days} j {hours} h",
+    "points": "{count} pts",
+    "pointsGuide": "Écoute vérifiée +1 · vote de duel vérifié +2 · victoire en duel +5",
+    "you": "Toi",
+    "loadError": "Impossible de charger la ligue hebdomadaire."
   },
   "Seasons": {
     "allSeasons": "Toutes les saisons"

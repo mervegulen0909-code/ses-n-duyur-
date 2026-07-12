@@ -8,6 +8,7 @@
     "battle": "Düello",
     "standings": "Puan durumu",
     "wrapped": "Sezonum",
+    "league": "Lig",
     "storyboard": "Storyboard",
     "signIn": "Giriş yap",
     "admin": "Yönetici",
@@ -129,6 +130,22 @@
     "listens": "Doğrulanmış dinleme",
     "predictionPoints": "Tahmin puanı",
     "shareHeadline": "🏆 VoxScore sezonum: {wins} düello galibiyeti"
+  },
+  "League": {
+    "title": "Haftalık Lig",
+    "tierBronze": "Bronz",
+    "tierSilver": "Gümüş",
+    "tierGold": "Altın",
+    "tierDiamond": "Elmas",
+    "promotionZone": "Terfi bölgesi",
+    "relegationZone": "Küme düşme bölgesi",
+    "noCohort": "Önümüzdeki pazartesi bir lige yerleştirileceksin — puan için dinlemeye ve oylamaya devam et.",
+    "members": "{count}/30 dinleyici",
+    "nextRotation": "Yeni haftaya {days}g {hours}s",
+    "points": "{count} puan",
+    "pointsGuide": "Doğrulanmış dinleme +1 · doğrulanmış düello oyu +2 · düello galibiyeti +5",
+    "you": "Sen",
+    "loadError": "Haftalık lig yüklenemedi."
   },
   "Seasons": {
     "allSeasons": "Tüm sezonlar"

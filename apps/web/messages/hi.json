@@ -8,6 +8,7 @@
     "battle": "बैटल",
     "standings": "स्टैंडिंग्स",
     "wrapped": "मेरा सीज़न",
+    "league": "लीग",
     "storyboard": "स्टोरीबोर्ड",
     "signIn": "साइन इन करें",
     "admin": "एडमिन",
@@ -129,6 +130,22 @@
     "listens": "सत्यापित लिसन",
     "predictionPoints": "भविष्यवाणी पॉइंट",
     "shareHeadline": "🏆 मेरा VoxScore सीज़न: {wins} बैटल जीत"
+  },
+  "League": {
+    "title": "साप्ताहिक लीग",
+    "tierBronze": "कांस्य",
+    "tierSilver": "रजत",
+    "tierGold": "स्वर्ण",
+    "tierDiamond": "डायमंड",
+    "promotionZone": "प्रमोशन क्षेत्र",
+    "relegationZone": "रेलिगेशन क्षेत्र",
+    "noCohort": "आपको अगले सोमवार एक लीग में रखा जाएगा — अंक कमाने के लिए सुनना और वोट करना जारी रखें।",
+    "members": "{count}/30 श्रोता",
+    "nextRotation": "अगला रोटेशन {days}दि {hours}घं में",
+    "points": "{count} अंक",
+    "pointsGuide": "सत्यापित सुनना +1 · सत्यापित बैटल वोट +2 · बैटल जीत +5",
+    "you": "आप",
+    "loadError": "साप्ताहिक लीग लोड नहीं हो सकी।"
   },
   "Seasons": {
     "allSeasons": "सभी सीज़न"

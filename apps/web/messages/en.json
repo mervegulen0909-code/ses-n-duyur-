@@ -8,6 +8,7 @@
     "battle": "Battle",
     "standings": "Standings",
     "wrapped": "Wrapped",
+    "league": "League",
     "storyboard": "Storyboard",
     "signIn": "Sign in",
     "admin": "Admin",
@@ -129,6 +130,22 @@
     "listens": "Verified listens",
     "predictionPoints": "Prediction points",
     "shareHeadline": "🏆 My VoxScore season: {wins} battle wins"
+  },
+  "League": {
+    "title": "Weekly League",
+    "tierBronze": "Bronze",
+    "tierSilver": "Silver",
+    "tierGold": "Gold",
+    "tierDiamond": "Diamond",
+    "promotionZone": "Promotion zone",
+    "relegationZone": "Relegation zone",
+    "noCohort": "You'll be placed into a league next Monday — keep listening and voting to earn points.",
+    "members": "{count}/30 listeners",
+    "nextRotation": "Next rotation in {days}d {hours}h",
+    "points": "{count} pts",
+    "pointsGuide": "Verified listen +1 · verified battle vote +2 · battle win +5",
+    "you": "You",
+    "loadError": "The weekly league could not be loaded."
   },
   "Seasons": {
     "allSeasons": "All seasons"

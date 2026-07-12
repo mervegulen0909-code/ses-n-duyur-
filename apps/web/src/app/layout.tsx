@@ -49,8 +49,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <NextIntlClientProvider messages={messages}>
           <header className="border-b border-neutral-800">
-            <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-              <div className="flex items-center gap-4">
+            <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
                 <Link href="/" className="font-bold tracking-tight">
                   Vox<span className="text-emerald-400">Score</span>
                 </Link>
@@ -78,7 +78,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   </Link>
                 )}
               </div>
-              <div className="flex items-center gap-3">
+              <div className="ms-auto flex flex-wrap items-center justify-end gap-3">
                 <LanguageSwitcher />
                 <NavAuth />
               </div>
