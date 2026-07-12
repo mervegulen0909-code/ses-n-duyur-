@@ -96,7 +96,9 @@
     "mustListenBoth": "Debes escuchar por completo AMBAS interpretaciones antes de elegir un ganador.",
     "finding": "Buscando una batalla…",
     "notEnough": "Aún no hay suficientes interpretaciones para una batalla. ¡Añade más!",
-    "couldNotLoad": "No se pudo cargar una batalla."
+    "couldNotLoad": "No se pudo cargar una batalla.",
+    "predictPrompt": "Antes de escuchar: ¿quién se lleva esta?",
+    "predictDisclaimer": "Las predicciones son un juego: nunca afectan las puntuaciones. Solo las escuchas verificadas desbloquean votos reales."
   },
   "Leaderboard": {
     "subtitle": "Clasificadas por puntuación actual.",
@@ -115,7 +117,8 @@
     "record": "{wins}–{losses}",
     "winRate": "{rate}% de victorias",
     "empty": "Aún no hay batallas. Abre la arena de batalla para iniciar una.",
-    "viewScores": "Clasificación por puntuación →"
+    "viewScores": "Clasificación por puntuación →",
+    "predictionLeague": "Liga de Predicciones"
   },
   "Seasons": {
     "allSeasons": "Todas las temporadas"

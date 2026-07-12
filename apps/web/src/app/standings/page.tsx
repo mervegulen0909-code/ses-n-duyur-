@@ -89,6 +89,15 @@ export default async function StandingsPage({
   const seasons = await listSeasons(supabase);
   const activeSeason = resolveSeason(seasons, season);
 
+  // Prediction League: the listener game's own board (all-time points).
+  // Predictions are NOT votes — this list never feeds Elo or scores.
+  const { data: predictors } = await supabase
+    .from('profiles')
+    .select('id, handle, prediction_points')
+    .gt('prediction_points', 0)
+    .order('prediction_points', { ascending: false })
+    .limit(50);
+
   const rows: StandingsRow[] = activeSeason
     ? await seasonStandingsRows(supabase, activeSeason, perfs ?? [])
     : (perfs ?? [])
@@ -148,6 +157,28 @@ export default async function StandingsPage({
             </li>
           ))}
         </ol>
+      )}
+
+      {(predictors?.length ?? 0) > 0 && (
+        <section className="mt-10">
+          <h2 className="mb-3 text-lg font-semibold">{t('Standings.predictionLeague')}</h2>
+          <ol className="space-y-2">
+            {(predictors ?? []).map((p, i) => (
+              <li key={p.id}>
+                <Link
+                  href={`/profile/${p.handle}`}
+                  className="flex items-center gap-4 rounded-lg border border-neutral-800 bg-neutral-900/50 px-4 py-3 hover:border-neutral-600"
+                >
+                  <RankBadge rank={i + 1} />
+                  <span className="flex-1 truncate text-sm">@{p.handle}</span>
+                  <span className="w-14 text-right font-semibold tabular-nums text-sky-400">
+                    {p.prediction_points}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
       )}
     </main>
   );

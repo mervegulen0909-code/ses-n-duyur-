@@ -96,7 +96,9 @@
     "mustListenBoth": "You must fully listen to BOTH performances before choosing a winner.",
     "finding": "Finding a battle…",
     "notEnough": "Not enough performances to battle yet. Add more!",
-    "couldNotLoad": "Could not load a battle."
+    "couldNotLoad": "Could not load a battle.",
+    "predictPrompt": "Before you listen: who takes this?",
+    "predictDisclaimer": "Predictions are a game — they never affect scores. Only verified listens unlock real votes."
   },
   "Leaderboard": {
     "subtitle": "Ranked by current score.",
@@ -115,7 +117,8 @@
     "record": "{wins}–{losses}",
     "winRate": "{rate}% wins",
     "empty": "No battles yet. Open the Battle arena to start one.",
-    "viewScores": "Score leaderboard →"
+    "viewScores": "Score leaderboard →",
+    "predictionLeague": "Prediction League"
   },
   "Seasons": {
     "allSeasons": "All seasons"

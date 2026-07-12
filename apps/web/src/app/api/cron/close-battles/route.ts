@@ -68,8 +68,16 @@ export async function GET(req: Request): Promise<Response> {
       applied++;
 
       if (resultForA !== 0.5) {
+        const winnerPerf = resultForA > 0.5 ? b.perf_a : b.perf_b;
         const winnerOwner = resultForA > 0.5 ? a?.user_id : pB?.user_id;
         if (winnerOwner) await grantBadge(service, winnerOwner, 'battle_champion');
+        // Settle the prediction game against the same winner. Predictions are
+        // NOT votes: this only flips is_correct and adds prediction_points —
+        // Elo/scores are untouched. Ties and zero-vote closes settle nothing.
+        await service.rpc('score_battle_predictions', {
+          p_battle_id: b.id,
+          p_winner: winnerPerf,
+        });
       }
     }
 

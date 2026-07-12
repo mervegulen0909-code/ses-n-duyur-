@@ -64,7 +64,23 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
   // keeps the winner buttons so a transient failure can be retried in-place.
   const [voteState, setVoteState] = useState<'ok' | 'error' | null>(null);
   const [busy, setBusy] = useState(false);
+  // Prediction pool pick for this session — a game commitment, NOT a vote:
+  // it never gates on listens and never touches Elo/scores.
+  const [predicted, setPredicted] = useState<string>('');
   const bothVerified = listenA.status === 'verified' && listenB.status === 'verified';
+
+  async function predict(perfId: string) {
+    try {
+      const res = await fetch('/api/battles/predict', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ battleId: battle.battleId, predictedWinnerId: perfId }),
+      });
+      if (res.ok) setPredicted(perfId);
+    } catch {
+      // Best-effort game layer: a failed prediction never blocks the battle.
+    }
+  }
 
   async function vote(winnerPerformanceId: string) {
     if (!bothVerified || !listenA.listenIdRef.current || !listenB.listenIdRef.current) return;
@@ -104,6 +120,27 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
         <BattleSide side={battle.a} listen={listenA} />
         <BattleSide side={battle.b} listen={listenB} />
       </div>
+
+      {!bothVerified && voteState !== 'ok' && (
+        <div className="rounded-lg border border-sky-800/50 bg-sky-500/5 p-3 text-center">
+          <p className="mb-2 text-xs text-sky-300">{t('Battle.predictPrompt')}</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {[battle.a, battle.b].map((s) => (
+              <button
+                key={s.performanceId}
+                type="button"
+                disabled={!!predicted}
+                onClick={() => predict(s.performanceId)}
+                className="truncate rounded-md border border-sky-800 px-3 py-1.5 text-xs disabled:opacity-50"
+              >
+                {predicted === s.performanceId ? '✓ ' : ''}
+                {s.title}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px] text-neutral-500">{t('Battle.predictDisclaimer')}</p>
+        </div>
+      )}
 
       {voteState === 'ok' ? (
         <div className="space-y-3 text-center">

@@ -96,7 +96,9 @@
     "mustListenBoth": "Kazananı seçmeden önce HER İKİ performansı da tam dinlemelisin.",
     "finding": "Bir düello bulunuyor…",
     "notEnough": "Düello için henüz yeterli performans yok. Daha fazla ekle!",
-    "couldNotLoad": "Düello yüklenemedi."
+    "couldNotLoad": "Düello yüklenemedi.",
+    "predictPrompt": "Dinlemeden önce: sence kim kazanır?",
+    "predictDisclaimer": "Tahminler bir oyundur — skorları asla etkilemez. Gerçek oy için doğrulanmış dinleme gerekir."
   },
   "Leaderboard": {
     "subtitle": "Güncel puana göre sıralanır.",
@@ -115,7 +117,8 @@
     "record": "{wins}–{losses}",
     "winRate": "%{rate} galibiyet",
     "empty": "Henüz düello yok. Başlatmak için Düello arenasını aç.",
-    "viewScores": "Skor sıralaması →"
+    "viewScores": "Skor sıralaması →",
+    "predictionLeague": "Tahmin Ligi"
   },
   "Seasons": {
     "allSeasons": "Tüm sezonlar"

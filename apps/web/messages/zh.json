@@ -96,7 +96,9 @@
     "mustListenBoth": "选出赢家前，你必须完整听完两段表演。",
     "finding": "正在寻找对战…",
     "notEnough": "表演数量还不够，无法开始对战。快去添加更多吧！",
-    "couldNotLoad": "无法加载对战。"
+    "couldNotLoad": "无法加载对战。",
+    "predictPrompt": "听之前先猜：这场谁能拿下？",
+    "predictDisclaimer": "预测只是游戏——绝不会影响评分。只有完成验证收听才能解锁真正的投票。"
   },
   "Leaderboard": {
     "subtitle": "按当前得分排序。",
@@ -115,7 +117,8 @@
     "record": "{wins}胜{losses}负",
     "winRate": "胜率 {rate}%",
     "empty": "暂无对战记录。前往对战竞技场开始一场吧。",
-    "viewScores": "得分排行榜 →"
+    "viewScores": "得分排行榜 →",
+    "predictionLeague": "预测联赛"
   },
   "Seasons": {
     "allSeasons": "全部赛季"

@@ -28,7 +28,10 @@ function makeService(opts: {
   votes?: { winner_performance_id: string }[];
   battleCounts?: { a: number; b: number };
 }) {
-  const rpc = vi.fn(async () => ({ data: [{}], error: null }));
+  const rpc = vi.fn(async (_fn: string, _args?: Record<string, unknown>) => ({
+    data: [{}],
+    error: null,
+  }));
   const battleUpdateEq = vi.fn(async () => ({ error: null }));
   const battleUpdate = vi.fn(() => ({ eq: battleUpdateEq }));
 
@@ -117,14 +120,48 @@ describe('GET /api/cron/close-battles', () => {
     const res = await GET(makeRequest('cron-test-secret'));
 
     await expect(res.json()).resolves.toEqual({ closed: 1, applied: 1 });
-    expect(svc.rpc).toHaveBeenCalledTimes(1);
     expect(svc.rpc).toHaveBeenCalledWith('apply_battle_result', {
       p_perf_a: PERF_A,
       p_perf_b: PERF_B,
       p_result_for_a: 0.75,
       p_k: 48,
     });
+    // Elo applied exactly once; the only other rpc is the prediction settle.
+    expect(
+      svc.rpc.mock.calls.filter(([name]) => name === 'apply_battle_result'),
+    ).toHaveLength(1);
     expect(grantBadge).toHaveBeenCalledWith(svc.service, 'owner-a', 'battle_champion');
+  });
+
+  it('settles predictions once per closed battle with the winner (A majority)', async () => {
+    const svc = makeService({
+      votes: [{ winner_performance_id: PERF_A }, { winner_performance_id: PERF_A }],
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+
+    await GET(makeRequest('cron-test-secret'));
+
+    expect(svc.rpc).toHaveBeenCalledWith('score_battle_predictions', {
+      p_battle_id: BATTLE,
+      p_winner: PERF_A,
+    });
+    expect(
+      svc.rpc.mock.calls.filter(([name]) => name === 'score_battle_predictions'),
+    ).toHaveLength(1);
+  });
+
+  it('settles predictions with perf B when B takes the majority', async () => {
+    const svc = makeService({
+      votes: [{ winner_performance_id: PERF_B }, { winner_performance_id: PERF_B }],
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+
+    await GET(makeRequest('cron-test-secret'));
+
+    expect(svc.rpc).toHaveBeenCalledWith('score_battle_predictions', {
+      p_battle_id: BATTLE,
+      p_winner: PERF_B,
+    });
   });
 
   it('uses the settled K=24 once both sides are established, and skips the badge on a tie', async () => {
@@ -141,5 +178,8 @@ describe('GET /api/cron/close-battles', () => {
       expect.objectContaining({ p_result_for_a: 0.5, p_k: 24 }),
     );
     expect(grantBadge).not.toHaveBeenCalled();
+    // No winner → nothing to settle: predictions stay pending forever on a tie
+    // rather than being scored against an arbitrary side.
+    expect(svc.rpc).not.toHaveBeenCalledWith('score_battle_predictions', expect.anything());
   });
 });

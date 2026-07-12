@@ -96,7 +96,9 @@
     "mustListenBoth": "Vous devez écouter les DEUX performances en entier avant de choisir un gagnant.",
     "finding": "Recherche d'un duel…",
     "notEnough": "Pas encore assez de performances pour un duel. Ajoutez-en davantage !",
-    "couldNotLoad": "Impossible de charger un duel."
+    "couldNotLoad": "Impossible de charger un duel.",
+    "predictPrompt": "Avant d'écouter : qui remporte ce duel ?",
+    "predictDisclaimer": "Les prédictions sont un jeu — elles n'affectent jamais les scores. Seules les écoutes vérifiées débloquent de vrais votes."
   },
   "Leaderboard": {
     "subtitle": "Classées par score actuel.",
@@ -115,7 +117,8 @@
     "record": "{wins}–{losses}",
     "winRate": "{rate}% de victoires",
     "empty": "Aucun duel pour l'instant. Ouvrez l'arène de duel pour en lancer un.",
-    "viewScores": "Classement par score →"
+    "viewScores": "Classement par score →",
+    "predictionLeague": "Ligue des pronostics"
   },
   "Seasons": {
     "allSeasons": "Toutes les saisons"
