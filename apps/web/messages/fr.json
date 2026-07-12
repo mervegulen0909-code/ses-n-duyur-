@@ -7,6 +7,7 @@
     "leaderboard": "Classement",
     "battle": "Duel",
     "standings": "Classement Elo",
+    "wrapped": "Ma saison",
     "storyboard": "Storyboard",
     "signIn": "Se connecter",
     "admin": "Admin",
@@ -119,6 +120,15 @@
     "empty": "Aucun duel pour l'instant. Ouvrez l'arène de duel pour en lancer un.",
     "viewScores": "Classement par score →",
     "predictionLeague": "Ligue des pronostics"
+  },
+  "Wrapped": {
+    "title": "Ta saison sur VoxScore",
+    "wins": "Duels gagnés",
+    "losses": "Duels perdus",
+    "votes": "Votes vérifiés",
+    "listens": "Écoutes vérifiées",
+    "predictionPoints": "Points de pronostic",
+    "shareHeadline": "🏆 Ma saison VoxScore : {wins} duels gagnés"
   },
   "Seasons": {
     "allSeasons": "Toutes les saisons"

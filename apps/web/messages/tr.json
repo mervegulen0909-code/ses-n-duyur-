@@ -7,6 +7,7 @@
     "leaderboard": "Sıralama",
     "battle": "Düello",
     "standings": "Puan durumu",
+    "wrapped": "Sezonum",
     "storyboard": "Storyboard",
     "signIn": "Giriş yap",
     "admin": "Yönetici",
@@ -119,6 +120,15 @@
     "empty": "Henüz düello yok. Başlatmak için Düello arenasını aç.",
     "viewScores": "Skor sıralaması →",
     "predictionLeague": "Tahmin Ligi"
+  },
+  "Wrapped": {
+    "title": "VoxScore sezonun",
+    "wins": "Kazanılan düello",
+    "losses": "Kaybedilen düello",
+    "votes": "Doğrulanmış oy",
+    "listens": "Doğrulanmış dinleme",
+    "predictionPoints": "Tahmin puanı",
+    "shareHeadline": "🏆 VoxScore sezonum: {wins} düello galibiyeti"
   },
   "Seasons": {
     "allSeasons": "Tüm sezonlar"

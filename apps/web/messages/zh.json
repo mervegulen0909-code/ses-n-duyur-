@@ -7,6 +7,7 @@
     "leaderboard": "排行榜",
     "battle": "对战",
     "standings": "积分榜",
+    "wrapped": "我的赛季",
     "storyboard": "故事板",
     "signIn": "登录",
     "admin": "管理",
@@ -119,6 +120,15 @@
     "empty": "暂无对战记录。前往对战竞技场开始一场吧。",
     "viewScores": "得分排行榜 →",
     "predictionLeague": "预测联赛"
+  },
+  "Wrapped": {
+    "title": "你的 VoxScore 赛季",
+    "wins": "获胜对战",
+    "losses": "落败对战",
+    "votes": "已验证投票",
+    "listens": "已验证收听",
+    "predictionPoints": "预测积分",
+    "shareHeadline": "🏆 我的 VoxScore 赛季：{wins} 场对战胜利"
   },
   "Seasons": {
     "allSeasons": "全部赛季"

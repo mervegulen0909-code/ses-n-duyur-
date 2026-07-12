@@ -7,6 +7,7 @@
     "leaderboard": "Clasificación",
     "battle": "Batalla",
     "standings": "Posiciones",
+    "wrapped": "Mi temporada",
     "storyboard": "Storyboard",
     "signIn": "Iniciar sesión",
     "admin": "Administración",
@@ -119,6 +120,15 @@
     "empty": "Aún no hay batallas. Abre la arena de batalla para iniciar una.",
     "viewScores": "Clasificación por puntuación →",
     "predictionLeague": "Liga de Predicciones"
+  },
+  "Wrapped": {
+    "title": "Tu temporada en VoxScore",
+    "wins": "Batallas ganadas",
+    "losses": "Batallas perdidas",
+    "votes": "Votos verificados",
+    "listens": "Escuchas verificadas",
+    "predictionPoints": "Puntos de predicción",
+    "shareHeadline": "🏆 Mi temporada en VoxScore: {wins} victorias en batalla"
   },
   "Seasons": {
     "allSeasons": "Todas las temporadas"

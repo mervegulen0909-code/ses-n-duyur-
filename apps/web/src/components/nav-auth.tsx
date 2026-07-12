@@ -25,6 +25,11 @@ export async function NavAuth() {
           {t('admin')}
         </Link>
       )}
+      {/* Signed-in-only (a personal recap), so it lives here rather than in
+          the public header row where Standings sits. Same link styling. */}
+      <Link href="/wrapped" className="text-sm text-neutral-400 hover:text-neutral-200">
+        {t('wrapped')}
+      </Link>
       <Link
         href="/add"
         className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white"

@@ -7,6 +7,7 @@
     "leaderboard": "लीडरबोर्ड",
     "battle": "बैटल",
     "standings": "स्टैंडिंग्स",
+    "wrapped": "मेरा सीज़न",
     "storyboard": "स्टोरीबोर्ड",
     "signIn": "साइन इन करें",
     "admin": "एडमिन",
@@ -119,6 +120,15 @@
     "empty": "अभी तक कोई बैटल नहीं हुई। शुरू करने के लिए बैटल एरिना खोलें।",
     "viewScores": "स्कोर लीडरबोर्ड →",
     "predictionLeague": "भविष्यवाणी लीग"
+  },
+  "Wrapped": {
+    "title": "VoxScore पर आपका सीज़न",
+    "wins": "जीती गई बैटल",
+    "losses": "हारी गई बैटल",
+    "votes": "सत्यापित वोट",
+    "listens": "सत्यापित लिसन",
+    "predictionPoints": "भविष्यवाणी पॉइंट",
+    "shareHeadline": "🏆 मेरा VoxScore सीज़न: {wins} बैटल जीत"
   },
   "Seasons": {
     "allSeasons": "सभी सीज़न"

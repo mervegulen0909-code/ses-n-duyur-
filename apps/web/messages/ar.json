@@ -7,6 +7,7 @@
     "leaderboard": "لوحة الصدارة",
     "battle": "التحدي",
     "standings": "جدول الترتيب",
+    "wrapped": "موسمي",
     "storyboard": "المخطط التصويري",
     "signIn": "تسجيل الدخول",
     "admin": "الإدارة",
@@ -119,6 +120,15 @@
     "empty": "لا توجد تحديات بعد. افتح ساحة التحدي لبدء واحدة.",
     "viewScores": "لوحة صدارة النتائج →",
     "predictionLeague": "دوري التوقعات"
+  },
+  "Wrapped": {
+    "title": "موسمك على VoxScore",
+    "wins": "تحديات فزت بها",
+    "losses": "تحديات خسرتها",
+    "votes": "أصوات موثّقة",
+    "listens": "استماعات موثّقة",
+    "predictionPoints": "نقاط التوقعات",
+    "shareHeadline": "🏆 موسمي على VoxScore: {wins} فوزًا في التحدي"
   },
   "Seasons": {
     "allSeasons": "كل المواسم"

@@ -7,6 +7,7 @@
     "leaderboard": "Leaderboard",
     "battle": "Battle",
     "standings": "Standings",
+    "wrapped": "Wrapped",
     "storyboard": "Storyboard",
     "signIn": "Sign in",
     "admin": "Admin",
@@ -119,6 +120,15 @@
     "empty": "No battles yet. Open the Battle arena to start one.",
     "viewScores": "Score leaderboard →",
     "predictionLeague": "Prediction League"
+  },
+  "Wrapped": {
+    "title": "Your season on VoxScore",
+    "wins": "Battles won",
+    "losses": "Battles lost",
+    "votes": "Verified votes cast",
+    "listens": "Verified listens",
+    "predictionPoints": "Prediction points",
+    "shareHeadline": "🏆 My VoxScore season: {wins} battle wins"
   },
   "Seasons": {
     "allSeasons": "All seasons"
