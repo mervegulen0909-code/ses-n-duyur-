@@ -15,6 +15,25 @@ import {
 export type MeasuredBreakdown = Partial<Record<Criterion, number>>;
 
 /**
+ * Did a stored measurement actually blend into the score basis, or was it
+ * gated out (fairness gate: an unrelated WAV can't inflate a YouTube entry's
+ * objective criteria — see the measurements route)? Single source of truth
+ * for that rule, consumed by BOTH the route (to decide the blend) and every
+ * UI (to decide whether a criterion may show the measured value + badge) —
+ * so a criterion is never labeled "Measured" unless it actually counted.
+ *
+ * Always true for an owned upload (no video to verify against — the WAV IS
+ * the performance). For a YouTube-linked performance, true only when the
+ * take's duration matched the video (±5%, `duration_matched` from T13).
+ */
+export function measuredDisplayApplies(
+  hasYoutubeLink: boolean,
+  durationMatched: boolean | null,
+): boolean {
+  return !hasYoutubeLink || durationMatched === true;
+}
+
+/**
  * Merge a measurement over the stored AI breakdown for display: measured
  * criteria show the measured value, the rest keep the estimate.
  */

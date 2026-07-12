@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
-import type { ListenEvent } from '@voxscore/core';
+import { measuredDisplayApplies, type ListenEvent } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { CRITERIA } from '@voxscore/scoring';
 import { postComment, submitVote } from '@/lib/api';
@@ -91,6 +91,11 @@ export default function PerformanceScreen() {
   // Real DSP measurement of the artist's own recording (ADR 0003). Soft-fails
   // to null until the measured_scores table ships live.
   const [measured, setMeasured] = useState<Record<string, number> | null>(null);
+  // Whether the measured take's duration matched the linked video (T13) —
+  // gates whether the measurement may show as "Measured" (see
+  // measuredDisplayApplies): a mismatched/unknown take never inflated the
+  // score, so it must never be labeled as if it had.
+  const [durationMatched, setDurationMatched] = useState<boolean | null>(null);
 
   // Refetch performance + score (and the measurement) on every focus, not just
   // mount: returning from the /measure screen must show the just-recomputed
@@ -119,11 +124,12 @@ export default function PerformanceScreen() {
       (async () => {
         const { data } = await supabase
           .from('measured_scores')
-          .select('measured_breakdown')
+          .select('measured_breakdown, duration_matched')
           .eq('performance_id', id)
           .maybeSingle();
         if (active) {
           setMeasured((data?.measured_breakdown as Record<string, number> | null) ?? null);
+          setDurationMatched((data?.duration_matched as boolean | null) ?? null);
         }
       })();
       return () => {
@@ -252,6 +258,9 @@ export default function PerformanceScreen() {
   const score = one(perf?.scores);
   const breakdown = (score?.ai_breakdown ?? {}) as Record<string, number>;
   const activeCriteria = CRITERIA.filter((c) => perf?.has_video !== false || c !== 'stagePresence');
+  // Same rule the measurements route blends by — a criterion only shows as
+  // "Measured" when it actually counted toward current_score.
+  const measuredApplies = measuredDisplayApplies(!!perf?.youtube_video_id, durationMatched);
 
   const hint = embedBlocked
     ? t('Performance.embedBlockedHint')
@@ -383,13 +392,13 @@ export default function PerformanceScreen() {
               <Text style={styles.badge}>{t('Common.provisionalBadge')}</Text>
             )}
 
-            {measured && (
+            {measured && measuredApplies && (
               <Text style={styles.measuredCaption}>{t('Performance.measuredCaption')}</Text>
             )}
 
             <View style={styles.criteria}>
               {activeCriteria.map((c) => {
-                const measuredValue = measured?.[c] ?? null;
+                const measuredValue = measuredApplies ? (measured?.[c] ?? null) : null;
                 const value = measuredValue ?? (breakdown[c] != null ? breakdown[c] : null);
                 return (
                   <View key={c} style={styles.critRow}>
