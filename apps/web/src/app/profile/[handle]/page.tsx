@@ -50,6 +50,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   const badges = (earnedBadges ?? [])
     .map((b) => badgeByKey.get(b.badge_key))
     .filter((b): b is NonNullable<typeof b> => !!b);
+  // Badge labels render from the DB catalog title; keys that have localized
+  // copy in messages/*.json override it (Trusted Ear streak tiers).
+  const localizedBadgeTitles: Record<string, string> = {
+    trusted_ear_bronze: t('Profile.trustedEarBronze'),
+    trusted_ear_silver: t('Profile.trustedEarSilver'),
+    trusted_ear_gold: t('Profile.trustedEarGold'),
+  };
 
   // Follow graph: public counts + (when signed in and not self) whether the
   // viewer already follows this creator. All reads pass the follows
@@ -149,7 +156,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
                     className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-neutral-900/70 px-2 py-0.5 text-xs text-neutral-300"
                   >
                     <span>{b.icon}</span>
-                    <span>{b.title}</span>
+                    <span>{localizedBadgeTitles[b.key] ?? b.title}</span>
                   </span>
                 ))}
               </div>

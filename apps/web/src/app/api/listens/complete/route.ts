@@ -1,8 +1,15 @@
-import { listenCompleteSchema, validateListen, MIN_VERIFIED_LISTEN_SECONDS } from '@voxscore/core';
+import {
+  listenCompleteSchema,
+  validateListen,
+  streakTier,
+  MIN_VERIFIED_LISTEN_SECONDS,
+} from '@voxscore/core';
 import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 import { trackServer } from '@/lib/analytics-server';
+import { grantBadge } from '@/lib/badges';
+import { currentListenStreak } from '@/lib/streak-server';
 
 export async function POST(req: Request): Promise<Response> {
   let json: unknown;
@@ -68,6 +75,15 @@ export async function POST(req: Request): Promise<Response> {
     await trackServer(service, 'verified_listen_completed', user.id, {
       performanceId: parsed.data.performanceId,
     });
+
+    // Trusted Ear streak badges: grant speculatively at every tier unlock —
+    // grantBadge is idempotent (ON CONFLICT DO NOTHING), so no bookkeeping.
+    const today = new Date().toISOString().slice(0, 10);
+    const streak = await currentListenStreak(service, user.id, today);
+    const tier = streakTier(streak);
+    if (tier === 'bronze') await grantBadge(service, user.id, 'trusted_ear_bronze');
+    if (tier === 'silver') await grantBadge(service, user.id, 'trusted_ear_silver');
+    if (tier === 'gold') await grantBadge(service, user.id, 'trusted_ear_gold');
   }
 
   return Response.json({

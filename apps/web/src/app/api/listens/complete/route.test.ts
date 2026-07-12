@@ -10,9 +10,17 @@ vi.mock('@/lib/guard', () => ({
 vi.mock('@/lib/analytics-server', () => ({
   trackServer: vi.fn(async () => {}),
 }));
+vi.mock('@/lib/streak-server', () => ({
+  currentListenStreak: vi.fn(async () => 0),
+}));
+vi.mock('@/lib/badges', () => ({
+  grantBadge: vi.fn(async () => {}),
+}));
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { trackServer } from '@/lib/analytics-server';
+import { currentListenStreak } from '@/lib/streak-server';
+import { grantBadge } from '@/lib/badges';
 import { POST } from './route';
 
 const PERF = '11111111-1111-1111-1111-111111111111';
@@ -152,5 +160,57 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
     expect(trackServer).toHaveBeenCalledWith(svc.service, 'verified_listen_completed', 'me', {
       performanceId: PERF,
     });
+  });
+
+  const validListenBody = {
+    ...validBody,
+    events: [
+      { kind: 'playing', atSeconds: 0, clientTs: 0 },
+      { kind: 'ended', atSeconds: 200, clientTs: 200_000 },
+    ],
+  };
+  const recentListen = () => ({
+    ...ownedListen,
+    created_at: new Date(Date.now() - 210_000).toISOString(),
+  });
+
+  it('grants the Trusted Ear badge for the streak tier on a valid listen (7 days → silver)', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen()));
+    const svc = makeService();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+    vi.mocked(currentListenStreak).mockResolvedValue(7);
+
+    const res = await POST(makeRequest(validListenBody));
+
+    expect(((await res.json()) as { isValid: boolean }).isValid).toBe(true);
+    expect(currentListenStreak).toHaveBeenCalledWith(
+      svc.service,
+      'me',
+      new Date().toISOString().slice(0, 10),
+    );
+    expect(grantBadge).toHaveBeenCalledTimes(1);
+    expect(grantBadge).toHaveBeenCalledWith(svc.service, 'me', 'trusted_ear_silver');
+  });
+
+  it('grants no badge when the streak is below bronze', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen()));
+    const svc = makeService();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+    vi.mocked(currentListenStreak).mockResolvedValue(1);
+
+    await POST(makeRequest(validListenBody));
+
+    expect(grantBadge).not.toHaveBeenCalled();
+  });
+
+  it('never touches streaks or badges for an invalid listen', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx());
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().service);
+
+    const res = await POST(makeRequest(validBody));
+
+    expect(((await res.json()) as { isValid: boolean }).isValid).toBe(false);
+    expect(currentListenStreak).not.toHaveBeenCalled();
+    expect(grantBadge).not.toHaveBeenCalled();
   });
 });
