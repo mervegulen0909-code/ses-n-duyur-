@@ -79,6 +79,7 @@
     "viewPerformance": "Ver interpretación →"
   },
   "Battle": {
+    "shareResult": "Comparte tu veredicto",
     "subtitle": "Dos interpretaciones, un ganador. Escucha ambas por completo y luego decide.",
     "signInPrompt": "Por favor, <link>inicia sesión</link> para participar en una batalla.",
     "statusListened": "✓ Escuchado",
@@ -116,6 +117,7 @@
     "allSeasons": "Todas las temporadas"
   },
   "Performance": {
+    "shareScore": "Comparte esta puntuación",
     "currentScore": "Puntuación actual",
     "scoreInterval": "±{margin}",
     "trend": "tendencia",

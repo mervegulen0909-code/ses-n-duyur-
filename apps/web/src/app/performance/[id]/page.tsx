@@ -9,6 +9,7 @@ import { VotePanel } from '@/components/vote-panel';
 import { ReportButton } from '@/components/report-button';
 import { AppealForm } from '@/components/appeal-form';
 import { CommentComposer } from '@/components/comment-composer';
+import { ResultShare } from '@/components/result-share';
 import { ShareButtons } from '@/components/share-buttons';
 import { withAuthors } from '@/lib/comments';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -210,6 +211,17 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
                 {t('Performance.challengeCta')} →
               </Link>
             )}
+            <div className="mt-4 space-y-2">
+              <p className="text-center text-sm text-neutral-400">
+                {t('Performance.shareScore')}
+              </p>
+              <ResultShare
+                headline={`🎤 VoxScore ${score?.current_score?.toFixed(1) ?? '—'} — ${meta.title ?? t('Performance.fallbackTitle')}`}
+                score={score?.current_score ?? null}
+                url={`https://voxscore.app/performance/${perf.id}`}
+                context="performance_score"
+              />
+            </div>
           </div>
         )}
       </aside>

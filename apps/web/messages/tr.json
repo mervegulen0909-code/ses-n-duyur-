@@ -79,6 +79,7 @@
     "viewPerformance": "Performansı görüntüle →"
   },
   "Battle": {
+    "shareResult": "Kararını paylaş",
     "subtitle": "İki performans, tek kazanan. İkisini de tam dinle, sonra karar ver.",
     "signInPrompt": "Düello yapmak için lütfen <link>giriş yap</link>.",
     "statusListened": "✓ Dinlendi",
@@ -116,6 +117,7 @@
     "allSeasons": "Tüm sezonlar"
   },
   "Performance": {
+    "shareScore": "Bu skoru paylaş",
     "currentScore": "Güncel puan",
     "scoreInterval": "±{margin}",
     "trend": "eğilim",

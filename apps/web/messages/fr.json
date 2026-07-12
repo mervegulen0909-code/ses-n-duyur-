@@ -79,6 +79,7 @@
     "viewPerformance": "Voir l'interprétation →"
   },
   "Battle": {
+    "shareResult": "Partagez votre verdict",
     "subtitle": "Deux performances, un seul gagnant. Écoutez les deux en entier, puis décidez.",
     "signInPrompt": "Veuillez <link>vous connecter</link> pour participer à un duel.",
     "statusListened": "✓ Écouté",
@@ -116,6 +117,7 @@
     "allSeasons": "Toutes les saisons"
   },
   "Performance": {
+    "shareScore": "Partagez ce score",
     "currentScore": "Score actuel",
     "scoreInterval": "±{margin}",
     "trend": "tendance",

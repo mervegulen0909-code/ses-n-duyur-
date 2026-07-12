@@ -79,6 +79,7 @@
     "viewPerformance": "View performance →"
   },
   "Battle": {
+    "shareResult": "Share your verdict",
     "subtitle": "Two performances, one winner. Listen to both fully, then decide.",
     "signInPrompt": "Please <link>sign in</link> to battle.",
     "statusListened": "✓ Listened",
@@ -116,6 +117,7 @@
     "allSeasons": "All seasons"
   },
   "Performance": {
+    "shareScore": "Share this score",
     "currentScore": "Current score",
     "scoreInterval": "±{margin}",
     "trend": "trend",

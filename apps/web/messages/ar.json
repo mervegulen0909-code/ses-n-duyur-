@@ -79,6 +79,7 @@
     "viewPerformance": "عرض الأداء ←"
   },
   "Battle": {
+    "shareResult": "شارك حكمك",
     "subtitle": "أداءان، وفائز واحد. استمع إليهما بالكامل، ثم قرّر.",
     "signInPrompt": "يرجى <link>تسجيل الدخول</link> للمشاركة في التحدي.",
     "statusListened": "✓ تم الاستماع",
@@ -116,6 +117,7 @@
     "allSeasons": "كل المواسم"
   },
   "Performance": {
+    "shareScore": "شارك هذه النتيجة",
     "currentScore": "النتيجة الحالية",
     "scoreInterval": "±{margin}",
     "trend": "الاتجاه",

@@ -79,6 +79,7 @@
     "viewPerformance": "查看表演 →"
   },
   "Battle": {
+    "shareResult": "分享你的裁决",
     "subtitle": "两段表演，一位赢家。完整听完两者，再做决定。",
     "signInPrompt": "请<link>登录</link>以参与对战。",
     "statusListened": "✓ 已听完",
@@ -116,6 +117,7 @@
     "allSeasons": "全部赛季"
   },
   "Performance": {
+    "shareScore": "分享这个分数",
     "currentScore": "当前得分",
     "scoreInterval": "±{margin}",
     "trend": "趋势",

@@ -79,6 +79,7 @@
     "viewPerformance": "प्रदर्शन देखें →"
   },
   "Battle": {
+    "shareResult": "अपना फ़ैसला साझा करें",
     "subtitle": "दो परफॉर्मेंस, एक विजेता। दोनों को पूरा सुनें, फिर तय करें।",
     "signInPrompt": "बैटल करने के लिए कृपया <link>साइन इन करें</link>।",
     "statusListened": "✓ सुना गया",
@@ -116,6 +117,7 @@
     "allSeasons": "सभी सीज़न"
   },
   "Performance": {
+    "shareScore": "यह स्कोर साझा करें",
     "currentScore": "मौजूदा स्कोर",
     "scoreInterval": "±{margin}",
     "trend": "ट्रेंड",

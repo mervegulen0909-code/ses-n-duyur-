@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useVerifiedListen, type ListenStatus } from '@/lib/use-verified-listen';
+import { ResultShare } from './result-share';
 import { YouTubePlayer } from './youtube-player';
 
 interface Side {
@@ -107,6 +108,13 @@ function BattleInner({ battle, onDone }: { battle: Battle; onDone: () => void })
       {voteState === 'ok' ? (
         <div className="space-y-3 text-center">
           <p className="text-emerald-400">{result}</p>
+          <p className="text-sm text-neutral-400">{t('Battle.shareResult')}</p>
+          <ResultShare
+            headline={`⚔️ VoxScore — ${battle.a.title} vs ${battle.b.title}`}
+            score={null}
+            url={`https://voxscore.app/battle`}
+            context="battle_result"
+          />
           <button
             type="button"
             onClick={onDone}
