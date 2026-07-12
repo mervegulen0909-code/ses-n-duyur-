@@ -26,6 +26,7 @@ export interface PublicRows {
     bio: string | null;
     avatar_url: string | null;
     links: Json | null;
+    locale: 'en' | 'tr' | 'es' | 'fr' | 'ar' | 'hi' | 'zh';
     created_at: Timestamp;
   };
   songs: {
@@ -125,6 +126,8 @@ export interface PublicRows {
     status: 'open' | 'closed';
     season_id: Uuid | null;
     closed_at: Timestamp | null;
+    result_for_a: number | null;
+    winner_performance_id: Uuid | null;
     created_at: Timestamp;
   };
   battle_votes: {
@@ -168,6 +171,18 @@ export interface PublicRows {
   league_rotation_weeks: {
     week_start: string; // date
     movement_completed_at: Timestamp;
+  };
+  custom_leagues: {
+    id: Uuid;
+    name: string;
+    join_code: string;
+    owner_id: Uuid;
+    created_at: Timestamp;
+  };
+  custom_league_members: {
+    league_id: Uuid;
+    user_id: Uuid;
+    joined_at: Timestamp;
   };
   comments: {
     id: Uuid;
@@ -321,7 +336,31 @@ export interface PublicRows {
     meta: Json | null;
     sent_at: Timestamp | null;
     scheduled_for: Timestamp;
+    delivery_status: 'pending' | 'processing' | 'sent' | 'no_tokens' | 'dead_letter';
+    attempt_count: number;
+    last_error: string | null;
+    next_attempt_at: Timestamp;
+    locked_at: Timestamp | null;
     created_at: Timestamp;
+  };
+  attestation_challenges: {
+    id: Uuid;
+    user_id: Uuid;
+    purpose: 'attestation' | 'assertion';
+    challenge: string;
+    expires_at: Timestamp;
+    consumed_at: Timestamp | null;
+    created_at: Timestamp;
+  };
+  native_attestations: {
+    key_id: string;
+    user_id: Uuid;
+    platform: 'ios';
+    public_key_pem: string;
+    receipt_base64: string;
+    sign_count: number;
+    created_at: Timestamp;
+    updated_at: Timestamp;
   };
   seasons: {
     id: Uuid;
@@ -351,6 +390,80 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      advance_app_attest_counter: {
+        Args: { p_key_id: string; p_user_id: Uuid; p_new_counter: number };
+        Returns: boolean;
+      };
+      claim_notification_events: {
+        Args: { p_limit?: number };
+        Returns: {
+          id: Uuid;
+          user_id: Uuid;
+          kind: PublicRows['notification_events']['kind'];
+          meta: Json | null;
+          attempt_count: number;
+        }[];
+      };
+      close_battle_atomic: {
+        Args: { p_battle_id: Uuid; p_cutoff: Timestamp };
+        Returns: {
+          closed: boolean;
+          applied: boolean;
+          result_for_a: number | null;
+          winner_performance_id: Uuid | null;
+          winner_user_id: Uuid | null;
+        }[];
+      };
+      create_scored_performance_atomic: {
+        Args: {
+          p_user_id: Uuid;
+          p_song_id: Uuid | null;
+          p_source: 'youtube' | 'upload';
+          p_youtube_video_id: string | null;
+          p_oembed_meta: Json | null;
+          p_duration_s: number | null;
+          p_has_video: boolean;
+          p_status: 'active' | 'hidden' | 'removed';
+          p_scoring_version: number;
+          p_initial_ai_score: number | null;
+          p_ai_breakdown: Json | null;
+          p_ai_breakdown_raw: Json | null;
+          p_is_provisional: boolean;
+          p_ai_provider: 'anthropic' | 'openai' | 'gemini' | 'mock' | null;
+          p_ai_model: string | null;
+          p_season_id: Uuid | null;
+        };
+        Returns: Uuid;
+      };
+      create_custom_league_atomic: {
+        Args: { p_owner_id: Uuid; p_name: string; p_join_code: string };
+        Returns: Uuid;
+      };
+      submit_vote_and_recompute: {
+        Args: {
+          p_voter_id: Uuid;
+          p_performance_id: Uuid;
+          p_verified_listen_id: Uuid;
+          p_vocal_accuracy: number | null;
+          p_rhythm_timing: number | null;
+          p_tone_quality: number | null;
+          p_emotion_interpretation: number | null;
+          p_technical_skill: number | null;
+          p_pronunciation_diction: number | null;
+          p_recording_quality: number | null;
+          p_originality: number | null;
+          p_stage_presence: number | null;
+          p_initial_ai_score: number;
+          p_trend_baseline: number;
+        };
+        Returns: {
+          listener_score: number | null;
+          current_score: number;
+          trend_score: number;
+          verified_vote_count: number;
+          listener_stddev: number | null;
+        }[];
+      };
       apply_battle_result: {
         Args: {
           p_perf_a: Uuid;

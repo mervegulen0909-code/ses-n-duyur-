@@ -33,6 +33,18 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Format
+        run: pnpm format:check
+
+      - name: Production dependency audit
+        run: pnpm audit --prod
+
+      - name: Database migrations from zero
+        run: |
+          pnpm db:start
+          pnpm db:reset
+          pnpm exec supabase db lint --local --level warning
+
       - name: Test (with coverage)
         run: pnpm test:cov
 
@@ -41,6 +53,12 @@ jobs:
       # has a build script (web + scoring); env-less build degrades safely.
       - name: Build
         run: pnpm build
+
+      - name: Expo Doctor
+        run: pnpm exec expo-doctor apps/mobile
+
+      - name: Mobile Android bundle
+        run: pnpm --filter @voxscore/mobile exec expo export --platform android --output-dir /tmp/voxscore-mobile-export
 
       # E2E smoke (apps/web/e2e). Playwright's webServer does its own next build
       # + start, so this also guards the production server boot path.

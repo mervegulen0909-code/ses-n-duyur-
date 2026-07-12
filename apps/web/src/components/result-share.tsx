@@ -45,8 +45,7 @@ export function ResultShare({
   }
 
   const encoded = encodeURIComponent(line);
-  const btn =
-    'rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:border-neutral-500';
+  const btn = 'rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:border-neutral-500';
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">

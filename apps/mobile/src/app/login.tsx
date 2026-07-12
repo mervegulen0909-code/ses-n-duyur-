@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { TurnstileChallenge } from '@/components/turnstile-challenge';
 import { supabase } from '@/lib/supabase';
 
 // Lets the in-app browser tab finish/dismiss the OAuth redirect cleanly.
@@ -29,6 +30,7 @@ export default function LoginScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [turnstileOpen, setTurnstileOpen] = useState(false);
 
   function done() {
     if (router.canGoBack()) router.back();
@@ -52,7 +54,18 @@ export default function LoginScreen() {
       return;
     }
 
-    const { data, error } = await supabase.auth.signUp({ email: email.trim(), password });
+    // Supabase CAPTCHA protection expects a Turnstile token even on native.
+    // The widget runs in a WebView on VoxScore's allowed hostname.
+    setTurnstileOpen(true);
+  }
+
+  async function finishSignup(captchaToken: string | null) {
+    setTurnstileOpen(false);
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: captchaToken ? { captchaToken } : undefined,
+    });
     setBusy(false);
     if (error) {
       setError(error.message);
@@ -151,6 +164,7 @@ export default function LoginScreen() {
           placeholderTextColor="#6b7280"
           secureTextEntry
           autoCapitalize="none"
+          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           value={password}
           onChangeText={setPassword}
         />
@@ -185,6 +199,14 @@ export default function LoginScreen() {
           </Text>
         </Pressable>
       </KeyboardAvoidingView>
+      <TurnstileChallenge
+        visible={turnstileOpen}
+        onToken={(token) => void finishSignup(token)}
+        onCancel={() => {
+          setTurnstileOpen(false);
+          setBusy(false);
+        }}
+      />
     </SafeAreaView>
   );
 }

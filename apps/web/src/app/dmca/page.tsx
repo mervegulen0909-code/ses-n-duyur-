@@ -23,7 +23,9 @@ export default async function DmcaPage() {
         Copyright Act must include, in writing:
       </p>
       <ul className="list-disc space-y-1 pl-5">
-        <li>A physical or electronic signature of the copyright owner or their authorized agent.</li>
+        <li>
+          A physical or electronic signature of the copyright owner or their authorized agent.
+        </li>
         <li>Identification of the copyrighted work claimed to have been infringed.</li>
         <li>
           Identification of the material claimed to be infringing, with enough detail (e.g. a
@@ -50,11 +52,12 @@ export default async function DmcaPage() {
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Counter-notification</h2>
       <p>
-        If content you submitted was removed and you believe this was a mistake or misidentification,
-        you may send a counter-notice with your contact information, identification of the removed
-        material, a statement under penalty of perjury that you have a good-faith belief the material
-        was removed in error, and a statement consenting to the jurisdiction of the applicable federal
-        court. We will forward valid counter-notices to the original claimant.
+        If content you submitted was removed and you believe this was a mistake or
+        misidentification, you may send a counter-notice with your contact information,
+        identification of the removed material, a statement under penalty of perjury that you have a
+        good-faith belief the material was removed in error, and a statement consenting to the
+        jurisdiction of the applicable federal court. We will forward valid counter-notices to the
+        original claimant.
       </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Repeat infringers</h2>

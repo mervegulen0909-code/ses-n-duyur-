@@ -29,11 +29,7 @@ export async function CategoryChips({ active }: { active?: string }) {
         {t('Leaderboard.allCategories')}
       </Link>
       {SONG_CATEGORIES.map((c) => (
-        <Link
-          key={c}
-          href={`/leaderboard?category=${c}`}
-          className={chipClass(active === c)}
-        >
+        <Link key={c} href={`/leaderboard?category=${c}`} className={chipClass(active === c)}>
           {t(`Category.${CATEGORY_KEY[c]}`)}
         </Link>
       ))}

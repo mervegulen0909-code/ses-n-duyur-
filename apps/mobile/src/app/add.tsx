@@ -39,7 +39,8 @@ function errorMessage(
   error?: string,
 ): string {
   if (status === 401) return t('Request.sessionExpired');
-  if (status === 409) return error?.includes('pending') ? t('Request.duplicatePending') : t('Request.duplicateVideo');
+  if (status === 409)
+    return error?.includes('pending') ? t('Request.duplicatePending') : t('Request.duplicateVideo');
   if (status === 422) return t('Request.invalidUrl');
   return error ?? t('Request.genericError', { status });
 }
@@ -47,9 +48,17 @@ function errorMessage(
 function StatusBadge({ status }: { status: PerformanceRequestRow['status'] }) {
   const { t } = useTranslation();
   const style =
-    status === 'approved' ? styles.badgeApproved : status === 'rejected' ? styles.badgeRejected : styles.badgePending;
+    status === 'approved'
+      ? styles.badgeApproved
+      : status === 'rejected'
+        ? styles.badgeRejected
+        : styles.badgePending;
   const key =
-    status === 'approved' ? 'statusApproved' : status === 'rejected' ? 'statusRejected' : 'statusPending';
+    status === 'approved'
+      ? 'statusApproved'
+      : status === 'rejected'
+        ? 'statusRejected'
+        : 'statusPending';
   return (
     <View style={[styles.badge, style]}>
       <Text style={styles.badgeText}>{t(`Request.${key}`)}</Text>
@@ -180,7 +189,11 @@ export default function AddPerformanceScreen() {
               />
 
               <Text style={styles.label}>{t('Request.categoryLabel')}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.chipRow}
+              >
                 {SONG_CATEGORIES.map((c) => (
                   <Pressable
                     key={c}
@@ -294,7 +307,12 @@ const styles = StyleSheet.create({
     padding: 12,
     gap: 4,
   },
-  requestRowTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  requestRowTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
   requestUrl: { flex: 1, color: '#d4d4d4', fontSize: 12 },
   requestReason: { color: '#fca5a5', fontSize: 12 },
   badge: { borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3 },

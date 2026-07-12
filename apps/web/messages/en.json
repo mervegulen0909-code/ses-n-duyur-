@@ -9,6 +9,7 @@
     "standings": "Standings",
     "wrapped": "Wrapped",
     "league": "League",
+    "leagues": "Crews",
     "storyboard": "Storyboard",
     "signIn": "Sign in",
     "admin": "Admin",
@@ -45,7 +46,24 @@
     "ctaRequestBody": "Add your cover to the league — admins review every request.",
     "ctaInviteTitle": "Invite a friend",
     "ctaInviteBody": "Share VoxScore and grow the league.",
-    "tryNow": "Try it now — watch a battle, no account needed"
+    "tryNow": "Try it now — watch a battle, no account needed",
+    "heroEyebrow": "The live vocal scoreboard",
+    "liveBoard": "Live board",
+    "rankedVoices": "Ranked voices",
+    "openBattles": "Open battles",
+    "verifiedRule": "Verified listens decide",
+    "latestHeading": "Latest scorecards",
+    "battleNow": "Enter a battle",
+    "exploreRanks": "Explore rankings"
+  },
+  "Errors": {
+    "eyebrow": "Playback interrupted",
+    "title": "This round hit a wrong note.",
+    "body": "The page could not finish loading. Try the round again or return to the live scoreboard.",
+    "retry": "Try again",
+    "home": "Go home",
+    "notFoundTitle": "That stage does not exist.",
+    "notFoundBody": "The link may be old, private, or removed. Return to VoxScore to find a live performance."
   },
   "Login": {
     "signIn": "Sign in",
@@ -59,6 +77,7 @@
     "google": "Continue with Google",
     "orDivider": "or"
   },
+  "MobileTurnstile": { "verifying": "Verifying this signup is human…" },
   "Add": {
     "title": "Add a performance",
     "subtitle": "Paste a YouTube link. We embed it (never download), fetch its metadata, and create a Provisional AI Estimate.",
@@ -147,6 +166,32 @@
     "you": "You",
     "loadError": "The weekly league could not be loaded."
   },
+  "Leagues": {
+    "title": "Your Leagues",
+    "subtitle": "Private scoreboards for your class, choir, team, or closest friends.",
+    "createCta": "Create a league",
+    "namePlaceholder": "League name (your class, choir, crew…)",
+    "joinCta": "Join with code",
+    "codePlaceholder": "8-character code",
+    "working": "Working…",
+    "genericError": "The league could not be updated.",
+    "loadError": "Your leagues could not be loaded.",
+    "empty": "You have not joined a private league yet. Create one or enter an invite code below.",
+    "owner": "Owner",
+    "member": "Member",
+    "viewLeague": "View leaderboard",
+    "inviteTitle": "Join {name}",
+    "inviteBody": "Accept the invite to compete with this crew on VoxScore.",
+    "invalidCode": "This invite code is invalid.",
+    "notFound": "This league invite was not found.",
+    "acceptInvite": "Accept invite",
+    "seasonBoard": "Current season",
+    "memberCount": "{count} members",
+    "wins": "Wins",
+    "points": "Prediction pts",
+    "inviteMembers": "Invite your crew",
+    "inviteHeadline": "🎤 Join my VoxScore league: {name}"
+  },
   "Seasons": {
     "allSeasons": "All seasons"
   },
@@ -175,6 +220,21 @@
     "shareX": "X",
     "storyCard": "Story card",
     "challengeCta": "Challenge a friend to this duel"
+  },
+  "ShareKit": {
+    "title": "Share kit",
+    "back": "Back to performance",
+    "caption": "Rate my cover on VoxScore 🎤 {url} #VoxScoreChallenge #cover #singing",
+    "cardAlt": "VoxScore story score card for {title}",
+    "captionHeading": "Ready-to-post caption",
+    "copyCaption": "Copy caption",
+    "copied": "Caption copied",
+    "downloadCard": "Download score card",
+    "howTo": "Post it in three steps",
+    "kitStep1": "Download your score card",
+    "kitStep2": "Film your reaction or a 15s highlight of yourself",
+    "kitStep3": "Post with the caption — your card + link do the rest",
+    "mediaNotice": "This kit only downloads the VoxScore-generated score card. It never downloads or republishes YouTube media."
   },
   "Criteria": {
     "vocalAccuracy": "Vocal accuracy",

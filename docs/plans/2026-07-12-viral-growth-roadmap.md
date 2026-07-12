@@ -22,6 +22,7 @@
 - Migration timestamps below start at `20260713090000` — if that date has passed when you implement, bump to the current date, keeping relative order.
 
 **Existing helpers you must reuse (do not reinvent):**
+
 - `getRequestContext(req)`, `createSupabaseServerClient()`, `createSupabaseServiceClient()` from `apps/web/src/lib/supabase/server.ts`
 - `rateLimit(req, userId)` from `apps/web/src/lib/guard.ts`
 - `track(event, meta)` client / `trackServer(service, event, userId, meta)` server
@@ -34,16 +35,19 @@
 ---
 
 # PHASE A (P0-1) — Shareable Result Artifact ("Wordle line")
+
 **Branch:** `feat/share-line` · **Evidence:** Wordle share-grid triggered its 90→2M growth; the artifact must be copy-paste text that works everywhere, generated at every result moment.
 
 ### Task 1: Pure share-line builder in core
 
 **Files:**
+
 - Create: `packages/core/src/share-line.ts`
 - Create: `packages/core/src/share-line.test.ts`
 - Modify: `packages/core/src/index.ts` (add export)
 
 **Interfaces:**
+
 - Consumes: nothing (pure).
 - Produces: `scoreBar(score: number): string` and `buildShareLine(line: { headline: string; bar?: string; url: string }): string` — used by Tasks 3, 4, 6, and Phase B.
 
@@ -72,9 +76,9 @@ describe('scoreBar — 5-block emoji bar', () => {
 
 describe('buildShareLine — copy-paste artifact', () => {
   it('joins headline, bar, url with newlines', () => {
-    expect(
-      buildShareLine({ headline: 'H', bar: '🟩⬛', url: 'https://voxscore.app/x' }),
-    ).toBe('H\n🟩⬛\nhttps://voxscore.app/x');
+    expect(buildShareLine({ headline: 'H', bar: '🟩⬛', url: 'https://voxscore.app/x' })).toBe(
+      'H\n🟩⬛\nhttps://voxscore.app/x',
+    );
   });
   it('omits the bar line when not provided', () => {
     expect(buildShareLine({ headline: 'H', url: 'https://voxscore.app/x' })).toBe(
@@ -141,9 +145,11 @@ git commit -m "feat(core): share-line builder — the copy-paste result artifact
 ### Task 2: New analytics events for the k-factor funnel
 
 **Files:**
+
 - Modify: `packages/core/src/schemas.ts` (the `ANALYTICS_EVENTS` array, around line 196)
 
 **Interfaces:**
+
 - Produces: four new members of the `AnalyticsEvent` union: `'share_rendered' | 'challenge_link_visited' | 'guest_battle_started' | 'prediction_submitted'` — consumed by Tasks 3, 5, 8, 9, 16.
 
 - [ ] **Step 1: Extend the enum** — in `packages/core/src/schemas.ts`, change the `ANALYTICS_EVENTS` array to:
@@ -185,10 +191,12 @@ git commit -m "feat(analytics): k-factor funnel events (share_rendered, challeng
 ### Task 3: `ResultShare` client component (web)
 
 **Files:**
+
 - Create: `apps/web/src/components/result-share.tsx`
 - Modify: `apps/web/messages/en.json`, `tr.json` (+ translate into `zh,hi,es,fr,ar`)
 
 **Interfaces:**
+
 - Consumes: `buildShareLine`, `scoreBar` from `@voxscore/core`; `track` from `@/lib/analytics`.
 - Produces: `<ResultShare headline={string} score={number | null} url={string} context={string} />` — mounted by Tasks 4 and 5.
 
@@ -263,8 +271,7 @@ export function ResultShare({
   }
 
   const encoded = encodeURIComponent(line);
-  const btn =
-    'rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:border-neutral-500';
+  const btn = 'rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:border-neutral-500';
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">
@@ -306,11 +313,13 @@ git commit -m "feat(web): ResultShare — one-tap Wordle-style result artifact"
 ### Task 4: Mount ResultShare at both result moments
 
 **Files:**
+
 - Modify: `apps/web/src/components/battle-arena.tsx` (the `voteState === 'ok'` block, ~line 107)
 - Modify: `apps/web/src/app/performance/[id]/page.tsx` (below the ScoreBreakdown sidebar)
 - Modify: `apps/web/messages/en.json`, `tr.json` (+5 translations)
 
 **Interfaces:**
+
 - Consumes: `<ResultShare>` from Task 3.
 
 - [ ] **Step 1: i18n.** `en.json`, new keys inside `"Battle"`: `"shareResult": "Share your verdict"`; and inside `"Performance"`: `"shareScore": "Share this score"`. `tr.json`: `"shareResult": "Kararını paylaş"`, `"shareScore": "Bu skoru paylaş"`. Translate into the other five files.
@@ -369,6 +378,7 @@ git commit -m "feat(web): mount ResultShare at battle and score result moments"
 ### Task 6: Mobile share parity (small, same branch or follow-up `feat/share-line-mobile`)
 
 **Files:**
+
 - Modify: `apps/mobile/src/app/performance/[id].tsx`
 
 - [ ] **Step 1:** Import `{ buildShareLine, scoreBar }` from `@voxscore/core` and React Native's `Share`. Below the score panel add a "Sonucu paylaş" button (reuse the screen's existing i18n mechanism — mobile has its own translations; add the key to every mobile locale file the screen already uses):
@@ -392,16 +402,19 @@ async function onShare() {
 ---
 
 # PHASE B (P0-2) — Open Challenge Links (guest-viewable)
+
 **Branch:** `feat/open-challenge` · **Evidence:** TikTok "open verse" asymmetric respond-to-a-prompt loop; the landing must work BEFORE signup.
 
 ### Task 7: `safeInternalPath` — login `next=` redirect support
 
 **Files:**
+
 - Create: `apps/web/src/lib/safe-path.ts`
 - Create: `apps/web/src/lib/safe-path.test.ts`
 - Modify: `apps/web/src/app/login/page.tsx`
 
 **Interfaces:**
+
 - Produces: `safeInternalPath(raw: string | null): string` — returns `raw` only if it is a same-origin relative path, else `'/'`. Consumed by login page and Task 8's guest CTA.
 
 - [ ] **Step 1: Failing test**
@@ -456,10 +469,12 @@ router.push(safeInternalPath(new URLSearchParams(window.location.search).get('ne
 ### Task 8: `GuestBattle` component — listen-gated preview without an account
 
 **Files:**
+
 - Create: `apps/web/src/components/guest-battle.tsx`
 - Modify: `apps/web/messages/en.json`, `tr.json` (+5)
 
 **Interfaces:**
+
 - Consumes: `YouTubePlayer` (existing), `track`, `safeInternalPath` semantics via a `loginNext` prop.
 - Produces: `<GuestBattle a={Side} b={Side} loginNext={string} entry={string} />` where `Side = { videoId: string; title: string }`. Consumed by Tasks 9 and 10. **No server writes ever happen here** — the guest gate is a local UX teaser; real verified listens/votes start only after login.
 
@@ -572,10 +587,12 @@ export function GuestBattle({
 ### Task 9: Challenge landing serves guests
 
 **Files:**
+
 - Modify: `apps/web/src/app/song/[id]/page.tsx`
 - Modify: `apps/web/src/components/challenge-section.tsx`
 
 **Interfaces:**
+
 - Consumes: `GuestBattle` (Task 8). The song page is a Server Component that already fetches the song's ranked performances and current user.
 
 - [ ] **Step 1:** In `song/[id]/page.tsx`, where `ChallengeSection` is rendered (when `searchParams.challenge` is present): pass the top two ranked performances (already fetched for the ranking list — reuse those rows' `youtube_video_id` and title) as a new prop:
@@ -617,11 +634,13 @@ Keep the old sign-in prompt as the fallback when `guestPair` is null.
 ---
 
 # PHASE C (P0-3) — Onboarding <60s + D1 push
+
 **Branch:** `feat/onboarding-60s` · **Evidence:** first-session time-to-value <60s and an intent-tied Day-1 push are the top D1 levers (industry medians D1 ~25-26%).
 
 ### Task 10: Guest battle on the signed-out home page
 
 **Files:**
+
 - Modify: `apps/web/src/app/page.tsx`
 - Modify: `apps/web/messages/en.json`, `tr.json` (+5)
 
@@ -661,12 +680,14 @@ if (!user) {
   }
 }
 // in JSX, above the category grid, when guestPair:
-{guestPair && (
-  <section className="w-full max-w-3xl">
-    <h2 className="mb-3 text-lg font-semibold">{t('Home.tryNow')}</h2>
-    <GuestBattle a={guestPair.a} b={guestPair.b} loginNext="/battle" entry="home" />
-  </section>
-)}
+{
+  guestPair && (
+    <section className="w-full max-w-3xl">
+      <h2 className="mb-3 text-lg font-semibold">{t('Home.tryNow')}</h2>
+      <GuestBattle a={guestPair.a} b={guestPair.b} loginNext="/battle" entry="home" />
+    </section>
+  );
+}
 ```
 
 - [ ] **Step 3:** Verify: private window on `/` shows the teaser; both-ended unlock; CTA → login → `/battle`. Commit: `feat(web): signup-free battle teaser on the landing page`.
@@ -674,6 +695,7 @@ if (!user) {
 ### Task 11: Scheduled notifications + Day-1 comeback push
 
 **Files:**
+
 - Create: `supabase/migrations/20260713090000_notification_scheduling.sql`
 - Modify: `packages/core/src/schemas.ts` (NotificationKind union/const — find `NotificationKind` and add `'day1_comeback'`)
 - Modify: `apps/web/src/lib/notify.ts`
@@ -682,6 +704,7 @@ if (!user) {
 - Test: extend `apps/web/src/lib/notify.test.ts` and `apps/web/src/app/api/analytics/route.test.ts`
 
 **Interfaces:**
+
 - Produces: `notifyServer(service, userId, kind, meta?, opts?: { scheduledFor?: string })` — backward compatible (opts optional). New notification kind `'day1_comeback'`.
 
 - [ ] **Step 1: Migration**
@@ -747,14 +770,17 @@ Add `'day1_comeback'` to the `NotificationKind` source in `packages/core/src/sch
 ---
 
 # PHASE D (P1-1) — Listener Streak + "Trusted Ear" identity
+
 **Branch:** `feat/listener-streak` · **Evidence:** streaks retain only when tied to identity; Duolingo: >half of DAU holds a 7+ day streak.
 
 ### Task 12: Pure streak math in core
 
 **Files:**
+
 - Create: `packages/core/src/streak.ts`, `packages/core/src/streak.test.ts`; export from `packages/core/src/index.ts`.
 
 **Interfaces:**
+
 - Produces: `computeStreak(utcDates: string[], today: string): number` (dates as `'YYYY-MM-DD'`, unordered, may contain duplicates; streak = consecutive days ending today or yesterday) and `streakTier(streak: number): 'none' | 'bronze' | 'silver' | 'gold'` (bronze ≥3, silver ≥7, gold ≥30).
 
 - [ ] **Step 1: Failing tests**
@@ -838,12 +864,14 @@ export function streakTier(streak: number): StreakTier {
 ### Task 13: Badge catalog + grant on listen completion
 
 **Files:**
+
 - Create: `supabase/migrations/20260713100000_trusted_ear_badges.sql`
 - Modify: `apps/web/src/lib/badges.ts` (BadgeKey union)
 - Create: `apps/web/src/lib/streak-server.ts` + `streak-server.test.ts`
 - Modify: `apps/web/src/app/api/listens/complete/route.ts` (+ its route.test.ts)
 
 **Interfaces:**
+
 - Produces: `currentListenStreak(service, userId, today): Promise<number>`; badge keys `'trusted_ear_bronze' | 'trusted_ear_silver' | 'trusted_ear_gold'`.
 
 - [ ] **Step 1: Migration** — mirror the insert style of `20260711170000_badges.sql` (badge catalog rows; check that file for exact column names before writing):
@@ -885,7 +913,10 @@ export async function currentListenStreak(
     .eq('user_id', userId)
     .eq('is_valid', true)
     .gte('created_at', since);
-  return computeStreak((data ?? []).map((r) => r.created_at.slice(0, 10)), today);
+  return computeStreak(
+    (data ?? []).map((r) => r.created_at.slice(0, 10)),
+    today,
+  );
 }
 ```
 
@@ -911,11 +942,13 @@ if (tier === 'gold') await grantBadge(service, user.id, 'trusted_ear_gold');
 ---
 
 # PHASE E (P1-2) — Prediction Pools (the listener game)
+
 **Branch:** `feat/prediction-pools` · **Evidence:** DraftKings-style meta layer converts solo consumption into a community ritual; gives the non-singing 99% a daily game. **Predictions are not votes** — no listen gate, no Elo impact, separate table.
 
 ### Task 14: Schema + scoring RPC
 
 **Files:**
+
 - Create: `supabase/migrations/20260713110000_battle_predictions.sql`
 
 ```sql
@@ -978,6 +1011,7 @@ revoke execute on function public.score_battle_predictions(uuid, uuid) from publ
 ### Task 15: Zod schema + predict endpoint
 
 **Files:**
+
 - Modify: `packages/core/src/schemas.ts` — add:
 
 ```ts
@@ -991,6 +1025,7 @@ export type BattlePredictInput = z.infer<typeof battlePredictSchema>;
 - Create: `apps/web/src/app/api/battles/predict/route.ts` + `route.test.ts`
 
 **Interfaces:**
+
 - Produces: `POST /api/battles/predict` → 201 `{ ok: true }`; 401 unauthenticated; 409 duplicate/closed; 422 invalid body or predicted-not-in-pair.
 
 - [ ] **Step 1: Route** (RLS is the real enforcement; the route gives clean errors):
@@ -1043,6 +1078,7 @@ export async function POST(req: Request): Promise<Response> {
 ### Task 16: Wire scoring into close-battles cron + UI
 
 **Files:**
+
 - Modify: `apps/web/src/app/api/cron/close-battles/route.ts` (+ test)
 - Modify: `apps/web/src/components/battle-arena.tsx`
 - Modify: `apps/web/src/app/standings/page.tsx`
@@ -1083,12 +1119,13 @@ async function predict(perfId: string) {
         onClick={() => predict(s.performanceId)}
         className="truncate rounded-md border border-sky-800 px-3 py-1.5 text-xs disabled:opacity-50"
       >
-        {predicted === s.performanceId ? '✓ ' : ''}{s.title}
+        {predicted === s.performanceId ? '✓ ' : ''}
+        {s.title}
       </button>
     ))}
   </div>
   <p className="mt-2 text-[10px] text-neutral-500">{t('Battle.predictDisclaimer')}</p>
-</div>
+</div>;
 ```
 
 i18n — en: `"predictPrompt": "Before you listen: who takes this?"`, `"predictDisclaimer": "Predictions are a game — they never affect scores. Only verified listens unlock real votes."`; tr: `"predictPrompt": "Dinlemeden önce: sence kim kazanır?"`, `"predictDisclaimer": "Tahminler bir oyundur — skorları asla etkilemez. Gerçek oy için doğrulanmış dinleme gerekir."` (+5).
@@ -1100,14 +1137,17 @@ i18n — en: `"predictPrompt": "Before you listen: who takes this?"`, `"predictD
 ---
 
 # PHASE F (P1-3) — Season Wrapped
+
 **Branch:** `feat/season-wrapped` · **Evidence:** Wrapped-style personal recap cards: ~60M shares (2021), +21% December downloads (2020).
 
 ### Task 17: Wrapped data assembly
 
 **Files:**
+
 - Create: `apps/web/src/lib/wrapped.ts` + `wrapped.test.ts`
 
 **Interfaces:**
+
 - Produces: `buildWrappedData(service, userId, seasonId): Promise<WrappedData>` where
 
 ```ts
@@ -1130,6 +1170,7 @@ export interface WrappedData {
 ### Task 18: /wrapped page + share
 
 **Files:**
+
 - Create: `apps/web/src/app/wrapped/page.tsx` (Server Component, auth-required: no user → redirect to `/login?next=/wrapped`)
 - Modify: 7 message files
 
@@ -1140,11 +1181,13 @@ export interface WrappedData {
 ---
 
 # PHASE G (P2-1) — Weekly Cohort Leagues (promotion/relegation)
+
 **Branch:** `feat/cohort-leagues` · **Evidence:** Duolingo leagues: +17% learning time, 3× highly-engaged users.
 
 ### Task 19: Schema
 
 **Files:**
+
 - Create: `supabase/migrations/20260713120000_cohort_leagues.sql`
 
 ```sql
@@ -1179,10 +1222,12 @@ create index league_memberships_week_idx on public.league_memberships (week_star
 ### Task 20: Points accrual helper + call sites
 
 **Files:**
+
 - Create: `apps/web/src/lib/league-points.ts` + `league-points.test.ts`
 - Modify: `apps/web/src/app/api/listens/complete/route.ts` (+1 on valid listen), `apps/web/src/app/api/battles/vote/route.ts` (+2 on vote), `apps/web/src/app/api/cron/close-battles/route.ts` (+5 to the winning performance's owner)
 
 **Interfaces:**
+
 - Produces: `addLeaguePoints(service, userId, delta): Promise<void>` — best-effort/silent (same posture as grantBadge).
 
 - [ ] Implementation:
@@ -1197,7 +1242,9 @@ type ServiceClient = NonNullable<ReturnType<typeof createSupabaseServiceClient>>
 export function currentWeekStart(now: Date): string {
   const day = now.getUTCDay(); // 0=Sun
   const diff = day === 0 ? 6 : day - 1;
-  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
+  const monday = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff),
+  );
   return monday.toISOString().slice(0, 10);
 }
 
@@ -1240,6 +1287,7 @@ revoke execute on function public.add_league_points(uuid, date, integer) from pu
 ### Task 21: Weekly rotation cron
 
 **Files:**
+
 - Create: `apps/web/src/app/api/cron/rotate-leagues/route.ts` + `route.test.ts`
 - Modify: `vercel.json` (add cron `{ "path": "/api/cron/rotate-leagues", "schedule": "0 0 * * *" }` — daily; handler self-gates to Monday)
 
@@ -1254,6 +1302,7 @@ revoke execute on function public.add_league_points(uuid, date, integer) from pu
 ### Task 22: /league page
 
 **Files:**
+
 - Create: `apps/web/src/app/league/page.tsx`
 - Modify: nav (same place as Task 18's link), 7 message files
 
@@ -1263,11 +1312,13 @@ revoke execute on function public.add_league_points(uuid, date, integer) from pu
 ---
 
 # PHASE H (P2-2) — Custom Leagues (schools/friends — the atomic network tool)
+
 **Branch:** `feat/custom-leagues` · **Evidence:** atomic-network launch strategy — seed small dense networks (a class, a choir, a friend group) instead of broad reach.
 
 ### Task 23: Schema + API
 
 **Files:**
+
 - Create: `supabase/migrations/20260713130000_custom_leagues.sql`
 - Modify: `packages/core/src/schemas.ts`
 - Create: `apps/web/src/app/api/leagues/route.ts` (create) + `apps/web/src/app/api/leagues/join/route.ts` + tests
@@ -1306,41 +1357,44 @@ export const leagueCreateSchema = z.object({ name: z.string().min(3).max(40) });
 export const leagueJoinSchema = z.object({ code: z.string().regex(/^[A-Z2-9]{8}$/) });
 ```
 
-- [ ] `POST /api/leagues`: auth + `rateLimit`; enforce max 3 leagues per owner (service count query → 409); generate code `Array.from({length: 8}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[randomInt]).join('')` via `crypto.getRandomValues`; service-insert league + owner membership (as user via supabase insert for membership); return `{ id, joinCode }` 201.
-- [ ] `POST /api/leagues/join`: auth; look up league by code (service, `.eq('join_code', code).single()` → 404 if missing); insert membership AS USER (RLS self-check); duplicate → 409; 201 `{ leagueId }`.
-- [ ] Route tests: same harness; create (201 + code shape `A-Z2-9{8}`, 409 over limit), join (404 bad code, 201, 409 dup).
+- [x] `POST /api/leagues`: auth + rate/bot guards; cryptographic 8-character code; transactional SQL RPC atomically enforces the 3-owned limit and owner membership; return `{ id, joinCode }` 201.
+- [x] `POST /api/leagues/join`: auth + rate/bot guards; service-only code lookup and membership insert; duplicate → 409; 201 `{ leagueId }`. No client SELECT policy exposes all private join codes.
+- [x] Route tests: create/list, code shape, ownership limit, private detail authorization, unknown code, successful join, and duplicate handling.
 - [ ] Commit `feat: custom leagues API`.
 
 ### Task 24: /leagues UI
 
 **Files:**
+
 - Create: `apps/web/src/app/leagues/page.tsx` (list mine + create form + join-by-code form)
 - Create: `apps/web/src/app/leagues/[id]/page.tsx` (league leaderboard)
 - Create: `apps/web/src/components/league-forms.tsx` (client island for the two forms)
 - Modify: 7 message files
 
-- [ ] League leaderboard ranking (Server Component, `[id]/page.tsx`): fetch member user_ids; rank by **battle wins this season**: count closed battles won per member (winner performance's `user_id` in member set, season-scoped) + show prediction_points column. Render join code prominently with a copy button reusing `ResultShare` with `headline: t('Leagues.inviteHeadline', {name})`, `url: https://voxscore.app/leagues/join?code=XXX`.
-- [ ] Also create `apps/web/src/app/leagues/join/page.tsx`: reads `?code=`, if signed-out → `/login?next=/leagues/join?code=XXX`; if signed in, POSTs join client-side on button press and redirects to the league page. This is the shareable invite artifact (fires `invite_converted` with `{ leagueId }` on success).
-- [ ] i18n (`"Leagues"` section) — en: `"title": "Your Leagues"`, `"createCta": "Create a league"`, `"namePlaceholder": "League name (your class, choir, crew…)"`, `"joinCta": "Join with code"`, `"codePlaceholder": "8-character code"`, `"inviteHeadline": "🎤 Join my VoxScore league: {name}"`, `"wins": "Wins"`, `"points": "Prediction pts"`; tr: `"title": "Liglerin"`, `"createCta": "Lig kur"`, `"namePlaceholder": "Lig adı (sınıfın, koron, ekibin…)"`, `"joinCta": "Kodla katıl"`, `"codePlaceholder": "8 karakterlik kod"`, `"inviteHeadline": "🎤 VoxScore ligime katıl: {name}"`, `"wins": "Galibiyet"`, `"points": "Tahmin puanı"` (+5).
-- [ ] Full gate, commit, PR `feat: custom leagues (schools/friends)`, merge. **Ops:** prod migration.
+- [x] League leaderboard ranking (Server Component, `[id]/page.tsx`): current-season wins + prediction points, member authorization, and a prominent `ResultShare` invitation.
+- [x] Shareable `/leagues/join?code=...` flow preserves the login return path and fires `invite_converted` after a successful join.
+- [x] `Leagues` UI is translated consistently in all 7 web locales and mirrored in all 7 mobile locales.
+- [x] Full local gate and signed-in browser smoke. Commit/PR/merge and production migration remain operator actions.
 
 ---
 
 # PHASE I (P2-3) — TikTok/Reels UGC Kit
+
 **Branch:** `feat/share-kit` · **Evidence:** Smule's TikTok UGC spike (~4-5× installs, zero paid). **Hard rule:** we never provide video downloads — the kit is card images + copy blocks the user films THEMSELVES.
 
 ### Task 25: Share-kit page
 
 **Files:**
+
 - Create: `apps/web/src/app/performance/[id]/share-kit/page.tsx`
 - Modify: `apps/web/src/app/performance/[id]/page.tsx` (link), 7 message files
 
-- [ ] Server Component: fetch perf + score (same queries as the performance page). Render:
+- [x] Server Component: fetch perf + score (same queries as the performance page). Render:
   1. The existing story image (`/performance/[id]/story-image`) displayed with a download link (`<a download href=...>`) — this is OUR generated card, not YouTube media.
   2. A copyable caption block (client copy button reusing the ResultShare copy pattern): en `"Rate my cover on VoxScore 🎤 {url} #VoxScoreChallenge #cover #singing"`, tr `"Cover'ımı VoxScore'da puanla 🎤 {url} #VoxScoreDuello #cover #vokal"`.
   3. A 3-step instruction list — en: `"kitStep1": "Download your score card"`, `"kitStep2": "Film your reaction or a 15s highlight of yourself"`, `"kitStep3": "Post with the caption — your card + link do the rest"`; tr: `"kitStep1": "Skor kartını indir"`, `"kitStep2": "Tepkini veya kendinden 15 sn'lik bir kesit çek"`, `"kitStep3": "Başlıkla paylaş — kartın ve linkin gerisini halleder"` (+5, under a new `"ShareKit"` section with `"title"`: en `"Share kit"` / tr `"Paylaşım kiti"`).
-- [ ] Link from the performance page share row: `"ShareKit.title"` label → `/performance/[id]/share-kit`.
-- [ ] Full gate, commit, PR `feat: TikTok share kit`, merge.
+- [x] Link from the performance page share row: `"ShareKit.title"` label → `/performance/[id]/share-kit`.
+- [x] Full local gate and signed-in browser smoke. Commit/PR/merge remain operator actions.
 
 ---
 

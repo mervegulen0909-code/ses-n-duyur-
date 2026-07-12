@@ -8,6 +8,7 @@ interface ProfilePatch {
   bio?: string | null;
   avatar_url?: string | null;
   links?: Json;
+  locale?: 'en' | 'tr' | 'es' | 'fr' | 'ar' | 'hi' | 'zh';
 }
 
 /**
@@ -47,7 +48,7 @@ export async function PATCH(req: Request): Promise<Response> {
   const limited = await rateLimit(req, ctx.user.id);
   if (limited) return limited;
 
-  const { bio, avatarUrl, links } = parsed.data;
+  const { bio, avatarUrl, links, locale } = parsed.data;
   if (avatarUrl && !isOwnAvatarUrl(avatarUrl, ctx.user.id)) {
     return Response.json({ error: 'avatarUrl must be your own uploaded avatar' }, { status: 422 });
   }
@@ -56,6 +57,7 @@ export async function PATCH(req: Request): Promise<Response> {
   if (bio !== undefined) patch.bio = bio;
   if (avatarUrl !== undefined) patch.avatar_url = avatarUrl;
   if (links !== undefined) patch.links = links as unknown as Json;
+  if (locale !== undefined) patch.locale = locale;
 
   if (Object.keys(patch).length === 0) {
     return Response.json({ error: 'Nothing to update' }, { status: 422 });

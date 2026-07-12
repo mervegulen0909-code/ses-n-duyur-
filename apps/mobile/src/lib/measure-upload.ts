@@ -2,6 +2,7 @@ import { File } from 'expo-file-system';
 import { fetch as expoFetch } from 'expo/fetch';
 
 import { NATIVE_CLIENT_HEADERS } from './api';
+import { getNativeIntegrityHeaders } from './attestation';
 import { WEB_BASE as API_BASE } from './config';
 import { supabase } from './supabase';
 
@@ -45,18 +46,21 @@ export async function uploadMeasurement(
   }
 
   try {
-    const res = await expoFetch(
-      `${API_BASE}/api/measurements?performanceId=${encodeURIComponent(performanceId)}`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': 'audio/wav',
-          ...NATIVE_CLIENT_HEADERS,
-          ...(token ? { authorization: `Bearer ${token}` } : {}),
-        },
-        body: file,
+    const path = `/api/measurements?performanceId=${encodeURIComponent(performanceId)}`;
+    const integrityHeaders =
+      process.env.EXPO_PUBLIC_NATIVE_ATTESTATION_ENABLED === 'true'
+        ? await getNativeIntegrityHeaders(path, 'POST', new Uint8Array(await file.arrayBuffer()))
+        : {};
+    const res = await expoFetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'audio/wav',
+        ...NATIVE_CLIENT_HEADERS,
+        ...integrityHeaders,
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
       },
-    );
+      body: file,
+    });
     const json = (await res.json().catch(() => ({}))) as {
       breakdown?: Record<string, number>;
       error?: string;

@@ -9,6 +9,7 @@
     "standings": "Classement Elo",
     "wrapped": "Ma saison",
     "league": "Ligue",
+    "leagues": "Groupes",
     "storyboard": "Storyboard",
     "signIn": "Se connecter",
     "admin": "Admin",
@@ -45,7 +46,24 @@
     "ctaRequestBody": "Ajoutez votre reprise à la ligue — chaque demande est examinée par un admin.",
     "ctaInviteTitle": "Inviter un ami",
     "ctaInviteBody": "Partagez VoxScore et faites grandir la ligue.",
-    "tryNow": "Essayez maintenant — regardez un duel, sans compte"
+    "tryNow": "Essayez maintenant — regardez un duel, sans compte",
+    "heroEyebrow": "Le classement vocal en direct",
+    "liveBoard": "Tableau en direct",
+    "rankedVoices": "Voix classées",
+    "openBattles": "Duels ouverts",
+    "verifiedRule": "Les écoutes vérifiées décident",
+    "latestHeading": "Dernières cartes de score",
+    "battleNow": "Entrer dans un duel",
+    "exploreRanks": "Explorer le classement"
+  },
+  "Errors": {
+    "eyebrow": "Lecture interrompue",
+    "title": "Cette manche a fait une fausse note.",
+    "body": "La page n’a pas pu finir de charger. Réessaie ou retourne au tableau en direct.",
+    "retry": "Réessayer",
+    "home": "Retour à l’accueil",
+    "notFoundTitle": "Cette scène n’existe pas.",
+    "notFoundBody": "Le lien est peut-être ancien, privé ou supprimé. Retourne sur VoxScore pour trouver une performance."
   },
   "Login": {
     "signIn": "Se connecter",
@@ -59,6 +77,7 @@
     "google": "Continuer avec Google",
     "orDivider": "ou"
   },
+  "MobileTurnstile": { "verifying": "Vérification humaine de cette inscription…" },
   "Add": {
     "title": "Ajouter une performance",
     "subtitle": "Collez un lien YouTube. Nous l'intégrons (sans jamais le télécharger), récupérons ses métadonnées et créons une estimation IA provisoire.",
@@ -147,6 +166,32 @@
     "you": "Toi",
     "loadError": "Impossible de charger la ligue hebdomadaire."
   },
+  "Leagues": {
+    "title": "Tes ligues",
+    "subtitle": "Des classements privés pour ta classe, ta chorale, ton équipe ou tes amis.",
+    "createCta": "Créer une ligue",
+    "namePlaceholder": "Nom de la ligue (classe, chorale, groupe…)",
+    "joinCta": "Rejoindre avec un code",
+    "codePlaceholder": "Code à 8 caractères",
+    "working": "Traitement…",
+    "genericError": "La ligue n’a pas pu être mise à jour.",
+    "loadError": "Tes ligues n’ont pas pu être chargées.",
+    "empty": "Tu n’as pas encore rejoint de ligue privée. Crée-en une ou saisis un code.",
+    "owner": "Créateur",
+    "member": "Membre",
+    "viewLeague": "Voir le classement",
+    "inviteTitle": "Rejoins {name}",
+    "inviteBody": "Accepte l’invitation pour affronter ce groupe sur VoxScore.",
+    "invalidCode": "Ce code d’invitation est invalide.",
+    "notFound": "Cette invitation est introuvable.",
+    "acceptInvite": "Accepter l’invitation",
+    "seasonBoard": "Saison en cours",
+    "memberCount": "{count} membres",
+    "wins": "Victoires",
+    "points": "Pts de pronostic",
+    "inviteMembers": "Invite ton groupe",
+    "inviteHeadline": "🎤 Rejoins ma ligue VoxScore : {name}"
+  },
   "Seasons": {
     "allSeasons": "Toutes les saisons"
   },
@@ -175,6 +220,21 @@
     "shareX": "X",
     "storyCard": "Carte story",
     "challengeCta": "Défier un ami sur ce duel"
+  },
+  "ShareKit": {
+    "title": "Kit de partage",
+    "back": "Retour à la performance",
+    "caption": "Note ma reprise sur VoxScore 🎤 {url} #VoxScoreChallenge #cover #chant",
+    "cardAlt": "Carte de score VoxScore pour {title}",
+    "captionHeading": "Légende prête à publier",
+    "copyCaption": "Copier la légende",
+    "copied": "Légende copiée",
+    "downloadCard": "Télécharger la carte",
+    "howTo": "Publie-la en trois étapes",
+    "kitStep1": "Télécharge ta carte de score",
+    "kitStep2": "Filme ta réaction ou 15 secondes de ta performance",
+    "kitStep3": "Publie avec la légende ; la carte et le lien font le reste",
+    "mediaNotice": "Ce kit télécharge uniquement la carte générée par VoxScore. Il ne télécharge ni ne republie aucun média YouTube."
   },
   "Criteria": {
     "vocalAccuracy": "Justesse vocale",

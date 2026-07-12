@@ -19,9 +19,9 @@ describe('scoreBar — 5-block emoji bar', () => {
 
 describe('buildShareLine — copy-paste artifact', () => {
   it('joins headline, bar, url with newlines', () => {
-    expect(
-      buildShareLine({ headline: 'H', bar: '🟩⬛', url: 'https://voxscore.app/x' }),
-    ).toBe('H\n🟩⬛\nhttps://voxscore.app/x');
+    expect(buildShareLine({ headline: 'H', bar: '🟩⬛', url: 'https://voxscore.app/x' })).toBe(
+      'H\n🟩⬛\nhttps://voxscore.app/x',
+    );
   });
   it('omits the bar line when not provided', () => {
     expect(buildShareLine({ headline: 'H', url: 'https://voxscore.app/x' })).toBe(

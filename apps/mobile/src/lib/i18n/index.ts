@@ -14,8 +14,15 @@ import hi from './locales/hi.json';
 import tr from './locales/tr.json';
 import zh from './locales/zh.json';
 
-const resources = { en: { translation: en }, tr: { translation: tr }, zh: { translation: zh },
-  hi: { translation: hi }, es: { translation: es }, fr: { translation: fr }, ar: { translation: ar } };
+const resources = {
+  en: { translation: en },
+  tr: { translation: tr },
+  zh: { translation: zh },
+  hi: { translation: hi },
+  es: { translation: es },
+  fr: { translation: fr },
+  ar: { translation: ar },
+};
 
 const STORAGE_KEY = 'voxscore.locale';
 

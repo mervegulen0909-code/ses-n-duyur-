@@ -4,5 +4,4 @@
  * (lib/links.ts) can never drift to different deployments. Override per env with
  * EXPO_PUBLIC_API_BASE_URL (local/staging).
  */
-export const WEB_BASE =
-  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://voxscore.app';
+export const WEB_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://voxscore.app';

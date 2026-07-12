@@ -9,6 +9,7 @@
     "untitled": "Sin título",
     "loadError": "No se pudo cargar: {{error}}"
   },
+  "Security": { "title": "Comprobación de seguridad", "cancel": "Cancelar" },
   "Leaderboard": {
     "addLink": "+ Agregar",
     "profile": "Perfil",
@@ -79,6 +80,47 @@
     "sub": "Clasificado por Elo · batallas cara a cara",
     "empty": "Aún no hay batallas. Abre la arena de batalla para iniciar una.",
     "record": "{{wins}}-{{losses}} · {{rate}}% de victorias"
+  },
+  "League": {
+    "title": "Liga semanal",
+    "short": "Semanal",
+    "weekly": "ESTA SEMANA",
+    "signIn": "Inicia sesión para ver tu grupo semanal.",
+    "listener": "oyente",
+    "tier0": "Bronce",
+    "tier1": "Plata",
+    "tier2": "Oro",
+    "tier3": "Diamante",
+    "empty": "Entrarás en un grupo el próximo lunes. La actividad verificada ya suma puntos.",
+    "error": "No se pudo cargar la liga semanal.",
+    "points": "{{count}} pts"
+  },
+  "Wrapped": {
+    "title": "Tu temporada en VoxScore",
+    "short": "Resumen",
+    "wins": "Batallas ganadas",
+    "losses": "Batallas perdidas",
+    "votes": "Votos verificados",
+    "listens": "Escuchas verificadas",
+    "predictions": "Puntos de predicción"
+  },
+  "Leagues": {
+    "title": "Tus ligas privadas",
+    "short": "Grupos",
+    "error": "No se pudo actualizar la liga.",
+    "invalidCode": "Introduce un código válido de 8 caracteres.",
+    "empty": "Aún no hay ligas privadas.",
+    "owner": "Creador",
+    "member": "Miembro",
+    "create": "Crear una liga",
+    "name": "Nombre de la liga",
+    "join": "Unirse con código",
+    "code": "Código de 8 caracteres",
+    "currentSeason": "TEMPORADA ACTUAL",
+    "inviteCrew": "Invitar al grupo",
+    "invite": "Únete a mi liga VoxScore {{name}}: {{url}}",
+    "wins": "{{count}} victorias",
+    "points": "{{count}} pts de predicción"
   },
   "Measure": {
     "title": "Medir mi grabación",

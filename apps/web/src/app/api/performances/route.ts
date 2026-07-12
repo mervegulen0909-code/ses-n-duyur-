@@ -14,9 +14,11 @@ import {
  * it is restricted to admins.
  */
 export async function POST(req: Request): Promise<Response> {
+  let rawBody: string;
   let json: unknown;
   try {
-    json = await req.json();
+    rawBody = await req.text();
+    json = JSON.parse(rawBody);
   } catch {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
@@ -34,16 +36,13 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'Authentication required' }, { status: 401 });
   }
   if ((await getProfileForContext(ctx))?.role !== 'admin') {
-    return Response.json(
-      { error: 'Submissions go through the request queue' },
-      { status: 403 },
-    );
+    return Response.json({ error: 'Submissions go through the request queue' }, { status: 403 });
   }
   const { user } = ctx;
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;
-  const bot = await botGuard(req);
+  const bot = await botGuard(req, user.id, rawBody);
   if (bot) return bot;
 
   // Scores are written with the service role (RLS blocks user writes), and

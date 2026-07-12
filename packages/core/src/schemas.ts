@@ -121,6 +121,7 @@ export const profileUpdateSchema = z.object({
   bio: z.string().trim().max(500).nullable().optional(),
   avatarUrl: z.string().trim().url().max(500).nullable().optional(),
   links: z.array(profileLinkSchema).max(5).optional(),
+  locale: z.enum(['en', 'tr', 'es', 'fr', 'ar', 'hi', 'zh']).optional(),
 });
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 
@@ -132,6 +133,17 @@ export const followSchema = z.object({
   followeeHandle: z.string().trim().min(1).max(64),
 });
 export type FollowInput = z.infer<typeof followSchema>;
+
+export const leagueCreateSchema = z.object({ name: z.string().trim().min(3).max(40) });
+export const leagueJoinSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z2-9]{8}$/),
+});
+export type LeagueCreateInput = z.infer<typeof leagueCreateSchema>;
+export type LeagueJoinInput = z.infer<typeof leagueJoinSchema>;
 
 /**
  * A user appeals a moderation decision (a hidden performance, a removed

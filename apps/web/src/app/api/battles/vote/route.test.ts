@@ -6,6 +6,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 vi.mock('@/lib/guard', () => ({
   rateLimit: vi.fn(async () => null),
+  botGuard: vi.fn(async () => null),
 }));
 vi.mock('@/lib/analytics-server', () => ({
   trackServer: vi.fn(async () => {}),
@@ -14,7 +15,7 @@ vi.mock('@/lib/league-points', () => ({
   addLeaguePoints: vi.fn(async () => {}),
 }));
 
-import { rateLimit } from '@/lib/guard';
+import { botGuard, rateLimit } from '@/lib/guard';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { trackServer } from '@/lib/analytics-server';
 import { addLeaguePoints } from '@/lib/league-points';
@@ -113,6 +114,13 @@ describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
     vi.mocked(rateLimit).mockResolvedValueOnce(Response.json({ error: 'rl' }, { status: 429 }));
     expect((await POST(makeRequest(validBody))).status).toBe(429);
+  });
+
+  it('403 when native/browser bot protection fails', async () => {
+    const { ctx } = makeCtx();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(botGuard).mockResolvedValueOnce(Response.json({ error: 'bot' }, { status: 403 }));
+    expect((await POST(makeRequest(validBody))).status).toBe(403);
   });
 
   it('404 when the battle does not exist', async () => {

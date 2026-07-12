@@ -30,6 +30,9 @@ export async function NavAuth() {
       <Link href="/league" className="text-sm text-neutral-400 hover:text-neutral-200">
         {t('league')}
       </Link>
+      <Link href="/leagues" className="text-sm text-neutral-400 hover:text-neutral-200">
+        {t('leagues')}
+      </Link>
       <Link href="/wrapped" className="text-sm text-neutral-400 hover:text-neutral-200">
         {t('wrapped')}
       </Link>

@@ -3,6 +3,7 @@
  * robots/sitemap). Override per environment with NEXT_PUBLIC_SITE_URL; falls
  * back to the current production alias. No trailing slash.
  */
-export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://voxscore.app'
-).replace(/\/$/, '');
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://voxscore.app').replace(
+  /\/$/,
+  '',
+);

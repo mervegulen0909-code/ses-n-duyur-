@@ -9,6 +9,7 @@
     "standings": "Posiciones",
     "wrapped": "Mi temporada",
     "league": "Liga",
+    "leagues": "Grupos",
     "storyboard": "Storyboard",
     "signIn": "Iniciar sesión",
     "admin": "Administración",
@@ -45,7 +46,24 @@
     "ctaRequestBody": "Añade tu versión a la liga — cada solicitud es revisada por un admin.",
     "ctaInviteTitle": "Invita a un amigo",
     "ctaInviteBody": "Comparte VoxScore y haz crecer la liga.",
-    "tryNow": "Pruébalo ahora — mira un duelo, sin necesidad de cuenta"
+    "tryNow": "Pruébalo ahora — mira un duelo, sin necesidad de cuenta",
+    "heroEyebrow": "El marcador vocal en directo",
+    "liveBoard": "Marcador en directo",
+    "rankedVoices": "Voces clasificadas",
+    "openBattles": "Batallas abiertas",
+    "verifiedRule": "Deciden las escuchas verificadas",
+    "latestHeading": "Últimas tarjetas",
+    "battleNow": "Entrar en batalla",
+    "exploreRanks": "Explorar clasificación"
+  },
+  "Errors": {
+    "eyebrow": "Reproducción interrumpida",
+    "title": "Esta ronda dio una nota equivocada.",
+    "body": "La página no terminó de cargar. Inténtalo de nuevo o vuelve al marcador en directo.",
+    "retry": "Intentar de nuevo",
+    "home": "Ir al inicio",
+    "notFoundTitle": "Ese escenario no existe.",
+    "notFoundBody": "El enlace puede ser antiguo, privado o eliminado. Vuelve a VoxScore para encontrar una actuación en directo."
   },
   "Login": {
     "signIn": "Iniciar sesión",
@@ -59,6 +77,7 @@
     "google": "Continuar con Google",
     "orDivider": "o"
   },
+  "MobileTurnstile": { "verifying": "Verificando que este registro sea humano…" },
   "Add": {
     "title": "Añadir una interpretación",
     "subtitle": "Pega un enlace de YouTube. Lo insertamos (nunca lo descargamos), obtenemos sus metadatos y creamos una estimación provisional de IA.",
@@ -147,6 +166,32 @@
     "you": "Tú",
     "loadError": "No se pudo cargar la liga semanal."
   },
+  "Leagues": {
+    "title": "Tus ligas",
+    "subtitle": "Clasificaciones privadas para tu clase, coro, equipo o amigos.",
+    "createCta": "Crear una liga",
+    "namePlaceholder": "Nombre de la liga (clase, coro, grupo…)",
+    "joinCta": "Unirse con código",
+    "codePlaceholder": "Código de 8 caracteres",
+    "working": "Procesando…",
+    "genericError": "No se pudo actualizar la liga.",
+    "loadError": "No se pudieron cargar tus ligas.",
+    "empty": "Aún no participas en una liga privada. Crea una o introduce un código.",
+    "owner": "Creador",
+    "member": "Miembro",
+    "viewLeague": "Ver clasificación",
+    "inviteTitle": "Únete a {name}",
+    "inviteBody": "Acepta la invitación para competir con este grupo en VoxScore.",
+    "invalidCode": "Este código de invitación no es válido.",
+    "notFound": "No se encontró esta invitación.",
+    "acceptInvite": "Aceptar invitación",
+    "seasonBoard": "Temporada actual",
+    "memberCount": "{count} miembros",
+    "wins": "Victorias",
+    "points": "Pts. de predicción",
+    "inviteMembers": "Invita a tu grupo",
+    "inviteHeadline": "🎤 Únete a mi liga de VoxScore: {name}"
+  },
   "Seasons": {
     "allSeasons": "Todas las temporadas"
   },
@@ -175,6 +220,21 @@
     "shareX": "X",
     "storyCard": "Tarjeta para historias",
     "challengeCta": "Reta a un amigo a este duelo"
+  },
+  "ShareKit": {
+    "title": "Kit para compartir",
+    "back": "Volver a la actuación",
+    "caption": "Puntúa mi cover en VoxScore 🎤 {url} #VoxScoreChallenge #cover #canto",
+    "cardAlt": "Tarjeta de puntuación de VoxScore para {title}",
+    "captionHeading": "Texto listo para publicar",
+    "copyCaption": "Copiar texto",
+    "copied": "Texto copiado",
+    "downloadCard": "Descargar tarjeta",
+    "howTo": "Publícalo en tres pasos",
+    "kitStep1": "Descarga tu tarjeta de puntuación",
+    "kitStep2": "Graba tu reacción o 15 segundos de tu actuación",
+    "kitStep3": "Publica con el texto; la tarjeta y el enlace hacen el resto",
+    "mediaNotice": "Este kit solo descarga la tarjeta generada por VoxScore. Nunca descarga ni vuelve a publicar contenido de YouTube."
   },
   "Criteria": {
     "vocalAccuracy": "Precisión vocal",

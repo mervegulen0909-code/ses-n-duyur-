@@ -45,52 +45,48 @@ export default async function PerformanceOpengraphImage({
   }
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 24,
-          background: '#0A0A0A',
-          color: '#FAFAFA',
-          fontFamily: 'sans-serif',
-          padding: 80,
-          textAlign: 'center',
-        }}
-      >
-        <div style={{ display: 'flex', fontSize: 44, fontWeight: 800, letterSpacing: -1 }}>
-          <span>Vox</span>
-          <span style={{ color: '#34D399' }}>Score</span>
-        </div>
-        <div style={{ display: 'flex', fontSize: 52, fontWeight: 700, maxWidth: 960 }}>
-          {title}
-        </div>
-        {authorName && <div style={{ fontSize: 32, color: '#A3A3A3' }}>{authorName}</div>}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
-          <span style={{ fontSize: 140, fontWeight: 800, color: '#34D399' }}>{scoreLabel}</span>
-        </div>
-        {isProvisional && (
-          <div
-            style={{
-              display: 'flex',
-              borderRadius: 999,
-              border: '2px solid rgba(245,158,11,0.4)',
-              background: 'rgba(245,158,11,0.1)',
-              color: '#FCD34D',
-              padding: '10px 24px',
-              fontSize: 28,
-              fontWeight: 600,
-            }}
-          >
-            Provisional AI Estimate
-          </div>
-        )}
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 24,
+        background: '#0A0A0A',
+        color: '#FAFAFA',
+        fontFamily: 'sans-serif',
+        padding: 80,
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ display: 'flex', fontSize: 44, fontWeight: 800, letterSpacing: -1 }}>
+        <span>Vox</span>
+        <span style={{ color: '#34D399' }}>Score</span>
       </div>
-    ),
+      <div style={{ display: 'flex', fontSize: 52, fontWeight: 700, maxWidth: 960 }}>{title}</div>
+      {authorName && <div style={{ fontSize: 32, color: '#A3A3A3' }}>{authorName}</div>}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
+        <span style={{ fontSize: 140, fontWeight: 800, color: '#34D399' }}>{scoreLabel}</span>
+      </div>
+      {isProvisional && (
+        <div
+          style={{
+            display: 'flex',
+            borderRadius: 999,
+            border: '2px solid rgba(245,158,11,0.4)',
+            background: 'rgba(245,158,11,0.1)',
+            color: '#FCD34D',
+            padding: '10px 24px',
+            fontSize: 28,
+            fontWeight: 600,
+          }}
+        >
+          Provisional AI Estimate
+        </div>
+      )}
+    </div>,
     { ...size },
   );
 }

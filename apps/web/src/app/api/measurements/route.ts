@@ -50,7 +50,7 @@ export async function POST(req: Request): Promise<Response> {
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;
-  const bot = await botGuard(req);
+  const bot = await botGuard(req, user.id);
   if (bot) return bot;
 
   // measured_scores is service-role-only by design (no user write policies):

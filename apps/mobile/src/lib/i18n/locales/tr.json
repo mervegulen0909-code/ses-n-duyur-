@@ -9,6 +9,7 @@
     "untitled": "Başlıksız",
     "loadError": "Yüklenemedi: {{error}}"
   },
+  "Security": { "title": "Güvenlik kontrolü", "cancel": "İptal" },
   "Leaderboard": {
     "addLink": "+ Ekle",
     "profile": "Profil",
@@ -79,6 +80,47 @@
     "sub": "Elo'ya göre sıralanır · karşılıklı düellolar",
     "empty": "Henüz düello yok. Bir tane başlatmak için Düello arenasını aç.",
     "record": "{{wins}}-{{losses}} · %{{rate}} galibiyet"
+  },
+  "League": {
+    "title": "Haftalık Lig",
+    "short": "Haftalık",
+    "weekly": "BU HAFTA",
+    "signIn": "Haftalık grubunu görmek için giriş yap.",
+    "listener": "dinleyici",
+    "tier0": "Bronz",
+    "tier1": "Gümüş",
+    "tier2": "Altın",
+    "tier3": "Elmas",
+    "empty": "Önümüzdeki pazartesi bir gruba gireceksin. Doğrulanmış etkinlik şimdiden puan kazandırır.",
+    "error": "Haftalık lig yüklenemedi.",
+    "points": "{{count}} puan"
+  },
+  "Wrapped": {
+    "title": "VoxScore sezonun",
+    "short": "Sezonum",
+    "wins": "Düello galibiyeti",
+    "losses": "Düello mağlubiyeti",
+    "votes": "Doğrulanmış oy",
+    "listens": "Doğrulanmış dinleme",
+    "predictions": "Tahmin puanı"
+  },
+  "Leagues": {
+    "title": "Özel liglerin",
+    "short": "Ekipler",
+    "error": "Lig güncellenemedi.",
+    "invalidCode": "Geçerli bir 8 karakterlik kod gir.",
+    "empty": "Henüz özel ligin yok.",
+    "owner": "Kurucu",
+    "member": "Üye",
+    "create": "Lig kur",
+    "name": "Lig adı",
+    "join": "Kodla katıl",
+    "code": "8 karakterlik kod",
+    "currentSeason": "GÜNCEL SEZON",
+    "inviteCrew": "Ekibi davet et",
+    "invite": "VoxScore ligim {{name}} ligine katıl: {{url}}",
+    "wins": "{{count}} galibiyet",
+    "points": "{{count}} tahmin puanı"
   },
   "Measure": {
     "title": "Kaydımı ölç",

@@ -593,17 +593,15 @@ export async function POST(req: Request): Promise<Response> {
 
   const { offsets, sampleCount } = computeOffsets(pairs);
   for (const [criterion, offset] of Object.entries(offsets)) {
-    await service
-      .from('scoring_calibration')
-      .upsert(
-        {
-          criterion,
-          offset_value: offset,
-          sample_count: sampleCount,
-          fitted_at: new Date().toISOString(),
-        },
-        { onConflict: 'criterion' },
-      );
+    await service.from('scoring_calibration').upsert(
+      {
+        criterion,
+        offset_value: offset,
+        sample_count: sampleCount,
+        fitted_at: new Date().toISOString(),
+      },
+      { onConflict: 'criterion' },
+    );
   }
   return Response.json({ sampleCount, offsets });
 }

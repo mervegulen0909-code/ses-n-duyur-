@@ -25,7 +25,15 @@ export class TurnstileBotCheck implements BotCheck {
   }
 }
 
+/** Production must never silently replace bot protection with a pass-through. */
+export class FailClosedBotCheck implements BotCheck {
+  async verify(): Promise<boolean> {
+    return false;
+  }
+}
+
 export function getBotCheck(): BotCheck {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  return secret ? new TurnstileBotCheck(secret) : new NoopBotCheck();
+  if (secret) return new TurnstileBotCheck(secret);
+  return process.env.NODE_ENV === 'production' ? new FailClosedBotCheck() : new NoopBotCheck();
 }

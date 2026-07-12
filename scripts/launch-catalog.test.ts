@@ -1,7 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { SONG_CATEGORIES, SONG_DIFFICULTIES, type SongCategory, type SongDifficulty } from '@voxscore/core';
+import {
+  SONG_CATEGORIES,
+  SONG_DIFFICULTIES,
+  type SongCategory,
+  type SongDifficulty,
+} from '@voxscore/core';
 
 interface TemplatePerformance {
   youtubeUrl: string | null;

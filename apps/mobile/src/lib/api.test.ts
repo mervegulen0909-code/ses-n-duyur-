@@ -6,8 +6,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('./supabase', () => ({
   supabase: { auth: { getSession: vi.fn() } },
 }));
+vi.mock('./attestation', () => ({
+  getNativeIntegrityHeaders: vi.fn(async () => ({})),
+}));
 
 import { supabase } from './supabase';
+import { getNativeIntegrityHeaders } from './attestation';
 import {
   completeListen,
   deleteAccount,
@@ -52,6 +56,31 @@ describe('mobile api client', () => {
   });
   afterEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  it('binds sensitive native writes to an integrity proof when enabled', async () => {
+    vi.stubEnv('EXPO_PUBLIC_NATIVE_ATTESTATION_ENABLED', 'true');
+    vi.mocked(getNativeIntegrityHeaders).mockResolvedValueOnce({
+      'x-voxscore-platform': 'android',
+      'x-app-integrity-token': 'proof',
+    });
+    mockFetchOnce({ ok: true });
+
+    await submitVote('p1', 'l1', { vocalAccuracy: 80 });
+
+    expect(getNativeIntegrityHeaders).toHaveBeenCalledWith(
+      '/api/votes',
+      'POST',
+      JSON.stringify({
+        performanceId: 'p1',
+        verifiedListenId: 'l1',
+        ratings: { vocalAccuracy: 80 },
+      }),
+    );
+    expect((lastFetch().opts.headers as Record<string, string>)['x-app-integrity-token']).toBe(
+      'proof',
+    );
   });
 
   it('attaches the Supabase access token as a Bearer header', async () => {
@@ -136,9 +165,10 @@ describe('mobile api client', () => {
 
   it('submitPerformanceRequest is ok only when the server returns an id', async () => {
     mockFetchOnce({ id: 'req-1' });
-    expect(
-      await submitPerformanceRequest('https://youtu.be/x', 'pop'),
-    ).toMatchObject({ ok: true, id: 'req-1' });
+    expect(await submitPerformanceRequest('https://youtu.be/x', 'pop')).toMatchObject({
+      ok: true,
+      id: 'req-1',
+    });
 
     const { url, opts } = lastFetch();
     expect(url).toMatch(/\/api\/performance-requests$/);

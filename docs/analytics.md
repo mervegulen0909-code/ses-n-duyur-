@@ -22,19 +22,19 @@ the table is queried directly via admin SQL only.
 
 ## Event catalog
 
-| Event | Fired from | Notes |
-|---|---|---|
-| `landing_view` | Home page (`TrackLandingView`), on mount | Signed-out capable |
-| `signup_started` | Login page, submitting in signup mode | |
-| `signup_completed` | Login page, signup succeeds | |
-| `performance_request_submitted` | `POST /api/performance-requests` | `meta.category` |
-| `performance_request_approved` | `POST /api/admin/performance-requests` (approve) | attributed to the **requester**, not the admin |
-| `verified_listen_completed` | `POST /api/listens/complete`, only when `isValid` | `meta.performanceId` |
-| `vote_submitted` | `POST /api/votes`, on success | `meta.performanceId` |
-| `battle_completed` | `POST /api/battles/vote`, on success | `meta.battleId` |
-| `share_clicked` | `ShareButtons` / `InviteFriendCard`, any channel click | `meta.channel` (`copy`, `whatsapp`, `x`, `native`, `invite_card`) |
-| `challenge_opened` | Song page, `?challenge=1` (`ChallengeSection`), on mount | `meta.songId` |
-| `invite_converted` | Login page, signup succeeds with a `?ref=` param | `meta.ref` |
+| Event                           | Fired from                                               | Notes                                                             |
+| ------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------- |
+| `landing_view`                  | Home page (`TrackLandingView`), on mount                 | Signed-out capable                                                |
+| `signup_started`                | Login page, submitting in signup mode                    |                                                                   |
+| `signup_completed`              | Login page, signup succeeds                              |                                                                   |
+| `performance_request_submitted` | `POST /api/performance-requests`                         | `meta.category`                                                   |
+| `performance_request_approved`  | `POST /api/admin/performance-requests` (approve)         | attributed to the **requester**, not the admin                    |
+| `verified_listen_completed`     | `POST /api/listens/complete`, only when `isValid`        | `meta.performanceId`                                              |
+| `vote_submitted`                | `POST /api/votes`, on success                            | `meta.performanceId`                                              |
+| `battle_completed`              | `POST /api/battles/vote`, on success                     | `meta.battleId`                                                   |
+| `share_clicked`                 | `ShareButtons` / `InviteFriendCard`, any channel click   | `meta.channel` (`copy`, `whatsapp`, `x`, `native`, `invite_card`) |
+| `challenge_opened`              | Song page, `?challenge=1` (`ChallengeSection`), on mount | `meta.songId`                                                     |
+| `invite_converted`              | Login page, signup succeeds with a `?ref=` param         | `meta.ref`                                                        |
 
 ## Funnel definition
 

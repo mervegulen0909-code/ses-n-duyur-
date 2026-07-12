@@ -132,6 +132,8 @@ export default function LoginPage() {
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <input
           type="email"
+          name="email"
+          autoComplete="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -140,6 +142,8 @@ export default function LoginPage() {
         />
         <input
           type="password"
+          name="password"
+          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           required
           minLength={6}
           value={password}

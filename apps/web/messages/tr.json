@@ -9,6 +9,7 @@
     "standings": "Puan durumu",
     "wrapped": "Sezonum",
     "league": "Lig",
+    "leagues": "Ekipler",
     "storyboard": "Storyboard",
     "signIn": "Giriş yap",
     "admin": "Yönetici",
@@ -45,7 +46,24 @@
     "ctaRequestBody": "Kendi coverını lige ekle — her talep bir yönetici tarafından incelenir.",
     "ctaInviteTitle": "Bir arkadaşını davet et",
     "ctaInviteBody": "VoxScore'u paylaş, ligi büyüt.",
-    "tryNow": "Hemen dene — hesapsız bir düello izle"
+    "tryNow": "Hemen dene — hesapsız bir düello izle",
+    "heroEyebrow": "Canlı vokal skor tablosu",
+    "liveBoard": "Canlı tablo",
+    "rankedVoices": "Sıralanan ses",
+    "openBattles": "Açık düello",
+    "verifiedRule": "Doğrulanmış dinlemeler belirler",
+    "latestHeading": "En yeni skor kartları",
+    "battleNow": "Düelloya gir",
+    "exploreRanks": "Sıralamayı keşfet"
+  },
+  "Errors": {
+    "eyebrow": "Yayın kesildi",
+    "title": "Bu turda yanlış bir nota çıktı.",
+    "body": "Sayfa yüklemeyi tamamlayamadı. Turu yeniden dene veya canlı skor tablosuna dön.",
+    "retry": "Yeniden dene",
+    "home": "Ana sayfaya dön",
+    "notFoundTitle": "Böyle bir sahne yok.",
+    "notFoundBody": "Bağlantı eski, özel veya kaldırılmış olabilir. Canlı bir performans bulmak için VoxScore’a dön."
   },
   "Login": {
     "signIn": "Giriş yap",
@@ -59,6 +77,7 @@
     "google": "Google ile devam et",
     "orDivider": "veya"
   },
+  "MobileTurnstile": { "verifying": "Bu kaydın bir insana ait olduğu doğrulanıyor…" },
   "Add": {
     "title": "Performans ekle",
     "subtitle": "Bir YouTube linki yapıştır. Gömeriz (asla indirmeyiz), meta verisini çekeriz ve Geçici YZ Tahmini oluştururuz.",
@@ -147,6 +166,32 @@
     "you": "Sen",
     "loadError": "Haftalık lig yüklenemedi."
   },
+  "Leagues": {
+    "title": "Liglerin",
+    "subtitle": "Sınıfın, koron, takımın veya yakın arkadaşların için özel skor tabloları.",
+    "createCta": "Lig kur",
+    "namePlaceholder": "Lig adı (sınıfın, koron, ekibin…)",
+    "joinCta": "Kodla katıl",
+    "codePlaceholder": "8 karakterlik kod",
+    "working": "İşleniyor…",
+    "genericError": "Lig güncellenemedi.",
+    "loadError": "Liglerin yüklenemedi.",
+    "empty": "Henüz özel bir lige katılmadın. Bir lig kur veya aşağıya davet kodunu gir.",
+    "owner": "Kurucu",
+    "member": "Üye",
+    "viewLeague": "Sıralamayı gör",
+    "inviteTitle": "{name} ligine katıl",
+    "inviteBody": "VoxScore’da bu ekiple yarışmak için daveti kabul et.",
+    "invalidCode": "Bu davet kodu geçersiz.",
+    "notFound": "Bu lig daveti bulunamadı.",
+    "acceptInvite": "Daveti kabul et",
+    "seasonBoard": "Güncel sezon",
+    "memberCount": "{count} üye",
+    "wins": "Galibiyet",
+    "points": "Tahmin puanı",
+    "inviteMembers": "Ekibini davet et",
+    "inviteHeadline": "🎤 VoxScore ligime katıl: {name}"
+  },
   "Seasons": {
     "allSeasons": "Tüm sezonlar"
   },
@@ -175,6 +220,21 @@
     "shareX": "X",
     "storyCard": "Hikâye kartı",
     "challengeCta": "Bir arkadaşını bu düelloya çağır"
+  },
+  "ShareKit": {
+    "title": "Paylaşım kiti",
+    "back": "Performansa dön",
+    "caption": "Cover’ımı VoxScore’da puanla 🎤 {url} #VoxScoreDuello #cover #vokal",
+    "cardAlt": "{title} için VoxScore hikâye skor kartı",
+    "captionHeading": "Paylaşıma hazır başlık",
+    "copyCaption": "Başlığı kopyala",
+    "copied": "Başlık kopyalandı",
+    "downloadCard": "Skor kartını indir",
+    "howTo": "Üç adımda paylaş",
+    "kitStep1": "Skor kartını indir",
+    "kitStep2": "Tepkini veya kendinden 15 sn’lik bir kesit çek",
+    "kitStep3": "Başlıkla paylaş — kartın ve linkin gerisini halleder",
+    "mediaNotice": "Bu kit yalnızca VoxScore’un ürettiği skor kartını indirir. YouTube medyasını indirmez veya yeniden yayımlamaz."
   },
   "Criteria": {
     "vocalAccuracy": "Vokal doğruluk",

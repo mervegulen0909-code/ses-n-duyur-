@@ -1,17 +1,24 @@
 # VoxScore — Native Mobile App Plan (v2)
 
+> **Implementation status (2026-07-13):** the Expo client, Bearer-auth API
+> path, App Attest/Play Integrity verification, Turnstile sign-up bridge, push
+> registration, measured recording, weekly/private leagues, and season recap
+> are implemented. Store credentials, signed production builds, and the
+> physical-device release matrix remain operator tasks; see
+> `docs/mobile-native-validation.md` and `docs/remaining-work.md`.
+
 > **Primary product goal:** a flawless, store-published native app on **Apple App
 > Store + Google Play**. The existing Next.js web app is the MVP + shared backend;
 > the native app is the main product built on top of it.
 
 ## 1. Stack decision — **React Native + Expo** (true native)
 
-| Option | Verdict | Why |
-| --- | --- | --- |
-| **React Native + Expo** | ✅ **CHOSEN** | True native UX, one codebase → iOS+Android, reuses our TS packages, EAS Build/Submit for stores, OTA updates. |
-| Capacitor / WebView wrap | ❌ Avoid | Apple Guideline 4.2 rejects "web wrappers / minimum functionality". Not "flawless". |
-| Flutter | ❌ | Dart — can't reuse our TS scoring/core/Zod logic; full rewrite of domain logic. |
-| Native Swift + Kotlin | ❌ (for now) | Two codebases, 2× cost; reserve only if we hit RN limits. |
+| Option                   | Verdict       | Why                                                                                                           |
+| ------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------- |
+| **React Native + Expo**  | ✅ **CHOSEN** | True native UX, one codebase → iOS+Android, reuses our TS packages, EAS Build/Submit for stores, OTA updates. |
+| Capacitor / WebView wrap | ❌ Avoid      | Apple Guideline 4.2 rejects "web wrappers / minimum functionality". Not "flawless".                           |
+| Flutter                  | ❌            | Dart — can't reuse our TS scoring/core/Zod logic; full rewrite of domain logic.                               |
+| Native Swift + Kotlin    | ❌ (for now)  | Two codebases, 2× cost; reserve only if we hit RN limits.                                                     |
 
 **Tooling:** Expo SDK (managed) · `expo-router` (file-based nav) · **EAS Build** (cloud
 iOS/Android builds, no Mac needed for Android; Mac/EAS for iOS) · **EAS Submit**
@@ -70,13 +77,13 @@ Turnstile is a **web** widget — on native we use **platform attestation** inst
 
 ## 6. Phases (plan-then-code, small PRs, like the web build)
 
-| Phase | Scope | Acceptance |
-| --- | --- | --- |
-| **N0 — Scaffold** | Expo app in `apps/mobile`, expo-router, theme, Supabase RN client (+ secure session), wire shared packages, run on iOS sim/Android emulator + Expo Go. | App boots, Supabase env loads, navigates between 2 placeholder screens. |
-| **N1 — Read flows** | Auth (Supabase email login/signup), Discover + Leaderboard (Wilson/Current/Trend), Performance detail with **YouTube embed** + score breakdown ("Provisional AI Estimate"). | Login works; lists render from Supabase; embed plays; score panel shows. |
-| **N2 — Fairness core** | Add performance (oEmbed), **Verified Listen** native tracking → server validation, criterion-based vote, score update. App Attest / Play Integrity wired into the bot guard. | Can't vote without verified full listen; spoofed events rejected (server). |
-| **N3 — Battle + social** | Async battle (both-listened gate, Elo), profile, comments, **push notifications** (expo-notifications: battle results, score moves). | Battle flow works; pushes deliver. |
-| **N4 — Store readiness** | Icons/splash (expo), app store metadata, **privacy nutrition labels** (Apple) + Data Safety (Google), account-deletion flow (store requirement), ToS/Privacy links, accessibility pass, EAS Build → TestFlight + Play Internal Testing → review. | Builds pass review on both stores; internal testers can install. |
+| Phase                    | Scope                                                                                                                                                                                                                                            | Acceptance                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| **N0 — Scaffold**        | Expo app in `apps/mobile`, expo-router, theme, Supabase RN client (+ secure session), wire shared packages, run on iOS sim/Android emulator + Expo Go.                                                                                           | App boots, Supabase env loads, navigates between 2 placeholder screens.    |
+| **N1 — Read flows**      | Auth (Supabase email login/signup), Discover + Leaderboard (Wilson/Current/Trend), Performance detail with **YouTube embed** + score breakdown ("Provisional AI Estimate").                                                                      | Login works; lists render from Supabase; embed plays; score panel shows.   |
+| **N2 — Fairness core**   | Add performance (oEmbed), **Verified Listen** native tracking → server validation, criterion-based vote, score update. App Attest / Play Integrity wired into the bot guard.                                                                     | Can't vote without verified full listen; spoofed events rejected (server). |
+| **N3 — Battle + social** | Async battle (both-listened gate, Elo), profile, comments, **push notifications** (expo-notifications: battle results, score moves).                                                                                                             | Battle flow works; pushes deliver.                                         |
+| **N4 — Store readiness** | Icons/splash (expo), app store metadata, **privacy nutrition labels** (Apple) + Data Safety (Google), account-deletion flow (store requirement), ToS/Privacy links, accessibility pass, EAS Build → TestFlight + Play Internal Testing → review. | Builds pass review on both stores; internal testers can install.           |
 
 ## 7. Store-compliance watch-list (do early, not at the end)
 

@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useRouter, type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -152,12 +152,23 @@ export default function LeaderboardScreen() {
         <Pressable onPress={() => router.push('/standings')} hitSlop={8}>
           <Text style={styles.standingsLink}>{t('Leaderboard.battleStandingsLink')}</Text>
         </Pressable>
+        {user && (
+          <View style={styles.featureNav}>
+            <Pressable onPress={() => router.push('/league' as Href)}>
+              <Text style={styles.featureLink}>{t('League.short')}</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push('/leagues' as Href)}>
+              <Text style={styles.featureLink}>{t('Leagues.short')}</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push('/wrapped' as Href)}>
+              <Text style={styles.featureLink}>{t('Wrapped.short')}</Text>
+            </Pressable>
+          </View>
+        )}
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
-      {state === 'error' && (
-        <Text style={styles.error}>{t('Common.loadError', { error })}</Text>
-      )}
+      {state === 'error' && <Text style={styles.error}>{t('Common.loadError', { error })}</Text>}
       {state === 'ready' && (
         <FlatList
           data={items}
@@ -207,6 +218,18 @@ const styles = StyleSheet.create({
   brandAccent: { color: '#22D3EE' },
   sub: { marginTop: 4, fontSize: 13, color: '#9ca3af' },
   standingsLink: { marginTop: 8, fontSize: 13, fontWeight: '600', color: '#22D3EE' },
+  featureNav: { marginTop: 12, flexDirection: 'row', gap: 8 },
+  featureLink: {
+    overflow: 'hidden',
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#262626',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    color: '#d4d4d4',
+    fontSize: 11,
+    fontWeight: '700',
+  },
   spinner: { marginTop: 40 },
   error: { margin: 20, color: '#fb7185' },
   empty: { marginTop: 40, textAlign: 'center', color: '#9ca3af' },

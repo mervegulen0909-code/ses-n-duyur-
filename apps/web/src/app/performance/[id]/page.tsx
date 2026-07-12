@@ -203,6 +203,12 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
               title={meta.title ?? t('Performance.fallbackTitle')}
               storyImagePath={`/performance/${perf.id}/story-image`}
             />
+            <Link
+              href={`/performance/${perf.id}/share-kit`}
+              className="mt-3 block text-center text-sm font-semibold text-cyan-300 hover:text-cyan-200 hover:underline"
+            >
+              {t('ShareKit.title')} →
+            </Link>
             {song && (
               <Link
                 href={`/song/${song.id}?challenge=1`}
@@ -212,9 +218,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
               </Link>
             )}
             <div className="mt-4 space-y-2">
-              <p className="text-center text-sm text-neutral-400">
-                {t('Performance.shareScore')}
-              </p>
+              <p className="text-center text-sm text-neutral-400">{t('Performance.shareScore')}</p>
               <ResultShare
                 headline={`🎤 VoxScore ${score?.current_score?.toFixed(1) ?? '—'} — ${meta.title ?? t('Performance.fallbackTitle')}`}
                 score={score?.current_score ?? null}

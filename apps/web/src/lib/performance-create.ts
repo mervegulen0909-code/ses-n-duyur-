@@ -162,57 +162,41 @@ export async function createScoredPerformance(
     songId: params.songId ?? resolvedSongId,
   });
 
-  const { data: perf, error: perfError } = await service
-    .from('performances')
-    .insert({
-      ...payload.performance,
-      user_id: params.userId,
-      oembed_meta: payload.performance.oembed_meta as unknown as Json,
-    })
-    .select('id')
-    .single();
+  const { data: performanceId, error: createError } = await service.rpc(
+    'create_scored_performance_atomic',
+    {
+      p_user_id: params.userId,
+      p_song_id: payload.performance.song_id ?? null,
+      p_source: payload.performance.source ?? 'youtube',
+      p_youtube_video_id: payload.performance.youtube_video_id ?? null,
+      p_oembed_meta: payload.performance.oembed_meta as unknown as Json,
+      p_duration_s: payload.performance.duration_s ?? null,
+      p_has_video: payload.performance.has_video ?? true,
+      p_status: 'active',
+      p_scoring_version: payload.score.scoring_version ?? 1,
+      p_initial_ai_score: payload.score.initial_ai_score ?? null,
+      p_ai_breakdown: payload.score.ai_breakdown as unknown as Json,
+      p_ai_breakdown_raw: rawScoring.breakdown as unknown as Json,
+      p_is_provisional: payload.score.is_provisional ?? true,
+      p_ai_provider: payload.score.ai_provider ?? null,
+      p_ai_model: payload.score.ai_model ?? null,
+      p_season_id: seasonId,
+    },
+  );
 
-  if (perfError || !perf) {
+  if (createError || !performanceId) {
     // Unique index performances_youtube_video_unique: one video = one league
     // entry (and therefore exactly one AI score). A duplicate submit is a
     // caller-facing conflict, not a server error.
-    if (perfError?.code === '23505') {
+    if (createError?.code === '23505') {
       throw new DuplicateVideoError();
     }
-    throw new Error('Could not create performance');
-  }
-
-  // Write the score row. If it fails, roll back the performance so we never
-  // persist a performance without its score, and surface the failure instead
-  // of silently swallowing it.
-  const { error: scoreError } = await service.from('scores').insert({
-    performance_id: perf.id,
-    ...payload.score,
-    ai_breakdown: payload.score.ai_breakdown as unknown as Json,
-    // Store the RAW (pre-calibration) breakdown too so the calibration refit
-    // fits against uncorrected values and converges (idempotent), instead of
-    // re-fitting against its own prior offset.
-    ai_breakdown_raw: rawScoring.breakdown as unknown as Json,
-    season_id: seasonId,
-  });
-  if (scoreError) {
-    console.error(
-      `[performance-create] score insert failed for ${perf.id}; rolling back`,
-      scoreError,
-    );
-    const { error: rollbackError } = await service.from('performances').delete().eq('id', perf.id);
-    if (rollbackError) {
-      console.error(
-        `[performance-create] ROLLBACK FAILED — orphaned scoreless performance ${perf.id}`,
-        rollbackError,
-      );
-    }
-    throw new Error('Could not score performance');
+    throw new Error('Could not create scored performance');
   }
 
   // Server-granted only (grantBadge is idempotent — safe to call on every
   // performance, not just a caller-computed "first" one).
   await grantBadge(service, params.userId, 'first_performance');
 
-  return { id: perf.id };
+  return { id: performanceId };
 }

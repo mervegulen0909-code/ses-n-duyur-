@@ -103,6 +103,6 @@ exact React-reconciliation crash this ADR documents returns. So:
   content for now — machine-translating legal text needs counsel review
   (CLAUDE.md). Their nav/chrome is localized; the prose is not.
 
-Re-enabling *browser* translation is still what this ADR forbids and would still
+Re-enabling _browser_ translation is still what this ADR forbids and would still
 require superseding it. Adding more app languages does not — it is just another
 `messages/<lang>.json` + a switcher entry.

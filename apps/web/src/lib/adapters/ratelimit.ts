@@ -25,9 +25,18 @@ export class UpstashRateLimiter implements RateLimiter {
   }
 }
 
+/** Missing distributed rate limiting is a deployment error, not a bypass. */
+export class FailClosedRateLimiter implements RateLimiter {
+  async check(): Promise<RateLimitResult> {
+    return { success: false, remaining: 0 };
+  }
+}
+
 export function getRateLimiter(limit = 20, windowMs = 60_000): RateLimiter {
   if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
     return new UpstashRateLimiter(limit, windowMs);
   }
-  return new InMemoryRateLimiter(limit, windowMs);
+  return process.env.NODE_ENV === 'production'
+    ? new FailClosedRateLimiter()
+    : new InMemoryRateLimiter(limit, windowMs);
 }

@@ -9,6 +9,7 @@
     "untitled": "未命名",
     "loadError": "加载失败：{{error}}"
   },
+  "Security": { "title": "安全检查", "cancel": "取消" },
   "Leaderboard": {
     "addLink": "+ 添加",
     "profile": "个人主页",
@@ -79,6 +80,47 @@
     "sub": "按 Elo 分排序 · 一对一对战",
     "empty": "还没有对战。打开对战竞技场开始一场吧。",
     "record": "{{wins}}胜{{losses}}负 · 胜率 {{rate}}%"
+  },
+  "League": {
+    "title": "每周联赛",
+    "short": "每周",
+    "weekly": "本周",
+    "signIn": "登录后查看你的每周小组。",
+    "listener": "听众",
+    "tier0": "青铜",
+    "tier1": "白银",
+    "tier2": "黄金",
+    "tier3": "钻石",
+    "empty": "你将在下周一加入小组。认证活动现在即可获得积分。",
+    "error": "无法加载每周联赛。",
+    "points": "{{count}} 分"
+  },
+  "Wrapped": {
+    "title": "你的 VoxScore 赛季",
+    "short": "赛季",
+    "wins": "对战胜场",
+    "losses": "对战负场",
+    "votes": "认证投票",
+    "listens": "认证收听",
+    "predictions": "预测积分"
+  },
+  "Leagues": {
+    "title": "你的私人联赛",
+    "short": "小组",
+    "error": "无法更新联赛。",
+    "invalidCode": "请输入有效的 8 位代码。",
+    "empty": "还没有私人联赛。",
+    "owner": "创建者",
+    "member": "成员",
+    "create": "创建联赛",
+    "name": "联赛名称",
+    "join": "用代码加入",
+    "code": "8 位代码",
+    "currentSeason": "当前赛季",
+    "inviteCrew": "邀请小组",
+    "invite": "加入我的 VoxScore 联赛 {{name}}：{{url}}",
+    "wins": "{{count}} 胜",
+    "points": "{{count}} 预测积分"
   },
   "Measure": {
     "title": "测量我的录音",
