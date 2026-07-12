@@ -25,7 +25,11 @@
     "supabaseNotConfigured": "لم يتم إعداد Supabase بعد.",
     "failed": "فشل",
     "failedStatus": "فشل ({status})",
-    "networkError": "خطأ في الشبكة"
+    "networkError": "خطأ في الشبكة",
+    "copyResultLine": "انسخ النتيجة",
+    "resultCopied": "تم النسخ — الصقها في أي مكان",
+    "shareOnWhatsApp": "واتساب",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "اكتشف من يغني الأغنية <hl>بأفضل أداء</hl>.",

@@ -25,7 +25,11 @@
     "supabaseNotConfigured": "Supabase henüz yapılandırılmadı.",
     "failed": "Başarısız",
     "failedStatus": "Başarısız ({status})",
-    "networkError": "Ağ hatası"
+    "networkError": "Ağ hatası",
+    "copyResultLine": "Sonucu kopyala",
+    "resultCopied": "Kopyalandı — istediğin yere yapıştır",
+    "shareOnWhatsApp": "WhatsApp",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "Bir şarkıyı <hl>en iyi</hl> kimin söylediğini keşfet.",

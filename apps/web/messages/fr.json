@@ -25,7 +25,11 @@
     "supabaseNotConfigured": "Supabase n'est pas encore configuré.",
     "failed": "Échec",
     "failedStatus": "Échec ({status})",
-    "networkError": "Erreur réseau"
+    "networkError": "Erreur réseau",
+    "copyResultLine": "Copier le résultat",
+    "resultCopied": "Copié — collez-le où vous voulez",
+    "shareOnWhatsApp": "WhatsApp",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "Découvrez qui chante <hl>le mieux</hl> une chanson.",

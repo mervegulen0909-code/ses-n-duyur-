@@ -25,7 +25,11 @@
     "supabaseNotConfigured": "Supabase aún no está configurado.",
     "failed": "Error",
     "failedStatus": "Error ({status})",
-    "networkError": "Error de red"
+    "networkError": "Error de red",
+    "copyResultLine": "Copiar resultado",
+    "resultCopied": "Copiado — pégalo donde quieras",
+    "shareOnWhatsApp": "WhatsApp",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "Descubre quién canta <hl>mejor</hl> una canción.",

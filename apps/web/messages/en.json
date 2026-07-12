@@ -25,7 +25,11 @@
     "supabaseNotConfigured": "Supabase is not configured yet.",
     "failed": "Failed",
     "failedStatus": "Failed ({status})",
-    "networkError": "Network error"
+    "networkError": "Network error",
+    "copyResultLine": "Copy result",
+    "resultCopied": "Copied — paste it anywhere",
+    "shareOnWhatsApp": "WhatsApp",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "Discover who sings a song <hl>best</hl>.",

@@ -25,7 +25,11 @@
     "supabaseNotConfigured": "Supabase 尚未配置。",
     "failed": "失败",
     "failedStatus": "失败（{status}）",
-    "networkError": "网络错误"
+    "networkError": "网络错误",
+    "copyResultLine": "复制结果",
+    "resultCopied": "已复制——随处粘贴",
+    "shareOnWhatsApp": "WhatsApp",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "发现谁唱得<hl>最好</hl>。",

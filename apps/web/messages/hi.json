@@ -25,7 +25,11 @@
     "supabaseNotConfigured": "Supabase अभी कॉन्फ़िगर नहीं किया गया है।",
     "failed": "विफल",
     "failedStatus": "विफल ({status})",
-    "networkError": "नेटवर्क त्रुटि"
+    "networkError": "नेटवर्क त्रुटि",
+    "copyResultLine": "परिणाम कॉपी करें",
+    "resultCopied": "कॉपी हो गया — कहीं भी पेस्ट करें",
+    "shareOnWhatsApp": "WhatsApp",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "जानिए कौन किसी गाने को <hl>सबसे बेहतर</hl> गाता है।",
