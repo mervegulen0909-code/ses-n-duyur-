@@ -52,7 +52,7 @@ export default async function SongPage({
 
   const { data: perfs } = await supabase
     .from('performances')
-    .select('id, oembed_meta, battle_wins, battle_count')
+    .select('id, oembed_meta, battle_wins, battle_count, youtube_video_id')
     .eq('song_id', id)
     .eq('status', 'active');
 
@@ -80,6 +80,18 @@ export default async function SongPage({
   });
   const ranked = rankByScore(rows);
 
+  // Guest challenge pair: the song's top two ranked performances — enough for
+  // a signup-free teaser battle on the challenge landing (Task 9, Phase B).
+  const videoIdByPerf = new Map((perfs ?? []).map((p) => [p.id, p.youtube_video_id]));
+  const top = ranked.slice(0, 2);
+  const guestPair =
+    top.length === 2 && top.every((r) => videoIdByPerf.get(r.id))
+      ? {
+          a: { videoId: videoIdByPerf.get(top[0]!.id)!, title: top[0]!.title },
+          b: { videoId: videoIdByPerf.get(top[1]!.id)!, title: top[1]!.title },
+        }
+      : null;
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <RealtimeRefresh table="scores" />
@@ -105,7 +117,7 @@ export default async function SongPage({
 
       {challenge === '1' && (
         <div className="mb-8">
-          <ChallengeSection songId={id} isSignedIn={!!user} />
+          <ChallengeSection songId={id} isSignedIn={!!user} guestPair={guestPair} />
           <div className="mt-3">
             <ShareButtons url={`/song/${id}?challenge=1`} title={t('Song.challengeCta')} />
           </div>
