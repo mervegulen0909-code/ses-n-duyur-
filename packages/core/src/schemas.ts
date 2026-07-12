@@ -79,6 +79,17 @@ export const battleVoteSchema = z.object({
 });
 export type BattleVoteInput = z.infer<typeof battleVoteSchema>;
 
+/**
+ * Predict a battle's winner BEFORE it closes. Predictions are a game layer,
+ * NOT votes: no listen gate, no Elo/score impact (hard rules 4/5 untouched).
+ * RLS additionally enforces open-battle + valid-pick + one-per-user.
+ */
+export const battlePredictSchema = z.object({
+  battleId: z.string().uuid(),
+  predictedWinnerId: z.string().uuid(),
+});
+export type BattlePredictInput = z.infer<typeof battlePredictSchema>;
+
 /** Post a comment on a performance. Body length mirrors the DB check (1–4000). */
 export const commentSchema = z.object({
   performanceId: z.string().uuid(),
