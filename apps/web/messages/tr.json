@@ -80,6 +80,9 @@
   },
   "Battle": {
     "shareResult": "Kararını paylaş",
+    "guestWatchBoth": "Kazananı seçmek için ikisini de sonuna kadar izle",
+    "guestPickCta": "Kazananı seç — ücretsiz hesabını aç",
+    "guestListened": "İzlendi ✓",
     "subtitle": "İki performans, tek kazanan. İkisini de tam dinle, sonra karar ver.",
     "signInPrompt": "Düello yapmak için lütfen <link>giriş yap</link>.",
     "statusListened": "✓ Dinlendi",

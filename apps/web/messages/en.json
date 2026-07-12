@@ -80,6 +80,9 @@
   },
   "Battle": {
     "shareResult": "Share your verdict",
+    "guestWatchBoth": "Watch both fully to pick a winner",
+    "guestPickCta": "Pick the winner — create your free account",
+    "guestListened": "Watched ✓",
     "subtitle": "Two performances, one winner. Listen to both fully, then decide.",
     "signInPrompt": "Please <link>sign in</link> to battle.",
     "statusListened": "✓ Listened",

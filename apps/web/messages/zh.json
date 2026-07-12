@@ -80,6 +80,9 @@
   },
   "Battle": {
     "shareResult": "分享你的裁决",
+    "guestWatchBoth": "完整观看两段表演后才能选出赢家",
+    "guestPickCta": "选出赢家——创建你的免费账号",
+    "guestListened": "已观看 ✓",
     "subtitle": "两段表演，一位赢家。完整听完两者，再做决定。",
     "signInPrompt": "请<link>登录</link>以参与对战。",
     "statusListened": "✓ 已听完",

@@ -80,6 +80,9 @@
   },
   "Battle": {
     "shareResult": "Partagez votre verdict",
+    "guestWatchBoth": "Regardez les deux en entier pour choisir un gagnant",
+    "guestPickCta": "Choisissez le gagnant — créez votre compte gratuit",
+    "guestListened": "Vu ✓",
     "subtitle": "Deux performances, un seul gagnant. Écoutez les deux en entier, puis décidez.",
     "signInPrompt": "Veuillez <link>vous connecter</link> pour participer à un duel.",
     "statusListened": "✓ Écouté",
