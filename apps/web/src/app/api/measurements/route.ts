@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   fetchVideoDurationSeconds,
   measuredAdjustedInitial,
+  measuredDisplayApplies,
   type MeasuredBreakdown,
 } from '@voxscore/core';
 import { MEASURED_CRITERIA, measureWav } from '@voxscore/dsp';
@@ -145,8 +146,11 @@ export async function POST(req: Request): Promise<Response> {
     // always for an owned upload (the WAV is the performance), but for a
     // YouTube embed only when the take length matches the video (±5%). This
     // stops an unrelated WAV from inflating a YouTube entry's objective
-    // criteria; the measurement + badge are still stored either way.
-    const measuredApplies = !perf.youtube_video_id || durationMatched === true;
+    // criteria; the measurement + badge are still stored either way. Every UI
+    // uses this SAME rule (measuredDisplayApplies) to decide whether a
+    // criterion may be labeled "Measured" — so the badge is never shown for a
+    // value that didn't actually count.
+    const measuredApplies = measuredDisplayApplies(!!perf.youtube_video_id, durationMatched);
     const measuredBasis = measuredApplies
       ? measuredAdjustedInitial({
           aiBreakdown: scoreRow.ai_breakdown as Partial<Record<Criterion, number>> | null,

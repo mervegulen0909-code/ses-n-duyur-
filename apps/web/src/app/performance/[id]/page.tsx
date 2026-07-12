@@ -193,6 +193,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           verifiedVoteCount={score?.verified_vote_count ?? 0}
           listenerStddev={score?.listener_stddev ?? null}
           durationMatched={measuredRow?.duration_matched ?? null}
+          hasYoutubeLink={!!perf.youtube_video_id}
         />
         {perf.youtube_video_id && (
           <div className="mt-4">

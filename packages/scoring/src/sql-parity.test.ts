@@ -7,12 +7,15 @@ import { BLEND_PRIOR_STRENGTH, LISTENER_WEIGHT_CAP } from './weights';
 // The SQL RPC re-implements the blend for atomicity; this guard keeps the two
 // implementations from ever drifting apart silently. When the regime changes,
 // point this at the NEWEST recompute migration.
+// Normalize CRLF -> LF: migrations are plain text and git's autocrlf may check
+// them out with CRLF on Windows, which would break any multi-line `\n`-embedded
+// assertion below even though the SQL content itself is unaffected.
 const SQL = readFileSync(
   fileURLToPath(
     new URL('../../../supabase/migrations/20260712160000_score_rpc_v6.sql', import.meta.url),
   ),
   'utf8',
-);
+).replace(/\r\n/g, '\n');
 
 describe('SQL RPC mirrors the TS scoring constants (RPC v6)', () => {
   it('embeds every criterion weight literal', () => {

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { CRITERIA, composeInitialAiScore, type Criterion } from '@voxscore/scoring';
-import { measuredAdjustedInitial, mergeMeasuredBreakdown } from './measured';
+import {
+  measuredAdjustedInitial,
+  measuredDisplayApplies,
+  mergeMeasuredBreakdown,
+} from './measured';
 
 /** Full 9-criterion estimate, every value 70. */
 function estimate(value = 70): Record<Criterion, number> {
@@ -69,5 +73,22 @@ describe('measuredAdjustedInitial', () => {
     expect(
       measuredAdjustedInitial({ aiBreakdown: junk, measured: MEASURED, hasVideo: true }),
     ).toBeNull();
+  });
+});
+
+describe('measuredDisplayApplies — did the measurement actually blend into the score?', () => {
+  it('always applies for an owned upload (no linked video to verify against)', () => {
+    expect(measuredDisplayApplies(false, null)).toBe(true);
+    expect(measuredDisplayApplies(false, false)).toBe(true);
+    expect(measuredDisplayApplies(false, true)).toBe(true);
+  });
+
+  it('applies for a YouTube-linked performance only when the duration matched', () => {
+    expect(measuredDisplayApplies(true, true)).toBe(true);
+  });
+
+  it('does NOT apply for a YouTube-linked performance on mismatch or unknown duration', () => {
+    expect(measuredDisplayApplies(true, false)).toBe(false);
+    expect(measuredDisplayApplies(true, null)).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { measuredDisplayApplies } from '@voxscore/core';
 import { CRITERIA, confidenceForVotes, confidenceMargin, type Criterion } from '@voxscore/scoring';
 import { ProvisionalBadge } from './provisional-badge';
 import { trendDirection } from '@/lib/leaderboard';
@@ -19,6 +20,8 @@ export interface ScoreBreakdownProps {
   listenerStddev?: number | null;
   /** The measured take ran the same length (±5%) as the linked video (T13). */
   durationMatched?: boolean | null;
+  /** Whether this performance links a YouTube video (gates the measured blend). */
+  hasYoutubeLink: boolean;
 }
 
 const CONFIDENCE_KEY = {
@@ -34,6 +37,13 @@ function fmt(value: number | null): string {
 export function ScoreBreakdown(props: ScoreBreakdownProps) {
   const t = useTranslations();
   const margin = confidenceMargin(props.listenerStddev ?? null, props.verifiedVoteCount);
+  // A measurement only earns the "Measured" badge on a criterion it actually
+  // moved the score with — the SAME rule the measurements route blends by, so
+  // the badge is never shown for a value that didn't count (fairness/honesty).
+  const measuredApplies = measuredDisplayApplies(
+    props.hasYoutubeLink,
+    props.durationMatched ?? null,
+  );
   const trend = props.trendScore ?? 0;
   // Use the leaderboard's flat band (|trend| < 0.05 → flat) so a value that
   // rounds to 0.0 shows neutral with no '+' — matching the leaderboard arrow.
@@ -83,13 +93,13 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
         </p>
       )}
 
-      {props.measured && (
+      {props.measured && measuredApplies && (
         <p className="mb-4 text-xs text-neutral-500">{t('Performance.measuredCaption')}</p>
       )}
 
       <ul className="space-y-1.5">
         {CRITERIA.filter((c) => props.hasVideo || c !== 'stagePresence').map((c) => {
-          const measuredValue = props.measured?.[c] ?? null;
+          const measuredValue = measuredApplies ? (props.measured?.[c] ?? null) : null;
           const value = measuredValue ?? props.breakdown?.[c] ?? null;
           return (
             <li key={c} className="flex items-center gap-3 text-sm">
