@@ -7,6 +7,13 @@
       "runtimeArgs": ["--filter", "@voxscore/web", "dev"],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "mobile-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@voxscore/mobile", "web"],
+      "port": 8081,
+      "autoPort": true
     }
   ]
 }
