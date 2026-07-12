@@ -6,8 +6,12 @@ vi.mock('@/lib/supabase/server', () => ({
 vi.mock('@/lib/badges', () => ({
   grantBadge: vi.fn(async () => {}),
 }));
+vi.mock('@/lib/league-points', () => ({
+  addLeaguePoints: vi.fn(async () => {}),
+}));
 
 import { grantBadge } from '@/lib/badges';
+import { addLeaguePoints } from '@/lib/league-points';
 import { createSupabaseServiceClient } from '@/lib/supabase/server';
 import { GET } from './route';
 
@@ -127,10 +131,13 @@ describe('GET /api/cron/close-battles', () => {
       p_k: 48,
     });
     // Elo applied exactly once; the only other rpc is the prediction settle.
-    expect(
-      svc.rpc.mock.calls.filter(([name]) => name === 'apply_battle_result'),
-    ).toHaveLength(1);
+    expect(svc.rpc.mock.calls.filter(([name]) => name === 'apply_battle_result')).toHaveLength(1);
     expect(grantBadge).toHaveBeenCalledWith(svc.service, 'owner-a', 'battle_champion');
+    // The winning performance's owner accrues +5 weekly-league points.
+    expect(addLeaguePoints).toHaveBeenCalledWith(svc.service, 'owner-a', 5, {
+      kind: 'battle_win',
+      id: BATTLE,
+    });
   });
 
   it('settles predictions once per closed battle with the winner (A majority)', async () => {
@@ -145,9 +152,9 @@ describe('GET /api/cron/close-battles', () => {
       p_battle_id: BATTLE,
       p_winner: PERF_A,
     });
-    expect(
-      svc.rpc.mock.calls.filter(([name]) => name === 'score_battle_predictions'),
-    ).toHaveLength(1);
+    expect(svc.rpc.mock.calls.filter(([name]) => name === 'score_battle_predictions')).toHaveLength(
+      1,
+    );
   });
 
   it('settles predictions with perf B when B takes the majority', async () => {
@@ -178,6 +185,8 @@ describe('GET /api/cron/close-battles', () => {
       expect.objectContaining({ p_result_for_a: 0.5, p_k: 24 }),
     );
     expect(grantBadge).not.toHaveBeenCalled();
+    // A tie crowns no winner, so no league points are awarded either.
+    expect(addLeaguePoints).not.toHaveBeenCalled();
     // No winner → nothing to settle: predictions stay pending forever on a tie
     // rather than being scored against an arbitrary side.
     expect(svc.rpc).not.toHaveBeenCalledWith('score_battle_predictions', expect.anything());

@@ -157,6 +157,14 @@ export interface PublicRows {
     week_start: string; // date
     points: number;
   };
+  league_point_events: {
+    source_kind: 'verified_listen' | 'battle_vote' | 'battle_win';
+    source_id: string;
+    user_id: Uuid;
+    week_start: string; // date
+    delta: number;
+    created_at: Timestamp;
+  };
   comments: {
     id: Uuid;
     performance_id: Uuid;
@@ -372,6 +380,24 @@ export type Database = {
         Args: {
           p_battle_id: Uuid;
           p_winner: Uuid;
+        };
+        Returns: undefined;
+      };
+      add_league_points: {
+        Args: {
+          p_user_id: Uuid;
+          p_week_start: string;
+          p_delta: number;
+        };
+        Returns: undefined;
+      };
+      award_league_points: {
+        Args: {
+          p_user_id: Uuid;
+          p_week_start: string;
+          p_delta: number;
+          p_source_kind: 'verified_listen' | 'battle_vote' | 'battle_win';
+          p_source_id: string;
         };
         Returns: undefined;
       };

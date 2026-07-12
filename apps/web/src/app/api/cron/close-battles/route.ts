@@ -1,5 +1,6 @@
 import { createSupabaseServiceClient } from '@/lib/supabase/server';
 import { grantBadge } from '@/lib/badges';
+import { addLeaguePoints } from '@/lib/league-points';
 
 /** A battle collects votes for this long, then closes with ONE Elo update. */
 const BATTLE_WINDOW_H = 24;
@@ -71,6 +72,13 @@ export async function GET(req: Request): Promise<Response> {
         const winnerPerf = resultForA > 0.5 ? b.perf_a : b.perf_b;
         const winnerOwner = resultForA > 0.5 ? a?.user_id : pB?.user_id;
         if (winnerOwner) await grantBadge(service, winnerOwner, 'battle_champion');
+        // Weekly league: winning a battle is worth +5 to the owner this week.
+        if (winnerOwner) {
+          await addLeaguePoints(service, winnerOwner, 5, {
+            kind: 'battle_win',
+            id: b.id,
+          });
+        }
         // Settle the prediction game against the same winner. Predictions are
         // NOT votes: this only flips is_correct and adds prediction_points —
         // Elo/scores are untouched. Ties and zero-vote closes settle nothing.
