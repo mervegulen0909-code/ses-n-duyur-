@@ -42,7 +42,8 @@
     "ctaRequestTitle": "Bir performans gönder",
     "ctaRequestBody": "Kendi coverını lige ekle — her talep bir yönetici tarafından incelenir.",
     "ctaInviteTitle": "Bir arkadaşını davet et",
-    "ctaInviteBody": "VoxScore'u paylaş, ligi büyüt."
+    "ctaInviteBody": "VoxScore'u paylaş, ligi büyüt.",
+    "tryNow": "Hemen dene — hesapsız bir düello izle"
   },
   "Login": {
     "signIn": "Giriş yap",

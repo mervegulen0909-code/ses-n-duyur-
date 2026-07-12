@@ -42,7 +42,8 @@
     "ctaRequestTitle": "Envía una interpretación",
     "ctaRequestBody": "Añade tu versión a la liga — cada solicitud es revisada por un admin.",
     "ctaInviteTitle": "Invita a un amigo",
-    "ctaInviteBody": "Comparte VoxScore y haz crecer la liga."
+    "ctaInviteBody": "Comparte VoxScore y haz crecer la liga.",
+    "tryNow": "Pruébalo ahora — mira un duelo, sin necesidad de cuenta"
   },
   "Login": {
     "signIn": "Iniciar sesión",

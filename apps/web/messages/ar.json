@@ -42,7 +42,8 @@
     "ctaRequestTitle": "أرسل أداءً",
     "ctaRequestBody": "أضف نسختك إلى الدوري — يراجع أحد المشرفين كل طلب.",
     "ctaInviteTitle": "ادعُ صديقًا",
-    "ctaInviteBody": "شارك VoxScore ونمِّ الدوري."
+    "ctaInviteBody": "شارك VoxScore ونمِّ الدوري.",
+    "tryNow": "جرّبه الآن — شاهد مبارزة بدون حساب"
   },
   "Login": {
     "signIn": "تسجيل الدخول",

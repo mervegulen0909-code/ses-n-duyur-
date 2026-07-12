@@ -42,7 +42,8 @@
     "ctaRequestTitle": "提交表演",
     "ctaRequestBody": "把你的翻唱加入联赛——每个申请都会由管理员审核。",
     "ctaInviteTitle": "邀请好友",
-    "ctaInviteBody": "分享 VoxScore，一起壮大联赛。"
+    "ctaInviteBody": "分享 VoxScore，一起壮大联赛。",
+    "tryNow": "立即体验——无需账号，观看一场对战"
   },
   "Login": {
     "signIn": "登录",

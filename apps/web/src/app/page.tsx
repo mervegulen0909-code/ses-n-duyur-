@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { CategoryChips } from '@/components/category-chips';
+import { GuestBattle } from '@/components/guest-battle';
 import { InviteFriendCard } from '@/components/invite-friend-card';
 import { TrackLandingView } from '@/components/track-landing-view';
 import { toScoreView, type ScoreRow } from '@/lib/score';
@@ -27,6 +28,11 @@ interface FeaturedChallenge {
   songTitle: string;
 }
 
+interface GuestSide {
+  videoId: string;
+  title: string;
+}
+
 export default async function HomePage() {
   const t = await getTranslations();
   const supabase = await createSupabaseServerClient();
@@ -34,12 +40,45 @@ export default async function HomePage() {
   let scoreByPerf = new Map<string, ScoreRow>();
   let featured: FeaturedChallenge | null = null;
   let viewerId: string | null = null;
+  let guestPair: { a: GuestSide; b: GuestSide } | null = null;
 
   if (supabase) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     viewerId = user?.id ?? null;
+
+    // Signup-free teaser (onboarding <60s): signed-out visitors get the
+    // most-battled song's top pairing to watch immediately — no writes,
+    // the real vote flow stays behind login + Verified Listen.
+    if (!user) {
+      const { data: recentBattles } = await supabase
+        .from('battles')
+        .select('song_id')
+        .not('song_id', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      const counts = new Map<string, number>();
+      for (const b of recentBattles ?? [])
+        if (b.song_id) counts.set(b.song_id, (counts.get(b.song_id) ?? 0) + 1);
+      const songId = [...counts.entries()].sort((x, y) => y[1] - x[1])[0]?.[0];
+      if (songId) {
+        const { data: perfs } = await supabase
+          .from('performances')
+          .select('youtube_video_id, oembed_meta')
+          .eq('song_id', songId)
+          .eq('status', 'active')
+          .not('youtube_video_id', 'is', null)
+          .limit(2);
+        if (perfs && perfs.length === 2) {
+          const titleOf = (m: unknown) => ((m ?? {}) as { title?: string }).title ?? 'Performance';
+          guestPair = {
+            a: { videoId: perfs[0]!.youtube_video_id!, title: titleOf(perfs[0]!.oembed_meta) },
+            b: { videoId: perfs[1]!.youtube_video_id!, title: titleOf(perfs[1]!.oembed_meta) },
+          };
+        }
+      }
+    }
     const { data } = await supabase
       .from('performances')
       .select('id, youtube_video_id, oembed_meta')
@@ -109,6 +148,13 @@ export default async function HomePage() {
               >
                 {featured.title || featured.songTitle}
               </Link>
+            </section>
+          )}
+
+          {guestPair && (
+            <section className="mb-8 w-full max-w-3xl">
+              <h2 className="mb-3 text-lg font-semibold">{t('Home.tryNow')}</h2>
+              <GuestBattle a={guestPair.a} b={guestPair.b} loginNext="/battle" entry="home" />
             </section>
           )}
 

@@ -42,7 +42,8 @@
     "ctaRequestTitle": "Submit a performance",
     "ctaRequestBody": "Add your cover to the league — admins review every request.",
     "ctaInviteTitle": "Invite a friend",
-    "ctaInviteBody": "Share VoxScore and grow the league."
+    "ctaInviteBody": "Share VoxScore and grow the league.",
+    "tryNow": "Try it now — watch a battle, no account needed"
   },
   "Login": {
     "signIn": "Sign in",
