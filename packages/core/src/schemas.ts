@@ -238,6 +238,7 @@ export const NOTIFICATION_KINDS = [
   'comment_reply',
   'performance_request_approved',
   'performance_request_rejected',
+  'day1_comeback',
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 

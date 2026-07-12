@@ -31,7 +31,8 @@ function makeService(opts: {
   const notifUpdate = vi.fn(() => ({ in: notifUpdateIn }));
   const notifLimit = vi.fn(async () => ({ data: opts.pending ?? PENDING, error: null }));
   const notifOrder = vi.fn(() => ({ limit: notifLimit }));
-  const notifIs = vi.fn(() => ({ order: notifOrder }));
+  const notifLte = vi.fn(() => ({ order: notifOrder }));
+  const notifIs = vi.fn(() => ({ lte: notifLte }));
   const notifSelect = vi.fn(() => ({ is: notifIs }));
 
   const tokensIn = vi.fn(async () => ({ data: opts.tokens ?? [] }));
@@ -48,6 +49,7 @@ function makeService(opts: {
   return {
     client: { from } as unknown as Service,
     from,
+    notifLte,
     notifUpdate,
     notifUpdateIn,
     tokensDelete,
@@ -84,6 +86,21 @@ describe('GET /api/cron/send-notifications', () => {
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({ processed: 0, sent: 0, pruned: 0 });
     expect(sendExpoPush).not.toHaveBeenCalled();
+  });
+
+  it('drains only rows whose scheduled_for has already passed', async () => {
+    const service = makeService({ pending: [] });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const before = Date.now();
+    await GET(makeRequest('Bearer test-secret'));
+    const after = Date.now();
+
+    expect(service.notifLte).toHaveBeenCalledTimes(1);
+    const [column, cutoff] = service.notifLte.mock.calls[0] as unknown as [string, string];
+    expect(column).toBe('scheduled_for');
+    expect(Date.parse(cutoff)).toBeGreaterThanOrEqual(before);
+    expect(Date.parse(cutoff)).toBeLessThanOrEqual(after);
   });
 
   it('sends one push per token, then stamps sent_at on every processed event', async () => {

@@ -281,9 +281,11 @@ export interface PublicRows {
       | 'rank_change'
       | 'comment_reply'
       | 'performance_request_approved'
-      | 'performance_request_rejected';
+      | 'performance_request_rejected'
+      | 'day1_comeback';
     meta: Json | null;
     sent_at: Timestamp | null;
+    scheduled_for: Timestamp;
     created_at: Timestamp;
   };
   seasons: {

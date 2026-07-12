@@ -18,6 +18,10 @@ const COPY: Record<NotificationKind, { title: string; body: string }> = {
     title: 'Request update',
     body: 'Your performance request was not approved.',
   },
+  day1_comeback: {
+    title: 'Your league is waiting',
+    body: 'Your league is waiting — today’s battles are live.',
+  },
 };
 
 /**
@@ -40,6 +44,8 @@ export async function GET(req: Request): Promise<Response> {
     .from('notification_events')
     .select('id, user_id, kind, meta')
     .is('sent_at', null)
+    // Scheduled (delayed) notifications stay queued until they come due.
+    .lte('scheduled_for', new Date().toISOString())
     .order('created_at', { ascending: true })
     .limit(BATCH_LIMIT);
   if (pendingError) {

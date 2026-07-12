@@ -17,12 +17,16 @@ export async function notifyServer(
   userId: string,
   kind: NotificationKind,
   meta?: Record<string, string | number>,
+  opts?: { scheduledFor?: string },
 ): Promise<void> {
   try {
     await service.from('notification_events').insert({
       user_id: userId,
       kind,
       meta: (meta ?? null) as unknown as Json | null,
+      // Delayed delivery (e.g. the day-1 comeback push): the sender cron
+      // only drains rows whose scheduled_for has passed. Omitted = now().
+      ...(opts?.scheduledFor ? { scheduled_for: opts.scheduledFor } : {}),
     });
   } catch {
     // Notifications must never fail the request that triggered them.
