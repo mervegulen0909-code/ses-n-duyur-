@@ -65,5 +65,14 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter @voxscore/web exec playwright install --with-deps chromium
 
+      # The local Supabase stack from "Database migrations from zero" is still
+      # running in this job. Export its URL/anon key so the web server gets a
+      # real (empty-DB) client and signed-out flows behave like production —
+      # e.g. /league must redirect to /login?next=/league instead of rendering
+      # the env-less "Supabase not configured" fallback.
       - name: E2E (smoke)
-        run: pnpm test:e2e
+        run: |
+          eval "$(pnpm exec supabase status -o env | grep -E '^(API_URL|ANON_KEY)=')"
+          export NEXT_PUBLIC_SUPABASE_URL="$API_URL"
+          export NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY"
+          pnpm test:e2e
