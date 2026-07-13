@@ -1,7 +1,27 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+
+type NotificationsModule = typeof import('expo-notifications');
+
+let notificationsModule: NotificationsModule | null | undefined;
+
+/**
+ * expo-notifications resolves its NATIVE module at import time, and Expo Go on
+ * Android ships without it since SDK 53 — a static `import` therefore crashes
+ * whatever file pulls this in (including the root layout → blank app). Load it
+ * lazily and treat "unavailable" as push-off instead of a boot failure.
+ */
+function getNotifications(): NotificationsModule | null {
+  if (notificationsModule === undefined) {
+    try {
+      notificationsModule = require('expo-notifications') as NotificationsModule;
+    } catch {
+      notificationsModule = null;
+    }
+  }
+  return notificationsModule;
+}
 
 /**
  * Push notifications for VoxScore (native).
@@ -59,14 +79,20 @@ function getProjectId(): string | undefined {
  * layout) so notifications surface while the app is open. Safe in Expo Go.
  */
 export function configureNotificationHandler(): void {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
-  });
+  const Notifications = getNotifications();
+  if (!Notifications) return; // Expo Go Android: notifications unavailable
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+  } catch {
+    // Never let a notification-handler failure break app boot.
+  }
 }
 
 /**
@@ -76,6 +102,8 @@ export function configureNotificationHandler(): void {
  */
 export async function ensureAndroidChannel(): Promise<void> {
   if (Platform.OS !== 'android') return;
+  const Notifications = getNotifications();
+  if (!Notifications) return;
   await Notifications.setNotificationChannelAsync(ANDROID_DEFAULT_CHANNEL, {
     name: 'Default',
     importance: Notifications.AndroidImportance.DEFAULT,
@@ -89,6 +117,8 @@ export async function ensureAndroidChannel(): Promise<void> {
  * Works in Expo Go (the OS prompt for LOCAL notifications still appears).
  */
 export async function requestNotificationPermission(): Promise<boolean> {
+  const Notifications = getNotifications();
+  if (!Notifications) return false;
   const { status: existing } = await Notifications.getPermissionsAsync();
   if (existing === 'granted') return true;
   const { status } = await Notifications.requestPermissionsAsync();
@@ -120,6 +150,9 @@ export async function registerForPushNotifications(
   // A simulator/emulator can't be issued a real APNs/FCM token.
   if (!Device.isDevice) return { ok: false, reason: 'not-a-device' };
 
+  const Notifications = getNotifications();
+  if (!Notifications) return { ok: false, reason: 'error' };
+
   await ensureAndroidChannel();
 
   // Without a prompt, only proceed if permission was ALREADY granted — never
@@ -150,6 +183,8 @@ export async function scheduleLocalNotification(
   body: string,
   seconds?: number,
 ): Promise<string> {
+  const Notifications = getNotifications();
+  if (!Notifications) throw new Error('Notifications are unavailable in this runtime');
   return Notifications.scheduleNotificationAsync({
     content: { title, body },
     trigger:

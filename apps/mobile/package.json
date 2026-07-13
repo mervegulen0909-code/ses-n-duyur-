@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@expo-google-fonts/dm-mono": "^0.4.2",
+    "@expo-google-fonts/instrument-sans": "^0.4.2",
     "@expo/app-integrity": "~56.0.3",
     "@expo/dom-webview": "~56.0.6",
     "@expo/metro-runtime": "~56.0.16",

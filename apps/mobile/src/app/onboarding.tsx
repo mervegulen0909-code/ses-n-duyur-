@@ -1,12 +1,12 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useRouter, type Href } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Animated,
-  FlatList,
-  ImageBackground,
+  Easing,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -14,244 +14,537 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { CRITERIA } from '@voxscore/scoring';
+import {
+  MiniFlow,
+  Podium,
+  RadarChart,
+  ScoreRings,
+  VsWaves,
+  Waveform,
+} from '@/components/onboarding-visuals';
+import { alpha, COLORS, FONTS } from '@/constants/brand';
 import { completeOnboarding } from '@/lib/onboarding';
+import {
+  DEMO_OVERALL,
+  DEMO_SCORES_ORDERED,
+  routeForIntent,
+  type IntentId,
+} from '@/lib/onboarding-flow';
 
 const GLOW = require('../../assets/brand/glow.png');
-const CTA = require('../../assets/brand/cta.png');
 
-type Slide = {
-  key: string;
-  kind: 'hero' | 'score' | 'art';
-  image: ReturnType<typeof require>;
-  eyebrow?: string;
-  title: string;
-  body: string;
-};
-
-function useSlides(t: (key: string) => string): Slide[] {
-  return [
-    {
-      key: 'hero',
-      kind: 'hero',
-      image: require('../../assets/brand/voxscore-hero.png'),
-      title: t('Onboarding.slide1Title'),
-      body: t('Onboarding.slide1Body'),
-    },
-    {
-      key: 'add',
-      kind: 'art',
-      image: require('../../assets/brand/slide-add.png'),
-      eyebrow: t('Onboarding.slide2Eyebrow'),
-      title: t('Onboarding.slide2Title'),
-      body: t('Onboarding.slide2Body'),
-    },
-    {
-      key: 'score',
-      kind: 'score',
-      image: require('../../assets/brand/slide-score.png'),
-      eyebrow: t('Onboarding.slide3Eyebrow'),
-      title: t('Onboarding.slide3Title'),
-      body: t('Onboarding.slide3Body'),
-    },
-    {
-      key: 'battle',
-      kind: 'art',
-      image: require('../../assets/brand/slide-battle.png'),
-      eyebrow: t('Onboarding.slide4Eyebrow'),
-      title: t('Onboarding.slide4Title'),
-      body: t('Onboarding.slide4Body'),
-    },
-  ];
-}
+type Step = 'promise' | 'trust' | 'intent' | 'path';
+const LINEAR: Step[] = ['promise', 'trust', 'intent'];
 
 export default function OnboardingScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const listRef = useRef<FlatList<Slide>>(null);
-  const [index, setIndex] = useState(0);
-  const SLIDES = useSlides(t);
-  const isLast = index === SLIDES.length - 1;
+  const [step, setStep] = useState<Step>('promise');
+  const [intent, setIntent] = useState<IntentId>('singer');
 
-  const finish = async () => {
-    await completeOnboarding();
-    router.replace('/');
-  };
+  // Fade/rise transition on every step change (re-keyed view remounts).
+  const enter = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    enter.setValue(0);
+    Animated.timing(enter, {
+      toValue: 1,
+      duration: 360,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [step, enter]);
 
-  const next = () => {
-    if (isLast) {
-      void finish();
-      return;
-    }
-    listRef.current?.scrollToIndex({ index: index + 1, animated: true });
+  const finish = useCallback(
+    async (href: Href) => {
+      await completeOnboarding();
+      router.replace(href);
+    },
+    [router],
+  );
+
+  const goPath = useCallback((id: IntentId) => {
+    setIntent(id);
+    setStep('path');
+  }, []);
+
+  const back = useCallback(() => {
+    setStep((s) =>
+      s === 'trust' ? 'promise' : s === 'intent' ? 'trust' : s === 'path' ? 'intent' : 'promise',
+    );
+  }, []);
+
+  const progressIndex = step === 'path' ? 2 : LINEAR.indexOf(step);
+  const enterStyle = {
+    opacity: enter,
+    transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
   };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <Image source={GLOW} style={styles.glow} contentFit="contain" pointerEvents="none" />
-
-      <View style={styles.topBar}>
-        <Pressable onPress={() => void finish()} hitSlop={12}>
-          <Text style={styles.skip}>{isLast ? '' : t('Onboarding.skip')}</Text>
-        </Pressable>
-      </View>
-
-      <FlatList
-        ref={listRef}
-        data={SLIDES}
-        keyExtractor={(s) => s.key}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        scrollEventThrottle={16}
-        getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
-          useNativeDriver: false,
-        })}
-        onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
-        renderItem={({ item }) => (
-          <View style={[styles.slide, { width }]}>
-            <View style={styles.art}>
-              {item.kind === 'hero' ? (
-                <Image source={item.image as number} style={styles.hero} contentFit="contain" />
-              ) : (
-                <View style={styles.artWrap}>
-                  <Image
-                    source={item.image as number}
-                    style={styles.artImage}
-                    contentFit="contain"
-                  />
-                  {item.kind === 'score' && (
-                    <View style={styles.scoreOverlay} pointerEvents="none">
-                      <Text style={styles.scoreNum}>86</Text>
-                      <Text style={styles.scoreLabel}>{t('Onboarding.scoreLabel')}</Text>
-                    </View>
-                  )}
-                </View>
-              )}
-            </View>
-
-            <View style={styles.copy}>
-              {!!item.eyebrow && <Text style={styles.eyebrow}>{item.eyebrow}</Text>}
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.body}>{item.body}</Text>
-              {item.kind === 'score' && (
-                <View style={styles.chip}>
-                  <View style={styles.chipDot} />
-                  <Text style={styles.chipText}>{t('Common.provisionalBadge')}</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        )}
+      <Image
+        source={GLOW}
+        style={[styles.glow, { width: width * 1.3 }]}
+        contentFit="contain"
+        pointerEvents="none"
       />
 
-      <View style={styles.footer}>
-        <View style={styles.dots}>
-          {SLIDES.map((s, i) => {
-            const inputRange = [(i - 1) * width, i * width, (i + 1) * width];
-            const dotWidth = scrollX.interpolate({
-              inputRange,
-              outputRange: [7, 22, 7],
-              extrapolate: 'clamp',
-            });
-            const opacity = scrollX.interpolate({
-              inputRange,
-              outputRange: [0.3, 1, 0.3],
-              extrapolate: 'clamp',
-            });
-            return <Animated.View key={s.key} style={[styles.dot, { width: dotWidth, opacity }]} />;
-          })}
+      {/* header: back (once past step 1) · progress · skip */}
+      <View style={styles.header}>
+        <View style={styles.headerSide}>
+          {step !== 'promise' && (
+            <Pressable onPress={back} hitSlop={12}>
+              <Text style={styles.headerNav}>‹</Text>
+            </Pressable>
+          )}
         </View>
-
-        <Pressable onPress={next} style={({ pressed }) => [pressed && styles.ctaPressed]}>
-          <ImageBackground
-            source={CTA}
-            style={styles.cta}
-            imageStyle={styles.ctaImage}
-            resizeMode="cover"
-          >
-            <Text style={styles.ctaText}>
-              {isLast ? t('Onboarding.getStarted') : t('Onboarding.continue')}
-            </Text>
-          </ImageBackground>
-        </Pressable>
+        <View style={styles.progress}>
+          {LINEAR.map((s, i) => (
+            <View
+              key={s}
+              style={[styles.progressSeg, i <= progressIndex && styles.progressSegOn]}
+            />
+          ))}
+        </View>
+        <View style={[styles.headerSide, { alignItems: 'flex-end' }]}>
+          {step !== 'path' && (
+            <Pressable onPress={() => void finish('/')} hitSlop={12}>
+              <Text style={styles.skip}>{t('Onboarding.skip')}</Text>
+            </Pressable>
+          )}
+        </View>
       </View>
+
+      <Animated.View key={step} style={[styles.stepWrap, enterStyle]}>
+        {step === 'promise' && (
+          <PromiseStep
+            onPrimary={() => setStep('trust')}
+            onSecondary={() => void finish('/login')}
+          />
+        )}
+        {step === 'trust' && <Trust onContinue={() => setStep('intent')} />}
+        {step === 'intent' && <Intent onPick={goPath} onSkip={() => void finish('/')} />}
+        {step === 'path' && (
+          <Path intent={intent} onCta={() => void finish(routeForIntent(intent) as Href)} />
+        )}
+      </Animated.View>
     </SafeAreaView>
   );
 }
 
+/* ------------------------------ atoms ------------------------------ */
+
+function Eyebrow({ children, color = COLORS.cyan }: { children: ReactNode; color?: string }) {
+  return <Text style={[styles.eyebrow, { color }]}>{children}</Text>;
+}
+
+function PrimaryButton({
+  label,
+  onPress,
+  color = COLORS.cyan,
+}: {
+  label: string;
+  onPress: () => void;
+  color?: string;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.cta, { backgroundColor: color }, pressed && styles.pressed]}
+    >
+      <Text style={styles.ctaText}>{label}</Text>
+    </Pressable>
+  );
+}
+
+/* ---------------------------- 1 · Promise -------------------------- */
+
+function PromiseStep({
+  onPrimary,
+  onSecondary,
+}: {
+  onPrimary: () => void;
+  onSecondary: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <View style={styles.stepFill}>
+      <View style={styles.promiseCopy}>
+        <Eyebrow>{t('Onboarding.promiseEyebrow')}</Eyebrow>
+        <Text style={styles.h1}>{t('Onboarding.promiseTitle')}</Text>
+        <Text style={styles.body}>{t('Onboarding.promiseBody')}</Text>
+      </View>
+
+      <View style={styles.fingerprint}>
+        <View style={styles.fingerprintWave}>
+          <Waveform height={116} />
+        </View>
+        <ScoreRings size={150} score={DEMO_OVERALL} label={t('Onboarding.verifying')} />
+      </View>
+
+      <View style={styles.footer}>
+        <PrimaryButton label={t('Onboarding.promisePrimary')} onPress={onPrimary} />
+        <Pressable onPress={onSecondary} hitSlop={8} style={styles.textBtn}>
+          <Text style={styles.textBtnLabel}>{t('Onboarding.promiseSecondary')}</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+/* ----------------------------- 2 · Trust --------------------------- */
+
+type ChainStep = { key: string; n: string; color: string; badge?: string; line: boolean };
+
+function Trust({ onContinue }: { onContinue: () => void }) {
+  const { t } = useTranslation();
+  const chain: ChainStep[] = [
+    { key: 'chain1', n: '01', color: COLORS.cyan, line: true },
+    { key: 'chain2', n: '02', color: COLORS.cyan, line: true },
+    {
+      key: 'chain3',
+      n: '03',
+      color: COLORS.amber,
+      badge: t('Onboarding.badgeProvisional'),
+      line: true,
+    },
+    {
+      key: 'chain4',
+      n: '04',
+      color: COLORS.green,
+      badge: t('Onboarding.badgeVerified'),
+      line: false,
+    },
+  ];
+  return (
+    <View style={styles.stepFill}>
+      <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
+        <Eyebrow>{t('Onboarding.trustEyebrow')}</Eyebrow>
+        <Text style={styles.h2}>{t('Onboarding.trustTitle')}</Text>
+        <Text style={styles.body}>{t('Onboarding.trustBody')}</Text>
+
+        <View style={styles.chain}>
+          {chain.map((s) => (
+            <View key={s.key} style={styles.chainRow}>
+              <View style={styles.chainRail}>
+                <View style={[styles.chainNode, { borderColor: s.color }]}>
+                  <Text style={[styles.chainNum, { color: s.color }]}>{s.n}</Text>
+                </View>
+                {s.line && (
+                  <View style={[styles.chainLine, { backgroundColor: alpha(s.color, 0.5) }]} />
+                )}
+              </View>
+              <View style={styles.chainText}>
+                <Text style={styles.chainTitle}>{t(`Onboarding.${s.key}Title`)}</Text>
+                <Text style={styles.chainSub}>{t(`Onboarding.${s.key}Sub`)}</Text>
+                {s.badge && (
+                  <View style={[styles.badge, { borderColor: s.color }]}>
+                    <Text style={[styles.badgeText, { color: s.color }]}>{s.badge}</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+      <View style={styles.footer}>
+        <PrimaryButton label={t('Onboarding.trustContinue')} onPress={onContinue} />
+      </View>
+    </View>
+  );
+}
+
+/* ----------------------------- 3 · Intent -------------------------- */
+
+type IntentCard = { id: IntentId; glyph: string; accent: string };
+
+function Intent({ onPick, onSkip }: { onPick: (id: IntentId) => void; onSkip: () => void }) {
+  const { t } = useTranslation();
+  const cards: IntentCard[] = [
+    { id: 'singer', glyph: '♪', accent: COLORS.cyan },
+    { id: 'juror', glyph: 'VS', accent: COLORS.rose },
+    { id: 'explorer', glyph: '≡', accent: COLORS.muted },
+  ];
+  return (
+    <View style={styles.stepFill}>
+      <View style={styles.intentHead}>
+        <Eyebrow>{t('Onboarding.intentEyebrow')}</Eyebrow>
+        <Text style={styles.h2}>{t('Onboarding.intentTitle')}</Text>
+        <Text style={styles.body}>{t('Onboarding.intentBody')}</Text>
+      </View>
+
+      <View style={styles.intentList}>
+        {cards.map((c) => (
+          <Pressable
+            key={c.id}
+            onPress={() => onPick(c.id)}
+            style={({ pressed }) => [
+              styles.intentCard,
+              { borderColor: alpha(c.accent, 0.35), backgroundColor: alpha(c.accent, 0.06) },
+              pressed && styles.pressed,
+            ]}
+          >
+            <View style={[styles.intentGlyph, { borderColor: alpha(c.accent, 0.4) }]}>
+              <Text style={[styles.intentGlyphText, { color: c.accent }]}>{c.glyph}</Text>
+            </View>
+            <View style={styles.intentCardText}>
+              <Text style={styles.intentTitle}>{t(`Onboarding.${c.id}Title`)}</Text>
+              <Text style={styles.intentSub}>{t(`Onboarding.${c.id}Sub`)}</Text>
+            </View>
+            <Text style={[styles.intentArrow, { color: c.accent }]}>→</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <View style={styles.footer}>
+        <Pressable onPress={onSkip} hitSlop={8} style={styles.textBtn}>
+          <Text style={styles.textBtnLabel}>{t('Onboarding.intentSkip')}</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+/* ------------------------------ 4 · Path --------------------------- */
+
+const PATHS: Record<IntentId, { key: string; accent: string }> = {
+  singer: { key: 'Singer', accent: COLORS.cyan },
+  juror: { key: 'Juror', accent: COLORS.rose },
+  explorer: { key: 'Explorer', accent: COLORS.green },
+};
+
+function Path({ intent, onCta }: { intent: IntentId; onCta: () => void }) {
+  const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const { key, accent } = PATHS[intent];
+
+  const flow = useMemo(
+    () => [t(`Onboarding.flow${key}1`), t(`Onboarding.flow${key}2`), t(`Onboarding.flow${key}3`)],
+    [t, key],
+  );
+  const radarLabels = useMemo(() => CRITERIA.map((c) => t(`Onboarding.radar.${c}`)), [t]);
+  const radarSize = Math.min(width - 64, 296);
+
+  return (
+    <View style={styles.stepFill}>
+      <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
+        <Eyebrow color={accent}>{t(`Onboarding.path${key}Eyebrow`)}</Eyebrow>
+        <Text style={styles.h2}>{t(`Onboarding.path${key}Headline`)}</Text>
+        <Text style={styles.body}>{t(`Onboarding.path${key}Body`)}</Text>
+
+        {intent === 'singer' && (
+          <>
+            <View style={styles.urlPill}>
+              <Text style={styles.urlIcon}>🔗</Text>
+              <Text style={styles.urlText} numberOfLines={1}>
+                {t('Onboarding.urlPlaceholder')}
+              </Text>
+              <View style={[styles.urlGo, { backgroundColor: accent }]}>
+                <Text style={styles.urlGoText}>→</Text>
+              </View>
+            </View>
+            <View style={styles.visual}>
+              <RadarChart
+                size={radarSize}
+                scores={DEMO_SCORES_ORDERED}
+                labels={radarLabels}
+                overall={DEMO_OVERALL}
+              />
+            </View>
+          </>
+        )}
+        {intent === 'juror' && (
+          <View style={styles.visualCard}>
+            <VsWaves />
+          </View>
+        )}
+        {intent === 'explorer' && (
+          <View style={styles.visualCard}>
+            <Podium />
+          </View>
+        )}
+
+        <View style={styles.flowCard}>
+          <MiniFlow steps={flow} accent={accent} />
+        </View>
+      </ScrollView>
+
+      <View style={styles.footer}>
+        <PrimaryButton label={t(`Onboarding.path${key}Cta`)} onPress={onCta} color={accent} />
+        <Text style={styles.note}>{t(`Onboarding.path${key}Note`)}</Text>
+      </View>
+    </View>
+  );
+}
+
+/* ------------------------------ styles ----------------------------- */
+
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#070d18' },
-  glow: {
-    position: 'absolute',
-    top: -160,
-    alignSelf: 'center',
-    width: 560,
-    height: 560,
-    opacity: 0.9,
-  },
-  topBar: { height: 36, paddingHorizontal: 22, justifyContent: 'center', alignItems: 'flex-end' },
-  skip: { color: '#7c8ba1', fontSize: 15, fontWeight: '600' },
+  safe: { flex: 1, backgroundColor: COLORS.surface },
+  glow: { position: 'absolute', top: -140, alignSelf: 'center', height: 520, opacity: 0.8 },
 
-  slide: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28 },
-  art: { height: 300, alignItems: 'center', justifyContent: 'center' },
-  hero: { width: 300, height: 150 },
-  artWrap: { width: 240, height: 240, alignItems: 'center', justifyContent: 'center' },
-  artImage: { width: 240, height: 240 },
-  scoreOverlay: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
-  scoreNum: { fontSize: 64, fontWeight: '800', color: '#F8FAFC', letterSpacing: -1 },
-  scoreLabel: { marginTop: 2, fontSize: 11, fontWeight: '700', letterSpacing: 3, color: '#22D3EE' },
+  header: { height: 44, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20 },
+  headerSide: { width: 48, justifyContent: 'center' },
+  headerNav: { color: COLORS.muted, fontSize: 26, lineHeight: 26, fontFamily: FONTS.sans },
+  progress: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 6 },
+  progressSeg: { width: 26, height: 4, borderRadius: 2, backgroundColor: COLORS.borderDeep },
+  progressSegOn: { backgroundColor: COLORS.cyan },
+  skip: { color: COLORS.faint, fontSize: 15, fontFamily: FONTS.sansSemibold },
 
-  copy: { alignItems: 'center', marginTop: 28, maxWidth: 360 },
-  eyebrow: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 3,
-    color: '#22D3EE',
-    marginBottom: 12,
+  stepWrap: { flex: 1 },
+  stepFill: { flex: 1, paddingHorizontal: 28 },
+  scrollBody: { paddingTop: 8, paddingBottom: 16 },
+
+  eyebrow: { fontFamily: FONTS.mono, fontSize: 12, letterSpacing: 4, marginBottom: 14 },
+  h1: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 34,
+    lineHeight: 40,
+    color: COLORS.ink,
+    letterSpacing: -0.5,
   },
-  title: {
-    fontSize: 28,
+  h2: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 30,
     lineHeight: 36,
-    fontWeight: '800',
-    color: '#F4F8FC',
-    textAlign: 'center',
+    color: COLORS.ink,
+    letterSpacing: -0.5,
   },
   body: {
     marginTop: 14,
-    fontSize: 15,
-    lineHeight: 23,
-    color: '#9fb1c6',
-    textAlign: 'center',
+    fontFamily: FONTS.sans,
+    fontSize: 16,
+    lineHeight: 24,
+    color: COLORS.muted,
   },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    marginTop: 18,
-    paddingVertical: 7,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    backgroundColor: 'rgba(34,211,238,0.10)',
-    borderWidth: 1,
-    borderColor: 'rgba(34,211,238,0.30)',
-  },
-  chipDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#22D3EE' },
-  chipText: { color: '#7fe3f3', fontSize: 12, fontWeight: '600' },
 
-  footer: { paddingHorizontal: 28, paddingBottom: 8, gap: 22 },
-  dots: {
+  footer: { paddingTop: 16, paddingBottom: 6, gap: 6 },
+  cta: { height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  ctaText: { color: COLORS.onCyan, fontFamily: FONTS.sansBold, fontSize: 16, letterSpacing: 0.3 },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+  textBtn: { height: 48, alignItems: 'center', justifyContent: 'center' },
+  textBtnLabel: { color: COLORS.muted, fontFamily: FONTS.sansSemibold, fontSize: 15 },
+  note: { textAlign: 'center', fontFamily: FONTS.sans, fontSize: 13, color: COLORS.faint2 },
+
+  // promise
+  promiseCopy: { paddingTop: 10 },
+  fingerprint: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
-    height: 10,
+    justifyContent: 'space-between',
   },
-  dot: { height: 7, borderRadius: 4, backgroundColor: '#22D3EE' },
-  cta: { height: 56, alignItems: 'center', justifyContent: 'center' },
-  ctaImage: { borderRadius: 16 },
-  ctaPressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
-  ctaText: { color: '#04121f', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
+  fingerprintWave: { flex: 1, alignItems: 'flex-start', justifyContent: 'center' },
+
+  // trust — causal chain
+  chain: { marginTop: 26 },
+  chainRow: { flexDirection: 'row', gap: 16 },
+  chainRail: { width: 34, alignItems: 'center' },
+  chainNode: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chainNum: { fontFamily: FONTS.mono, fontSize: 13 },
+  chainLine: { width: 1, flex: 1, minHeight: 24 },
+  chainText: { flex: 1, paddingBottom: 22 },
+  chainTitle: { fontFamily: FONTS.sansSemibold, fontSize: 17, color: COLORS.ink, paddingTop: 5 },
+  chainSub: {
+    marginTop: 3,
+    fontFamily: FONTS.sans,
+    fontSize: 14,
+    lineHeight: 20,
+    color: COLORS.muted,
+  },
+  badge: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  badgeText: { fontFamily: FONTS.mono, fontSize: 11, letterSpacing: 2 },
+
+  // intent
+  intentHead: { paddingTop: 8 },
+  intentList: { flex: 1, justifyContent: 'center', gap: 14 },
+  intentCard: {
+    minHeight: 92,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    paddingHorizontal: 18,
+  },
+  intentGlyph: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1,
+    backgroundColor: COLORS.raised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  intentGlyphText: { fontFamily: FONTS.mono, fontSize: 16 },
+  intentCardText: { flex: 1 },
+  intentTitle: { fontFamily: FONTS.sansSemibold, fontSize: 17, color: COLORS.ink },
+  intentSub: {
+    marginTop: 3,
+    fontFamily: FONTS.sans,
+    fontSize: 13.5,
+    lineHeight: 19,
+    color: COLORS.muted,
+  },
+  intentArrow: { fontFamily: FONTS.mono, fontSize: 16 },
+
+  // path
+  urlPill: {
+    marginTop: 20,
+    height: 52,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.raisedFaint,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 6,
+    gap: 10,
+  },
+  urlIcon: { fontSize: 14 },
+  urlText: { flex: 1, fontFamily: FONTS.mono, fontSize: 13, color: COLORS.faint },
+  urlGo: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  urlGoText: { color: COLORS.onCyan, fontFamily: FONTS.sansBold, fontSize: 16 },
+  visual: { alignItems: 'center', justifyContent: 'center', marginTop: 12 },
+  visualCard: {
+    marginTop: 22,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.raisedFaint,
+    paddingVertical: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flowCard: {
+    marginTop: 22,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.raisedFaint,
+    paddingVertical: 22,
+    paddingHorizontal: 18,
+  },
 });
