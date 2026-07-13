@@ -1,0 +1,8 @@
+# Local artifacts that must never ship in a deploy upload. Vercel's per-file
+# limit is 100 MB — a stray APK/screenshot dump in tmp/ fails the whole deploy.
+tmp
+tmp_*.png
+*.apk
+coverage
+output
+supabase/.temp
