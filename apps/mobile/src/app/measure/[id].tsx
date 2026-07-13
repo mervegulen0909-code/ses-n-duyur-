@@ -1,4 +1,3 @@
-import { AudioStudioModule, useAudioRecorder } from '@siteed/audio-studio';
 import { File } from 'expo-file-system';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -9,6 +8,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCriterionLabels } from '@/lib/criteria-labels';
 import { uploadMeasurement } from '@/lib/measure-upload';
 import { useSession } from '@/lib/use-session';
+
+/**
+ * `@siteed/audio-studio` resolves its NATIVE module at import time and is not
+ * bundled into Expo Go — a static `import` would crash this route (and with it
+ * the whole router) at boot. Resolve once at module load; when unavailable the
+ * screen renders an honest "needs the full build" fallback instead.
+ */
+let AudioStudio: typeof import('@siteed/audio-studio') | null;
+try {
+  AudioStudio = require('@siteed/audio-studio') as typeof import('@siteed/audio-studio');
+} catch {
+  AudioStudio = null;
+}
 
 // ~2 minutes at the 16 kHz mono take format stays under the 4 MB upload cap.
 const MAX_RECORD_MS = 110_000;
@@ -31,20 +43,49 @@ function fmtClock(ms: number): string {
 type Phase = 'intro' | 'recording' | 'uploading' | 'done' | 'error';
 
 export default function MeasureScreen() {
+  // Constant for the app's lifetime, so the early return never reorders hooks.
+  if (!AudioStudio) return <MeasureUnavailable />;
+  return <MeasureScreenImpl audioStudio={AudioStudio} />;
+}
+
+/** Expo Go fallback: recording needs the dev/store build's native module. */
+function MeasureUnavailable() {
+  const router = useRouter();
+  const { t } = useTranslation();
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
+        <Text style={styles.backText}>{t('Common.back')}</Text>
+      </Pressable>
+      <View style={styles.content}>
+        <Text style={styles.title}>{t('Measure.title')}</Text>
+        <View style={styles.honestyCard}>
+          <Text style={styles.honestyBody}>{t('Measure.devBuildRequired')}</Text>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function MeasureScreenImpl({
+  audioStudio,
+}: {
+  audioStudio: typeof import('@siteed/audio-studio');
+}) {
   const router = useRouter();
   const { t } = useTranslation();
   const CRITERION_LABELS = useCriterionLabels();
   const { user } = useSession();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const { startRecording, stopRecording, isRecording, durationMs } = useAudioRecorder();
+  const { startRecording, stopRecording, isRecording, durationMs } = audioStudio.useAudioRecorder();
   const [phase, setPhase] = useState<Phase>('intro');
   const [message, setMessage] = useState('');
   const [breakdown, setBreakdown] = useState<Record<string, number> | null>(null);
 
   async function doStart() {
     setMessage('');
-    const permission = await AudioStudioModule.requestPermissionsAsync();
+    const permission = await audioStudio.AudioStudioModule.requestPermissionsAsync();
     if (!permission?.granted) {
       setPhase('error');
       setMessage(t('Measure.micPermissionError'));

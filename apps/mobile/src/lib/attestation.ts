@@ -1,4 +1,3 @@
-import * as AppIntegrity from '@expo/app-integrity';
 import * as Crypto from 'expo-crypto';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
@@ -9,6 +8,31 @@ import { supabase } from './supabase';
 const IOS_KEY_PREFIX = 'voxscore.app-attest-key.';
 let androidProvider: Promise<void> | null = null;
 let iosRegistration: Promise<string> | null = null;
+
+type AppIntegrityModule = typeof import('@expo/app-integrity');
+
+let appIntegrityModule: AppIntegrityModule | null | undefined;
+
+/**
+ * `@expo/app-integrity` resolves its NATIVE module at import time and is not
+ * bundled into Expo Go — a static `import` crashes every route that (indirectly)
+ * pulls in this file via api.ts. Resolve lazily: attestation only actually runs
+ * behind EXPO_PUBLIC_NATIVE_ATTESTATION_ENABLED in dev/store builds, so in Expo
+ * Go this simply throws at CALL time (inside api.ts's try/catch), not at boot.
+ */
+function getAppIntegrity(): AppIntegrityModule {
+  if (appIntegrityModule === undefined) {
+    try {
+      appIntegrityModule = require('@expo/app-integrity') as AppIntegrityModule;
+    } catch {
+      appIntegrityModule = null;
+    }
+  }
+  if (!appIntegrityModule) {
+    throw new Error('App attestation requires a development or store build');
+  }
+  return appIntegrityModule;
+}
 
 function bytesToHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer), (byte) => byte.toString(16).padStart(2, '0')).join('');
@@ -61,6 +85,7 @@ async function ensureIosKey(): Promise<string> {
   const storageKey = `${IOS_KEY_PREFIX}${session.user.id}`;
   const existing = await SecureStore.getItemAsync(storageKey);
   if (existing) return existing;
+  const AppIntegrity = getAppIntegrity();
   if (!AppIntegrity.isSupported) throw new Error('App Attest is not supported on this device');
 
   if (!iosRegistration) {
@@ -99,6 +124,7 @@ export async function getNativeIntegrityHeaders(
   const requestHash = await nativeRequestHash(method, path, rawBody);
 
   if (Platform.OS === 'android') {
+    const AppIntegrity = getAppIntegrity();
     const projectNumber = process.env.EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER;
     if (!projectNumber) throw new Error('Play Integrity project is not configured');
     androidProvider ??= AppIntegrity.prepareIntegrityTokenProviderAsync(projectNumber).catch(
@@ -124,6 +150,7 @@ export async function getNativeIntegrityHeaders(
   }
 
   if (Platform.OS === 'ios') {
+    const AppIntegrity = getAppIntegrity();
     const keyId = await ensureIosKey();
     const issued = await challenge('assertion');
     const clientData = JSON.stringify({ challenge: issued.challenge, requestHash });
