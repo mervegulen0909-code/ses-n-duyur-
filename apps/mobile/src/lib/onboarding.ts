@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * First-launch onboarding gate. Bump the version suffix to re-show onboarding
  * after a major redesign. Stored in AsyncStorage (non-sensitive flag).
  */
-const KEY = 'voxscore.onboarding.v1';
+const KEY = 'voxscore.onboarding.v2';
 
 export async function isOnboardingComplete(): Promise<boolean> {
   try {
