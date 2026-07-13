@@ -38,9 +38,7 @@ export async function MyRequestsList({ requests }: { requests: MyRequestRow[] })
 
   return (
     <section className="w-full max-w-xl">
-      <h2 className="mb-3 text-sm font-semibold text-neutral-300">
-        {t('Add.myRequestsHeading')}
-      </h2>
+      <h2 className="mb-3 text-sm font-semibold text-neutral-300">{t('Add.myRequestsHeading')}</h2>
       {requests.length === 0 ? (
         <p className="text-sm text-neutral-500">{t('Add.noRequests')}</p>
       ) : (
@@ -58,7 +56,9 @@ export async function MyRequestsList({ requests }: { requests: MyRequestRow[] })
                   {t(statusKey[r.status])}
                 </span>
               </div>
-              <div className="text-xs text-neutral-500">{t(`Category.${CATEGORY_KEY[r.category]}`)}</div>
+              <div className="text-xs text-neutral-500">
+                {t(`Category.${CATEGORY_KEY[r.category]}`)}
+              </div>
               {r.status === 'rejected' && r.rejection_reason && (
                 <p className="text-xs text-rose-400/80">
                   {t('Add.rejectionReasonPrefix', { reason: r.rejection_reason })}

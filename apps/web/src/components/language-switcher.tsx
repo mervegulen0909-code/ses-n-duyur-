@@ -16,7 +16,13 @@ export function LanguageSwitcher() {
   const [pending, startTransition] = useTransition();
 
   function onChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    document.cookie = `NEXT_LOCALE=${e.target.value}; path=/; max-age=31536000; samesite=lax`;
+    const nextLocale = e.target.value;
+    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
+    void fetch('/api/profile', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ locale: nextLocale }),
+    });
     startTransition(() => router.refresh());
   }
 

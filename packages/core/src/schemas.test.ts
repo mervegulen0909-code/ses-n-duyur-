@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addPerformanceSchema,
+  battlePredictSchema,
   battleVoteSchema,
   calibrateSchema,
   dmcaActionSchema,
@@ -105,6 +106,20 @@ describe('battleVoteSchema', () => {
       listenBId: UUID2,
     });
     expect(r.success).toBe(true);
+  });
+});
+
+describe('battlePredictSchema — a game commitment, NOT a vote (no listen ids)', () => {
+  it('accepts a battle + predicted winner pair', () => {
+    const r = battlePredictSchema.safeParse({ battleId: UUID, predictedWinnerId: UUID2 });
+    expect(r.success).toBe(true);
+  });
+  it('rejects a non-uuid predicted winner', () => {
+    const r = battlePredictSchema.safeParse({ battleId: UUID, predictedWinnerId: 'perf-a' });
+    expect(r.success).toBe(false);
+  });
+  it('rejects a missing battleId', () => {
+    expect(battlePredictSchema.safeParse({ predictedWinnerId: UUID2 }).success).toBe(false);
   });
 });
 

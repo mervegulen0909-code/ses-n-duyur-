@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const verify = vi.hoisted(() => vi.fn<(_: string | null) => Promise<boolean>>());
 const check = vi.hoisted(() => vi.fn<(_: string) => Promise<{ success: boolean }>>());
+const verifyNative = vi.hoisted(() => vi.fn());
 
 vi.mock('./adapters/botcheck', () => ({
   getBotCheck: () => ({ verify }),
@@ -10,16 +11,20 @@ vi.mock('./adapters/botcheck', () => ({
 vi.mock('./adapters/ratelimit', () => ({
   getRateLimiter: () => ({ check }),
 }));
+vi.mock('./native-attestation', () => ({ verifyNativeRequest: verifyNative }));
 
 import { analyticsRateLimit, botGuard, isNativeClientRequest, rateLimit } from './guard';
 
 describe('guard helpers', () => {
   beforeEach(() => {
     verify.mockResolvedValue(true);
+    verifyNative.mockResolvedValue(true);
     check.mockResolvedValue({ success: true });
+    vi.stubEnv('NATIVE_ATTESTATION_REQUIRED', 'false');
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     vi.clearAllMocks();
   });
 
@@ -58,6 +63,22 @@ describe('guard helpers', () => {
 
     expect(blocked).toBeNull();
     expect(verify).not.toHaveBeenCalled();
+  });
+
+  it('requires a verified native assertion when attestation is enabled', async () => {
+    vi.stubEnv('NATIVE_ATTESTATION_REQUIRED', 'true');
+    verifyNative.mockResolvedValue(false);
+    const request = new Request('http://localhost', {
+      headers: {
+        authorization: 'Bearer token-123',
+        'x-voxscore-client': 'mobile-app',
+      },
+    });
+
+    expect((await botGuard(request, 'user-1', '{}'))?.status).toBe(403);
+    verifyNative.mockResolvedValue(true);
+    expect(await botGuard(request, 'user-1', '{}')).toBeNull();
+    expect(verifyNative).toHaveBeenCalledWith(request, 'user-1', '{}');
   });
 
   it('still enforces Turnstile for browser-style requests', async () => {

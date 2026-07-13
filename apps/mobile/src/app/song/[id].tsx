@@ -111,9 +111,7 @@ export default function SongScreen() {
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
-      {state === 'error' && (
-        <Text style={styles.error}>{t('Common.loadError', { error })}</Text>
-      )}
+      {state === 'error' && <Text style={styles.error}>{t('Common.loadError', { error })}</Text>}
       {state === 'ready' && (
         <FlatList
           data={items}

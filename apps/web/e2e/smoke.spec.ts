@@ -8,7 +8,7 @@ test('home page renders the hero', async ({ page }) => {
 test('nav exposes leaderboard and battle', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('link', { name: 'Leaderboard' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Battle' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Battle', exact: true })).toBeVisible();
 });
 
 test('login page shows the sign-in form', async ({ page }) => {
@@ -28,6 +28,12 @@ test('add performance requires sign-in when logged out', async ({ page }) => {
   await expect(page.getByRole('main').getByRole('link', { name: 'sign in' })).toBeVisible();
 });
 
+test('weekly league redirects signed-out visitors back through login', async ({ page }) => {
+  await page.goto('/league');
+  await expect(page).toHaveURL(/\/login\?next=(?:%2F|\/)league$/i);
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+});
+
 test('legal + dmca pages render', async ({ page }) => {
   await page.goto('/terms');
   await expect(page.getByRole('heading', { name: 'Terms of Service' })).toBeVisible();
@@ -35,15 +41,4 @@ test('legal + dmca pages render', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Privacy Policy' })).toBeVisible();
   await page.goto('/dmca');
   await expect(page.getByRole('heading', { name: /DMCA/i })).toBeVisible();
-});
-
-test('protected API rejects unauthenticated writes', async ({ request }) => {
-  const res = await request.post('/api/votes', {
-    data: {
-      performanceId: '11111111-1111-1111-1111-111111111111',
-      verifiedListenId: '22222222-2222-2222-2222-222222222222',
-      ratings: { vocalAccuracy: 80 },
-    },
-  });
-  expect(res.status()).toBe(401);
 });

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { isLocale, LOCALE_NAMES, LOCALES, setLocale, type Locale } from '@/lib/i18n';
+import { supabase } from '@/lib/supabase';
 
 /**
  * Language picker — mirrors the web's cookie-based switcher. Persists the
@@ -18,6 +19,10 @@ export function LanguageSwitcher() {
   async function choose(locale: Locale) {
     setOpen(false);
     const needsRestart = await setLocale(locale);
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user.id) {
+      await supabase.from('profiles').update({ locale }).eq('id', data.session.user.id);
+    }
     if (needsRestart) {
       Alert.alert(t('Language.restartTitle'), t('Language.restartBody'), [
         { text: t('Language.ok') },
@@ -61,7 +66,12 @@ const styles = StyleSheet.create({
   },
   triggerText: { color: '#d4d4d8', fontSize: 13, fontWeight: '600' },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#171717', borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 8 },
+  sheet: {
+    backgroundColor: '#171717',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 8,
+  },
   row: { paddingVertical: 14, paddingHorizontal: 16, borderRadius: 10 },
   rowPressed: { backgroundColor: '#262626' },
   rowText: { color: '#d4d4d8', fontSize: 16 },

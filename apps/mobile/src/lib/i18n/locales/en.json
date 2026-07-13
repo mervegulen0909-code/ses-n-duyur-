@@ -9,6 +9,7 @@
     "untitled": "Untitled",
     "loadError": "Could not load: {{error}}"
   },
+  "Security": { "title": "Security check", "cancel": "Cancel" },
   "Leaderboard": {
     "addLink": "+ Add",
     "profile": "Profile",
@@ -79,6 +80,47 @@
     "sub": "Ranked by Elo · head-to-head battles",
     "empty": "No battles yet. Open the Battle arena to start one.",
     "record": "{{wins}}-{{losses}} · {{rate}}% wins"
+  },
+  "League": {
+    "title": "Weekly League",
+    "short": "Weekly",
+    "weekly": "THIS WEEK",
+    "signIn": "Sign in to see your weekly cohort.",
+    "listener": "listener",
+    "tier0": "Bronze",
+    "tier1": "Silver",
+    "tier2": "Gold",
+    "tier3": "Diamond",
+    "empty": "You will enter a cohort next Monday. Verified activity earns points now.",
+    "error": "The weekly league could not be loaded.",
+    "points": "{{count}} pts"
+  },
+  "Wrapped": {
+    "title": "Your season on VoxScore",
+    "short": "Wrapped",
+    "wins": "Battles won",
+    "losses": "Battles lost",
+    "votes": "Verified votes",
+    "listens": "Verified listens",
+    "predictions": "Prediction points"
+  },
+  "Leagues": {
+    "title": "Your private leagues",
+    "short": "Crews",
+    "error": "The league could not be updated.",
+    "invalidCode": "Enter a valid 8-character code.",
+    "empty": "No private leagues yet.",
+    "owner": "Owner",
+    "member": "Member",
+    "create": "Create a league",
+    "name": "League name",
+    "join": "Join with code",
+    "code": "8-character code",
+    "currentSeason": "CURRENT SEASON",
+    "inviteCrew": "Invite crew",
+    "invite": "Join my VoxScore league {{name}}: {{url}}",
+    "wins": "{{count}} wins",
+    "points": "{{count}} prediction pts"
   },
   "Measure": {
     "title": "Measure my recording",
@@ -218,6 +260,7 @@
     "measuredChip": "Measured",
     "measureBtn": "Measure my recording",
     "remeasureBtn": "Re-measure my recording",
+    "shareResult": "Share result",
     "comments": "Comments",
     "commentPlaceholder": "Add a comment…",
     "post": "Post",

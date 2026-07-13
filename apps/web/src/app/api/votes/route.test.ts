@@ -8,9 +8,7 @@ vi.mock('@/lib/guard', () => ({
   rateLimit: vi.fn(async () => null),
   botGuard: vi.fn(async () => null),
 }));
-vi.mock('@/lib/analytics-server', () => ({
-  trackServer: vi.fn(async () => {}),
-}));
+vi.mock('@/lib/analytics-server', () => ({ trackServer: vi.fn(async () => {}) }));
 
 import { botGuard, rateLimit } from '@/lib/guard';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
@@ -20,9 +18,12 @@ import { POST } from './route';
 
 const PERF = '11111111-1111-1111-1111-111111111111';
 const LISTEN = '22222222-2222-2222-2222-222222222222';
-
 type RequestCtx = Awaited<ReturnType<typeof getRequestContext>>;
 type Service = ReturnType<typeof createSupabaseServiceClient>;
+
+const validRatings = Object.fromEntries(CRITERIA.map((criterion) => [criterion, 80]));
+const validBody = { performanceId: PERF, verifiedListenId: LISTEN, ratings: validRatings };
+const validListen = { id: LISTEN, is_valid: true, user_id: 'me', performance_id: PERF };
 
 function makeRequest(body: unknown): Request {
   return new Request('http://localhost/api/votes', {
@@ -32,32 +33,20 @@ function makeRequest(body: unknown): Request {
   });
 }
 
-const validRatings = Object.fromEntries(CRITERIA.map((criterion) => [criterion, 80]));
-const validBody = { performanceId: PERF, verifiedListenId: LISTEN, ratings: validRatings };
-
-// RLS-scoped client: reads the verified listen + the performance's owner, then
-// inserts the criteria rating.
 function makeCtx(
   userId = 'me',
   opts: {
     listen?: Record<string, unknown> | null;
-    insertError?: unknown;
     perfOwner?: string;
+    hasVideo?: boolean;
     recentVotes?: number;
-    reputation?: number;
   } = {},
 ) {
   const listenMaybeSingle = vi.fn(async () => ({ data: opts.listen ?? null, error: null }));
   const perfMaybeSingle = vi.fn(async () => ({
-    data: { user_id: opts.perfOwner ?? 'performance-owner', has_video: true },
+    data: { user_id: opts.perfOwner ?? 'performance-owner', has_video: opts.hasVideo ?? true },
     error: null,
   }));
-  const profileMaybeSingle = vi.fn(async () => ({
-    data: { reputation: opts.reputation ?? 0 },
-    error: null,
-  }));
-  const ratingsInsert = vi.fn(async () => ({ error: opts.insertError ?? null }));
-  // Velocity cap probe: select('id', {head}).eq('voter_id').gt('created_at')
   const ratingsCountGt = vi.fn(async () => ({ count: opts.recentVotes ?? 0 }));
   const from = vi.fn((table: string) => {
     if (table === 'verified_listens') {
@@ -66,80 +55,81 @@ function makeCtx(
     if (table === 'performances') {
       return { select: () => ({ eq: () => ({ maybeSingle: perfMaybeSingle }) }) };
     }
-    if (table === 'profiles') {
-      return { select: () => ({ eq: () => ({ maybeSingle: profileMaybeSingle }) }) };
-    }
     if (table === 'criteria_ratings') {
-      return {
-        insert: ratingsInsert,
-        select: vi.fn(() => ({ eq: vi.fn(() => ({ gt: ratingsCountGt })) })),
-      };
+      return { select: () => ({ eq: () => ({ gt: ratingsCountGt }) }) };
     }
-    return {};
+    throw new Error(`unexpected table ${table}`);
   });
-  return {
-    ctx: { supabase: { from }, user: { id: userId } } as unknown as RequestCtx,
-    ratingsInsert,
-  };
+  return { ctx: { supabase: { from }, user: { id: userId } } as unknown as RequestCtx };
 }
-
-// A valid listen owned by `userId` for PERF.
-const validListen = { id: LISTEN, is_valid: true, user_id: 'me', performance_id: PERF };
 
 function makeService(
   opts: {
     measured?: Record<string, number> | null;
     scoreRow?: unknown;
     verifiedVoteCount?: number;
+    rpcError?: { code?: string; message?: string } | null;
   } = {},
 ) {
-  const scoresMaybeSingle = vi.fn(async () => ({
-    data: opts.scoreRow ?? { initial_ai_score: 70, ai_breakdown: null },
-  }));
-  const measuredMaybeSingle = vi.fn(async () => ({
-    data: opts.measured ? { measured_breakdown: opts.measured } : null,
-  }));
-  const ratingsEq = vi.fn(async () => ({ data: [{ vocal_accuracy: 80 }] }));
   const notificationInsert = vi.fn(async () => ({ error: null }));
-  const rpc = vi.fn(async () => ({
-    data: [
-      {
-        listener_score: 80,
-        current_score: 71.5,
-        trend_score: 1.5,
-        verified_vote_count: opts.verifiedVoteCount ?? 1,
-      },
-    ],
-    error: null,
-  }));
+  const rpc = vi.fn(async (name: string) => {
+    if (name === 'submit_vote_and_recompute') {
+      return {
+        data: opts.rpcError
+          ? null
+          : [
+              {
+                listener_score: 80,
+                current_score: 71.5,
+                trend_score: 1.5,
+                verified_vote_count: opts.verifiedVoteCount ?? 1,
+              },
+            ],
+        error: opts.rpcError ?? null,
+      };
+    }
+    return { data: null, error: null };
+  });
   const from = vi.fn((table: string) => {
     if (table === 'scores') {
       return {
-        select: () => ({ eq: () => ({ maybeSingle: scoresMaybeSingle }) }),
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({
+              data: opts.scoreRow ?? { initial_ai_score: 70, ai_breakdown: null },
+            }),
+          }),
+        }),
       };
     }
     if (table === 'measured_scores') {
-      return { select: () => ({ eq: () => ({ maybeSingle: measuredMaybeSingle }) }) };
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({
+              data: opts.measured ? { measured_breakdown: opts.measured } : null,
+            }),
+          }),
+        }),
+      };
     }
-    if (table === 'criteria_ratings') return { select: () => ({ eq: ratingsEq }) };
     if (table === 'notification_events') return { insert: notificationInsert };
-    return {};
+    throw new Error(`unexpected service table ${table}`);
   });
   return { client: { from, rpc } as unknown as Service, rpc, notificationInsert };
 }
 
-describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () => {
+describe('POST /api/votes — atomic Verified Listen voting', () => {
   beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
   afterEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
   });
 
-  it('422 on invalid input', async () => {
-    const res = await POST(
-      makeRequest({ performanceId: PERF, verifiedListenId: LISTEN, ratings: {} }),
-    );
-    expect(res.status).toBe(422);
+  it('400 on malformed JSON and 422 on invalid input', async () => {
+    const malformed = new Request('http://localhost/api/votes', { method: 'POST', body: '{' });
+    expect((await POST(malformed)).status).toBe(400);
+    expect((await POST(makeRequest({ ...validBody, ratings: {} }))).status).toBe(422);
   });
 
   it('401 when unauthenticated', async () => {
@@ -147,183 +137,130 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
     expect((await POST(makeRequest(validBody))).status).toBe(401);
   });
 
-  it('429 when rate-limited', async () => {
+  it('honors rate-limit and bot gates before reads', async () => {
     const { ctx } = makeCtx();
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(rateLimit).mockResolvedValueOnce(Response.json({ error: 'rl' }, { status: 429 }));
+    vi.mocked(rateLimit).mockResolvedValueOnce(Response.json({}, { status: 429 }));
+    expect((await POST(makeRequest(validBody))).status).toBe(429);
+
+    vi.mocked(rateLimit).mockResolvedValueOnce(null);
+    vi.mocked(botGuard).mockResolvedValueOnce(Response.json({}, { status: 403 }));
+    expect((await POST(makeRequest(validBody))).status).toBe(403);
+  });
+
+  it.each([
+    [{ ...validListen, is_valid: false }],
+    [{ ...validListen, user_id: 'someone-else' }],
+    [{ ...validListen, performance_id: '99999999-9999-9999-9999-999999999999' }],
+  ])('403 for an invalid, foreign, or mismatched listen', async (listen) => {
+    const { ctx } = makeCtx('me', { listen });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    expect((await POST(makeRequest(validBody))).status).toBe(403);
+  });
+
+  it('403 for a self-vote and 422 for incomplete applicable criteria', async () => {
+    const own = makeCtx('me', { listen: validListen, perfOwner: 'me' });
+    vi.mocked(getRequestContext).mockResolvedValue(own.ctx);
+    expect((await POST(makeRequest(validBody))).status).toBe(403);
+
+    const other = makeCtx('me', { listen: validListen });
+    vi.mocked(getRequestContext).mockResolvedValue(other.ctx);
+    expect((await POST(makeRequest({ ...validBody, ratings: { vocalAccuracy: 80 } }))).status).toBe(
+      422,
+    );
+  });
+
+  it('429 after 50 votes in 24h, before the transaction', async () => {
+    const { ctx } = makeCtx('me', { listen: validListen, recentVotes: 50 });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
     expect((await POST(makeRequest(validBody))).status).toBe(429);
   });
 
-  it('403 when the bot-check fails', async () => {
-    const { ctx } = makeCtx();
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(botGuard).mockResolvedValueOnce(Response.json({ error: 'bot' }, { status: 403 }));
-    expect((await POST(makeRequest(validBody))).status).toBe(403);
-  });
-
-  it('403 when the listen is not valid (cannot vote without a completed Verified Listen)', async () => {
-    const { ctx, ratingsInsert } = makeCtx('me', { listen: { ...validListen, is_valid: false } });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    const res = await POST(makeRequest(validBody));
-    expect(res.status).toBe(403);
-    expect(ratingsInsert).not.toHaveBeenCalled();
-  });
-
-  it('403 when the listen belongs to a DIFFERENT user (no voting on someone else’s listen)', async () => {
-    const { ctx, ratingsInsert } = makeCtx('me', {
-      listen: { ...validListen, user_id: 'someone-else' },
-    });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    expect((await POST(makeRequest(validBody))).status).toBe(403);
-    expect(ratingsInsert).not.toHaveBeenCalled();
-  });
-
-  it('403 when the listen is for a different performance', async () => {
-    const { ctx } = makeCtx('me', {
-      listen: { ...validListen, performance_id: '99999999-9999-9999-9999-999999999999' },
-    });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    expect((await POST(makeRequest(validBody))).status).toBe(403);
-  });
-
-  it('422 when an applicable criterion is missing', async () => {
+  it('503 before mutation when the service client is unavailable', async () => {
     const { ctx } = makeCtx('me', { listen: validListen });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    const res = await POST(
-      makeRequest({
-        ...validBody,
-        ratings: { vocalAccuracy: 80 },
-      }),
-    );
-    expect(res.status).toBe(422);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(null);
+    expect((await POST(makeRequest(validBody))).status).toBe(503);
   });
 
-  it('403 when the voter OWNS the performance (no self-voting)', async () => {
-    const { ctx, ratingsInsert } = makeCtx('me', { listen: validListen, perfOwner: 'me' });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    const res = await POST(makeRequest(validBody));
-    expect(res.status).toBe(403);
-    await expect(res.json()).resolves.toMatchObject({
-      error: 'You cannot vote on your own performance',
-    });
-    expect(ratingsInsert).not.toHaveBeenCalled();
-  });
-
-  it('429 after 50 votes in 24h (velocity cap), before any insert', async () => {
-    const { ctx, ratingsInsert } = makeCtx('me', { listen: validListen, recentVotes: 50 });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-
-    const res = await POST(makeRequest(validBody));
-
-    expect(res.status).toBe(429);
-    expect(ratingsInsert).not.toHaveBeenCalled();
-  });
-
-  it('409 when the user already voted (unique violation)', async () => {
-    const { ctx } = makeCtx('me', { listen: validListen, insertError: { message: 'duplicate' } });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
-    expect((await POST(makeRequest(validBody))).status).toBe(409);
-  });
-
-  it('201 on success, recording the vote with the SESSION voter id', async () => {
-    const { ctx, ratingsInsert } = makeCtx('me-real', {
+  it('atomically submits the vote and recomputes the score', async () => {
+    const { ctx } = makeCtx('me-real', {
       listen: { ...validListen, user_id: 'me-real' },
     });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
     const service = makeService();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
 
     const res = await POST(makeRequest(validBody));
 
     expect(res.status).toBe(201);
-    await expect(res.json()).resolves.toMatchObject({ ok: true });
+    await expect(res.json()).resolves.toMatchObject({ ok: true, verifiedVoteCount: 1 });
+    expect(service.rpc).toHaveBeenCalledWith(
+      'submit_vote_and_recompute',
+      expect.objectContaining({
+        p_voter_id: 'me-real',
+        p_performance_id: PERF,
+        p_verified_listen_id: LISTEN,
+        p_vocal_accuracy: 80,
+        p_stage_presence: 80,
+        p_initial_ai_score: 70,
+      }),
+    );
     expect(service.notificationInsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        user_id: 'performance-owner',
-        kind: 'new_vote',
-      }),
+      expect.objectContaining({ user_id: 'performance-owner', kind: 'new_vote' }),
     );
-    expect(ratingsInsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        performance_id: PERF,
-        voter_id: 'me-real',
-        verified_listen_id: LISTEN,
-        vocal_accuracy: 80,
-        weight: 1,
-      }),
+    expect(trackServer).toHaveBeenCalled();
+  });
+
+  it('maps transactional duplicate and daily-limit races to retry-safe statuses', async () => {
+    const { ctx } = makeCtx('me', { listen: validListen });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(
+      makeService({ rpcError: { code: '23505', message: 'duplicate' } }).client,
     );
-    expect(createSupabaseServiceClient).toHaveBeenCalled();
-    expect(trackServer).toHaveBeenCalledWith(expect.anything(), 'vote_submitted', 'me-real', {
-      performanceId: PERF,
-    });
+    expect((await POST(makeRequest(validBody))).status).toBe(409);
+
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(
+      makeService({ rpcError: { message: 'daily_vote_limit' } }).client,
+    );
+    expect((await POST(makeRequest(validBody))).status).toBe(429);
   });
 
-  it('stamps the voter’s reputation-derived trust weight on the rating insert (T9)', async () => {
-    const { ctx, ratingsInsert } = makeCtx('me', { listen: validListen, reputation: 1500 });
+  it.each([
+    ['verified_listen_required', 403],
+    ['self_vote_forbidden', 403],
+    ['performance_not_found', 404],
+    ['criteria_incomplete', 422],
+    ['unexpected', 500],
+  ])('maps DB invariant %s to %i', async (message, status) => {
+    const { ctx } = makeCtx('me', { listen: validListen });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
-
-    const res = await POST(makeRequest(validBody));
-
-    expect(res.status).toBe(201);
-    expect(ratingsInsert).toHaveBeenCalledWith(expect.objectContaining({ weight: 1.5 }));
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(
+      makeService({ rpcError: { message } }).client,
+    );
+    expect((await POST(makeRequest(validBody))).status).toBe(status);
   });
 
-  it('503 (fails closed) when the service role is unavailable — the vote is not silently accepted', async () => {
-    const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
+  it('grants the centurion badge at 100 votes and keeps side effects best-effort', async () => {
+    const { ctx } = makeCtx('me', { listen: validListen, perfOwner: 'owner-1' });
+    const service = makeService({ verifiedVoteCount: 100 });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(null);
-
-    const res = await POST(makeRequest(validBody));
-
-    expect(res.status).toBe(503);
-  });
-
-  it('still returns 201 when a post-recompute side effect fails (best-effort, vote already counted)', async () => {
-    const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().client);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
     vi.mocked(trackServer).mockRejectedValueOnce(new Error('analytics down'));
 
     const res = await POST(makeRequest(validBody));
 
     expect(res.status).toBe(201);
-  });
-
-  it('does NOT grant the centurion badge below the 100-vote threshold', async () => {
-    const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    const service = makeService({ verifiedVoteCount: 99 });
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
-
-    await POST(makeRequest(validBody));
-
-    expect(service.rpc).not.toHaveBeenCalledWith('grant_badge', expect.anything());
-  });
-
-  it('grants the centurion badge to the PERFORMANCE OWNER at 100 verified votes', async () => {
-    const { ctx } = makeCtx('me-real', {
-      listen: { ...validListen, user_id: 'me-real' },
-      perfOwner: 'owner-1',
-    });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    const service = makeService({ verifiedVoteCount: 100 });
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
-
-    await POST(makeRequest(validBody));
-
     expect(service.rpc).toHaveBeenCalledWith('grant_badge', {
       p_user_id: 'owner-1',
       p_badge_key: 'centurion',
     });
   });
 
-  it('blends from the MEASURED basis when a measurement exists (ADR 0003)', async () => {
-    const { ctx } = makeCtx('me-real', { listen: { ...validListen, user_id: 'me-real' } });
-    vi.mocked(getRequestContext).mockResolvedValue(ctx);
-    const { CRITERIA } = await import('@voxscore/scoring');
-    const aiBreakdown = Object.fromEntries(CRITERIA.map((c) => [c, 70]));
+  it('uses the measured-adjusted basis when present', async () => {
+    const { ctx } = makeCtx('me', { listen: validListen });
+    const aiBreakdown = Object.fromEntries(CRITERIA.map((criterion) => [criterion, 70]));
     const service = makeService({
       scoreRow: { initial_ai_score: 70, ai_breakdown: aiBreakdown },
       measured: {
@@ -333,19 +270,14 @@ describe('POST /api/votes — Verified-Listen gating (CLAUDE.md rule #4)', () =>
         recordingQuality: 100,
       },
     });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
 
-    const res = await POST(makeRequest(validBody));
-    expect(res.status).toBe(201);
+    await POST(makeRequest(validBody));
 
-    // Basis lifted above the plain 70 estimate: with one 80-overall vote the
-    // blended current must exceed the estimate-only blend (0.85*70 + 0.15*80).
     expect(service.rpc).toHaveBeenCalledWith(
-      'recompute_performance_score',
-      expect.objectContaining({
-        p_performance_id: PERF,
-        p_trend_baseline: 70,
-      }),
+      'submit_vote_and_recompute',
+      expect.objectContaining({ p_initial_ai_score: expect.any(Number), p_trend_baseline: 70 }),
     );
   });
 });

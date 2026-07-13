@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { track } from '@/lib/analytics';
 import { isValidRefCode, REF_COOKIE, REF_COOKIE_MAX_AGE_S } from '@/lib/referral';
+import { safeInternalPath } from '@/lib/safe-path';
 
 type Mode = 'login' | 'signup';
 
@@ -64,7 +65,7 @@ export default function LoginPage() {
       track('signup_completed');
       if (ref) track('invite_converted', { ref });
     }
-    router.push('/');
+    router.push(safeInternalPath(new URLSearchParams(window.location.search).get('next')));
     router.refresh();
   }
 
@@ -131,6 +132,8 @@ export default function LoginPage() {
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <input
           type="email"
+          name="email"
+          autoComplete="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -139,6 +142,8 @@ export default function LoginPage() {
         />
         <input
           type="password"
+          name="password"
+          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           required
           minLength={6}
           value={password}

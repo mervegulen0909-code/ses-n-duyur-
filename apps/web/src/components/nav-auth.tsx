@@ -19,12 +19,23 @@ export async function NavAuth() {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
       {profile.role === 'admin' && (
         <Link href="/admin" className="text-sm text-amber-400 hover:text-amber-300">
           {t('admin')}
         </Link>
       )}
+      {/* Signed-in-only (a personal recap), so it lives here rather than in
+          the public header row where Standings sits. Same link styling. */}
+      <Link href="/league" className="text-sm text-neutral-400 hover:text-neutral-200">
+        {t('league')}
+      </Link>
+      <Link href="/leagues" className="text-sm text-neutral-400 hover:text-neutral-200">
+        {t('leagues')}
+      </Link>
+      <Link href="/wrapped" className="text-sm text-neutral-400 hover:text-neutral-200">
+        {t('wrapped')}
+      </Link>
       <Link
         href="/add"
         className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white"

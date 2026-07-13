@@ -79,6 +79,17 @@ export const battleVoteSchema = z.object({
 });
 export type BattleVoteInput = z.infer<typeof battleVoteSchema>;
 
+/**
+ * Predict a battle's winner BEFORE it closes. Predictions are a game layer,
+ * NOT votes: no listen gate, no Elo/score impact (hard rules 4/5 untouched).
+ * RLS additionally enforces open-battle + valid-pick + one-per-user.
+ */
+export const battlePredictSchema = z.object({
+  battleId: z.string().uuid(),
+  predictedWinnerId: z.string().uuid(),
+});
+export type BattlePredictInput = z.infer<typeof battlePredictSchema>;
+
 /** Post a comment on a performance. Body length mirrors the DB check (1–4000). */
 export const commentSchema = z.object({
   performanceId: z.string().uuid(),
@@ -110,6 +121,7 @@ export const profileUpdateSchema = z.object({
   bio: z.string().trim().max(500).nullable().optional(),
   avatarUrl: z.string().trim().url().max(500).nullable().optional(),
   links: z.array(profileLinkSchema).max(5).optional(),
+  locale: z.enum(['en', 'tr', 'es', 'fr', 'ar', 'hi', 'zh']).optional(),
 });
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 
@@ -121,6 +133,17 @@ export const followSchema = z.object({
   followeeHandle: z.string().trim().min(1).max(64),
 });
 export type FollowInput = z.infer<typeof followSchema>;
+
+export const leagueCreateSchema = z.object({ name: z.string().trim().min(3).max(40) });
+export const leagueJoinSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z2-9]{8}$/),
+});
+export type LeagueCreateInput = z.infer<typeof leagueCreateSchema>;
+export type LeagueJoinInput = z.infer<typeof leagueJoinSchema>;
 
 /**
  * A user appeals a moderation decision (a hidden performance, a removed
@@ -205,6 +228,12 @@ export const ANALYTICS_EVENTS = [
   'share_clicked',
   'challenge_opened',
   'invite_converted',
+  // k-factor funnel: artifact shown → link visited → guest engaged.
+  'share_rendered',
+  'challenge_link_visited',
+  'guest_battle_started',
+  // Prediction pools (listener game — NOT a vote).
+  'prediction_submitted',
 ] as const;
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number];
 
@@ -232,6 +261,8 @@ export const NOTIFICATION_KINDS = [
   'comment_reply',
   'performance_request_approved',
   'performance_request_rejected',
+  'day1_comeback',
+  'league_week_started',
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 

@@ -5,3 +5,7 @@ coverage
 next-env.d.ts
 pnpm-lock.yaml
 supabase/config.toml
+tmp
+tmp_*.png
+.playwright-cli
+output/playwright

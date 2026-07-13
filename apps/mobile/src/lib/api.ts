@@ -2,10 +2,19 @@ import type { BattleVoteInput, ListenEvent, SongCategory } from '@voxscore/core'
 
 import { WEB_BASE as API_BASE } from './config';
 import { supabase } from './supabase';
+import { getNativeIntegrityHeaders } from './attestation';
 
 export const NATIVE_CLIENT_HEADERS = {
   'x-voxscore-client': 'mobile-app',
 } as const;
+
+const ATTESTED_PATHS = new Set([
+  '/api/votes',
+  '/api/battles/vote',
+  '/api/performance-requests',
+  '/api/leagues',
+  '/api/leagues/join',
+]);
 
 // The native app talks to the deployed Next.js API (same fairness/score logic
 // as web). Base URL is single-sourced in lib/config.ts (override per env with
@@ -28,23 +37,36 @@ async function authedPost<T>(
 ): Promise<{ ok: boolean; status: number; data: T }> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
+  const rawBody = JSON.stringify(body);
   try {
+    const pathname = path.split('?')[0] ?? path;
+    const integrityHeaders =
+      process.env.EXPO_PUBLIC_NATIVE_ATTESTATION_ENABLED === 'true' && ATTESTED_PATHS.has(pathname)
+        ? await getNativeIntegrityHeaders(path, 'POST', rawBody)
+        : {};
     const res = await fetch(`${API_BASE}${path}`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         ...NATIVE_CLIENT_HEADERS,
+        ...integrityHeaders,
         ...(token ? { authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify(body),
+      body: rawBody,
     });
     const json = (await res.json().catch(() => ({}))) as T;
     return { ok: res.ok, status: res.status, data: json };
-  } catch {
+  } catch (error) {
     // Network failure (offline, DNS, TLS, timeout) REJECTS fetch on-device.
     // Surface a synthetic failure so every caller's `if (!res.ok)` / error
     // branch fires instead of the promise rejecting and freezing the screen.
-    return { ok: false, status: 0, data: {} as T };
+    return {
+      ok: false,
+      status: 0,
+      data: {
+        error: error instanceof Error ? error.message : 'Network or app integrity error',
+      } as T,
+    };
   }
 }
 
@@ -240,4 +262,71 @@ export async function registerPushToken(
     platform,
   });
   return { ok: ok && data.ok !== false, status };
+}
+
+export interface CustomLeagueSummary {
+  id: string;
+  name: string;
+  isOwner: boolean;
+}
+
+export interface CustomLeagueDetail {
+  league: { id: string; name: string; joinCode: string };
+  members: Array<{
+    id: string;
+    handle: string;
+    wins: number;
+    predictionPoints: number;
+    isMe: boolean;
+  }>;
+}
+
+export async function myCustomLeagues(): Promise<{
+  ok: boolean;
+  status: number;
+  leagues: CustomLeagueSummary[];
+  error?: string;
+}> {
+  const { ok, status, data } = await authedGet<{
+    leagues?: CustomLeagueSummary[];
+    error?: string;
+  }>('/api/leagues');
+  return { ok, status, leagues: data.leagues ?? [], error: data.error };
+}
+
+export async function createCustomLeague(name: string): Promise<{
+  ok: boolean;
+  status: number;
+  id?: string;
+  error?: string;
+}> {
+  const { ok, status, data } = await authedPost<{ id?: string; error?: string }>('/api/leagues', {
+    name,
+  });
+  return { ok: ok && !!data.id, status, id: data.id, error: data.error };
+}
+
+export async function joinCustomLeague(code: string): Promise<{
+  ok: boolean;
+  status: number;
+  leagueId?: string;
+  error?: string;
+}> {
+  const { ok, status, data } = await authedPost<{ leagueId?: string; error?: string }>(
+    '/api/leagues/join',
+    { code },
+  );
+  return { ok: ok && !!data.leagueId, status, leagueId: data.leagueId, error: data.error };
+}
+
+export async function customLeagueDetail(id: string): Promise<{
+  ok: boolean;
+  status: number;
+  detail?: CustomLeagueDetail;
+  error?: string;
+}> {
+  const { ok, status, data } = await authedGet<CustomLeagueDetail & { error?: string }>(
+    `/api/leagues/${encodeURIComponent(id)}`,
+  );
+  return { ok, status, detail: ok ? data : undefined, error: data.error };
 }

@@ -75,7 +75,7 @@ repo root are session junk — never commit them.
 
 - **Categories** (shared const, `packages/core/src/categories.ts`):
   `pop, rock, rnb-soul, ballad, turkish-global, indie-alternative,
-  musical-classical, other`. Difficulties: `easy, medium, hard`.
+musical-classical, other`. Difficulties: `easy, medium, hard`.
   DB stores category on **songs** (a performance's category = its song's).
 - **Provider standard:** one provider active per season
   (Anthropic preferred → OpenAI → mock). Every score row must record
@@ -226,8 +226,7 @@ need `provider: 'mock'` added to expected results.
 3. **`POST /api/admin/performance-requests`** (new): admin gate — copy the
    pattern from `/api/admin/moderate/route.ts` (`getRequestContext` +
    `getProfileForContext(ctx)?.role !== 'admin'` → 403) →
-   `performanceRequestActionSchema` → load request (must be `pending`, else
-   409) → **reject:** service-role update
+   `performanceRequestActionSchema` → load request (must be `pending`, else 409) → **reject:** service-role update
    `{status:'rejected', reviewer_id, reviewed_at, rejection_reason}` →
    **approve:** call `createScoredPerformance` with the REQUESTER's user_id
    and the request's category; on success update
@@ -319,8 +318,8 @@ need `provider: 'mock'` added to expected results.
 
 - `supabase/seed/launch-catalog.template.json`: 19 songs — each
   `{ title, artist, category, difficulty, performances: [{ youtubeUrl: null,
-  note: "REPLACE with real link 1" }, { youtubeUrl: null, note: "REPLACE
-  with real link 2" }] }`. Balanced: ~3 songs per non-`other` category
+note: "REPLACE with real link 1" }, { youtubeUrl: null, note: "REPLACE
+with real link 2" }] }`. Balanced: ~3 songs per non-`other` category
   (7 categories × ~3 ≈ 19–21; pick 19), difficulties spread ~6/7/6.
   Song titles/artists MAY be real well-known songs (that's metadata, not
   links) — but leave `youtubeUrl` null everywhere.
@@ -350,7 +349,7 @@ explicit user consent + they run it in the SQL editor themselves.
   `/api/analytics`, no-ops on error. Server-side helper for API routes
   (`trackServer(service, event, userId?, meta?)` direct insert).
 - Wire: `landing_view` (home page client component), `signup_started/
-  completed` (login page), `performance_request_submitted` (request API),
+completed` (login page), `performance_request_submitted` (request API),
   `performance_request_approved` (admin API), `verified_listen_completed`
   (listens/complete route), `vote_submitted` (votes route),
   `battle_completed` (battles/vote route), `share_clicked` (share buttons),
@@ -362,12 +361,13 @@ explicit user consent + they run it in the SQL editor themselves.
 ### 4.9 EK growth features — priority & scope
 
 Implement now (in this order) if capacity allows, else leave designed:
+
 1. **Shareable score card** = §4.4 viral pack (OG image + share buttons). DO.
 2. **Weekly challenge** = `featured_challenges` + home section + song page
    challenge mode + `songId`-scoped battles (§4.3.6). DO (basic).
 3. **Empty states/onboarding** = §4.4 discovery. DO.
 4. **Search/filter** = §4.4 leaderboard. DO (basic).
-5–10. **Profile enrichment, badges, follow system, appeals, notifications,
+   5–10. **Profile enrichment, badges, follow system, appeals, notifications,
    analytics dashboard** — PLAN ONLY for now: write
    `docs/growth-features-plan.md` with per-feature migration sketch + RLS +
    API surface + UI notes (badges MUST be server-granted only; follows need
@@ -385,8 +385,7 @@ video (existing performance); 409 duplicate pending request; 201 happy path
 (user insert). Admin API: 403 non-admin (both approve and reject); approve
 creates performance + score atomically (mock service client — pattern in
 `performances/route.test.ts`); approve failure leaves request pending and no
-orphan performance; reject stores reason; approving a non-pending request →
-409. `/api/performances`: non-admin 403 (bypass blocked); admin 201.
+orphan performance; reject stores reason; approving a non-pending request → 409. `/api/performances`: non-admin 403 (bypass blocked); admin 201.
 Analytics: 422 bad event; 201 anon + authed. Battles: songId with <2
 same-song performances → 404. Catalog template validation (§4.6). Confidence
 helper unit tests. DO NOT break existing scoring/battle/listen tests — run

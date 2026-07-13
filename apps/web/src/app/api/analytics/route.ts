@@ -2,6 +2,7 @@ import { analyticsEventSchema } from '@voxscore/core';
 import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { analyticsRateLimit } from '@/lib/guard';
+import { notifyServer } from '@/lib/notify';
 
 /**
  * Privacy-preserving product analytics. Works signed-out (e.g. `landing_view`
@@ -37,6 +38,18 @@ export async function POST(req: Request): Promise<Response> {
   });
   if (error) {
     return Response.json({ error: 'Could not record event' }, { status: 500 });
+  }
+
+  // D1 comeback push: queue a delayed notification 24h after signup — the
+  // send-notifications cron only drains rows whose scheduled_for has passed.
+  if (parsed.data.event === 'signup_completed' && ctx?.user) {
+    await notifyServer(
+      service,
+      ctx.user.id,
+      'day1_comeback',
+      {},
+      { scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() },
+    );
   }
 
   return Response.json({ ok: true }, { status: 201 });

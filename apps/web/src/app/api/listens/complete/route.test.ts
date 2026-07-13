@@ -10,9 +10,21 @@ vi.mock('@/lib/guard', () => ({
 vi.mock('@/lib/analytics-server', () => ({
   trackServer: vi.fn(async () => {}),
 }));
+vi.mock('@/lib/streak-server', () => ({
+  currentListenStreak: vi.fn(async () => 0),
+}));
+vi.mock('@/lib/badges', () => ({
+  grantBadge: vi.fn(async () => {}),
+}));
+vi.mock('@/lib/league-points', () => ({
+  addLeaguePoints: vi.fn(async () => {}),
+}));
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { trackServer } from '@/lib/analytics-server';
+import { currentListenStreak } from '@/lib/streak-server';
+import { grantBadge } from '@/lib/badges';
+import { addLeaguePoints } from '@/lib/league-points';
 import { POST } from './route';
 
 const PERF = '11111111-1111-1111-1111-111111111111';
@@ -41,6 +53,8 @@ const ownedListen = {
   user_id: 'me',
   performance_id: PERF,
   created_at: '2026-06-24T12:00:00.000Z',
+  is_valid: false,
+  watched_pct: 0,
 };
 
 function makeCtx(userId = 'me', listen: Record<string, unknown> | null = ownedListen) {
@@ -52,11 +66,23 @@ function makeCtx(userId = 'me', listen: Record<string, unknown> | null = ownedLi
   return { supabase: { from }, user: { id: userId } } as unknown as RequestCtx;
 }
 
-function makeService(opts: { updateError?: unknown } = {}) {
-  const updateEq = vi.fn(async () => ({ error: opts.updateError ?? null }));
+function makeService(opts: { updateError?: unknown; finalized?: { id: string } | null } = {}) {
+  const updateMaybeSingle = vi.fn(async () => ({
+    data: 'finalized' in opts ? opts.finalized : { id: LISTEN },
+    error: opts.updateError ?? null,
+  }));
+  const updateSelect = vi.fn(() => ({ maybeSingle: updateMaybeSingle }));
+  const updateValidEq = vi.fn(() => ({ select: updateSelect }));
+  const updateEq = vi.fn(() => ({ eq: updateValidEq }));
   const update = vi.fn(() => ({ eq: updateEq }));
   const from = vi.fn(() => ({ update }));
-  return { service: { from } as unknown as Service, update, updateEq };
+  return {
+    service: { from } as unknown as Service,
+    update,
+    updateEq,
+    updateValidEq,
+    updateSelect,
+  };
 }
 
 describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
@@ -122,6 +148,7 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
     // The server writes the verdict it computed (the client can never set it).
     expect(svc.update).toHaveBeenCalledWith(expect.objectContaining({ is_valid: json.isValid }));
     expect(svc.updateEq).toHaveBeenCalledWith('id', LISTEN);
+    expect(svc.updateValidEq).toHaveBeenCalledWith('is_valid', false);
     // This body's single event yields 0% coverage — never a Verified Listen.
     expect(json.isValid).toBe(false);
     expect(trackServer).not.toHaveBeenCalled();
@@ -152,5 +179,89 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
     expect(trackServer).toHaveBeenCalledWith(svc.service, 'verified_listen_completed', 'me', {
       performanceId: PERF,
     });
+  });
+
+  const validListenBody = {
+    ...validBody,
+    events: [
+      { kind: 'playing', atSeconds: 0, clientTs: 0 },
+      { kind: 'ended', atSeconds: 200, clientTs: 200_000 },
+    ],
+  };
+  const recentListen = () => ({
+    ...ownedListen,
+    created_at: new Date(Date.now() - 210_000).toISOString(),
+  });
+
+  it('grants the Trusted Ear badge for the streak tier on a valid listen (7 days → silver)', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen()));
+    const svc = makeService();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+    vi.mocked(currentListenStreak).mockResolvedValue(7);
+
+    const res = await POST(makeRequest(validListenBody));
+
+    expect(((await res.json()) as { isValid: boolean }).isValid).toBe(true);
+    expect(currentListenStreak).toHaveBeenCalledWith(
+      svc.service,
+      'me',
+      new Date().toISOString().slice(0, 10),
+    );
+    expect(grantBadge).toHaveBeenCalledTimes(1);
+    expect(grantBadge).toHaveBeenCalledWith(svc.service, 'me', 'trusted_ear_silver');
+    // A valid verified listen accrues +1 weekly-league point.
+    expect(addLeaguePoints).toHaveBeenCalledWith(svc.service, 'me', 1, {
+      kind: 'verified_listen',
+      id: LISTEN,
+    });
+  });
+
+  it('grants no badge when the streak is below bronze', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen()));
+    const svc = makeService();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+    vi.mocked(currentListenStreak).mockResolvedValue(1);
+
+    await POST(makeRequest(validListenBody));
+
+    expect(grantBadge).not.toHaveBeenCalled();
+  });
+
+  it('never touches streaks or badges for an invalid listen', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx());
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().service);
+
+    const res = await POST(makeRequest(validBody));
+
+    expect(((await res.json()) as { isValid: boolean }).isValid).toBe(false);
+    expect(currentListenStreak).not.toHaveBeenCalled();
+    expect(grantBadge).not.toHaveBeenCalled();
+    expect(addLeaguePoints).not.toHaveBeenCalled();
+  });
+
+  it('returns an already-valid listen without replaying any side effects', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(
+      makeCtx('me', { ...recentListen(), is_valid: true, watched_pct: 96 }),
+    );
+
+    const res = await POST(makeRequest(validListenBody));
+
+    await expect(res.json()).resolves.toEqual({ isValid: true, watchedPct: 0.96, reason: null });
+    expect(createSupabaseServiceClient).not.toHaveBeenCalled();
+    expect(trackServer).not.toHaveBeenCalled();
+    expect(addLeaguePoints).not.toHaveBeenCalled();
+  });
+
+  it('runs no side effects when another request wins the atomic finalization claim', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen()));
+    const svc = makeService({ finalized: null });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+
+    const res = await POST(makeRequest(validListenBody));
+
+    expect(((await res.json()) as { isValid: boolean }).isValid).toBe(true);
+    expect(trackServer).not.toHaveBeenCalled();
+    expect(currentListenStreak).not.toHaveBeenCalled();
+    expect(addLeaguePoints).not.toHaveBeenCalled();
   });
 });

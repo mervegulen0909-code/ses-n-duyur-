@@ -86,10 +86,10 @@ export default function TermsPage() {
       <p>
         This choice does not remove any protection you are entitled to under the mandatory consumer
         protection, data privacy, or other statutory laws of the country where you live, which
-        continue to apply where local law requires it. If you are a consumer in the European Union or
-        the United Kingdom, you may also be able to bring a claim in the courts of your own country of
-        residence, and EU consumers can use the European Commission&apos;s Online Dispute Resolution
-        platform at{' '}
+        continue to apply where local law requires it. If you are a consumer in the European Union
+        or the United Kingdom, you may also be able to bring a claim in the courts of your own
+        country of residence, and EU consumers can use the European Commission&apos;s Online Dispute
+        Resolution platform at{' '}
         <a
           className="text-emerald-400"
           href="https://ec.europa.eu/consumers/odr"

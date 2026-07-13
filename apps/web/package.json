@@ -13,15 +13,17 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
     "@supabase/ssr": "^0.12.0",
-    "@supabase/supabase-js": "^2.108.0",
+    "@supabase/supabase-js": "^2.110.2",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.34.3",
     "@voxscore/core": "workspace:*",
     "@voxscore/db": "workspace:*",
     "@voxscore/dsp": "workspace:*",
     "@voxscore/scoring": "workspace:*",
-    "next": "^16.2.7",
-    "next-intl": "^4.13.0",
+    "appattest-checker-node": "^1.0.3",
+    "google-auth-library": "^10.9.0",
+    "next": "^16.2.10",
+    "next-intl": "^4.13.2",
     "openai": "^6.42.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -29,10 +31,10 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.1",
-    "@tailwindcss/postcss": "^4.3.0",
+    "@playwright/test": "^1.61.1",
+    "@tailwindcss/postcss": "^4.3.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.2"
   }
 }

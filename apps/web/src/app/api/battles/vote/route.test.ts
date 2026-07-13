@@ -6,14 +6,19 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 vi.mock('@/lib/guard', () => ({
   rateLimit: vi.fn(async () => null),
+  botGuard: vi.fn(async () => null),
 }));
 vi.mock('@/lib/analytics-server', () => ({
   trackServer: vi.fn(async () => {}),
 }));
+vi.mock('@/lib/league-points', () => ({
+  addLeaguePoints: vi.fn(async () => {}),
+}));
 
-import { rateLimit } from '@/lib/guard';
+import { botGuard, rateLimit } from '@/lib/guard';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { trackServer } from '@/lib/analytics-server';
+import { addLeaguePoints } from '@/lib/league-points';
 import { POST } from './route';
 
 const BATTLE = '11111111-1111-1111-1111-111111111111';
@@ -111,6 +116,13 @@ describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5
     expect((await POST(makeRequest(validBody))).status).toBe(429);
   });
 
+  it('403 when native/browser bot protection fails', async () => {
+    const { ctx } = makeCtx();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(botGuard).mockResolvedValueOnce(Response.json({ error: 'bot' }, { status: 403 }));
+    expect((await POST(makeRequest(validBody))).status).toBe(403);
+  });
+
   it('404 when the battle does not exist', async () => {
     const { ctx } = makeCtx('me', { battle: null });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
@@ -178,6 +190,11 @@ describe('POST /api/battles/vote — both-sides-listened gate (CLAUDE.md rule #5
     );
     expect(trackServer).toHaveBeenCalledWith(expect.anything(), 'battle_completed', 'me', {
       battleId: BATTLE,
+    });
+    // Casting a verified vote accrues +2 weekly-league points.
+    expect(addLeaguePoints).toHaveBeenCalledWith(expect.anything(), 'me', 2, {
+      kind: 'battle_vote',
+      id: `${BATTLE}:me`,
     });
   });
 

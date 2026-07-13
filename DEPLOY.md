@@ -7,12 +7,12 @@ its env key is present, and falls back to a dev mock otherwise.
 
 ## The adapter seam — which env var flips which adapter to "real"
 
-| Capability    | Mock (no key)                         | Real (key present)                      | Activating env                                                                             |
-| ------------- | ------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------ |
-| AI scoring    | `MockScoringProvider` (deterministic) | `AnthropicScoringProvider` (`claude-haiku-4-5-20251001`, preferred) → `OpenAIScoringProvider` (`gpt-4o-mini`) | `ANTHROPIC_API_KEY` (preferred) **or** `OPENAI_API_KEY`                       |
-| Rate limiting | `InMemoryRateLimiter`                 | `UpstashRateLimiter`                    | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`                                      |
-| Bot check     | `NoopBotCheck` (passes)               | `TurnstileBotCheck`                     | `TURNSTILE_SECRET_KEY`                                                                     |
-| DB + Auth     | local Supabase                        | Supabase cloud                          | `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY` |
+| Capability    | Mock (no key)                         | Real (key present)                                                                                            | Activating env                                                                             |
+| ------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| AI scoring    | `MockScoringProvider` (deterministic) | `AnthropicScoringProvider` (`claude-haiku-4-5-20251001`, preferred) → `OpenAIScoringProvider` (`gpt-4o-mini`) | `ANTHROPIC_API_KEY` (preferred) **or** `OPENAI_API_KEY`                                    |
+| Rate limiting | `InMemoryRateLimiter`                 | `UpstashRateLimiter` (production fails closed if missing)                                                     | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`                                      |
+| Bot check     | `NoopBotCheck` (development only)     | `TurnstileBotCheck` (production fails closed if missing)                                                      | `TURNSTILE_SECRET_KEY`                                                                     |
+| DB + Auth     | local Supabase                        | Supabase cloud                                                                                                | `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY` |
 
 Factories: `apps/web/src/lib/adapters/{scoring,ratelimit,botcheck}.ts`. No code change is
 needed to switch — set the env var and redeploy.
@@ -45,30 +45,48 @@ needed to switch — set the env var and redeploy.
 ## 4. Cloudflare Turnstile (bot check)
 
 - Create a site → set `TURNSTILE_SECRET_KEY` (server) + `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (client).
-- Follow-up (small client task): render the Turnstile widget on the add/vote forms and
-  send its token in the `x-turnstile-token` header; the server already verifies it.
+- Web mutation forms and the native sign-up bridge already send Turnstile
+  tokens. Add the final web domain to the Turnstile host allowlist.
 - Sign Cloudflare's DPA and document retention in the privacy policy (GDPR).
 
-## 5. Vercel
+## 5. Native attestation
+
+- Set `NATIVE_ATTESTATION_REQUIRED=true`, `GOOGLE_PLAY_PACKAGE_NAME`,
+  `GOOGLE_PLAY_CERT_SHA256`, and `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_B64` for
+  Android Play Integrity verification.
+- Set `APPLE_TEAM_ID`, `APPLE_BUNDLE_ID`, and `APP_ATTEST_ENVIRONMENT` for
+  iOS App Attest verification. Production mobile builds set
+  `EXPO_PUBLIC_NATIVE_ATTESTATION_ENABLED=true`.
+- Attestation is bound to the HTTP method, path/query, and exact request body.
+  Do not place service-account JSON or Apple private material in `EXPO_PUBLIC_*`.
+- Complete the physical-device checks in `docs/mobile-native-validation.md`.
+
+## 6. Vercel
 
 1. Import the repo. **Root Directory:** `apps/web`. Framework preset: Next.js.
 2. Install command: `pnpm install`. Build is auto-detected (`next build`).
-3. Add all env vars from §1–4 (Production + Preview). `SUPABASE_SERVICE_ROLE_KEY`,
+3. Add all env vars from §1–5 (Production + Preview). `SUPABASE_SERVICE_ROLE_KEY`,
    `OPENAI_API_KEY`, `TURNSTILE_SECRET_KEY`, `UPSTASH_*` are **server-only** —
    do not prefix with `NEXT_PUBLIC_`.
 4. Deploy. Set the production domain; update Supabase Auth Site URL to match.
+5. Configure the platform readiness probe as `GET /api/health/ready`. A 503 is a
+   deployment/configuration failure and should prevent traffic promotion.
 
-## 6. Post-deploy verification
+## 7. Post-deploy verification
 
 - Sign up → add a YouTube performance → confirm a (now OpenAI-backed) provisional
   score appears, still labeled "Provisional AI Estimate".
 - Complete a Verified Listen → vote → score moves. Try to vote without listening → blocked.
 - Battle two performances → Elo + Wilson leaderboard update; verify Realtime refresh.
 - Confirm rate limiting (rapid writes → 429) and Turnstile (missing token → 403) are live.
+- Confirm native single votes, battle votes, performance requests, and private
+  league mutations reject missing/invalid device attestation.
+- Confirm notification failures retry and only successful deliveries become
+  `sent`; inspect dead-letter rows after five failures.
 - Run `pnpm test:e2e` against the deployed URL (set `baseURL`), or locally against the cloud env.
 - Make yourself admin: `update public.profiles set role='admin' where handle='<you>';` (SQL editor).
 
-## 7. Cost guardrails (see plan §W)
+## 8. Cost guardrails (see plan §W)
 
 - AI: scores computed once per performance and cached in `scores`; never recomputed on read.
 - Free vs premium: gate uploads/real-DSP (v2) and raise limits for premium.

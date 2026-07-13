@@ -109,9 +109,7 @@ export default function OnboardingScreen() {
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
           useNativeDriver: false,
         })}
-        onMomentumScrollEnd={(e) =>
-          setIndex(Math.round(e.nativeEvent.contentOffset.x / width))
-        }
+        onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
             <View style={styles.art}>
@@ -119,7 +117,11 @@ export default function OnboardingScreen() {
                 <Image source={item.image as number} style={styles.hero} contentFit="contain" />
               ) : (
                 <View style={styles.artWrap}>
-                  <Image source={item.image as number} style={styles.artImage} contentFit="contain" />
+                  <Image
+                    source={item.image as number}
+                    style={styles.artImage}
+                    contentFit="contain"
+                  />
                   {item.kind === 'score' && (
                     <View style={styles.scoreOverlay} pointerEvents="none">
                       <Text style={styles.scoreNum}>86</Text>
@@ -203,7 +205,13 @@ const styles = StyleSheet.create({
   scoreLabel: { marginTop: 2, fontSize: 11, fontWeight: '700', letterSpacing: 3, color: '#22D3EE' },
 
   copy: { alignItems: 'center', marginTop: 28, maxWidth: 360 },
-  eyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 3, color: '#22D3EE', marginBottom: 12 },
+  eyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 3,
+    color: '#22D3EE',
+    marginBottom: 12,
+  },
   title: {
     fontSize: 28,
     lineHeight: 36,
@@ -234,7 +242,13 @@ const styles = StyleSheet.create({
   chipText: { color: '#7fe3f3', fontSize: 12, fontWeight: '600' },
 
   footer: { paddingHorizontal: 28, paddingBottom: 8, gap: 22 },
-  dots: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, height: 10 },
+  dots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    height: 10,
+  },
   dot: { height: 7, borderRadius: 4, backgroundColor: '#22D3EE' },
   cta: { height: 56, alignItems: 'center', justifyContent: 'center' },
   ctaImage: { borderRadius: 16 },

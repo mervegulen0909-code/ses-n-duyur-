@@ -1,5 +1,6 @@
 import { getRateLimiter } from './adapters/ratelimit';
 import { getBotCheck } from './adapters/botcheck';
+import { verifyNativeRequest } from './native-attestation';
 
 // Module-level singletons (per route module). These resolve to the real
 // Upstash/Turnstile adapters when their env keys are set, else dev mocks.
@@ -36,7 +37,10 @@ export async function rateLimit(req: Request, userId?: string): Promise<Response
 }
 
 /** Rate-limit an analytics event, keyed by session (falls back to IP). */
-export async function analyticsRateLimit(req: Request, sessionId: string): Promise<Response | null> {
+export async function analyticsRateLimit(
+  req: Request,
+  sessionId: string,
+): Promise<Response | null> {
   const { success } = await analyticsLimiter.check(keyFor(req, sessionId));
   if (!success) {
     return Response.json({ error: 'Too many requests — slow down.' }, { status: 429 });
@@ -48,8 +52,22 @@ export async function analyticsRateLimit(req: Request, sessionId: string): Promi
  * Verify a bot-check (Turnstile) token from the `x-turnstile-token` header.
  * In dev the Noop check passes; Faz J enforces real Turnstile.
  */
-export async function botGuard(req: Request): Promise<Response | null> {
-  if (isNativeClientRequest(req)) return null;
+export async function botGuard(
+  req: Request,
+  userId?: string,
+  rawBody?: string | Uint8Array,
+): Promise<Response | null> {
+  if (isNativeClientRequest(req)) {
+    // Local development can use Expo Go/simulators. Production is always
+    // fail-closed; the explicit env also enables real attestation in staging.
+    const required =
+      process.env.NODE_ENV === 'production' || process.env.NATIVE_ATTESTATION_REQUIRED === 'true';
+    if (!required) return null;
+    if (!userId || !(await verifyNativeRequest(req, userId, rawBody))) {
+      return Response.json({ error: 'Native app integrity check failed.' }, { status: 403 });
+    }
+    return null;
+  }
   const ok = await botCheck.verify(req.headers.get('x-turnstile-token'));
   if (!ok) return Response.json({ error: 'Bot check failed.' }, { status: 403 });
   return null;

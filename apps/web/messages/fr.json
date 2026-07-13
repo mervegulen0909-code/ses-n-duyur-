@@ -7,6 +7,9 @@
     "leaderboard": "Classement",
     "battle": "Duel",
     "standings": "Classement Elo",
+    "wrapped": "Ma saison",
+    "league": "Ligue",
+    "leagues": "Groupes",
     "storyboard": "Storyboard",
     "signIn": "Se connecter",
     "admin": "Admin",
@@ -25,7 +28,11 @@
     "supabaseNotConfigured": "Supabase n'est pas encore configuré.",
     "failed": "Échec",
     "failedStatus": "Échec ({status})",
-    "networkError": "Erreur réseau"
+    "networkError": "Erreur réseau",
+    "copyResultLine": "Copier le résultat",
+    "resultCopied": "Copié — collez-le où vous voulez",
+    "shareOnWhatsApp": "WhatsApp",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "Découvrez qui chante <hl>le mieux</hl> une chanson.",
@@ -38,7 +45,25 @@
     "ctaRequestTitle": "Soumettre une interprétation",
     "ctaRequestBody": "Ajoutez votre reprise à la ligue — chaque demande est examinée par un admin.",
     "ctaInviteTitle": "Inviter un ami",
-    "ctaInviteBody": "Partagez VoxScore et faites grandir la ligue."
+    "ctaInviteBody": "Partagez VoxScore et faites grandir la ligue.",
+    "tryNow": "Essayez maintenant — regardez un duel, sans compte",
+    "heroEyebrow": "Le classement vocal en direct",
+    "liveBoard": "Tableau en direct",
+    "rankedVoices": "Voix classées",
+    "openBattles": "Duels ouverts",
+    "verifiedRule": "Les écoutes vérifiées décident",
+    "latestHeading": "Dernières cartes de score",
+    "battleNow": "Entrer dans un duel",
+    "exploreRanks": "Explorer le classement"
+  },
+  "Errors": {
+    "eyebrow": "Lecture interrompue",
+    "title": "Cette manche a fait une fausse note.",
+    "body": "La page n’a pas pu finir de charger. Réessaie ou retourne au tableau en direct.",
+    "retry": "Réessayer",
+    "home": "Retour à l’accueil",
+    "notFoundTitle": "Cette scène n’existe pas.",
+    "notFoundBody": "Le lien est peut-être ancien, privé ou supprimé. Retourne sur VoxScore pour trouver une performance."
   },
   "Login": {
     "signIn": "Se connecter",
@@ -52,6 +77,7 @@
     "google": "Continuer avec Google",
     "orDivider": "ou"
   },
+  "MobileTurnstile": { "verifying": "Vérification humaine de cette inscription…" },
   "Add": {
     "title": "Ajouter une performance",
     "subtitle": "Collez un lien YouTube. Nous l'intégrons (sans jamais le télécharger), récupérons ses métadonnées et créons une estimation IA provisoire.",
@@ -75,6 +101,10 @@
     "viewPerformance": "Voir l'interprétation →"
   },
   "Battle": {
+    "shareResult": "Partagez votre verdict",
+    "guestWatchBoth": "Regardez les deux en entier pour choisir un gagnant",
+    "guestPickCta": "Choisissez le gagnant — créez votre compte gratuit",
+    "guestListened": "Vu ✓",
     "subtitle": "Deux performances, un seul gagnant. Écoutez les deux en entier, puis décidez.",
     "signInPrompt": "Veuillez <link>vous connecter</link> pour participer à un duel.",
     "statusListened": "✓ Écouté",
@@ -87,7 +117,9 @@
     "mustListenBoth": "Vous devez écouter les DEUX performances en entier avant de choisir un gagnant.",
     "finding": "Recherche d'un duel…",
     "notEnough": "Pas encore assez de performances pour un duel. Ajoutez-en davantage !",
-    "couldNotLoad": "Impossible de charger un duel."
+    "couldNotLoad": "Impossible de charger un duel.",
+    "predictPrompt": "Avant d'écouter : qui remporte ce duel ?",
+    "predictDisclaimer": "Les prédictions sont un jeu — elles n'affectent jamais les scores. Seules les écoutes vérifiées débloquent de vrais votes."
   },
   "Leaderboard": {
     "subtitle": "Classées par score actuel.",
@@ -106,12 +138,65 @@
     "record": "{wins}–{losses}",
     "winRate": "{rate}% de victoires",
     "empty": "Aucun duel pour l'instant. Ouvrez l'arène de duel pour en lancer un.",
-    "viewScores": "Classement par score →"
+    "viewScores": "Classement par score →",
+    "predictionLeague": "Ligue des pronostics"
+  },
+  "Wrapped": {
+    "title": "Ta saison sur VoxScore",
+    "wins": "Duels gagnés",
+    "losses": "Duels perdus",
+    "votes": "Votes vérifiés",
+    "listens": "Écoutes vérifiées",
+    "predictionPoints": "Points de pronostic",
+    "shareHeadline": "🏆 Ma saison VoxScore : {wins} duels gagnés"
+  },
+  "League": {
+    "title": "Ligue hebdomadaire",
+    "tierBronze": "Bronze",
+    "tierSilver": "Argent",
+    "tierGold": "Or",
+    "tierDiamond": "Diamant",
+    "promotionZone": "Zone de promotion",
+    "relegationZone": "Zone de relégation",
+    "noCohort": "Tu rejoindras une ligue lundi prochain — continue à écouter et voter pour gagner des points.",
+    "members": "{count}/30 auditeurs",
+    "nextRotation": "Prochaine rotation dans {days} j {hours} h",
+    "points": "{count} pts",
+    "pointsGuide": "Écoute vérifiée +1 · vote de duel vérifié +2 · victoire en duel +5",
+    "you": "Toi",
+    "loadError": "Impossible de charger la ligue hebdomadaire."
+  },
+  "Leagues": {
+    "title": "Tes ligues",
+    "subtitle": "Des classements privés pour ta classe, ta chorale, ton équipe ou tes amis.",
+    "createCta": "Créer une ligue",
+    "namePlaceholder": "Nom de la ligue (classe, chorale, groupe…)",
+    "joinCta": "Rejoindre avec un code",
+    "codePlaceholder": "Code à 8 caractères",
+    "working": "Traitement…",
+    "genericError": "La ligue n’a pas pu être mise à jour.",
+    "loadError": "Tes ligues n’ont pas pu être chargées.",
+    "empty": "Tu n’as pas encore rejoint de ligue privée. Crée-en une ou saisis un code.",
+    "owner": "Créateur",
+    "member": "Membre",
+    "viewLeague": "Voir le classement",
+    "inviteTitle": "Rejoins {name}",
+    "inviteBody": "Accepte l’invitation pour affronter ce groupe sur VoxScore.",
+    "invalidCode": "Ce code d’invitation est invalide.",
+    "notFound": "Cette invitation est introuvable.",
+    "acceptInvite": "Accepter l’invitation",
+    "seasonBoard": "Saison en cours",
+    "memberCount": "{count} membres",
+    "wins": "Victoires",
+    "points": "Pts de pronostic",
+    "inviteMembers": "Invite ton groupe",
+    "inviteHeadline": "🎤 Rejoins ma ligue VoxScore : {name}"
   },
   "Seasons": {
     "allSeasons": "Toutes les saisons"
   },
   "Performance": {
+    "shareScore": "Partagez ce score",
     "currentScore": "Score actuel",
     "scoreInterval": "±{margin}",
     "trend": "tendance",
@@ -135,6 +220,21 @@
     "shareX": "X",
     "storyCard": "Carte story",
     "challengeCta": "Défier un ami sur ce duel"
+  },
+  "ShareKit": {
+    "title": "Kit de partage",
+    "back": "Retour à la performance",
+    "caption": "Note ma reprise sur VoxScore 🎤 {url} #VoxScoreChallenge #cover #chant",
+    "cardAlt": "Carte de score VoxScore pour {title}",
+    "captionHeading": "Légende prête à publier",
+    "copyCaption": "Copier la légende",
+    "copied": "Légende copiée",
+    "downloadCard": "Télécharger la carte",
+    "howTo": "Publie-la en trois étapes",
+    "kitStep1": "Télécharge ta carte de score",
+    "kitStep2": "Filme ta réaction ou 15 secondes de ta performance",
+    "kitStep3": "Publie avec la légende ; la carte et le lien font le reste",
+    "mediaNotice": "Ce kit télécharge uniquement la carte générée par VoxScore. Il ne télécharge ni ne republie aucun média YouTube."
   },
   "Criteria": {
     "vocalAccuracy": "Justesse vocale",
@@ -173,6 +273,9 @@
     "battleRecord": "{wins}–{losses} en duels",
     "winRate": "{rate}% de victoires",
     "noPublic": "Aucune performance publique pour l'instant.",
+    "trustedEarBronze": "Oreille de confiance · Bronze",
+    "trustedEarSilver": "Oreille de confiance · Argent",
+    "trustedEarGold": "Oreille de confiance · Or",
     "follow": "Suivre",
     "unfollow": "Ne plus suivre",
     "followFailed": "Impossible de mettre à jour le suivi.",

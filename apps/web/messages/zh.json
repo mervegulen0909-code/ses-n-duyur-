@@ -7,6 +7,9 @@
     "leaderboard": "排行榜",
     "battle": "对战",
     "standings": "积分榜",
+    "wrapped": "我的赛季",
+    "league": "联赛",
+    "leagues": "小组",
     "storyboard": "故事板",
     "signIn": "登录",
     "admin": "管理",
@@ -25,7 +28,11 @@
     "supabaseNotConfigured": "Supabase 尚未配置。",
     "failed": "失败",
     "failedStatus": "失败（{status}）",
-    "networkError": "网络错误"
+    "networkError": "网络错误",
+    "copyResultLine": "复制结果",
+    "resultCopied": "已复制——随处粘贴",
+    "shareOnWhatsApp": "WhatsApp",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "发现谁唱得<hl>最好</hl>。",
@@ -38,7 +45,25 @@
     "ctaRequestTitle": "提交表演",
     "ctaRequestBody": "把你的翻唱加入联赛——每个申请都会由管理员审核。",
     "ctaInviteTitle": "邀请好友",
-    "ctaInviteBody": "分享 VoxScore，一起壮大联赛。"
+    "ctaInviteBody": "分享 VoxScore，一起壮大联赛。",
+    "tryNow": "立即体验——无需账号，观看一场对战",
+    "heroEyebrow": "实时声乐记分榜",
+    "liveBoard": "实时榜单",
+    "rankedVoices": "已排名声音",
+    "openBattles": "开放对战",
+    "verifiedRule": "由认证收听决定",
+    "latestHeading": "最新评分卡",
+    "battleNow": "进入对战",
+    "exploreRanks": "查看排名"
+  },
+  "Errors": {
+    "eyebrow": "播放中断",
+    "title": "这一轮跑调了。",
+    "body": "页面未能完成加载。请重试本轮或返回实时记分榜。",
+    "retry": "重试",
+    "home": "返回首页",
+    "notFoundTitle": "这个舞台不存在。",
+    "notFoundBody": "链接可能已过期、为私密内容或已被删除。返回 VoxScore 查找实时表演。"
   },
   "Login": {
     "signIn": "登录",
@@ -52,6 +77,7 @@
     "google": "使用 Google 继续",
     "orDivider": "或"
   },
+  "MobileTurnstile": { "verifying": "正在验证此次注册由真人完成…" },
   "Add": {
     "title": "添加表演",
     "subtitle": "粘贴一个 YouTube 链接。我们会嵌入它（绝不下载），获取其元数据，并生成 AI 初步估分。",
@@ -75,6 +101,10 @@
     "viewPerformance": "查看表演 →"
   },
   "Battle": {
+    "shareResult": "分享你的裁决",
+    "guestWatchBoth": "完整观看两段表演后才能选出赢家",
+    "guestPickCta": "选出赢家——创建你的免费账号",
+    "guestListened": "已观看 ✓",
     "subtitle": "两段表演，一位赢家。完整听完两者，再做决定。",
     "signInPrompt": "请<link>登录</link>以参与对战。",
     "statusListened": "✓ 已听完",
@@ -87,7 +117,9 @@
     "mustListenBoth": "选出赢家前，你必须完整听完两段表演。",
     "finding": "正在寻找对战…",
     "notEnough": "表演数量还不够，无法开始对战。快去添加更多吧！",
-    "couldNotLoad": "无法加载对战。"
+    "couldNotLoad": "无法加载对战。",
+    "predictPrompt": "听之前先猜：这场谁能拿下？",
+    "predictDisclaimer": "预测只是游戏——绝不会影响评分。只有完成验证收听才能解锁真正的投票。"
   },
   "Leaderboard": {
     "subtitle": "按当前得分排序。",
@@ -106,12 +138,65 @@
     "record": "{wins}胜{losses}负",
     "winRate": "胜率 {rate}%",
     "empty": "暂无对战记录。前往对战竞技场开始一场吧。",
-    "viewScores": "得分排行榜 →"
+    "viewScores": "得分排行榜 →",
+    "predictionLeague": "预测联赛"
+  },
+  "Wrapped": {
+    "title": "你的 VoxScore 赛季",
+    "wins": "获胜对战",
+    "losses": "落败对战",
+    "votes": "已验证投票",
+    "listens": "已验证收听",
+    "predictionPoints": "预测积分",
+    "shareHeadline": "🏆 我的 VoxScore 赛季：{wins} 场对战胜利"
+  },
+  "League": {
+    "title": "每周联赛",
+    "tierBronze": "青铜",
+    "tierSilver": "白银",
+    "tierGold": "黄金",
+    "tierDiamond": "钻石",
+    "promotionZone": "晋级区",
+    "relegationZone": "降级区",
+    "noCohort": "你将在下周一加入一个联赛——继续收听和投票来赢取积分。",
+    "members": "{count}/30 位听众",
+    "nextRotation": "{days}天 {hours}小时后轮换",
+    "points": "{count} 分",
+    "pointsGuide": "完成认证收听 +1 · 完成认证对战投票 +2 · 赢得对战 +5",
+    "you": "你",
+    "loadError": "无法加载每周联赛。"
+  },
+  "Leagues": {
+    "title": "你的联赛",
+    "subtitle": "为班级、合唱团、团队或好友创建的私人排行榜。",
+    "createCta": "创建联赛",
+    "namePlaceholder": "联赛名称（班级、合唱团、团队…）",
+    "joinCta": "用代码加入",
+    "codePlaceholder": "8 位代码",
+    "working": "处理中…",
+    "genericError": "无法更新联赛。",
+    "loadError": "无法加载你的联赛。",
+    "empty": "你还没有加入私人联赛。请创建一个或输入邀请码。",
+    "owner": "创建者",
+    "member": "成员",
+    "viewLeague": "查看排行榜",
+    "inviteTitle": "加入 {name}",
+    "inviteBody": "接受邀请，在 VoxScore 上与这个小组竞赛。",
+    "invalidCode": "此邀请码无效。",
+    "notFound": "找不到此联赛邀请。",
+    "acceptInvite": "接受邀请",
+    "seasonBoard": "当前赛季",
+    "memberCount": "{count} 名成员",
+    "wins": "胜场",
+    "points": "预测积分",
+    "inviteMembers": "邀请你的小组",
+    "inviteHeadline": "🎤 加入我的 VoxScore 联赛：{name}"
   },
   "Seasons": {
     "allSeasons": "全部赛季"
   },
   "Performance": {
+    "shareScore": "分享这个分数",
     "currentScore": "当前得分",
     "scoreInterval": "±{margin}",
     "trend": "趋势",
@@ -135,6 +220,21 @@
     "shareX": "X",
     "storyCard": "故事卡片",
     "challengeCta": "邀请好友参加这场对决"
+  },
+  "ShareKit": {
+    "title": "分享工具包",
+    "back": "返回表演",
+    "caption": "来 VoxScore 为我的翻唱评分 🎤 {url} #VoxScoreChallenge #cover #singing",
+    "cardAlt": "{title} 的 VoxScore 故事评分卡",
+    "captionHeading": "可直接发布的文案",
+    "copyCaption": "复制文案",
+    "copied": "文案已复制",
+    "downloadCard": "下载评分卡",
+    "howTo": "三步发布",
+    "kitStep1": "下载你的评分卡",
+    "kitStep2": "拍摄你的反应或自己的 15 秒精彩片段",
+    "kitStep3": "配上文案发布；评分卡和链接会完成其余工作",
+    "mediaNotice": "此工具包只下载 VoxScore 生成的评分卡，不会下载或重新发布 YouTube 媒体。"
   },
   "Criteria": {
     "vocalAccuracy": "音准",
@@ -173,6 +273,9 @@
     "battleRecord": "对战 {wins}胜{losses}负",
     "winRate": "胜率 {rate}%",
     "noPublic": "暂无公开表演。",
+    "trustedEarBronze": "可信之耳 · 铜",
+    "trustedEarSilver": "可信之耳 · 银",
+    "trustedEarGold": "可信之耳 · 金",
     "follow": "关注",
     "unfollow": "取消关注",
     "followFailed": "无法更新关注。",

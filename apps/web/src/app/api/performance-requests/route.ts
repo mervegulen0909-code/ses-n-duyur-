@@ -8,9 +8,11 @@ import { trackServer } from '@/lib/analytics-server';
  * here and an admin approves/rejects it (`/api/admin/performance-requests`).
  */
 export async function POST(req: Request): Promise<Response> {
+  let rawBody: string;
   let json: unknown;
   try {
-    json = await req.json();
+    rawBody = await req.text();
+    json = JSON.parse(rawBody);
   } catch {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
@@ -31,7 +33,7 @@ export async function POST(req: Request): Promise<Response> {
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;
-  const bot = await botGuard(req);
+  const bot = await botGuard(req, user.id, rawBody);
   if (bot) return bot;
 
   // Schema already validated the URL is parseable; this is a defensive guard.
@@ -97,7 +99,9 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'Could not submit request' }, { status: 500 });
   }
 
-  await trackServer(service, 'performance_request_submitted', user.id, { category: parsed.data.category });
+  await trackServer(service, 'performance_request_submitted', user.id, {
+    category: parsed.data.category,
+  });
 
   return Response.json({ id: created.id }, { status: 201 });
 }

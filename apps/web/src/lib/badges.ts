@@ -4,8 +4,15 @@ import type { createSupabaseServiceClient } from '@/lib/supabase/server';
 type ServiceClient = NonNullable<ReturnType<typeof createSupabaseServiceClient>>;
 
 /** The full badge catalog (supabase/migrations/20260711170000_badges.sql +
- *  20260711200000_inviter_badge.sql). */
-export type BadgeKey = 'first_performance' | 'centurion' | 'battle_champion' | 'inviter';
+ *  20260711200000_inviter_badge.sql + 20260713100000_trusted_ear_badges.sql). */
+export type BadgeKey =
+  | 'first_performance'
+  | 'centurion'
+  | 'battle_champion'
+  | 'inviter'
+  | 'trusted_ear_bronze'
+  | 'trusted_ear_silver'
+  | 'trusted_ear_gold';
 
 /**
  * Award a badge via the SECURITY DEFINER grant_badge() RPC — the ONLY writer

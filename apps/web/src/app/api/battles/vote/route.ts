@@ -1,12 +1,15 @@
 import { battleVoteSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
-import { rateLimit } from '@/lib/guard';
+import { botGuard, rateLimit } from '@/lib/guard';
 import { trackServer } from '@/lib/analytics-server';
+import { addLeaguePoints } from '@/lib/league-points';
 
 export async function POST(req: Request): Promise<Response> {
+  let rawBody: string;
   let json: unknown;
   try {
-    json = await req.json();
+    rawBody = await req.text();
+    json = JSON.parse(rawBody);
   } catch {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
@@ -21,6 +24,8 @@ export async function POST(req: Request): Promise<Response> {
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;
+  const bot = await botGuard(req, user.id, rawBody);
+  if (bot) return bot;
 
   const { data: battle } = await supabase
     .from('battles')
@@ -80,6 +85,11 @@ export async function POST(req: Request): Promise<Response> {
   const service = createSupabaseServiceClient();
   if (service) {
     await trackServer(service, 'battle_completed', user.id, { battleId });
+    // Weekly league: casting a verified battle vote is worth +2 this week.
+    await addLeaguePoints(service, user.id, 2, {
+      kind: 'battle_vote',
+      id: `${battleId}:${user.id}`,
+    });
   }
 
   return Response.json({ ok: true }, { status: 201 });

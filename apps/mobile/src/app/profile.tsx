@@ -88,7 +88,11 @@ export default function ProfileScreen() {
         onPress: () =>
           Alert.alert(t('Profile.deleteFinalTitle'), t('Profile.deleteFinalBody'), [
             { text: t('Profile.keepAccount'), style: 'cancel' },
-            { text: t('Profile.deleteForever'), style: 'destructive', onPress: () => void runDelete() },
+            {
+              text: t('Profile.deleteForever'),
+              style: 'destructive',
+              onPress: () => void runDelete(),
+            },
           ]),
       },
     ]);
@@ -216,9 +220,7 @@ export default function ProfileScreen() {
       </View>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
-      {state === 'error' && (
-        <Text style={styles.error}>{t('Common.loadError', { error })}</Text>
-      )}
+      {state === 'error' && <Text style={styles.error}>{t('Common.loadError', { error })}</Text>}
       {state === 'ready' && (
         <FlatList
           data={items}

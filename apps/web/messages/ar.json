@@ -7,6 +7,9 @@
     "leaderboard": "لوحة الصدارة",
     "battle": "التحدي",
     "standings": "جدول الترتيب",
+    "wrapped": "موسمي",
+    "league": "الدوري",
+    "leagues": "المجموعات",
     "storyboard": "المخطط التصويري",
     "signIn": "تسجيل الدخول",
     "admin": "الإدارة",
@@ -25,7 +28,11 @@
     "supabaseNotConfigured": "لم يتم إعداد Supabase بعد.",
     "failed": "فشل",
     "failedStatus": "فشل ({status})",
-    "networkError": "خطأ في الشبكة"
+    "networkError": "خطأ في الشبكة",
+    "copyResultLine": "انسخ النتيجة",
+    "resultCopied": "تم النسخ — الصقها في أي مكان",
+    "shareOnWhatsApp": "واتساب",
+    "shareOnX": "X"
   },
   "Home": {
     "heroTitle": "اكتشف من يغني الأغنية <hl>بأفضل أداء</hl>.",
@@ -38,7 +45,25 @@
     "ctaRequestTitle": "أرسل أداءً",
     "ctaRequestBody": "أضف نسختك إلى الدوري — يراجع أحد المشرفين كل طلب.",
     "ctaInviteTitle": "ادعُ صديقًا",
-    "ctaInviteBody": "شارك VoxScore ونمِّ الدوري."
+    "ctaInviteBody": "شارك VoxScore ونمِّ الدوري.",
+    "tryNow": "جرّبه الآن — شاهد مبارزة بدون حساب",
+    "heroEyebrow": "لوحة النتائج الصوتية المباشرة",
+    "liveBoard": "اللوحة المباشرة",
+    "rankedVoices": "الأصوات المصنفة",
+    "openBattles": "المواجهات المفتوحة",
+    "verifiedRule": "الاستماعات الموثقة هي التي تقرر",
+    "latestHeading": "أحدث بطاقات النتائج",
+    "battleNow": "ادخل مواجهة",
+    "exploreRanks": "استكشف الترتيب"
+  },
+  "Errors": {
+    "eyebrow": "انقطع العرض",
+    "title": "خرجت هذه الجولة عن النغمة.",
+    "body": "تعذر إكمال تحميل الصفحة. أعد المحاولة أو ارجع إلى لوحة النتائج المباشرة.",
+    "retry": "حاول مرة أخرى",
+    "home": "العودة للرئيسية",
+    "notFoundTitle": "هذه المنصة غير موجودة.",
+    "notFoundBody": "قد يكون الرابط قديمًا أو خاصًا أو محذوفًا. ارجع إلى VoxScore للعثور على أداء مباشر."
   },
   "Login": {
     "signIn": "تسجيل الدخول",
@@ -52,6 +77,7 @@
     "google": "المتابعة باستخدام Google",
     "orDivider": "أو"
   },
+  "MobileTurnstile": { "verifying": "جارٍ التحقق من أن التسجيل بشري…" },
   "Add": {
     "title": "إضافة أداء",
     "subtitle": "ألصق رابط يوتيوب. نقوم بتضمينه (دون تنزيله أبدًا)، ونجلب بياناته الوصفية، وننشئ تقديرًا مبدئيًا بالذكاء الاصطناعي.",
@@ -75,6 +101,10 @@
     "viewPerformance": "عرض الأداء ←"
   },
   "Battle": {
+    "shareResult": "شارك حكمك",
+    "guestWatchBoth": "شاهد الأداءين كليهما بالكامل لاختيار الفائز",
+    "guestPickCta": "اختر الفائز — أنشئ حسابك المجاني",
+    "guestListened": "تمت المشاهدة ✓",
     "subtitle": "أداءان، وفائز واحد. استمع إليهما بالكامل، ثم قرّر.",
     "signInPrompt": "يرجى <link>تسجيل الدخول</link> للمشاركة في التحدي.",
     "statusListened": "✓ تم الاستماع",
@@ -87,7 +117,9 @@
     "mustListenBoth": "يجب أن تستمع بالكامل إلى الأداءين كليهما قبل اختيار الفائز.",
     "finding": "جارٍ البحث عن تحدٍّ…",
     "notEnough": "لا توجد أداءات كافية للتحدي بعد. أضف المزيد!",
-    "couldNotLoad": "تعذّر تحميل التحدي."
+    "couldNotLoad": "تعذّر تحميل التحدي.",
+    "predictPrompt": "قبل أن تستمع: من سيحسم هذا التحدي برأيك؟",
+    "predictDisclaimer": "التوقعات مجرد لعبة — لا تؤثر أبدًا في النتائج. الاستماع الموثّق وحده يفتح التصويت الحقيقي."
   },
   "Leaderboard": {
     "subtitle": "مرتّبة حسب النتيجة الحالية.",
@@ -106,12 +138,65 @@
     "record": "{wins}–{losses}",
     "winRate": "نسبة الفوز {rate}%",
     "empty": "لا توجد تحديات بعد. افتح ساحة التحدي لبدء واحدة.",
-    "viewScores": "لوحة صدارة النتائج →"
+    "viewScores": "لوحة صدارة النتائج →",
+    "predictionLeague": "دوري التوقعات"
+  },
+  "Wrapped": {
+    "title": "موسمك على VoxScore",
+    "wins": "تحديات فزت بها",
+    "losses": "تحديات خسرتها",
+    "votes": "أصوات موثّقة",
+    "listens": "استماعات موثّقة",
+    "predictionPoints": "نقاط التوقعات",
+    "shareHeadline": "🏆 موسمي على VoxScore: {wins} فوزًا في التحدي"
+  },
+  "League": {
+    "title": "الدوري الأسبوعي",
+    "tierBronze": "برونزي",
+    "tierSilver": "فضي",
+    "tierGold": "ذهبي",
+    "tierDiamond": "ماسي",
+    "promotionZone": "منطقة الترقية",
+    "relegationZone": "منطقة الهبوط",
+    "noCohort": "سيتم وضعك في دوري يوم الاثنين المقبل — واصل الاستماع والتصويت لكسب النقاط.",
+    "members": "{count}/30 مستمعًا",
+    "nextRotation": "التدوير التالي خلال {days} ي {hours} س",
+    "points": "{count} نقطة",
+    "pointsGuide": "استماع موثّق +1 · تصويت مواجهة موثّق +2 · فوز بالمواجهة +5",
+    "you": "أنت",
+    "loadError": "تعذر تحميل الدوري الأسبوعي."
+  },
+  "Leagues": {
+    "title": "دورياتك",
+    "subtitle": "لوحات ترتيب خاصة لفصلك أو فرقتك أو فريقك أو أصدقائك.",
+    "createCta": "إنشاء دوري",
+    "namePlaceholder": "اسم الدوري (الفصل أو الفرقة أو المجموعة…)",
+    "joinCta": "الانضمام برمز",
+    "codePlaceholder": "رمز من 8 أحرف",
+    "working": "جارٍ التنفيذ…",
+    "genericError": "تعذر تحديث الدوري.",
+    "loadError": "تعذر تحميل دورياتك.",
+    "empty": "لم تنضم إلى دوري خاص بعد. أنشئ دوريًا أو أدخل رمز دعوة.",
+    "owner": "المالك",
+    "member": "العضو",
+    "viewLeague": "عرض الترتيب",
+    "inviteTitle": "انضم إلى {name}",
+    "inviteBody": "اقبل الدعوة للتنافس مع هذه المجموعة على VoxScore.",
+    "invalidCode": "رمز الدعوة غير صالح.",
+    "notFound": "لم يتم العثور على دعوة الدوري.",
+    "acceptInvite": "قبول الدعوة",
+    "seasonBoard": "الموسم الحالي",
+    "memberCount": "{count} أعضاء",
+    "wins": "الانتصارات",
+    "points": "نقاط التوقع",
+    "inviteMembers": "ادعُ مجموعتك",
+    "inviteHeadline": "🎤 انضم إلى دوري VoxScore الخاص بي: {name}"
   },
   "Seasons": {
     "allSeasons": "كل المواسم"
   },
   "Performance": {
+    "shareScore": "شارك هذه النتيجة",
     "currentScore": "النتيجة الحالية",
     "scoreInterval": "±{margin}",
     "trend": "الاتجاه",
@@ -135,6 +220,21 @@
     "shareX": "X",
     "storyCard": "بطاقة القصة",
     "challengeCta": "تحدَّ صديقًا في هذه المبارزة"
+  },
+  "ShareKit": {
+    "title": "حزمة المشاركة",
+    "back": "العودة إلى الأداء",
+    "caption": "قيّم أدائي على VoxScore 🎤 {url} #VoxScoreChallenge #cover #غناء",
+    "cardAlt": "بطاقة نتيجة VoxScore لأداء {title}",
+    "captionHeading": "نص جاهز للنشر",
+    "copyCaption": "نسخ النص",
+    "copied": "تم نسخ النص",
+    "downloadCard": "تنزيل بطاقة النتيجة",
+    "howTo": "انشرها في ثلاث خطوات",
+    "kitStep1": "نزّل بطاقة نتيجتك",
+    "kitStep2": "صوّر رد فعلك أو مقطعًا من أدائك مدته 15 ثانية",
+    "kitStep3": "انشر مع النص؛ البطاقة والرابط يكملان الباقي",
+    "mediaNotice": "تقوم هذه الحزمة بتنزيل بطاقة VoxScore التي أنشأناها فقط، ولا تنزّل أو تعيد نشر وسائط YouTube."
   },
   "Criteria": {
     "vocalAccuracy": "دقة الأداء الصوتي",
@@ -173,6 +273,9 @@
     "battleRecord": "{wins}–{losses} في التحديات",
     "winRate": "نسبة الفوز {rate}%",
     "noPublic": "لا توجد أداءات عامة بعد.",
+    "trustedEarBronze": "الأذن الموثوقة · برونزية",
+    "trustedEarSilver": "الأذن الموثوقة · فضية",
+    "trustedEarGold": "الأذن الموثوقة · ذهبية",
     "follow": "متابعة",
     "unfollow": "إلغاء المتابعة",
     "followFailed": "تعذّر تحديث المتابعة.",
