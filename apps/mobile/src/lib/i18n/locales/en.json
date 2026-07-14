@@ -9,7 +9,10 @@
     "untitled": "Untitled",
     "loadError": "Could not load: {{error}}"
   },
-  "Security": { "title": "Security check", "cancel": "Cancel" },
+  "Security": {
+    "title": "Security check",
+    "cancel": "Cancel"
+  },
   "Leaderboard": {
     "addLink": "+ Add",
     "profile": "Profile",
@@ -325,5 +328,22 @@
     "commentSessionExpired": "Sign in again to comment.",
     "noComments": "No comments yet — be the first.",
     "anonymous": "anonymous"
+  },
+  "Home": {
+    "featuredEyebrow": "Featured",
+    "coversCompeting": "{{count}} covers competing",
+    "needMoreCovers": "{{count}}/3 covers",
+    "measured": "Measured",
+    "provisional": "Provisional",
+    "allCategories": "All",
+    "songsHeading": "Songs",
+    "empty": "No songs yet."
+  },
+  "Tabs": {
+    "home": "Home",
+    "battle": "Battle",
+    "add": "Add",
+    "leagues": "Leagues",
+    "profile": "Profile"
   }
 }

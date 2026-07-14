@@ -9,7 +9,10 @@
     "untitled": "Sin título",
     "loadError": "No se pudo cargar: {{error}}"
   },
-  "Security": { "title": "Comprobación de seguridad", "cancel": "Cancelar" },
+  "Security": {
+    "title": "Comprobación de seguridad",
+    "cancel": "Cancelar"
+  },
   "Leaderboard": {
     "addLink": "+ Agregar",
     "profile": "Perfil",
@@ -325,5 +328,22 @@
     "commentSessionExpired": "Inicia sesión de nuevo para comentar.",
     "noComments": "Aún no hay comentarios — sé el primero.",
     "anonymous": "anónimo"
+  },
+  "Home": {
+    "featuredEyebrow": "Destacado",
+    "coversCompeting": "{{count}} covers compitiendo",
+    "needMoreCovers": "{{count}}/3 covers",
+    "measured": "Medido",
+    "provisional": "Provisional",
+    "allCategories": "Todos",
+    "songsHeading": "Canciones",
+    "empty": "Aún no hay canciones."
+  },
+  "Tabs": {
+    "home": "Inicio",
+    "battle": "Duelo",
+    "add": "Añadir",
+    "leagues": "Ligas",
+    "profile": "Perfil"
   }
 }
