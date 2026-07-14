@@ -115,12 +115,12 @@ describe('mobile api client', () => {
     });
   });
 
-  it('startListen returns the listenId, or null when absent', async () => {
+  it('startListen returns the listenId + status, or null when absent', async () => {
     mockFetchOnce({ listenId: 'L42' });
-    expect(await startListen('p1')).toBe('L42');
+    expect(await startListen('p1')).toEqual({ listenId: 'L42', status: 200, error: undefined });
 
     mockFetchOnce({});
-    expect(await startListen('p1')).toBeNull();
+    expect(await startListen('p1')).toEqual({ listenId: null, status: 200, error: undefined });
   });
 
   it('completeListen maps isValid + reason', async () => {

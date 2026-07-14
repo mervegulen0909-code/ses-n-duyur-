@@ -31,12 +31,29 @@ const ATTESTED_PATHS = new Set([
 // (Turnstile on web; App Attest / Play Integrity on native, N2b) which is not
 // wired here yet, so those 403 from native until device attestation lands.
 
+/**
+ * Return a NON-expired access token for a Bearer header, refreshing first when
+ * the stored session's token is at/near expiry. `getSession()` alone returns the
+ * cached token WITHOUT refreshing, so a long-open app sends an expired token and
+ * every authed write 401s ("session expired") even though the user is signed in.
+ */
+async function freshAccessToken(): Promise<string | undefined> {
+  const { data } = await supabase.auth.getSession();
+  const session = data.session;
+  if (!session) return undefined;
+  const expiresAtMs = (session.expires_at ?? 0) * 1000;
+  if (expiresAtMs && expiresAtMs - Date.now() < 60_000) {
+    const { data: refreshed } = await supabase.auth.refreshSession();
+    return refreshed.session?.access_token ?? session.access_token;
+  }
+  return session.access_token;
+}
+
 async function authedPost<T>(
   path: string,
   body: unknown,
 ): Promise<{ ok: boolean; status: number; data: T }> {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
+  const token = await freshAccessToken();
   const rawBody = JSON.stringify(body);
   try {
     const pathname = path.split('?')[0] ?? path;
@@ -71,8 +88,7 @@ async function authedPost<T>(
 }
 
 async function authedGet<T>(path: string): Promise<{ ok: boolean; status: number; data: T }> {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
+  const token = await freshAccessToken();
   try {
     const res = await fetch(`${API_BASE}${path}`, {
       method: 'GET',
@@ -88,9 +104,14 @@ async function authedGet<T>(path: string): Promise<{ ok: boolean; status: number
   }
 }
 
-export async function startListen(performanceId: string): Promise<string | null> {
-  const { data } = await authedPost<{ listenId?: string }>('/api/listens/start', { performanceId });
-  return data.listenId ?? null;
+export async function startListen(
+  performanceId: string,
+): Promise<{ listenId: string | null; status: number; error?: string }> {
+  const { status, data } = await authedPost<{ listenId?: string; error?: string }>(
+    '/api/listens/start',
+    { performanceId },
+  );
+  return { listenId: data.listenId ?? null, status, error: data.error };
 }
 
 export async function completeListen(
