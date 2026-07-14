@@ -14,17 +14,18 @@ import { COLORS, FONTS } from '@/constants/brand';
 type TabBarProps = {
   state: { index: number; routes: { key: string; name: string }[] };
   navigation: {
-    emit: (event: {
-      type: 'tabPress';
-      target: string;
-      canPreventDefault: true;
-    }) => { defaultPrevented: boolean };
+    emit: (event: { type: 'tabPress'; target: string; canPreventDefault: true }) => {
+      defaultPrevented: boolean;
+    };
     navigate: (name: string) => void;
   };
 };
 
 /** Icon + label per tab route, keyed by file name. */
-const TAB_META: Record<string, { on: keyof typeof Ionicons.glyphMap; off: keyof typeof Ionicons.glyphMap; label: string }> = {
+const TAB_META: Record<
+  string,
+  { on: keyof typeof Ionicons.glyphMap; off: keyof typeof Ionicons.glyphMap; label: string }
+> = {
   index: { on: 'home', off: 'home-outline', label: 'Tabs.home' },
   battle: { on: 'git-compare', off: 'git-compare-outline', label: 'Tabs.battle' },
   leagues: { on: 'people', off: 'people-outline', label: 'Tabs.leagues' },
@@ -108,10 +109,7 @@ function TabBar({ state, navigation }: TabBarProps) {
 
 export default function TabsLayout() {
   return (
-    <Tabs
-      tabBar={(props) => <TabBar {...props} />}
-      screenOptions={{ headerShown: false }}
-    >
+    <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="battle" />
       <Tabs.Screen name="leagues" />

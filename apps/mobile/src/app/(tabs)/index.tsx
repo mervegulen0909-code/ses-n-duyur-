@@ -7,12 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CRITERIA } from '@voxscore/scoring';
 import { COLORS, FONTS } from '@/constants/brand';
-import {
-  CategoryChips,
-  FeaturedHero,
-  SkeletonCard,
-  SongCard,
-} from '@/components/home-visuals';
+import { CategoryChips, FeaturedHero, SkeletonCard, SongCard } from '@/components/home-visuals';
 import { useCategoryLabel } from '@/lib/category-labels';
 import {
   buildSongFeed,
@@ -116,11 +111,7 @@ export default function HomeScreen() {
           style={styles.avatarBtn}
           accessibilityLabel={user ? t('Leaderboard.profile') : t('Common.signIn')}
         >
-          <Ionicons
-            name={user ? 'person' : 'log-in-outline'}
-            size={18}
-            color={COLORS.cyan}
-          />
+          <Ionicons name={user ? 'person' : 'log-in-outline'} size={18} color={COLORS.cyan} />
         </Pressable>
       </View>
       <Text style={styles.sub}>{t('Leaderboard.signedOutSub', { count: CRITERIA.length })}</Text>
@@ -140,7 +131,11 @@ export default function HomeScreen() {
 
       {state === 'ready' && featured && (
         <View style={styles.heroWrap}>
-          <FeaturedHero entry={featured} categoryLabel={labelFor(featured.category)} onPress={openSong} />
+          <FeaturedHero
+            entry={featured}
+            categoryLabel={labelFor(featured.category)}
+            onPress={openSong}
+          />
         </View>
       )}
 
@@ -181,9 +176,7 @@ export default function HomeScreen() {
           keyExtractor={(e) => e.songId}
           ListHeaderComponent={header}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={
-            featured ? null : <Text style={styles.empty}>{t('Home.empty')}</Text>
-          }
+          ListEmptyComponent={featured ? null : <Text style={styles.empty}>{t('Home.empty')}</Text>}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.cyan} />
           }
