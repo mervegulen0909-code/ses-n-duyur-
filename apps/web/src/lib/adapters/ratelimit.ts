@@ -4,6 +4,21 @@ import { Redis } from '@upstash/redis';
 import { InMemoryRateLimiter, type RateLimiter, type RateLimitResult } from '@voxscore/core';
 
 /**
+ * Resolve Upstash REST credentials from the environment, accepting BOTH the
+ * canonical Upstash names (`UPSTASH_REDIS_REST_URL` / `_TOKEN`) and the names
+ * the Vercel Marketplace "Upstash for Redis" integration injects
+ * (`KV_REST_API_URL` / `KV_REST_API_TOKEN`). Returns null when neither pair is
+ * fully set, so callers can fall back deliberately.
+ */
+export function resolveUpstashCreds(): { url: string; token: string } | null {
+  // `||` (not `??`) so an EMPTY string — how an unset var can surface in some
+  // runtimes — also falls through to the Vercel-injected KV_* names.
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+  return url && token ? { url, token } : null;
+}
+
+/**
  * UpstashRateLimiter — distributed fixed-window limiter for production (works
  * across serverless instances). Activated by getRateLimiter() only when the
  * Upstash env is set; otherwise the in-memory dev limiter is used.
@@ -11,9 +26,9 @@ import { InMemoryRateLimiter, type RateLimiter, type RateLimitResult } from '@vo
 export class UpstashRateLimiter implements RateLimiter {
   private readonly rl: Ratelimit;
 
-  constructor(limit: number, windowMs: number) {
+  constructor(limit: number, windowMs: number, creds: { url: string; token: string }) {
     this.rl = new Ratelimit({
-      redis: Redis.fromEnv(),
+      redis: new Redis({ url: creds.url, token: creds.token }),
       limiter: Ratelimit.fixedWindow(limit, `${windowMs} ms`),
       prefix: 'vl-rl',
     });
@@ -33,8 +48,9 @@ export class FailClosedRateLimiter implements RateLimiter {
 }
 
 export function getRateLimiter(limit = 20, windowMs = 60_000): RateLimiter {
-  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-    return new UpstashRateLimiter(limit, windowMs);
+  const creds = resolveUpstashCreds();
+  if (creds) {
+    return new UpstashRateLimiter(limit, windowMs, creds);
   }
   return process.env.NODE_ENV === 'production'
     ? new FailClosedRateLimiter()
