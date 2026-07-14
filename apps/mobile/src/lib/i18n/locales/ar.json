@@ -175,6 +175,10 @@
     "points": "{{count}} نقطة توقع"
   },
   "Measure": {
+    "linkPathTitle": "قيّم عبر رابط YouTube",
+    "linkPathBody": "أداؤك أو كوفر يعجبك — أضف الرابط وسيقيّمه الذكاء الاصطناعي على 9 معايير. لا حاجة إلى ميكروفون.",
+    "linkPathCta": "أضف رابط YouTube",
+    "orDivider": "أو",
     "devBuildRequired": "قياس التسجيل يتطلب تطبيق VoxScore الكامل — غير متاح في Expo Go.",
     "title": "قياس تسجيلي",
     "signinPrompt": "سجّل الدخول لقياس تسجيلك ›",

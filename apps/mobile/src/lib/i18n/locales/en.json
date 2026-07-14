@@ -175,6 +175,10 @@
     "points": "{{count}} prediction pts"
   },
   "Measure": {
+    "linkPathTitle": "Score with a YouTube link",
+    "linkPathBody": "Your own performance or a cover you love — add the link and the AI scores it on 9 criteria. No microphone needed.",
+    "linkPathCta": "Add a YouTube link",
+    "orDivider": "or",
     "devBuildRequired": "Measuring your take needs the full VoxScore build — it is not available in Expo Go.",
     "title": "Measure my recording",
     "signinPrompt": "Sign in to measure your recording ›",

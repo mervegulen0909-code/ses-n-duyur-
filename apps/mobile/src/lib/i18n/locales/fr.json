@@ -175,6 +175,10 @@
     "points": "{{count}} pts de pronostic"
   },
   "Measure": {
+    "linkPathTitle": "Note avec un lien YouTube",
+    "linkPathBody": "Ta propre performance ou une reprise que tu aimes — ajoute le lien et l’IA la note sur 9 critères. Sans micro.",
+    "linkPathCta": "Ajouter un lien YouTube",
+    "orDivider": "ou",
     "devBuildRequired": "Mesurer ta prise nécessite l’application VoxScore complète — indisponible dans Expo Go.",
     "title": "Mesurer mon enregistrement",
     "signinPrompt": "Connectez-vous pour mesurer votre enregistrement ›",

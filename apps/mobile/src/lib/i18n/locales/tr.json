@@ -175,6 +175,10 @@
     "points": "{{count}} tahmin puanı"
   },
   "Measure": {
+    "linkPathTitle": "YouTube linkiyle puanlat",
+    "linkPathBody": "Kendi performansın ya da beğendiğin bir cover — linki ekle, yapay zekâ 9 ölçütte puanlasın. Mikrofon gerekmez.",
+    "linkPathCta": "YouTube linki ekle",
+    "orDivider": "veya",
     "devBuildRequired": "Kaydını ölçmek tam VoxScore uygulaması gerektirir — Expo Go içinde kullanılamaz.",
     "title": "Kaydımı ölç",
     "signinPrompt": "Kaydını ölçmek için giriş yap ›",
