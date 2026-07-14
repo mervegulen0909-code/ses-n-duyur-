@@ -9,8 +9,11 @@ type NativeYouTubePlayerProps = Omit<
   'forceAndroidAutoplay' | 'initialPlayerParams' | 'webViewProps'
 >;
 
+// Anti-cheat for the Verified Listen: hide the player controls so there is no
+// seek bar to scrub — a viewer can't jump to the end and claim a full watch.
+// Play/pause still works by tapping the video.
 const INITIAL_PLAYER_PARAMS: NonNullable<YoutubeIframeProps['initialPlayerParams']> = {
-  controls: true,
+  controls: false,
   rel: false,
   iv_load_policy: 3,
   preventFullScreen: true,
