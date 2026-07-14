@@ -174,11 +174,6 @@ export default function ProfileScreen() {
   if (!sessionLoading && !user) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
-        <View style={styles.header}>
-          <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Text style={styles.backText}>{t('Common.back')}</Text>
-          </Pressable>
-        </View>
         <View style={styles.signedOut}>
           <Text style={styles.signedOutTitle}>{t('Profile.notSignedInTitle')}</Text>
           <Text style={styles.signedOutSub}>{t('Profile.notSignedInSub')}</Text>
@@ -199,9 +194,6 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Text style={styles.backText}>{t('Common.back')}</Text>
-          </Pressable>
           <View style={styles.headerActions}>
             <LanguageSwitcher />
             <Pressable onPress={() => supabase.auth.signOut()} hitSlop={8}>

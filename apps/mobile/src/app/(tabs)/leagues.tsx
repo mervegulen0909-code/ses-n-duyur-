@@ -83,9 +83,6 @@ export default function CustomLeaguesScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()}>
-          <Text style={styles.back}>{t('Common.back')}</Text>
-        </Pressable>
         <Text style={styles.eyebrow}>VOXSCORE CREWS</Text>
         <Text style={styles.title}>{t('Leagues.title')}</Text>
       </View>

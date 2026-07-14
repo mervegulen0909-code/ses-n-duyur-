@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.voxscore.app",
-      "versionCode": 4,
+      "versionCode": 6,
       "adaptiveIcon": {
         "backgroundColor": "#0B1220",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
