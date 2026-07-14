@@ -78,6 +78,11 @@ export default function PerformanceScreen() {
   const eventsRef = useRef<ListenEvent[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // The moment the listen verifies, bring the vote panel into view so the
+  // viewer never has to hunt for it — voting opens the instant watching ends.
+  const scrollRef = useRef<ScrollView>(null);
+  const scrolledToVoteRef = useRef(false);
+
   const [ratings, setRatings] = useState<Record<string, number>>(() =>
     Object.fromEntries(CRITERIA.map((c) => [c, 50])),
   );
@@ -295,7 +300,7 @@ export default function PerformanceScreen() {
       {state === 'error' && <Text style={styles.error}>{t('Common.loadError', { error })}</Text>}
 
       {state === 'ready' && perf && (
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
           <Text style={styles.title}>{meta.title ?? t('Common.untitled')}</Text>
           {!!meta.authorName && <Text style={styles.artist}>{meta.authorName}</Text>}
           {!!perf.song_id && (
@@ -331,7 +336,15 @@ export default function PerformanceScreen() {
 
           {/* Vote panel — only after a Verified Listen, and only when signed in. */}
           {listen.status === 'verified' && voteState !== 'done' && (
-            <View style={styles.voteCard}>
+            <View
+              style={styles.voteCard}
+              onLayout={(e) => {
+                if (scrolledToVoteRef.current) return;
+                scrolledToVoteRef.current = true;
+                const y = Math.max(0, e.nativeEvent.layout.y - 12);
+                scrollRef.current?.scrollTo({ y, animated: true });
+              }}
+            >
               {!user ? (
                 <Pressable onPress={() => router.push('/login')}>
                   <Text style={styles.signinPrompt}>{t('Performance.signInToVote')}</Text>
@@ -435,18 +448,6 @@ export default function PerformanceScreen() {
             >
               <Text style={styles.shareBtnText}>{t('Performance.shareResult')}</Text>
             </Pressable>
-
-            {/* Owner-only: attach a real measurement to this performance. */}
-            {user && perf.user_id === user.id && (
-              <Pressable
-                style={({ pressed }) => [styles.measureBtn, pressed && { opacity: 0.85 }]}
-                onPress={() => router.push({ pathname: '/measure/[id]', params: { id: perf.id } })}
-              >
-                <Text style={styles.measureBtnText}>
-                  {measured ? t('Performance.remeasureBtn') : t('Performance.measureBtn')} 🎙
-                </Text>
-              </Pressable>
-            )}
           </View>
 
           {/* Comments — readable by all; posting requires sign-in. */}
