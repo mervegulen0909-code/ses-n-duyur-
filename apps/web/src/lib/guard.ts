@@ -58,10 +58,14 @@ export async function botGuard(
   rawBody?: string | Uint8Array,
 ): Promise<Response | null> {
   if (isNativeClientRequest(req)) {
-    // Local development can use Expo Go/simulators. Production is always
-    // fail-closed; the explicit env also enables real attestation in staging.
-    const required =
-      process.env.NODE_ENV === 'production' || process.env.NATIVE_ATTESTATION_REQUIRED === 'true';
+    // Native attestation (Play Integrity / App Attest) is enforced ONLY when
+    // explicitly enabled via NATIVE_ATTESTATION_REQUIRED — turn it on together
+    // with a store-signed build (EXPO_PUBLIC_NATIVE_ATTESTATION_ENABLED=true)
+    // and the GOOGLE_PLAY_* / APPLE_* server config (see DEPLOY.md §5). Until
+    // then the Verified-Listen time-anchor is the anti-bot cost for native
+    // writes — a debug/preview build can't pass Play Integrity, so auto-forcing
+    // it in prod would 403 every native vote.
+    const required = process.env.NATIVE_ATTESTATION_REQUIRED === 'true';
     if (!required) return null;
     if (!userId || !(await verifyNativeRequest(req, userId, rawBody))) {
       return Response.json({ error: 'Native app integrity check failed.' }, { status: 403 });
