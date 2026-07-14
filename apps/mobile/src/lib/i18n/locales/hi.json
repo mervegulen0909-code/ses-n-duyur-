@@ -9,7 +9,10 @@
     "untitled": "शीर्षक रहित",
     "loadError": "लोड नहीं हो सका: {{error}}"
   },
-  "Security": { "title": "सुरक्षा जाँच", "cancel": "रद्द करें" },
+  "Security": {
+    "title": "सुरक्षा जाँच",
+    "cancel": "रद्द करें"
+  },
   "Leaderboard": {
     "addLink": "+ जोड़ें",
     "profile": "प्रोफ़ाइल",
@@ -325,5 +328,22 @@
     "commentSessionExpired": "टिप्पणी करने के लिए फिर से साइन इन करें।",
     "noComments": "अभी कोई टिप्पणी नहीं — पहले बनें।",
     "anonymous": "अनाम"
+  },
+  "Home": {
+    "featuredEyebrow": "विशेष",
+    "coversCompeting": "{{count}} कवर प्रतिस्पर्धा में",
+    "needMoreCovers": "{{count}}/3 कवर",
+    "measured": "मापा गया",
+    "provisional": "अस्थायी",
+    "allCategories": "सभी",
+    "songsHeading": "गीत",
+    "empty": "अभी कोई गीत नहीं।"
+  },
+  "Tabs": {
+    "home": "होम",
+    "battle": "मुक़ाबला",
+    "add": "जोड़ें",
+    "leagues": "लीग",
+    "profile": "प्रोफ़ाइल"
   }
 }

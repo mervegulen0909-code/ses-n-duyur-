@@ -9,7 +9,10 @@
     "untitled": "بدون عنوان",
     "loadError": "تعذّر التحميل: {{error}}"
   },
-  "Security": { "title": "فحص الأمان", "cancel": "إلغاء" },
+  "Security": {
+    "title": "فحص الأمان",
+    "cancel": "إلغاء"
+  },
   "Leaderboard": {
     "addLink": "+ إضافة",
     "profile": "الملف الشخصي",
@@ -325,5 +328,22 @@
     "commentSessionExpired": "سجّل الدخول مجددًا للتعليق.",
     "noComments": "لا تعليقات بعد — كن الأول.",
     "anonymous": "مجهول"
+  },
+  "Home": {
+    "featuredEyebrow": "مميّز",
+    "coversCompeting": "{{count}} أداءً متنافساً",
+    "needMoreCovers": "{{count}}/3 أداء",
+    "measured": "مقاس",
+    "provisional": "مبدئي",
+    "allCategories": "الكل",
+    "songsHeading": "الأغاني",
+    "empty": "لا أغاني بعد."
+  },
+  "Tabs": {
+    "home": "الرئيسية",
+    "battle": "مواجهة",
+    "add": "إضافة",
+    "leagues": "الدوريات",
+    "profile": "الملف"
   }
 }

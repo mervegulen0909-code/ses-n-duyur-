@@ -9,7 +9,10 @@
     "untitled": "未命名",
     "loadError": "加载失败：{{error}}"
   },
-  "Security": { "title": "安全检查", "cancel": "取消" },
+  "Security": {
+    "title": "安全检查",
+    "cancel": "取消"
+  },
   "Leaderboard": {
     "addLink": "+ 添加",
     "profile": "个人主页",
@@ -325,5 +328,22 @@
     "commentSessionExpired": "请重新登录后再评论。",
     "noComments": "还没有评论——来做第一个吧。",
     "anonymous": "匿名"
+  },
+  "Home": {
+    "featuredEyebrow": "精选",
+    "coversCompeting": "{{count}} 个翻唱竞演",
+    "needMoreCovers": "{{count}}/3 个翻唱",
+    "measured": "已测量",
+    "provisional": "临时",
+    "allCategories": "全部",
+    "songsHeading": "歌曲",
+    "empty": "暂无歌曲。"
+  },
+  "Tabs": {
+    "home": "主页",
+    "battle": "对决",
+    "add": "添加",
+    "leagues": "联赛",
+    "profile": "我的"
   }
 }

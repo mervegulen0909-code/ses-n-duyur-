@@ -355,9 +355,6 @@ export default function BattleScreen() {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <View style={styles.header}>
-          <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-            <Text style={styles.backText}>{t('Common.back')}</Text>
-          </Pressable>
           <Text style={styles.heading}>{t('Common.battle')}</Text>
           <Text style={styles.sub}>{t('Battle.sub')}</Text>
         </View>
@@ -378,9 +375,6 @@ export default function BattleScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <Text style={styles.backText}>{t('Common.back')}</Text>
-        </Pressable>
         <Text style={styles.heading}>{t('Common.battle')}</Text>
         <Text style={styles.sub}>{t('Battle.sub')}</Text>
       </View>

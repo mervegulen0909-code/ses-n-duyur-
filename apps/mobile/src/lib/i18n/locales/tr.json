@@ -9,7 +9,10 @@
     "untitled": "Başlıksız",
     "loadError": "Yüklenemedi: {{error}}"
   },
-  "Security": { "title": "Güvenlik kontrolü", "cancel": "İptal" },
+  "Security": {
+    "title": "Güvenlik kontrolü",
+    "cancel": "İptal"
+  },
   "Leaderboard": {
     "addLink": "+ Ekle",
     "profile": "Profil",
@@ -325,5 +328,22 @@
     "commentSessionExpired": "Yorum yapmak için tekrar giriş yap.",
     "noComments": "Henüz yorum yok — ilk sen ol.",
     "anonymous": "anonim"
+  },
+  "Home": {
+    "featuredEyebrow": "Öne çıkan",
+    "coversCompeting": "{{count}} cover yarışıyor",
+    "needMoreCovers": "{{count}}/3 cover",
+    "measured": "Ölçüldü",
+    "provisional": "Geçici",
+    "allCategories": "Tümü",
+    "songsHeading": "Şarkılar",
+    "empty": "Henüz şarkı yok."
+  },
+  "Tabs": {
+    "home": "Ana Sayfa",
+    "battle": "Düello",
+    "add": "Ekle",
+    "leagues": "Ligler",
+    "profile": "Profil"
   }
 }
