@@ -175,6 +175,10 @@
     "points": "{{count}} 预测积分"
   },
   "Measure": {
+    "linkPathTitle": "用 YouTube 链接打分",
+    "linkPathBody": "无论是你自己的演唱还是喜欢的翻唱——添加链接，AI 按 9 项标准打分。无需麦克风。",
+    "linkPathCta": "添加 YouTube 链接",
+    "orDivider": "或",
     "devBuildRequired": "测量录音需要完整版 VoxScore 应用，在 Expo Go 中不可用。",
     "title": "测量我的录音",
     "signinPrompt": "登录后测量你的录音 ›",

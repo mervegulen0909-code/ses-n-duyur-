@@ -175,6 +175,10 @@
     "points": "{{count}} pts de predicción"
   },
   "Measure": {
+    "linkPathTitle": "Puntúa con un enlace de YouTube",
+    "linkPathBody": "Tu propia actuación o un cover que te guste: añade el enlace y la IA lo puntúa en 9 criterios. Sin micrófono.",
+    "linkPathCta": "Añadir enlace de YouTube",
+    "orDivider": "o",
     "devBuildRequired": "Medir tu grabación requiere la app completa de VoxScore; no está disponible en Expo Go.",
     "title": "Medir mi grabación",
     "signinPrompt": "Inicia sesión para medir tu grabación ›",

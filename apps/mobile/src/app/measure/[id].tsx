@@ -48,6 +48,35 @@ export default function MeasureScreen() {
   return <MeasureScreenImpl audioStudio={AudioStudio} />;
 }
 
+/**
+ * The zero-effort scoring path: add a YouTube link (your own performance or
+ * someone else's) and the AI scores it on all 9 criteria — no microphone.
+ * Mic measurement stays below as the optional accuracy upgrade.
+ */
+function LinkPathCard() {
+  const router = useRouter();
+  const { t } = useTranslation();
+  return (
+    <>
+      <View style={styles.linkCard}>
+        <Text style={styles.linkTitle}>{t('Measure.linkPathTitle')}</Text>
+        <Text style={styles.linkBody}>{t('Measure.linkPathBody')}</Text>
+        <Pressable
+          style={({ pressed }) => [styles.linkBtn, pressed && { opacity: 0.85 }]}
+          onPress={() => router.push('/add')}
+        >
+          <Text style={styles.linkBtnText}>{t('Measure.linkPathCta')}</Text>
+        </Pressable>
+      </View>
+      <View style={styles.orRow}>
+        <View style={styles.orLine} />
+        <Text style={styles.orText}>{t('Measure.orDivider')}</Text>
+        <View style={styles.orLine} />
+      </View>
+    </>
+  );
+}
+
 /** Expo Go fallback: recording needs the dev/store build's native module. */
 function MeasureUnavailable() {
   const router = useRouter();
@@ -59,6 +88,7 @@ function MeasureUnavailable() {
       </Pressable>
       <View style={styles.content}>
         <Text style={styles.title}>{t('Measure.title')}</Text>
+        <LinkPathCard />
         <View style={styles.honestyCard}>
           <Text style={styles.honestyBody}>{t('Measure.devBuildRequired')}</Text>
         </View>
@@ -157,6 +187,9 @@ function MeasureScreenImpl({
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>{t('Measure.title')}</Text>
+
+        {/* Easy path first — visible whenever the user isn't mid-recording. */}
+        {(!user || phase === 'intro') && <LinkPathCard />}
 
         {!user ? (
           <Pressable onPress={() => router.push('/login')}>
@@ -300,4 +333,25 @@ const styles = StyleSheet.create({
   resultVal: { fontSize: 20, fontWeight: '800', color: '#fafafa', fontVariant: ['tabular-nums'] },
   resultNote: { fontSize: 12, color: '#9ca3af', lineHeight: 18 },
   error: { color: '#fb7185', fontSize: 14 },
+  linkCard: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(34,211,238,0.35)',
+    backgroundColor: 'rgba(34,211,238,0.07)',
+    gap: 8,
+  },
+  linkTitle: { fontSize: 16, fontWeight: '800', color: '#22D3EE' },
+  linkBody: { fontSize: 13, color: '#9ca3af', lineHeight: 19 },
+  linkBtn: {
+    marginTop: 4,
+    backgroundColor: '#22D3EE',
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  linkBtnText: { color: '#06281d', fontSize: 15, fontWeight: '800' },
+  orRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  orLine: { flex: 1, height: 1, backgroundColor: '#262626' },
+  orText: { color: '#525252', fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
 });
