@@ -10,14 +10,13 @@ import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/s
  * explicit, destructive confirmation.
  *
  * How the cascade works (see supabase/migrations/20260609120000_init.sql):
- * public.profiles(id) references auth.users(id) ON DELETE CASCADE, and every
- * user-owned table (performances → scores, verified_listens, criteria_ratings,
- * battle_votes, comments, admin_scores, and any battles referencing the user's
- * performances) references public.profiles(id) ON DELETE CASCADE. So deleting
- * the auth user removes ALL of it in a single call. Legally-retained rows are
- * preserved but de-identified: dmca_requests.performance_id and
- * moderation_flags.reporter_id are ON DELETE SET NULL, so a filing/report
- * survives, anonymized.
+ * public.profiles(id) references auth.users(id) ON DELETE CASCADE, and
+ * user-owned private activity cascades from public.profiles(id). Public active
+ * performances are the exception: a BEFORE DELETE profile trigger reassigns
+ * them to the VoxScore system profile so catalog/ranking rows are not destroyed
+ * when a user account is erased. Legally-retained rows are preserved but
+ * de-identified: dmca_requests.performance_id and moderation_flags.reporter_id
+ * are ON DELETE SET NULL, so a filing/report survives, anonymized.
  *
  * Security: the user id comes ONLY from the verified session/JWT (getRequestContext),
  * never from the request body — there is no way to delete another user's account.
