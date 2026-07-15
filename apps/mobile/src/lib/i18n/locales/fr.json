@@ -33,7 +33,14 @@
     "signUpNotice": "Compte créé. Vérifiez vos e-mails pour confirmer, puis connectez-vous.",
     "googleFailError": "Échec de la connexion avec Google.",
     "googleStartError": "Impossible de démarrer la connexion avec Google.",
-    "googleNoCodeError": "La connexion Google n'a renvoyé aucun code."
+    "googleNoCodeError": "La connexion Google n’a renvoyé aucun code.",
+    "invalidEmail": "Saisissez une adresse e-mail valide.",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères.",
+    "invalidCredentials": "L’e-mail ou le mot de passe est incorrect.",
+    "emailNotConfirmed": "Confirmez votre e-mail avant de vous connecter.",
+    "accountExists": "Un compte existe déjà pour cet e-mail.",
+    "signInFailed": "Connexion impossible. Veuillez réessayer.",
+    "signUpFailed": "Création du compte impossible. Veuillez réessayer."
   },
   "Onboarding": {
     "skip": "Passer",
@@ -164,6 +171,7 @@
     "short": "Groupes",
     "error": "La ligue n’a pas pu être mise à jour.",
     "invalidCode": "Saisis un code valide de 8 caractères.",
+    "nameTooShort": "Le nom de la ligue doit contenir au moins 3 caractères.",
     "empty": "Aucune ligue privée pour le moment.",
     "owner": "Créateur",
     "member": "Membre",

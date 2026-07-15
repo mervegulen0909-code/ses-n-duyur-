@@ -33,7 +33,14 @@
     "signUpNotice": "Cuenta creada. Revisa tu correo electrónico para confirmarla y luego inicia sesión.",
     "googleFailError": "No se pudo iniciar sesión con Google.",
     "googleStartError": "No se pudo iniciar el proceso de inicio de sesión con Google.",
-    "googleNoCodeError": "El inicio de sesión con Google no devolvió un código."
+    "googleNoCodeError": "El inicio de sesión con Google no devolvió un código.",
+    "invalidEmail": "Introduce una dirección de correo válida.",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
+    "invalidCredentials": "El correo o la contraseña son incorrectos.",
+    "emailNotConfirmed": "Confirma tu correo antes de iniciar sesión.",
+    "accountExists": "Ya existe una cuenta con este correo.",
+    "signInFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+    "signUpFailed": "No se pudo crear la cuenta. Inténtalo de nuevo."
   },
   "Onboarding": {
     "skip": "Omitir",
@@ -164,6 +171,7 @@
     "short": "Grupos",
     "error": "No se pudo actualizar la liga.",
     "invalidCode": "Introduce un código válido de 8 caracteres.",
+    "nameTooShort": "El nombre de la liga debe tener al menos 3 caracteres.",
     "empty": "Aún no hay ligas privadas.",
     "owner": "Creador",
     "member": "Miembro",

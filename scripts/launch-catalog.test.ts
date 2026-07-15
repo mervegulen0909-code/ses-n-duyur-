@@ -33,13 +33,13 @@ describe('launch-catalog.template.json', () => {
     expect(load()).toHaveLength(19);
   });
 
-  it('gives every song at least 2 performance slots (38+ total)', () => {
+  it('gives every song at least 3 performance slots (57+ total)', () => {
     const songs = load();
     for (const song of songs) {
-      expect(song.performances.length).toBeGreaterThanOrEqual(2);
+      expect(song.performances.length).toBeGreaterThanOrEqual(3);
     }
     const total = songs.reduce((sum, s) => sum + s.performances.length, 0);
-    expect(total).toBeGreaterThanOrEqual(38);
+    expect(total).toBeGreaterThanOrEqual(57);
   });
 
   it('uses only valid categories and difficulties', () => {

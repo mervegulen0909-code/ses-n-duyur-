@@ -33,7 +33,14 @@
     "signUpNotice": "账号已创建。请查收邮件完成验证，然后登录。",
     "googleFailError": "Google 登录失败。",
     "googleStartError": "无法启动 Google 登录。",
-    "googleNoCodeError": "Google 登录未返回授权码。"
+    "googleNoCodeError": "Google 登录未返回授权码。",
+    "invalidEmail": "请输入有效的电子邮箱地址。",
+    "passwordTooShort": "密码至少需要 6 个字符。",
+    "invalidCredentials": "邮箱或密码不正确。",
+    "emailNotConfirmed": "请先确认邮箱地址再登录。",
+    "accountExists": "此邮箱已存在账号。",
+    "signInFailed": "无法登录，请重试。",
+    "signUpFailed": "无法创建账号，请重试。"
   },
   "Onboarding": {
     "skip": "跳过",
@@ -164,6 +171,7 @@
     "short": "小组",
     "error": "无法更新联赛。",
     "invalidCode": "请输入有效的 8 位代码。",
+    "nameTooShort": "联赛名称至少需要 3 个字符。",
     "empty": "还没有私人联赛。",
     "owner": "创建者",
     "member": "成员",

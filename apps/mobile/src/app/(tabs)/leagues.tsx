@@ -18,6 +18,7 @@ import {
   myCustomLeagues,
   type CustomLeagueSummary,
 } from '@/lib/api';
+import { isValidLeagueName } from '@/lib/form-validation';
 import { useSession } from '@/lib/use-session';
 
 export default function CustomLeaguesScreen() {
@@ -46,7 +47,7 @@ export default function CustomLeaguesScreen() {
   );
 
   async function create() {
-    if (name.trim().length < 3) return;
+    if (!isValidLeagueName(name)) return setError(t('Leagues.nameTooShort'));
     setBusy(true);
     setError('');
     const result = await createCustomLeague(name.trim());

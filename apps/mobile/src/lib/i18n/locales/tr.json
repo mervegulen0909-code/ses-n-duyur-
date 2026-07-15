@@ -33,7 +33,14 @@
     "signUpNotice": "Hesap oluşturuldu. Onaylamak için e-postanı kontrol et, ardından giriş yap.",
     "googleFailError": "Google ile giriş başarısız oldu.",
     "googleStartError": "Google ile giriş başlatılamadı.",
-    "googleNoCodeError": "Google girişi bir kod döndürmedi."
+    "googleNoCodeError": "Google girişi bir kod döndürmedi.",
+    "invalidEmail": "Geçerli bir e-posta adresi gir.",
+    "passwordTooShort": "Şifre en az 6 karakter olmalı.",
+    "invalidCredentials": "E-posta veya şifre hatalı.",
+    "emailNotConfirmed": "Giriş yapmadan önce e-posta adresini onayla.",
+    "accountExists": "Bu e-posta adresiyle zaten bir hesap var.",
+    "signInFailed": "Giriş yapılamadı. Lütfen tekrar dene.",
+    "signUpFailed": "Hesap oluşturulamadı. Lütfen tekrar dene."
   },
   "Onboarding": {
     "skip": "Geç",
@@ -164,6 +171,7 @@
     "short": "Ekipler",
     "error": "Lig güncellenemedi.",
     "invalidCode": "Geçerli bir 8 karakterlik kod gir.",
+    "nameTooShort": "Lig adı en az 3 karakter olmalı.",
     "empty": "Henüz özel ligin yok.",
     "owner": "Kurucu",
     "member": "Üye",

@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TurnstileChallenge } from '@/components/turnstile-challenge';
+import { authErrorMessageKey, validateCredentials } from '@/lib/form-validation';
 import { supabase } from '@/lib/supabase';
 
 // Lets the in-app browser tab finish/dismiss the OAuth redirect cleanly.
@@ -39,15 +40,22 @@ export default function LoginScreen() {
 
   async function submit() {
     if (busy) return;
-    setBusy(true);
     setError('');
     setNotice('');
+
+    const validationError = validateCredentials(email, password);
+    if (validationError) {
+      setError(t(`Login.${validationError}`));
+      return;
+    }
+
+    setBusy(true);
 
     if (mode === 'login') {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       setBusy(false);
       if (error) {
-        setError(error.message);
+        setError(t(`Login.${authErrorMessageKey(error.code, 'login')}`));
         return;
       }
       done();
@@ -68,7 +76,7 @@ export default function LoginScreen() {
     });
     setBusy(false);
     if (error) {
-      setError(error.message);
+      setError(t(`Login.${authErrorMessageKey(error.code, 'signup')}`));
       return;
     }
     // If the project has email confirmation DISABLED, signUp returns a session
