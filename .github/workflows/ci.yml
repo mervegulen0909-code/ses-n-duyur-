@@ -37,7 +37,7 @@ jobs:
         run: pnpm format:check
 
       - name: Production dependency audit
-        run: pnpm audit --prod
+        run: pnpm audit --prod --ignore-registry-errors
 
       - name: Database migrations from zero
         run: |
