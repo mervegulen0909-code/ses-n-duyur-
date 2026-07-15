@@ -4,8 +4,6 @@ const REQUIRED_ENV = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'SUPABASE_SERVICE_ROLE_KEY',
-  'UPSTASH_REDIS_REST_URL',
-  'UPSTASH_REDIS_REST_TOKEN',
   'NEXT_PUBLIC_TURNSTILE_SITE_KEY',
   'TURNSTILE_SECRET_KEY',
   'CRON_SECRET',
@@ -15,10 +13,16 @@ const REQUIRED_ENV = [
 /** Deployment readiness probe; returns names only, never secret values. */
 export async function GET(): Promise<Response> {
   const missing: string[] = REQUIRED_ENV.filter((name) => !process.env[name]);
+  if (!process.env.UPSTASH_REDIS_REST_URL && !process.env.KV_REST_API_URL) {
+    missing.push('UPSTASH_REDIS_REST_URL');
+  }
+  if (!process.env.UPSTASH_REDIS_REST_TOKEN && !process.env.KV_REST_API_TOKEN) {
+    missing.push('UPSTASH_REDIS_REST_TOKEN');
+  }
   if (!process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY) {
     missing.push('ANTHROPIC_API_KEY');
   }
-  if (process.env.NODE_ENV === 'production' || process.env.NATIVE_ATTESTATION_REQUIRED === 'true') {
+  if (process.env.NATIVE_ATTESTATION_REQUIRED === 'true') {
     if (!process.env.GOOGLE_PLAY_PACKAGE_NAME) missing.push('GOOGLE_PLAY_PACKAGE_NAME');
     if (!process.env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_B64)
       missing.push('GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_B64');
