@@ -10,6 +10,9 @@ export default tseslint.config(
       '**/.expo/**',
       '**/node_modules/**',
       '**/coverage/**',
+      // Claude creates complete nested repository worktrees here. They are
+      // independent checkouts and must not be linted as part of this root.
+      '.claude/worktrees/**',
       '**/*.config.*',
       '**/next-env.d.ts',
     ],

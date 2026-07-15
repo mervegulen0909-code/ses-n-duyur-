@@ -6,20 +6,28 @@
     "difficulty": "hard",
     "performances": [
       {
+        "youtubeUrl": "https://www.youtube.com/watch?v=HzC2-GJu1Q8",
+        "note": "Boyce Avenue acoustic cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Someone Like You - Adele (Boyce Avenue acoustic cover) on Spotify & Apple",
+        "author": "Boyce Avenue",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 83168357
+      },
+      {
         "youtubeUrl": "https://www.youtube.com/watch?v=Y8iw6_EQIdk",
         "note": "Davina Michelle cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Someone Like You - Adele (Cover By: Davina Michelle)",
         "author": "Davina Michelle",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 5959440
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 5961426
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=TdXVKLFfYQA",
         "note": "Allie Sherlock cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Someone Like You - Adele | Allie Sherlock cover & Ata Etminan",
         "author": "Allie Sherlock",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 739550
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 739801
       }
     ]
   },
@@ -34,16 +42,24 @@
         "note": "J.Fla cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Ed Sheeran - Shape Of You ( cover by J.Fla )",
         "author": "JFlaMusic",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 360305032
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 360347338
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=P4oSRlQqjf8",
+        "note": "Conor Maynard and The Vamps vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Ed Sheeran - Shape Of You (SING OFF vs. The Vamps)",
+        "author": "Conor Maynard",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 134435531
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=Jm4B-A_e8Zc",
         "note": "Boyce Avenue acoustic cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Shape of You - Ed Sheeran (Boyce Avenue acoustic cover) on Spotify & Apple",
         "author": "Boyce Avenue",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 20166077
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 20166815
       }
     ]
   },
@@ -54,20 +70,28 @@
     "difficulty": "medium",
     "performances": [
       {
+        "youtubeUrl": "https://www.youtube.com/watch?v=DFulMvsb6Y0",
+        "note": "Loi vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "The Weeknd - Blinding Lights (Cover by Loi)",
+        "author": "loimusic",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 20543180
+      },
+      {
         "youtubeUrl": "https://www.youtube.com/watch?v=E5zDVXshx2Y",
         "note": "Teddy Swims cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Teddy Swims - Blinding Lights (The Weeknd Cover)",
         "author": "Teddy Swims",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 18718056
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 18731682
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=YzvfDEVzGfI",
         "note": "Andie Case cover — oEmbed verified 2026-07-11",
         "oembedTitle": "The Weeknd - Blinding Lights (Andie Case Cover)",
         "author": "Andie Case",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 1741489
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 1741979
       }
     ]
   },
@@ -82,16 +106,24 @@
         "note": "Marc Martel cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Marc Martel - Bohemian Rhapsody (Queen cover)",
         "author": "Marc Martel",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 60801338
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 60814308
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=9fTDV5cedJQ",
+        "note": "Halocene collaborative vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Queen - Bohemian Rhapsody cover by @Halocene , @FirstToEleven , @VioletOrlandi , @laurenbabic",
+        "author": "Halocene",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 9064081
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=I7v5gpWe8ds",
         "note": "David Fowler a cappella cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Queen - BOHEMIAN RHAPSODY - David Fowler A Cappella Official",
         "author": "DavidFowlerMusic",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 168373
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 168381
       }
     ]
   },
@@ -106,16 +138,24 @@
         "note": "Fabio Rodrigues & Allie Sherlock cover — oEmbed verified 2026-07-11",
         "oembedTitle": "HOTEL CALIFORNIA by the EAGLES | Fabio Rodrigues & Allie Sherlock Cover",
         "author": "Fabio Rodrigues",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 49098111
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 49121877
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=914P7Dt9lzQ",
         "note": "Our Last Night cover — oEmbed verified 2026-07-11",
         "oembedTitle": "The Eagles - \"Hotel California\"  (Cover By Our Last Night)",
         "author": "Our Last Night",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 8974966
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 8977172
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=YwKZvcnBlAo",
+        "note": "Sing It Live complete live cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "'Hotel California' Eagles Cover | Complete Live Performance | Sing It Live",
+        "author": "Sing it Live",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 572546
       }
     ]
   },
@@ -126,20 +166,28 @@
     "difficulty": "hard",
     "performances": [
       {
+        "youtubeUrl": "https://www.youtube.com/watch?v=J61mtatKT1I",
+        "note": "First To Eleven cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Sweet Child O' Mine - Guns n’ Roses (Cover by First To Eleven)",
+        "author": "First To Eleven",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 76102105
+      },
+      {
         "youtubeUrl": "https://www.youtube.com/watch?v=aIxjgNNigu8",
         "note": "Jess Greenberg cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Sweet Child O' Mine - Guns N' Roses (cover) Jess Greenberg",
         "author": "JessGreenberg1",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 6627878
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 6628063
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=56PJliOGJns",
         "note": "Jada Facer ft. Kyson Facer acoustic cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Sweet Child O' Mine (Acoustic) by Guns N' Roses | cover by Jada Facer ft. Kyson Facer",
         "author": "Jada Facer",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 606784
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 608445
       }
     ]
   },
@@ -150,20 +198,28 @@
     "difficulty": "hard",
     "performances": [
       {
+        "youtubeUrl": "https://www.youtube.com/watch?v=eA_ganQRJ1Q",
+        "note": "Emma Heesters vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Celine Dion - My Heart Will Go On (Cover)",
+        "author": "Emma Heesters",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 7930995
+      },
+      {
         "youtubeUrl": "https://www.youtube.com/watch?v=Hvp-EXUc_ww",
         "note": "Boyce Avenue ft. Connie Talbot cover — oEmbed verified 2026-07-11",
         "oembedTitle": "My Heart Will Go On - Celine Dion (Boyce Avenue ft. Connie Talbot piano acoustic cover)(Titanic)",
         "author": "Boyce Avenue",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 4994245
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 5003690
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=QqXvz9_AmxQ",
         "note": "Corvyx male cover — oEmbed verified 2026-07-11",
         "oembedTitle": "My Heart Will Go On (TITANIC) - Celine Dion (Male Cover ORIGINAL KEY*) | Cover by Corvyx",
         "author": "CORVYX",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 4506081
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 4510378
       }
     ]
   },
@@ -178,16 +234,24 @@
         "note": "Chris Cornell cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Chris Cornell - \"Nothing Compares 2 U\" Prince Cover",
         "author": "Chris Cornell",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 1099206
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 1099752
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=viQkRt6ych4",
+        "note": "Choir! Choir! Choir! group vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Choir! sings Sinéad O'Connor Nothing Compares 2 U",
+        "author": "Choir! Choir! Choir!",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 935419
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=PcAwfJqpraQ",
         "note": "Giulia Falcone cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Giulia Falcone - Nothing Compares 2 U – Prince (Cover Inspired by Sinead O’Connor)",
         "author": "Giulia Falcone",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 107246
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 107443
       }
     ]
   },
@@ -202,16 +266,24 @@
         "note": "Boyce Avenue acoustic cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Hallelujah - Leonard Cohen /Jeff Buckley (Boyce Avenue acoustic cover) on Spotify & Apple",
         "author": "Boyce Avenue",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 42478621
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 42548593
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=llyADThAg5o",
+        "note": "Hannah Trigwell live vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Leonard Cohen / Jeff Buckley - Hallelujah (Hannah Trigwell live cover)",
+        "author": "Hannah Trigwell",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 11544278
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=ZxIw9uXLH8g",
         "note": "Davina Michelle cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Hallelujah - Leonard Cohen (Cover By: Davina Michelle)",
         "author": "Davina Michelle",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 2552418
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 2552966
       }
     ]
   },
@@ -226,16 +298,24 @@
         "note": "Shawn James cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Shawn James – Ain't No Sunshine (Bill Withers Cover)",
         "author": "Shawn James",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 41952175
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 41966563
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=PvMDwJkvZaw",
         "note": "Elise LeGrow cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Bill Withers \"Ain't No Sunshine\" cover by Elise LeGrow",
         "author": "Elise LeGrow",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 34112124
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 34144104
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=4EsAEOarKW4",
+        "note": "Geoff Castellucci bass vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Ain't No Sunshine - Bill Withers (Bass Singer Cover by Geoff Castellucci)",
+        "author": "Geoff Castellucci",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 3725807
       }
     ]
   },
@@ -250,16 +330,24 @@
         "note": "Laura Kamhuber — The Voice Kids 2013 blind audition — oEmbed verified 2026-07-11",
         "oembedTitle": "Whitney Houston - I will Always Love You (Laura) | The Voice Kids 2013 | Blind Auditions | SAT.1",
         "author": "The Voice Kids",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 234782215
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 234800572
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=wzZp5px6fVA",
+        "note": "Benedetta Caretta vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "I WILL ALWAYS LOVE YOU - Whitney Houston (Cover Benedetta Caretta)",
+        "author": "Benedetta Caretta",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 8041028
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=QfstuJ-PNYk",
         "note": "X Factor USA contestant cover (Talent Replay) — oEmbed verified 2026-07-11",
         "oembedTitle": "Best Ever Cover Of Whitney Houston's \"I Will Always Love You\" On The X Factor USA!",
         "author": "Talent Replay",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 2912016
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 2919972
       }
     ]
   },
@@ -274,16 +362,24 @@
         "note": "Francesco Il Mercante street acoustic cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Bella ciao - Street acoustic cover 2022 - Crowd singing",
         "author": "Francesco Il mercante",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 1880011
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 1880523
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=JPeObJ9F58I",
         "note": "Iris Noëlle acoustic cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Bella Ciao (Iris Noëlle Acoustic Cover) | LA CASA DE PAPEL",
         "author": "Iris Noëlle",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 1620567
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 1620969
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=PPmc4PR6OrA",
+        "note": "Kardiyak vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Italian Folk Song | Bella Ciao (Kardiyak Vocal Cover)",
+        "author": "Kardiyak",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 14950
       }
     ]
   },
@@ -298,16 +394,24 @@
         "note": "Yeni Türkü Kral Pop Akustik canlı performans — oEmbed verified 2026-07-11",
         "oembedTitle": "Yeni Türkü - Aşk Yeniden (Kral Pop Akustik)",
         "author": "Kral Müzik",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 28445
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 28501
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=rlPlk4ASOeA",
         "note": "Buray cover (Yeni Türkü Zamansız, resmi video) — oEmbed verified 2026-07-11",
         "oembedTitle": "Buray - Aşk Yeniden",
         "author": "Buray _Video_",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
         "viewCount": 1390
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=c3BEYfUsbos",
+        "note": "Atölye Cover rendition — oEmbed verified 2026-07-15",
+        "oembedTitle": "Aşk Yeniden",
+        "author": "Atölye Cover - Topic",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 22
       }
     ]
   },
@@ -322,16 +426,24 @@
         "note": "First To Eleven cover — oEmbed verified 2026-07-11",
         "oembedTitle": "\"Mr. Brightside\" - The Killers (Cover by First To Eleven)",
         "author": "First To Eleven",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 3591020
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 3593440
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=0RYrRnafmO0",
         "note": "Boyce Avenue acoustic cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Mr. Brightside - The Killers (Boyce Avenue acoustic cover) on Spotify & Apple",
         "author": "Boyce Avenue",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 2004594
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 2006271
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=BhS6yWtgN74",
+        "note": "Caleb Hyles vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "The Killers - Mr. Brightside (Vocal Cover by Caleb Hyles)",
+        "author": "Caleb Hyles",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 310995
       }
     ]
   },
@@ -346,16 +458,24 @@
         "note": "Cassette Acoustics acoustic cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Franz Ferdinand - Take Me Out (acoustic cover by Cassette)",
         "author": "Cassette Acoustics",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 41069
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 41073
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=KfspR2IBq8w",
+        "note": "Gentry Blue vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Gentry Blue - Take Me Out (Official Music Video) [Franz Ferdinand Cover]",
+        "author": "Gentry Blue",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 7365
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=9A7ebg1rSUs",
         "note": "Aks L acoustic cover — oEmbed verified 2026-07-11",
         "oembedTitle": "TAKE ME OUT (Franz Ferdinand) - Acoustic Cover",
         "author": "Aks L",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 1255
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 1259
       }
     ]
   },
@@ -370,16 +490,24 @@
         "note": "Beau Dermott BGT audition cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Unforgettable Audition: GOLDEN BUZZER Beau Dermott BELTS 'Defying Gravity' | Britain's Got Talent",
         "author": "Britain's Got Talent",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 1012839
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 1013153
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=oPNm-XFdADA",
+        "note": "JIANNE vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Defying Gravity (Cover by JIANNE)",
+        "author": "강지안 JIANNE",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 72772
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=CnELbxI1XlM",
         "note": "Jasmine Clarke cover — oEmbed verified 2026-07-11",
         "oembedTitle": "WICKED - DEFYING GRAVITY (COVER) - JASMINE CLARKE",
         "author": "Jasmine Clarke",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 12795
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 12802
       }
     ]
   },
@@ -394,16 +522,24 @@
         "note": "Luciano Pavarotti rendition (Warner Classics) — oEmbed verified 2026-07-11",
         "oembedTitle": "Luciano Pavarotti - Ave Maria (Schubert)",
         "author": "Warner Classics",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 35674304
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 35699284
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=ja5hQH9USIU",
         "note": "Aida Garifullina rendition — oEmbed verified 2026-07-11",
         "oembedTitle": "Aida Garifullina - Ave Maria (Schubert)",
         "author": "Aida Garifullina",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 13449468
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 13470203
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=J2qP0QSOZtY",
+        "note": "Artemis vocal cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Ave Maria - Schubert - Cover by Artemis",
+        "author": "Artemis",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 462427
       }
     ]
   },
@@ -418,16 +554,24 @@
         "note": "Sonny Vande Putte a cappella cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Happy birthday - A cappella",
         "author": "Sonny Vande Putte",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 12605055
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 12609773
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=ZOUxJfXGl14",
+        "note": "Voca People a cappella performance — oEmbed verified 2026-07-15",
+        "oembedTitle": "Happy Birthday by the VOCA PEOPLE",
+        "author": "Voca People",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 4338101
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=kid6T83AfcA",
         "note": "Luiz Valadez a cappella cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Happy Birthday song (Luiz Valadez) A cappella cover",
         "author": "Luiz Valadez",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 370091
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 370128
       }
     ]
   },
@@ -442,16 +586,24 @@
         "note": "BYU Noteworthy a cappella cover — oEmbed verified 2026-07-11",
         "oembedTitle": "Amazing Grace (My Chains Are Gone) | BYU Noteworthy (Chris Tomlin A Cappella Cover)",
         "author": "BYU Noteworthy",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 83153982
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 83173480
+      },
+      {
+        "youtubeUrl": "https://www.youtube.com/watch?v=xyjs28YdE04",
+        "note": "Boyce Avenue and Connie Talbot a cappella cover — oEmbed verified 2026-07-15",
+        "oembedTitle": "Amazing Grace - Boyce Avenue ft. Connie Talbot (acapella cover) on Spotify & Apple",
+        "author": "Boyce Avenue",
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 917955
       },
       {
         "youtubeUrl": "https://www.youtube.com/watch?v=27Gcmyx7FSc",
         "note": "BYU Vocal Point a cappella — oEmbed verified 2026-07-11",
         "oembedTitle": "Amazing Grace | BYU Vocal Point & Friends (A Cappella)",
         "author": "BYU Vocal Point",
-        "verifiedAt": "2026-07-11T13:37:09.383Z",
-        "viewCount": 484715
+        "verifiedAt": "2026-07-14T23:44:38.285Z",
+        "viewCount": 484936
       }
     ]
   }

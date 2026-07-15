@@ -33,7 +33,14 @@
     "signUpNotice": "Account created. Check your email to confirm, then sign in.",
     "googleFailError": "Google sign-in failed.",
     "googleStartError": "Could not start Google sign-in.",
-    "googleNoCodeError": "Google sign-in did not return a code."
+    "googleNoCodeError": "Google sign-in did not return a code.",
+    "invalidEmail": "Enter a valid email address.",
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "invalidCredentials": "Email or password is incorrect.",
+    "emailNotConfirmed": "Confirm your email address before signing in.",
+    "accountExists": "An account already exists for this email address.",
+    "signInFailed": "Could not sign in. Please try again.",
+    "signUpFailed": "Could not create the account. Please try again."
   },
   "Onboarding": {
     "skip": "Skip",
@@ -164,6 +171,7 @@
     "short": "Crews",
     "error": "The league could not be updated.",
     "invalidCode": "Enter a valid 8-character code.",
+    "nameTooShort": "League name must be at least 3 characters.",
     "empty": "No private leagues yet.",
     "owner": "Owner",
     "member": "Member",
