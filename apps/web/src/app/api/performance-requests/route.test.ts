@@ -11,9 +11,25 @@ vi.mock('@/lib/guard', () => ({
 vi.mock('@/lib/analytics-server', () => ({
   trackServer: vi.fn(async () => {}),
 }));
+vi.mock('@/lib/performance-create', async () => {
+  class DuplicateVideoError extends Error {}
+  class OEmbedFetchError extends Error {}
+  return {
+    createScoredPerformance: vi.fn(async () => ({ id: 'perf-new' })),
+    repairMissingInitialScores: vi.fn(async () => {}),
+    DuplicateVideoError,
+    OEmbedFetchError,
+  };
+});
 
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { trackServer } from '@/lib/analytics-server';
+import {
+  createScoredPerformance,
+  DuplicateVideoError,
+  OEmbedFetchError,
+  repairMissingInitialScores,
+} from '@/lib/performance-create';
 import { GET, POST } from './route';
 
 const VALID_BODY = {
@@ -30,23 +46,24 @@ function makeRequest(body: unknown = VALID_BODY, method = 'POST'): Request {
 }
 
 type RequestCtx = Awaited<ReturnType<typeof getRequestContext>>;
-type Service = ReturnType<typeof createSupabaseServiceClient>;
+type Service = NonNullable<ReturnType<typeof createSupabaseServiceClient>>;
 
-function makeUserClient(insertResult: { data: { id: string } | null; error: unknown }) {
-  const single = vi.fn(async () => insertResult);
-  const insert = vi.fn(() => ({ select: () => ({ single }) }));
+function makeUserClient() {
   const order = vi.fn(async () => ({ data: [], error: null }));
   const eq = vi.fn(() => ({ order }));
   const select = vi.fn(() => ({ eq }));
-  const from = vi.fn(() => ({ insert, select }));
-  return { supabase: { from } as unknown, insert, from };
+  const from = vi.fn(() => ({ select }));
+  return { supabase: { from } as unknown, from };
 }
 
 function makeService(opts: { existingPerf?: unknown; existingPending?: unknown } = {}): Service {
   const from = vi.fn((table: string) => {
-    const result =
-      table === 'performances' ? (opts.existingPerf ?? null) : (opts.existingPending ?? null);
-    const maybeSingle = vi.fn(async () => ({ data: result, error: null }));
+    if (table === 'performance_requests') {
+      const single = vi.fn(async () => ({ data: { id: 'req-audit' }, error: null }));
+      const insert = vi.fn(() => ({ select: () => ({ single }) }));
+      return { insert };
+    }
+    const maybeSingle = vi.fn(async () => ({ data: opts.existingPerf ?? null, error: null }));
     const eq2 = vi.fn(() => ({ maybeSingle }));
     const eq1 = vi.fn(() => ({ eq: eq2 }));
     const select = vi.fn(() => ({ eq: eq1 }));
@@ -55,7 +72,7 @@ function makeService(opts: { existingPerf?: unknown; existingPending?: unknown }
   return { from } as unknown as Service;
 }
 
-describe('POST /api/performance-requests — user request queue', () => {
+describe('POST /api/performance-requests — automatic add', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
@@ -70,7 +87,7 @@ describe('POST /api/performance-requests — user request queue', () => {
   });
 
   it('422 on invalid input (missing category)', async () => {
-    const user = makeUserClient({ data: { id: 'req-1' }, error: null });
+    const user = makeUserClient();
     vi.mocked(getRequestContext).mockResolvedValue({
       supabase: user.supabase,
       user: { id: 'u1' },
@@ -81,7 +98,7 @@ describe('POST /api/performance-requests — user request queue', () => {
   });
 
   it('422 on an invalid YouTube URL', async () => {
-    const user = makeUserClient({ data: { id: 'req-1' }, error: null });
+    const user = makeUserClient();
     vi.mocked(getRequestContext).mockResolvedValue({
       supabase: user.supabase,
       user: { id: 'u1' },
@@ -92,7 +109,7 @@ describe('POST /api/performance-requests — user request queue', () => {
   });
 
   it('422 on an invalid category value', async () => {
-    const user = makeUserClient({ data: { id: 'req-1' }, error: null });
+    const user = makeUserClient();
     vi.mocked(getRequestContext).mockResolvedValue({
       supabase: user.supabase,
       user: { id: 'u1' },
@@ -105,7 +122,7 @@ describe('POST /api/performance-requests — user request queue', () => {
   });
 
   it('409 when the video is already an active performance', async () => {
-    const user = makeUserClient({ data: { id: 'req-1' }, error: null });
+    const user = makeUserClient();
     vi.mocked(getRequestContext).mockResolvedValue({
       supabase: user.supabase,
       user: { id: 'u1' },
@@ -116,62 +133,74 @@ describe('POST /api/performance-requests — user request queue', () => {
 
     const res = await POST(makeRequest());
     expect(res.status).toBe(409);
-    expect(user.insert).not.toHaveBeenCalled();
+    expect(createScoredPerformance).not.toHaveBeenCalled();
   });
 
-  it('409 when a pending request for the same video exists', async () => {
-    const user = makeUserClient({ data: { id: 'req-1' }, error: null });
-    vi.mocked(getRequestContext).mockResolvedValue({
-      supabase: user.supabase,
-      user: { id: 'u1' },
-    } as unknown as RequestCtx);
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(
-      makeService({ existingPending: { id: 'req-existing' } }),
-    );
-
-    const res = await POST(makeRequest());
-    expect(res.status).toBe(409);
-    expect(user.insert).not.toHaveBeenCalled();
-  });
-
-  it('409 when the unique index catches a race the pre-check missed', async () => {
-    const user = makeUserClient({
-      data: null,
-      error: { code: '23505', message: 'duplicate key value violates unique constraint' },
-    });
+  it('409 when the create pipeline detects a duplicate race', async () => {
+    const user = makeUserClient();
     vi.mocked(getRequestContext).mockResolvedValue({
       supabase: user.supabase,
       user: { id: 'u1' },
     } as unknown as RequestCtx);
     vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService());
+    vi.mocked(createScoredPerformance).mockRejectedValueOnce(new DuplicateVideoError());
 
     const res = await POST(makeRequest());
     expect(res.status).toBe(409);
   });
 
-  it('201 happy path inserts as the user', async () => {
-    const user = makeUserClient({ data: { id: 'req-new' }, error: null });
+  it('422 when YouTube metadata cannot be verified', async () => {
+    const user = makeUserClient();
     vi.mocked(getRequestContext).mockResolvedValue({
       supabase: user.supabase,
       user: { id: 'u1' },
     } as unknown as RequestCtx);
     vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService());
+    vi.mocked(createScoredPerformance).mockRejectedValueOnce(new OEmbedFetchError('metadata'));
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(422);
+  });
+
+  it('201 happy path creates an active performance and approved audit row', async () => {
+    const user = makeUserClient();
+    const service = makeService();
+    vi.mocked(getRequestContext).mockResolvedValue({
+      supabase: user.supabase,
+      user: { id: 'u1' },
+    } as unknown as RequestCtx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
 
     const res = await POST(makeRequest());
     expect(res.status).toBe(201);
-    await expect(res.json()).resolves.toEqual({ id: 'req-new' });
-    expect(user.insert).toHaveBeenCalledWith(
+    await expect(res.json()).resolves.toEqual({ id: 'perf-new', requestId: 'req-audit' });
+    expect(createScoredPerformance).toHaveBeenCalledWith(
+      service,
+      expect.objectContaining({
+        userId: 'u1',
+        youtubeUrl: VALID_BODY.youtubeUrl,
+        category: 'pop',
+      }),
+    );
+    const from = vi.mocked(service.from);
+    expect(from).toHaveBeenCalledWith('performance_requests');
+    const requestInsert = from.mock.results.find(
+      (result) => result.value && 'insert' in (result.value as object),
+    )?.value as { insert: ReturnType<typeof vi.fn> };
+    expect(requestInsert.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         user_id: 'u1',
         youtube_video_id: 'dQw4w9WgXcQ',
         category: 'pop',
+        status: 'approved',
+        approved_performance_id: 'perf-new',
       }),
     );
     expect(trackServer).toHaveBeenCalledWith(
       expect.anything(),
-      'performance_request_submitted',
+      'performance_request_approved',
       'u1',
-      expect.objectContaining({ category: 'pop' }),
+      expect.objectContaining({ category: 'pop', performanceId: 'perf-new', automatic: 1 }),
     );
   });
 });
@@ -189,7 +218,7 @@ describe('GET /api/performance-requests — my requests', () => {
 
   it('200 returns the caller-scoped list', async () => {
     const order = vi.fn(async () => ({
-      data: [{ id: 'req-1', status: 'pending' }],
+      data: [{ id: 'req-1', status: 'approved', approved_performance_id: 'perf-1' }],
       error: null,
     }));
     const eq = vi.fn(() => ({ order }));
@@ -199,10 +228,15 @@ describe('GET /api/performance-requests — my requests', () => {
       supabase: { from },
       user: { id: 'u1' },
     } as unknown as RequestCtx);
+    const service = makeService();
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
 
     const res = await GET(makeRequest(undefined, 'GET'));
     expect(res.status).toBe(200);
-    await expect(res.json()).resolves.toEqual({ requests: [{ id: 'req-1', status: 'pending' }] });
+    await expect(res.json()).resolves.toEqual({
+      requests: [{ id: 'req-1', status: 'approved' }],
+    });
     expect(eq).toHaveBeenCalledWith('user_id', 'u1');
+    expect(repairMissingInitialScores).toHaveBeenCalledWith(service, ['perf-1']);
   });
 });

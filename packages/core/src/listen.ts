@@ -103,4 +103,4 @@ export function validateListen(
  * combined with the server wall-clock anchor — is what makes the listen real:
  * the user must actually spend this long with the embed playing.
  */
-export const MIN_VERIFIED_LISTEN_SECONDS = 15;
+export const MIN_VERIFIED_LISTEN_SECONDS = 1;

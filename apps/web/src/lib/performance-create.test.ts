@@ -78,23 +78,42 @@ function makeServiceClient(
   const calibration = {
     select: vi.fn(async () => ({ data: opts.calibrationRows ?? [] })),
   };
+  const scoreUpdateResult = vi.fn(async () => ({ error: null }));
+  const scoreUpdateEqVotes = vi.fn(() => scoreUpdateResult());
+  const scoreUpdateIsListener = vi.fn(() => ({ eq: scoreUpdateEqVotes }));
+  const scoreUpdateIsCurrent = vi.fn(() => ({ is: scoreUpdateIsListener }));
+  const scoreUpdateEqPerformance = vi.fn(() => ({ is: scoreUpdateIsCurrent }));
+  const scoreUpdate = vi.fn(() => ({ eq: scoreUpdateEqPerformance }));
+  const scoreSelectNot = vi.fn(async () => ({
+    data: [{ performance_id: 'perf-ok', initial_ai_score: 73.5 }],
+    error: null,
+  }));
+  const scoreSelectEqVotes = vi.fn(() => ({ not: scoreSelectNot }));
+  const scoreSelectIsListener = vi.fn(() => ({ eq: scoreSelectEqVotes }));
+  const scoreSelectIsCurrent = vi.fn(() => ({ is: scoreSelectIsListener }));
+  const scoreSelectIn = vi.fn(() => ({ is: scoreSelectIsCurrent }));
+  const scores = {
+    select: vi.fn(() => ({ in: scoreSelectIn })),
+    update: scoreUpdate,
+  };
   const from = vi.fn((table: string) => {
     if (table === 'songs') return opts.songsTable ?? defaultSongs;
     if (table === 'seasons') return seasons;
     if (table === 'scoring_calibration') return calibration;
+    if (table === 'scores') return scores;
     throw new Error(`unexpected table: ${table}`);
   });
-  return { client: { from, rpc } as never, rpc, createRpc };
+  return { client: { from, rpc } as never, rpc, createRpc, scoreUpdate };
 }
 
-describe('createScoredPerformance — atomic performance + score persistence', () => {
+describe('createScoredPerformance — atomic unscored performance persistence', () => {
   beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
   afterEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
   });
 
-  it('creates performance and score through one transactional RPC', async () => {
+  it('creates an unscored performance through one transactional RPC', async () => {
     const service = makeServiceClient({ openSeasonId: 'season-open' });
 
     const result = await createScoredPerformance(service.client, {
@@ -110,8 +129,11 @@ describe('createScoredPerformance — atomic performance + score persistence', (
         p_user_id: 'requester-42',
         p_song_id: 'song-existing',
         p_youtube_video_id: 'dQw4w9WgXcQ',
-        p_initial_ai_score: 73.5,
-        p_ai_breakdown_raw: expect.objectContaining({ vocalAccuracy: 73.5 }),
+        p_scoring_version: 5,
+        p_initial_ai_score: null,
+        p_ai_breakdown: null,
+        p_ai_breakdown_raw: null,
+        p_ai_provider: null,
         p_season_id: 'season-open',
       }),
     );
@@ -119,6 +141,7 @@ describe('createScoredPerformance — atomic performance + score persistence', (
       p_user_id: 'requester-42',
       p_badge_key: 'first_performance',
     });
+    expect(service.scoreUpdate).not.toHaveBeenCalled();
   });
 
   it('surfaces an atomic failure without granting a badge', async () => {
@@ -128,7 +151,7 @@ describe('createScoredPerformance — atomic performance + score persistence', (
 
     await expect(
       createScoredPerformance(service.client, { userId: 'user-1', youtubeUrl: YOUTUBE_URL }),
-    ).rejects.toThrow('Could not create scored performance');
+    ).rejects.toThrow('Could not create performance awaiting AI analysis');
     expect(service.createRpc).toHaveBeenCalledTimes(1);
     expect(service.rpc).not.toHaveBeenCalledWith('grant_badge', expect.anything());
   });
@@ -187,7 +210,7 @@ describe('createScoredPerformance — atomic performance + score persistence', (
     );
   });
 
-  it('persists calibrated and raw breakdowns independently', async () => {
+  it('never persists metadata or LLM output as the opening score', async () => {
     const service = makeServiceClient({
       calibrationRows: [{ criterion: 'vocalAccuracy', offset_value: 10 }],
     });
@@ -197,9 +220,10 @@ describe('createScoredPerformance — atomic performance + score persistence', (
     expect(service.rpc).toHaveBeenCalledWith(
       'create_scored_performance_atomic',
       expect.objectContaining({
-        p_initial_ai_score: 75.5,
-        p_ai_breakdown: expect.objectContaining({ vocalAccuracy: 83.5 }),
-        p_ai_breakdown_raw: expect.objectContaining({ vocalAccuracy: 73.5 }),
+        p_initial_ai_score: null,
+        p_ai_breakdown: null,
+        p_ai_breakdown_raw: null,
+        p_ai_model: null,
       }),
     );
   });

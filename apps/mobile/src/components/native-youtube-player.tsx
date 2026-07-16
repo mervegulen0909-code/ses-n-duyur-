@@ -22,6 +22,10 @@ const INITIAL_PLAYER_PARAMS: NonNullable<YoutubeIframeProps['initialPlayerParams
 const WEB_VIEW_PROPS: NonNullable<YoutubeIframeProps['webViewProps']> = {
   mediaPlaybackRequiresUserAction: false,
   setSupportMultipleWindows: false,
+  // Let the embedded YouTube player see the user's WebView/Google cookies when
+  // the platform allows it. Premium/ad behavior is still controlled by YouTube.
+  sharedCookiesEnabled: true,
+  thirdPartyCookiesEnabled: true,
 };
 
 export const NativeYouTubePlayer = forwardRef<YoutubeIframeRef, NativeYouTubePlayerProps>(

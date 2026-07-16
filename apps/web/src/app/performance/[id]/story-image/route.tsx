@@ -29,6 +29,7 @@ export async function GET(
       .from('scores')
       .select('current_score, is_provisional')
       .eq('performance_id', id)
+      .eq('score_status', 'ai_verified')
       .maybeSingle());
   }
   const card = buildShareCardData(perf, score);

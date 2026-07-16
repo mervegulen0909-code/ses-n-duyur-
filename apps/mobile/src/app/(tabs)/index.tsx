@@ -51,7 +51,7 @@ export default function HomeScreen() {
     const [perfRes, songRes] = await Promise.all([
       supabase
         .from('performances')
-        .select('id, song_id, oembed_meta, scores(current_score, is_provisional)')
+        .select('id, song_id, oembed_meta, scores(current_score, is_provisional, score_status)')
         .eq('status', 'active'),
       supabase.from('songs').select('id, title, artist, category'),
     ]);

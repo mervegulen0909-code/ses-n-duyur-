@@ -10,3 +10,4 @@ export * from './wav';
 export * from './yin';
 export * from './features';
 export * from './measure';
+export * from './ai-judge';

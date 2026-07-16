@@ -96,7 +96,7 @@ function makeService(
         select: () => ({
           eq: () => ({
             maybeSingle: async () => ({
-              data: opts.scoreRow ?? { initial_ai_score: 70, ai_breakdown: null },
+              data: opts.scoreRow ?? { initial_ai_score: 70, score_status: 'ai_verified' },
             }),
           }),
         }),
@@ -258,11 +258,10 @@ describe('POST /api/votes — atomic Verified Listen voting', () => {
     });
   });
 
-  it('uses the measured-adjusted basis when present', async () => {
+  it('uses the immutable verified AI opening score as the vote blend basis', async () => {
     const { ctx } = makeCtx('me', { listen: validListen });
-    const aiBreakdown = Object.fromEntries(CRITERIA.map((criterion) => [criterion, 70]));
     const service = makeService({
-      scoreRow: { initial_ai_score: 70, ai_breakdown: aiBreakdown },
+      scoreRow: { initial_ai_score: 70, score_status: 'ai_verified' },
       measured: {
         vocalAccuracy: 100,
         rhythmTiming: 100,
@@ -277,7 +276,20 @@ describe('POST /api/votes — atomic Verified Listen voting', () => {
 
     expect(service.rpc).toHaveBeenCalledWith(
       'submit_vote_and_recompute',
-      expect.objectContaining({ p_initial_ai_score: expect.any(Number), p_trend_baseline: 70 }),
+      expect.objectContaining({ p_initial_ai_score: 70, p_trend_baseline: 70 }),
     );
+  });
+
+  it('blocks community voting until AI Judge has created the first score', async () => {
+    const { ctx } = makeCtx('me', { listen: validListen });
+    const service = makeService({
+      scoreRow: { initial_ai_score: 70, score_status: 'legacy_metadata' },
+    });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const response = await POST(makeRequest(validBody));
+    expect(response.status).toBe(409);
+    expect(service.rpc).not.toHaveBeenCalledWith('submit_vote_and_recompute', expect.anything());
   });
 });

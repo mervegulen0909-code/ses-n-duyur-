@@ -40,6 +40,7 @@ export async function generateMetadata({
     .from('scores')
     .select('current_score')
     .eq('performance_id', id)
+    .eq('score_status', 'ai_verified')
     .maybeSingle();
 
   const meta = (perf?.oembed_meta ?? {}) as OEmbedish;
@@ -91,7 +92,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
   const { data: score } = await supabase
     .from('scores')
     .select(
-      'initial_ai_score, current_score, trend_score, is_provisional, ai_breakdown, verified_vote_count, listener_stddev',
+      'initial_ai_score, current_score, trend_score, is_provisional, ai_breakdown, verified_vote_count, listener_stddev, score_status',
     )
     .eq('performance_id', id)
     .maybeSingle();
@@ -105,7 +106,10 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
     .maybeSingle();
 
   const meta = (perf.oembed_meta ?? {}) as OEmbedish;
-  const breakdown = (score?.ai_breakdown ?? null) as Partial<Record<Criterion, number>> | null;
+  const isAiVerified = score?.score_status === 'ai_verified';
+  const breakdown = (isAiVerified ? (score?.ai_breakdown ?? null) : null) as Partial<
+    Record<Criterion, number>
+  > | null;
   const measured = (measuredRow?.measured_breakdown ?? null) as Partial<
     Record<Criterion, number>
   > | null;
@@ -160,7 +164,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
         )}
         {!perf.youtube_video_id ? (
           <p className="text-neutral-500">{t('Performance.noVideo')}</p>
-        ) : user ? (
+        ) : user && isAiVerified ? (
           <VotePanel
             performanceId={perf.id}
             videoId={perf.youtube_video_id}
@@ -170,13 +174,15 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           <>
             <YouTubeEmbed videoId={perf.youtube_video_id} title={meta.title} />
             <p className="text-xs text-neutral-600">
-              {t.rich('Performance.signInToVote', {
-                link: (chunks) => (
-                  <Link href="/login" className="text-emerald-400">
-                    {chunks}
-                  </Link>
-                ),
-              })}
+              {isAiVerified
+                ? t.rich('Performance.signInToVote', {
+                    link: (chunks) => (
+                      <Link href="/login" className="text-emerald-400">
+                        {chunks}
+                      </Link>
+                    ),
+                  })
+                : t('Performance.aiScorePending')}
             </p>
           </>
         )}
@@ -184,12 +190,12 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
       <aside>
         <ScoreBreakdown
-          initialAiScore={score?.initial_ai_score ?? null}
-          currentScore={score?.current_score ?? null}
-          trendScore={score?.trend_score ?? null}
-          isProvisional={score?.is_provisional ?? true}
+          initialAiScore={isAiVerified ? (score?.initial_ai_score ?? null) : null}
+          currentScore={isAiVerified ? (score?.current_score ?? null) : null}
+          trendScore={isAiVerified ? (score?.trend_score ?? null) : null}
+          isProvisional={!isAiVerified}
           breakdown={breakdown}
-          measured={measured}
+          measured={isAiVerified ? measured : null}
           hasVideo={perf.has_video}
           verifiedVoteCount={score?.verified_vote_count ?? 0}
           listenerStddev={score?.listener_stddev ?? null}

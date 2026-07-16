@@ -98,6 +98,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
         .from('scores')
         .select('performance_id, current_score, is_provisional')
         .in('performance_id', ids)
+        .eq('score_status', 'ai_verified')
     : { data: [] };
 
   const summary = summarizeCreator(perfs ?? [], scores ?? []);

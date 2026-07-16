@@ -62,22 +62,25 @@ export default async function SongPage({
         .from('scores')
         .select('performance_id, current_score, trend_score, is_provisional')
         .in('performance_id', perfIds)
+        .eq('score_status', 'ai_verified')
     : { data: [] };
 
   const scoreByPerf = new Map((scores ?? []).map((s) => [s.performance_id, s]));
-  const rows: LeaderboardRow[] = (perfs ?? []).map((p) => {
-    const s = scoreByPerf.get(p.id);
-    return {
-      id: p.id,
-      title: titleOf(p.oembed_meta),
-      currentScore: s?.current_score ?? null,
-      trendScore: s?.trend_score ?? null,
-      isProvisional: s?.is_provisional ?? true,
-      wins: p.battle_wins,
-      battles: p.battle_count,
-      wilson: wilsonLowerBound(p.battle_wins, p.battle_count),
-    };
-  });
+  const rows: LeaderboardRow[] = (perfs ?? [])
+    .filter((p) => scoreByPerf.has(p.id))
+    .map((p) => {
+      const s = scoreByPerf.get(p.id);
+      return {
+        id: p.id,
+        title: titleOf(p.oembed_meta),
+        currentScore: s?.current_score ?? null,
+        trendScore: s?.trend_score ?? null,
+        isProvisional: s?.is_provisional ?? true,
+        wins: p.battle_wins,
+        battles: p.battle_count,
+        wilson: wilsonLowerBound(p.battle_wins, p.battle_count),
+      };
+    });
   const ranked = rankByScore(rows);
 
   // Guest challenge pair: the song's top two ranked performances — enough for

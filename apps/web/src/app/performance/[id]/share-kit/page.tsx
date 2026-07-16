@@ -26,7 +26,12 @@ export default async function ShareKitPage({ params }: { params: Promise<{ id: s
 
   const [{ data: performance }, { data: score }] = await Promise.all([
     supabase.from('performances').select('id, oembed_meta, status').eq('id', id).maybeSingle(),
-    supabase.from('scores').select('current_score').eq('performance_id', id).maybeSingle(),
+    supabase
+      .from('scores')
+      .select('current_score')
+      .eq('performance_id', id)
+      .eq('score_status', 'ai_verified')
+      .maybeSingle(),
   ]);
   if (!performance || performance.status === 'removed') notFound();
 

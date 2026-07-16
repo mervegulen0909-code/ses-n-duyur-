@@ -2,10 +2,17 @@ import { parseYouTubeId, performanceRequestSchema } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
 import { trackServer } from '@/lib/analytics-server';
+import {
+  createScoredPerformance,
+  DuplicateVideoError,
+  OEmbedFetchError,
+  repairMissingInitialScores,
+} from '@/lib/performance-create';
 
 /**
- * Normal users never create performances directly — they submit a request
- * here and an admin approves/rejects it (`/api/admin/performance-requests`).
+ * Users submit a YouTube URL here; the server immediately validates metadata,
+ * creates the active scored performance, and stores an approved request record
+ * for history/audit. No admin queue for normal catalog additions.
  */
 export async function POST(req: Request): Promise<Response> {
   let rawBody: string;
@@ -29,7 +36,7 @@ export async function POST(req: Request): Promise<Response> {
   if (!ctx) {
     return Response.json({ error: 'Authentication required' }, { status: 401 });
   }
-  const { supabase, user } = ctx;
+  const { user } = ctx;
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;
@@ -61,49 +68,47 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'This video is already in the league' }, { status: 409 });
   }
 
-  const { data: existingPending } = await service
-    .from('performance_requests')
-    .select('id')
-    .eq('youtube_video_id', videoId)
-    .eq('status', 'pending')
-    .maybeSingle();
-  if (existingPending) {
-    return Response.json(
-      { error: 'A request for this video is already pending review' },
-      { status: 409 },
-    );
-  }
-
-  // Insert AS THE USER — RLS enforces user_id = auth.uid() and status = 'pending'.
-  const { data: created, error } = await supabase
-    .from('performance_requests')
-    .insert({
-      user_id: user.id,
-      youtube_video_id: videoId,
-      youtube_url: parsed.data.youtubeUrl,
+  try {
+    const performance = await createScoredPerformance(service, {
+      userId: user.id,
       category: parsed.data.category,
-      note: parsed.data.note ?? null,
-    })
-    .select('id')
-    .single();
+      youtubeUrl: parsed.data.youtubeUrl,
+    });
 
-  if (error || !created) {
-    // The unique partial index (one pending request per video) catches races
-    // the pre-check above missed.
-    if (error?.code === '23505') {
-      return Response.json(
-        { error: 'A request for this video is already pending review' },
-        { status: 409 },
-      );
+    const { data: audit } = await service
+      .from('performance_requests')
+      .insert({
+        user_id: user.id,
+        youtube_video_id: videoId,
+        youtube_url: parsed.data.youtubeUrl,
+        category: parsed.data.category,
+        note: parsed.data.note ?? null,
+        status: 'approved',
+        reviewer_id: user.id,
+        reviewed_at: new Date().toISOString(),
+        approved_performance_id: performance.id,
+      })
+      .select('id')
+      .single();
+
+    await trackServer(service, 'performance_request_approved', user.id, {
+      ...(audit?.id ? { requestId: audit.id } : {}),
+      performanceId: performance.id,
+      category: parsed.data.category,
+      automatic: 1,
+    });
+
+    return Response.json({ id: performance.id, requestId: audit?.id ?? null }, { status: 201 });
+  } catch (err) {
+    if (err instanceof DuplicateVideoError) {
+      return Response.json({ error: 'This video is already in the league' }, { status: 409 });
     }
-    return Response.json({ error: 'Could not submit request' }, { status: 500 });
+    if (err instanceof OEmbedFetchError) {
+      return Response.json({ error: 'Could not verify this YouTube video' }, { status: 422 });
+    }
+    console.error('[performance-requests] automatic add failed', err);
+    return Response.json({ error: 'Could not add performance' }, { status: 502 });
   }
-
-  await trackServer(service, 'performance_request_submitted', user.id, {
-    category: parsed.data.category,
-  });
-
-  return Response.json({ id: created.id }, { status: 201 });
 }
 
 /** The caller's own request history, newest first — for a "my requests" UI. */
@@ -116,12 +121,28 @@ export async function GET(req: Request): Promise<Response> {
 
   const { data, error } = await supabase
     .from('performance_requests')
-    .select('id, status, category, youtube_url, rejection_reason, created_at')
+    .select(
+      'id, status, category, youtube_url, rejection_reason, created_at, approved_performance_id',
+    )
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (error) {
     return Response.json({ error: 'Could not load requests' }, { status: 500 });
   }
-  return Response.json({ requests: data ?? [] });
+  const service = createSupabaseServiceClient();
+  if (service) {
+    await repairMissingInitialScores(
+      service,
+      (data ?? []).flatMap((row) =>
+        row.approved_performance_id ? [row.approved_performance_id] : [],
+      ),
+    );
+  }
+
+  return Response.json({
+    requests: (data ?? []).map(
+      ({ approved_performance_id: _approvedPerformanceId, ...row }) => row,
+    ),
+  });
 }

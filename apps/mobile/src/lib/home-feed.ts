@@ -11,7 +11,11 @@
 /** A song is only a real competition once it has at least this many covers. */
 export const MIN_COVERS_PER_SONG = 3;
 
-export type ScoreRel = { current_score: number | null; is_provisional?: boolean | null };
+export type ScoreRel = {
+  current_score: number | null;
+  is_provisional?: boolean | null;
+  score_status: string;
+};
 
 export type SongMetaRow = {
   id: string;
@@ -51,6 +55,11 @@ export function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): Sc
   return (Array.isArray(scores) ? scores[0] : scores) ?? null;
 }
 
+function verifiedCurrentScore(scores: ScoreRel | ScoreRel[] | null | undefined): number | null {
+  const row = scoreRowOf(scores);
+  return row?.score_status === 'ai_verified' ? row.current_score : null;
+}
+
 /** null scores sort last; higher score first; stable on ties. */
 function byScoreDesc(a: number | null, b: number | null): number {
   if (a == null && b == null) return 0;
@@ -81,10 +90,7 @@ export function buildSongFeed(songs: SongMetaRow[], performances: PerfFeedRow[])
     // Leading cover = highest score; deterministic tiebreak by performance id
     // so the hero image never flickers between equal-scored covers.
     const ranked = [...perfs].sort((a, b) => {
-      const cmp = byScoreDesc(
-        scoreRowOf(a.scores)?.current_score ?? null,
-        scoreRowOf(b.scores)?.current_score ?? null,
-      );
+      const cmp = byScoreDesc(verifiedCurrentScore(a.scores), verifiedCurrentScore(b.scores));
       return cmp !== 0 ? cmp : a.id.localeCompare(b.id);
     });
     const best = ranked[0]!;
@@ -96,9 +102,9 @@ export function buildSongFeed(songs: SongMetaRow[], performances: PerfFeedRow[])
       artist: song.artist ?? '',
       category: song.category,
       coverCount: perfs.length,
-      topScore: bestScore?.current_score ?? null,
+      topScore: bestScore?.score_status === 'ai_verified' ? bestScore.current_score : null,
       // Column is NOT NULL default true; absent → treat as provisional.
-      topIsProvisional: bestScore?.is_provisional !== false,
+      topIsProvisional: bestScore?.score_status !== 'ai_verified',
       thumbnailUrl: best.oembed_meta?.thumbnailUrl ?? null,
       bestPerformanceId: best.id,
       needsMoreCovers: perfs.length < MIN_COVERS_PER_SONG,

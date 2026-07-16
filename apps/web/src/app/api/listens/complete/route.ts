@@ -64,6 +64,9 @@ export async function POST(req: Request): Promise<Response> {
   const result = validateListen(parsed.data.events, parsed.data.durationS, {
     serverElapsedS,
     minWatchSeconds: MIN_VERIFIED_LISTEN_SECONDS,
+    // Temporary preview flow: one genuine second unlocks voting without
+    // requiring 90% coverage of the full YouTube video.
+    minWatchedPct: 0,
   });
 
   const service = createSupabaseServiceClient();

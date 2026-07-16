@@ -1,5 +1,5 @@
-import { measuredAdjustedInitial, voteSchema, type MeasuredBreakdown } from '@voxscore/core';
-import { CRITERIA, type Criterion } from '@voxscore/scoring';
+import { voteSchema } from '@voxscore/core';
+import { CRITERIA } from '@voxscore/scoring';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
 import { trackServer } from '@/lib/analytics-server';
@@ -115,26 +115,17 @@ export async function POST(req: Request): Promise<Response> {
 
   const { data: scoreRow } = await service
     .from('scores')
-    .select('initial_ai_score, ai_breakdown')
-    .eq('performance_id', parsed.data.performanceId)
-    .maybeSingle();
-  const { data: measuredRow } = await service
-    .from('measured_scores')
-    .select('measured_breakdown')
+    .select('initial_ai_score, score_status')
     .eq('performance_id', parsed.data.performanceId)
     .maybeSingle();
 
   if (scoreRow?.initial_ai_score === null || scoreRow?.initial_ai_score === undefined) {
-    return Response.json({ error: 'Score row not found' }, { status: 500 });
+    return Response.json({ error: 'Verified AI score is required before voting' }, { status: 409 });
+  }
+  if (scoreRow.score_status !== 'ai_verified') {
+    return Response.json({ error: 'Verified AI score is required before voting' }, { status: 409 });
   }
   const storedInitial = scoreRow.initial_ai_score;
-  const initialAiScore = measuredRow
-    ? (measuredAdjustedInitial({
-        aiBreakdown: scoreRow.ai_breakdown as Partial<Record<Criterion, number>> | null,
-        measured: measuredRow.measured_breakdown as MeasuredBreakdown,
-        hasVideo: votedPerf.has_video,
-      }) ?? storedInitial)
-    : storedInitial;
 
   // PostgreSQL inserts the rating and recomputes the denormalized score in the
   // same transaction. A recompute failure rolls the new rating back.
@@ -154,7 +145,7 @@ export async function POST(req: Request): Promise<Response> {
       p_recording_quality: ratings.recordingQuality ?? null,
       p_originality: ratings.originality ?? null,
       p_stage_presence: ratings.stagePresence ?? null,
-      p_initial_ai_score: initialAiScore,
+      p_initial_ai_score: storedInitial,
       p_trend_baseline: storedInitial,
     },
   );

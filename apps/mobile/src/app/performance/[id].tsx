@@ -1,5 +1,5 @@
 import Slider from '@react-native-community/slider';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { type Href, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -15,7 +15,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
-import { buildShareLine, measuredDisplayApplies, scoreBar, type ListenEvent } from '@voxscore/core';
+import {
+  buildShareLine,
+  measuredDisplayApplies,
+  MIN_VERIFIED_LISTEN_SECONDS,
+  scoreBar,
+  type ListenEvent,
+} from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { CRITERIA } from '@voxscore/scoring';
 import { postComment, submitVote } from '@/lib/api';
@@ -30,6 +36,7 @@ type ScoreRow = {
   trend_score: number | null;
   ai_breakdown: Record<string, number> | null;
   is_provisional: boolean | null;
+  score_status: string;
 };
 type Perf = {
   id: string;
@@ -77,6 +84,8 @@ export default function PerformanceScreen() {
   const playerRef = useRef<YoutubeIframeRef>(null);
   const eventsRef = useRef<ListenEvent[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const firstPlaybackPositionRef = useRef<number | null>(null);
+  const completionRequestedRef = useRef(false);
 
   // The moment the listen verifies, bring the vote panel into view so the
   // viewer never has to hunt for it — voting opens the instant watching ends.
@@ -114,7 +123,7 @@ export default function PerformanceScreen() {
         const { data, error } = await supabase
           .from('performances')
           .select(
-            'id, user_id, youtube_video_id, has_video, song_id, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional)',
+            'id, user_id, youtube_video_id, has_video, song_id, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional, score_status)',
           )
           .eq('id', id)
           .single();
@@ -172,12 +181,26 @@ export default function PerformanceScreen() {
       if (s === 'playing') {
         await listen.onStart();
         const t = (await playerRef.current?.getCurrentTime()) ?? 0;
+        firstPlaybackPositionRef.current ??= t;
         pushEvent('playing', t);
         if (!pollRef.current) {
           pollRef.current = setInterval(async () => {
             const cur = await playerRef.current?.getCurrentTime();
-            if (typeof cur === 'number') pushEvent('playing', cur);
-          }, 1000);
+            if (typeof cur !== 'number') return;
+            pushEvent('playing', cur);
+            const first = firstPlaybackPositionRef.current;
+            if (
+              first !== null &&
+              cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
+              !completionRequestedRef.current
+            ) {
+              completionRequestedRef.current = true;
+              if (pollRef.current) clearInterval(pollRef.current);
+              pollRef.current = null;
+              const dur = (await playerRef.current?.getDuration()) ?? cur;
+              await listen.onComplete(eventsRef.current, dur);
+            }
+          }, 250);
         }
       } else if (s === 'paused') {
         if (pollRef.current) {
@@ -191,6 +214,8 @@ export default function PerformanceScreen() {
           clearInterval(pollRef.current);
           pollRef.current = null;
         }
+        if (completionRequestedRef.current) return;
+        completionRequestedRef.current = true;
         const dur = (await playerRef.current?.getDuration()) ?? 0;
         pushEvent('ended', dur);
         await listen.onComplete(eventsRef.current, dur);
@@ -262,11 +287,13 @@ export default function PerformanceScreen() {
 
   const meta = perf?.oembed_meta ?? {};
   const score = one(perf?.scores);
-  const breakdown = (score?.ai_breakdown ?? {}) as Record<string, number>;
+  const isAiVerified = score?.score_status === 'ai_verified';
+  const breakdown = (isAiVerified ? (score?.ai_breakdown ?? {}) : {}) as Record<string, number>;
   const activeCriteria = CRITERIA.filter((c) => perf?.has_video !== false || c !== 'stagePresence');
   // Same rule the measurements route blends by — a criterion only shows as
   // "Measured" when it actually counted toward current_score.
-  const measuredApplies = measuredDisplayApplies(!!perf?.youtube_video_id, durationMatched);
+  const measuredApplies =
+    isAiVerified && measuredDisplayApplies(!!perf?.youtube_video_id, durationMatched);
 
   // Native share of the same Wordle-style result line the web emits — one
   // stable artifact shape across every surface (packages/core/share-line).
@@ -334,8 +361,12 @@ export default function PerformanceScreen() {
             {hint}
           </Text>
 
+          {listen.status === 'verified' && !isAiVerified && (
+            <Text style={styles.aiPendingNotice}>{t('Performance.aiScoreRequired')}</Text>
+          )}
+
           {/* Vote panel — only after a Verified Listen, and only when signed in. */}
-          {listen.status === 'verified' && voteState !== 'done' && (
+          {listen.status === 'verified' && isAiVerified && voteState !== 'done' && (
             <View
               style={styles.voteCard}
               onLayout={(e) => {
@@ -392,7 +423,9 @@ export default function PerformanceScreen() {
             <View style={styles.scoreHead}>
               <View>
                 <Text style={styles.scoreBig}>
-                  {score?.current_score != null ? score.current_score.toFixed(1) : '—'}
+                  {isAiVerified && score?.current_score != null
+                    ? score.current_score.toFixed(1)
+                    : '—'}
                 </Text>
                 <Text style={styles.scoreLabel}>{t('Performance.currentScore')}</Text>
               </View>
@@ -400,7 +433,7 @@ export default function PerformanceScreen() {
                 <Text style={styles.trend}>
                   {t('Performance.trend', {
                     value:
-                      score?.trend_score != null
+                      isAiVerified && score?.trend_score != null
                         ? `${score.trend_score >= 0 ? '+' : ''}${score.trend_score.toFixed(1)}`
                         : '0.0',
                   })}
@@ -408,15 +441,15 @@ export default function PerformanceScreen() {
                 <Text style={styles.aiStart}>
                   {t('Performance.aiStart', {
                     value:
-                      score?.initial_ai_score != null ? score.initial_ai_score.toFixed(1) : '—',
+                      isAiVerified && score?.initial_ai_score != null
+                        ? score.initial_ai_score.toFixed(1)
+                        : '—',
                   })}
                 </Text>
               </View>
             </View>
 
-            {score?.is_provisional !== false && (
-              <Text style={styles.badge}>{t('Common.provisionalBadge')}</Text>
-            )}
+            {!isAiVerified && <Text style={styles.badge}>{t('Performance.aiPendingBadge')}</Text>}
 
             {measured && measuredApplies && (
               <Text style={styles.measuredCaption}>{t('Performance.measuredCaption')}</Text>
@@ -441,6 +474,15 @@ export default function PerformanceScreen() {
                 );
               })}
             </View>
+
+            {user?.id === perf.user_id && (
+              <Pressable
+                style={({ pressed }) => [styles.measureBtn, pressed && { opacity: 0.85 }]}
+                onPress={() => router.push(`/measure/${perf.id}` as Href)}
+              >
+                <Text style={styles.measureBtnText}>{t('Measure.openAiJudge')}</Text>
+              </Pressable>
+            )}
 
             <Pressable
               style={({ pressed }) => [styles.shareBtn, pressed && { opacity: 0.85 }]}
@@ -526,6 +568,7 @@ const styles = StyleSheet.create({
   },
   gateOk: { backgroundColor: 'rgba(52,211,153,0.12)', color: '#22D3EE' },
   gateBad: { backgroundColor: 'rgba(251,113,133,0.12)', color: '#fb7185' },
+  aiPendingNotice: { marginTop: 8, color: '#FBBF24', fontSize: 13, lineHeight: 19 },
   voteCard: { marginTop: 12, padding: 16, borderRadius: 16, backgroundColor: '#171717', gap: 8 },
   voteTitle: { fontSize: 15, fontWeight: '700', color: '#fafafa', marginBottom: 4 },
   signinPrompt: { color: '#22D3EE', fontSize: 15, fontWeight: '600' },

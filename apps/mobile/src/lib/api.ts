@@ -127,6 +127,53 @@ export async function completeListen(
   return { isValid: data.isValid === true, reason: data.reason ?? null };
 }
 
+export interface AnalysisSessionUpload {
+  sessionId: string;
+  uploadUrl: string;
+  uploadToken: string;
+  expiresAt: string;
+  maxBytes: number;
+}
+
+export async function createAnalysisSession(performanceId: string): Promise<{
+  ok: boolean;
+  status: number;
+  session?: AnalysisSessionUpload;
+  error?: string;
+}> {
+  const { ok, status, data } = await authedPost<AnalysisSessionUpload & { error?: string }>(
+    '/api/analysis/sessions',
+    { performanceId, mode: 'song_reference' },
+  );
+  return {
+    ok,
+    status,
+    session: ok ? data : undefined,
+    error: data.error,
+  };
+}
+
+export interface AnalysisSessionState {
+  id: string;
+  performance_id: string;
+  status: 'created' | 'uploading' | 'processing' | 'completed' | 'rejected' | 'failed' | 'expired';
+  error_code: string | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export async function getAnalysisSession(sessionId: string): Promise<{
+  ok: boolean;
+  status: number;
+  session?: AnalysisSessionState;
+}> {
+  const { ok, status, data } = await authedGet<{ session?: AnalysisSessionState }>(
+    `/api/analysis/sessions/${encodeURIComponent(sessionId)}`,
+  );
+  return { ok, status, session: data.session };
+}
+
 export async function submitVote(
   performanceId: string,
   verifiedListenId: string,
@@ -229,11 +276,9 @@ export async function postComment(
 }
 
 /**
- * Submit a YouTube URL for review. Normal users never create performances
- * directly — this lands in the admin approval queue
- * (`POST /api/performance-requests`). rateLimit + botGuard apply the same as
- * web: gated on native attestation (N2b) until that lands; works today in
- * dev (Noop bot-check).
+ * Submit a YouTube URL for immediate server-side validation and scoring.
+ * The endpoint creates an active performance when the video passes checks and
+ * keeps an approved request row only as history/audit.
  */
 export async function submitPerformanceRequest(
   youtubeUrl: string,
