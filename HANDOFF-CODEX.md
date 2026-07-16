@@ -21,7 +21,7 @@ IDs, confirm money/destructive/outward actions).
   Deploy with **`npx vercel --prod`** (NOT git-triggered). Every prod deploy needs the
   **user to explicitly authorize** ("voxscore.app'e deploy et").
 - **Supabase:** project **vocalleague** (ref `twrwixownormzussyzse`), Frankfurt, under
-  *filizgulen1966-tech's* GitHub org. Dashboard session **expires often** → user must
+  _filizgulen1966-tech's_ GitHub org. Dashboard session **expires often** → user must
   re-sign-in via GitHub SSO. `service_role` key is **Vercel-"Sensitive"** so
   `vercel env pull` returns it EMPTY — get it from dashboard Settings → API →
   "Legacy anon, service_role API keys".
@@ -59,10 +59,10 @@ hidden (no seek), auto-scroll to vote on verified-listen.
 
 ## OPEN PRs (all on branches, need merge to main — branches are STACKED)
 
-- **#53** fix(ratelimit): accept Vercel KV_* env — *deployed*, merge.
+- **#53** fix(ratelimit): accept Vercel KV\_* env — *deployed\*, merge.
 - **#54** fix(mobile): refresh expired token + honest listen errors — in device build, merge.
 - **#55** feat(mobile): link-only + lock seeking + instant vote — in device build, merge.
-- **#56** fix(guard): native attestation opt-in — *deployed*, merge.
+- **#56** fix(guard): native attestation opt-in — _deployed_, merge.
 - (older) #52 premium home+tabs, #47/#49/#50/#51 already merged earlier.
 
 Merge order matters (stacked): rebase each onto main or squash-merge in #53→#54→#55→#56 order.
@@ -73,6 +73,7 @@ Merge order matters (stacked): rebase each onto main or squash-merge in #53→#5
 
 Non-ASCII path breaks native C++; build from an ASCII copy at `C:\vb` (already exists,
 re-sync before building):
+
 ```bash
 # 1. sync changed mobile files (or full copy) into C:/vb
 cd "C:\Users\arfgl\OneDrive\Desktop\sesi aççç" && cp <changed files> /c/vb/<same path>
@@ -88,6 +89,7 @@ ANDROID_HOME="$LOCALAPPDATA/Android/Sdk" ./gradlew :app:assembleRelease -x lint 
 # 4. install (signature differs from EAS → uninstall first):
 adb -s RFCY90DPCKN uninstall com.voxscore.app; adb -s RFCY90DPCKN install <apk>
 ```
+
 Notes: versionCode shows stale native value (cosmetic; EAS/prebuild fixes it). Google
 sign-in fails on debug-signed local build (SHA-1 mismatch) → test with **email/password**.
 

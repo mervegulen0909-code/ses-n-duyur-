@@ -60,7 +60,9 @@ function makeService(opts: { insertError?: { code: string } | null } = {}) {
 
   const from = vi.fn((table: string) => {
     if (table === 'song_references') {
-      return { select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: referenceMaybeSingle }) }) }) };
+      return {
+        select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: referenceMaybeSingle }) }) }),
+      };
     }
     if (table === 'analysis_sessions') return { update: sweepUpdate, insert };
     if (table === 'scores') return { update: scoreUpdate };
