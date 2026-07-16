@@ -9,7 +9,8 @@ import {
   type MelodyReference,
   type ReferenceNote,
 } from '@voxscore/dsp';
-import { signCallbackBody, verifyAnalysisUploadToken } from './auth';
+import { verifyAnalysisUploadToken } from './auth';
+import { deliverCallback } from './callback';
 
 const MAX_WAV_BYTES = 8 * 1024 * 1024;
 const PIPELINE_VERSION = 1;
@@ -117,23 +118,6 @@ function rejectedResult(sessionId: string, audioSha256: string, error: unknown):
   };
 }
 
-async function sendCallback(result: AnalyzerResult): Promise<void> {
-  const callbackUrl = requiredEnv('ANALYZER_CALLBACK_URL');
-  const secret = requiredEnv('ANALYZER_CALLBACK_SECRET');
-  const body = JSON.stringify(result);
-  const timestamp = String(Math.floor(Date.now() / 1000));
-  const response = await fetch(callbackUrl, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-voxscore-timestamp': timestamp,
-      'x-voxscore-signature': signCallbackBody(body, secret, timestamp),
-    },
-    body,
-  });
-  if (!response.ok) throw new Error(`Analyzer callback failed with ${response.status}`);
-}
-
 async function analyze(req: IncomingMessage, res: ServerResponse): Promise<void> {
   if (!req.headers['content-type']?.toLowerCase().startsWith('audio/wav')) {
     throw new HttpError(415, 'Content-Type must be audio/wav');
@@ -224,7 +208,11 @@ async function analyze(req: IncomingMessage, res: ServerResponse): Promise<void>
   }
 
   try {
-    await sendCallback(result);
+    await deliverCallback(
+      result,
+      requiredEnv('ANALYZER_CALLBACK_URL'),
+      requiredEnv('ANALYZER_CALLBACK_SECRET'),
+    );
   } catch (error) {
     await supabase
       .from('analysis_sessions')
