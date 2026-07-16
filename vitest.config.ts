@@ -24,6 +24,8 @@ export default defineConfig({
       'apps/mobile/src/**/*.{test,spec}.ts',
       // Standalone Node scripts (e.g. the launch-catalog seed template validator).
       'scripts/**/*.{test,spec}.ts',
+      // Analyzer service pure-logic tests (upload-token auth, callback retry).
+      'apps/analyzer/src/**/*.{test,spec}.ts',
     ],
     coverage: {
       provider: 'v8',

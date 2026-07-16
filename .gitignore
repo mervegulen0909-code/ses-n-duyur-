@@ -38,3 +38,4 @@ output/playwright/
 
 # supabase CLI local state (linked project, versions) — not source
 supabase/.temp/
+.claude/handoff/
