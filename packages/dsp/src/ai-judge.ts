@@ -156,6 +156,106 @@ function alignFrames(frames: readonly FrameAnalysis[], reference: MelodyReferenc
     });
 }
 
+// Reference-note assignment for the pitch metrics via a banded DTW between the
+// measured pitch contour (in the reference key) and the reference note timeline.
+// The linear map in `alignFrames` assumes the performance is a constant-tempo
+// stretch of the reference, so expressive rubato — holding one note longer,
+// rushing the next — bleeds a correctly-sung pitch onto the neighbouring
+// reference note and reads as a pitch error. A DTW path follows the tempo
+// instead. The band is the same 12% used by `constrainedPitchDtwDistance`: wide
+// enough to absorb real rubato, tight enough that a wrong-melody contour cannot
+// warp onto same-pitch notes elsewhere in the song. Timing metrics (rhythm,
+// transitions) deliberately keep the linear clock — they are meant to measure
+// timing. Returns one reference note (or null in a gap) per aligned frame.
+function assignNotesByDtw(
+  aligned: readonly AlignedFrame[],
+  reference: MelodyReference,
+  transposition: number,
+): (ReferenceNote | null)[] {
+  // The caller only reaches here with a detected transposition, which requires
+  // several voiced frames — so the window is never empty and never a single
+  // frame (Math.max keeps the resampling divisor safe regardless).
+  const m = aligned.length;
+  // Bound the cost matrix by resampling both sequences onto a shared grid.
+  const gridSize = Math.min(600, m);
+  const gridSpan = Math.max(1, gridSize - 1);
+  const measured = new Array<number | null>(gridSize);
+  const slotNote = new Array<ReferenceNote | null>(gridSize);
+  for (let s = 0; s < gridSize; s++) {
+    const position = s / gridSpan;
+    const frame = aligned[Math.round(position * (m - 1))]!.frame;
+    measured[s] = frame.f0Hz === null ? null : hzToMidi(frame.f0Hz) - transposition;
+    slotNote[s] = referenceNoteAt(reference, position * reference.durationSeconds);
+  }
+
+  const band = Math.max(4, Math.ceil(gridSize * 0.12));
+  const stepPenalty = 0.05;
+  const localCost = (a: number | null, b: number | null): number =>
+    a === null && b === null
+      ? 0.05
+      : a === null || b === null
+        ? 0.9
+        : Math.min(1, Math.abs(a - b) / 3);
+  const cost = new Float64Array(gridSize * gridSize).fill(Number.POSITIVE_INFINITY);
+  const dir = new Uint8Array(gridSize * gridSize); // 0 diagonal, 1 hold measured, 2 hold reference
+  cost[0] = localCost(measured[0]!, slotNote[0] ? slotNote[0]!.midi : null);
+  for (let i = 0; i < gridSize; i++) {
+    for (let j = Math.max(0, i - band); j <= Math.min(gridSize - 1, i + band); j++) {
+      if (i === 0 && j === 0) continue;
+      let best = Number.POSITIVE_INFINITY;
+      let step = 0;
+      if (i > 0 && j > 0 && cost[(i - 1) * gridSize + (j - 1)]! < best) {
+        best = cost[(i - 1) * gridSize + (j - 1)]!;
+        step = 0;
+      }
+      if (i > 0 && cost[(i - 1) * gridSize + j]! + stepPenalty < best) {
+        best = cost[(i - 1) * gridSize + j]! + stepPenalty;
+        step = 1;
+      }
+      if (j > 0 && cost[i * gridSize + (j - 1)]! + stepPenalty < best) {
+        best = cost[i * gridSize + (j - 1)]! + stepPenalty;
+        step = 2;
+      }
+      cost[i * gridSize + j] =
+        localCost(measured[i]!, slotNote[j] ? slotNote[j]!.midi : null) + best;
+      dir[i * gridSize + j] = step;
+    }
+  }
+
+  const gridAssignment = new Array<ReferenceNote | null>(gridSize).fill(null);
+  let i = gridSize - 1;
+  let j = gridSize - 1;
+  for (;;) {
+    gridAssignment[i] = slotNote[j]!;
+    if (i === 0 && j === 0) break;
+    const step = dir[i * gridSize + j]!;
+    if (step === 0) {
+      i--;
+      j--;
+    } else if (step === 1) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+
+  const frameSpan = Math.max(1, m - 1);
+  const assignment = new Array<ReferenceNote | null>(m);
+  for (let p = 0; p < m; p++) {
+    assignment[p] = gridAssignment[Math.round((p / frameSpan) * (gridSize - 1))]!;
+  }
+  return assignment;
+}
+
+// Re-key an aligned window onto a DTW note assignment, preserving each frame's
+// (linear) normalized time so the timing metrics are unaffected.
+function reassignNotes(
+  aligned: readonly AlignedFrame[],
+  assignment: readonly (ReferenceNote | null)[],
+): AlignedFrame[] {
+  return aligned.map((item, index) => ({ ...item, referenceNote: assignment[index]! }));
+}
+
 function estimateTransposition(aligned: readonly AlignedFrame[]): number | null {
   const differences = aligned.flatMap(({ frame, referenceNote }) =>
     frame.f0Hz !== null && referenceNote !== null
@@ -385,6 +485,7 @@ export function analyzeAiJudgeWav(
         );
   const alignmentConfidence = clamp01(1 - alignmentDistance);
 
+  // Coverage / false-alarm feed the quality gate off the linear clock, unchanged.
   const expectedFrames = aligned.filter((item) => item.referenceNote !== null);
   const expectedVoiced = expectedFrames.filter((item) => item.frame.f0Hz !== null);
   const gapFrames = aligned.filter((item) => item.referenceNote === null);
@@ -392,10 +493,20 @@ export function analyzeAiJudgeWav(
   const referenceCoverage =
     expectedFrames.length === 0 ? 0 : expectedVoiced.length / expectedFrames.length;
   const voicingFalseAlarm = gapFrames.length === 0 ? 0 : falseAlarms / gapFrames.length;
+
+  // Pitch metrics judge which note each frame *sang*, not when — so they follow
+  // a DTW warp of the reference timeline instead of the rigid linear clock.
+  const pitchAligned =
+    transposition === null
+      ? aligned
+      : reassignNotes(aligned, assignNotesByDtw(aligned, reference, transposition));
+  const pitchVoiced = pitchAligned.filter(
+    (item) => item.referenceNote !== null && item.frame.f0Hz !== null,
+  );
   const centErrors =
     transposition === null
       ? []
-      : expectedVoiced.map((item) =>
+      : pitchVoiced.map((item) =>
           Math.abs((hzToMidi(item.frame.f0Hz!) - transposition - item.referenceNote!.midi) * 100),
         );
   const medianCentError = centErrors.length === 0 ? null : median(centErrors);
@@ -412,7 +523,7 @@ export function analyzeAiJudgeWav(
   const stability =
     transposition === null
       ? { pitchControl: 0, sustainControl: 0 }
-      : noteStability(aligned, reference, transposition);
+      : noteStability(pitchAligned, reference, transposition);
 
   const signalQualityConfidence = Math.min(
     clamp01((features.snrDb - 5) / 30),
@@ -484,7 +595,7 @@ export function analyzeAiJudgeWav(
       pitchControl: score(stability.pitchControl),
       noteTransitions: score(transitionIntervalScore(aligned, reference, transposition)),
       sustainControl: score(stability.sustainControl),
-      dynamicPhrasing: score(dynamicPhrasingScore(aligned, reference)),
+      dynamicPhrasing: score(dynamicPhrasingScore(pitchAligned, reference)),
     },
   };
 }
