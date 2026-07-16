@@ -114,6 +114,25 @@ describe('AI Judge DSP pipeline', () => {
     }
   });
 
+  it('scores an accurate but rubato take on pitch, not on tempo', () => {
+    // The three reference pitches sung with expressive rubato: the first note
+    // held long, the second clipped short (3.2s / 0.9s / 1.9s, still 6s total).
+    // A rigid linear clock reads the held first pitch as landing on the second
+    // reference note and tanks melody accuracy; the DTW pitch alignment follows
+    // the tempo, so a correctly-sung melody stays a correctly-scored melody.
+    const rubato = encodeWav(
+      concat(sine(220, 3.2, 0.08), sine(246.94165, 0.9, 0.25), sine(261.62557, 1.9, 0.6)),
+      SR,
+    );
+    const result = analyzeAiJudgeWav(rubato, reference, shortTakeOptions);
+
+    expect(result.qualityGate.passed).toBe(true);
+    expect(result.rawMetrics.detectedTranspositionSemitones).toBe(0);
+    expect(result.rawMetrics.rawPitchAccuracy50).toBeGreaterThan(0.9);
+    expect(result.measuredBreakdown!.melodyAccuracy).toBeGreaterThan(90);
+    expect(result.measuredBreakdown!.pitchControl).toBeGreaterThan(90);
+  });
+
   it('is transposition-tolerant but still detects a wrong interval contour', () => {
     const transposed = analyzeAiJudgeWav(
       melodyBytes([440, 493.8833, 523.2511]),
@@ -128,6 +147,25 @@ describe('AI Judge DSP pipeline', () => {
     expect(wrong.measuredBreakdown?.melodyAccuracy ?? 0).toBeLessThan(
       transposed.measuredBreakdown!.melodyAccuracy,
     );
+  });
+
+  it('pairs a sung rest against a reference gap under the DTW pitch clock', () => {
+    // A song with a real rest: sing the first note, fall silent across the gap,
+    // then sing the second. The DTW note assignment must map the silence to the
+    // reference gap (rest ↔ rest) rather than smearing it onto a note.
+    const gapReference: MelodyReference = {
+      durationSeconds: 6,
+      notes: [
+        { startSeconds: 0, endSeconds: 2, midi: 57 },
+        { startSeconds: 4, endSeconds: 6, midi: 60 },
+      ],
+    };
+    const bytes = encodeWav(concat(sine(220, 2, 0.3), silence(2), sine(261.62557, 2, 0.6)), SR);
+    const result = analyzeAiJudgeWav(bytes, gapReference, shortTakeOptions);
+
+    expect(result.rawMetrics.detectedTranspositionSemitones).toBe(0);
+    expect(result.measuredBreakdown).not.toBeNull();
+    expect(result.measuredBreakdown!.melodyAccuracy).toBeGreaterThan(80);
   });
 
   it('rejects a take that is too short and emits no score', () => {
