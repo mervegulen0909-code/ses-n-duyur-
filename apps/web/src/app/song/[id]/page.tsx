@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { wilsonLowerBound } from '@voxscore/scoring';
+import { RANKED_SCORE_STATUSES } from '@voxscore/core';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
 import { ShareButtons } from '@/components/share-buttons';
@@ -62,7 +63,7 @@ export default async function SongPage({
         .from('scores')
         .select('performance_id, current_score, trend_score, is_provisional')
         .in('performance_id', perfIds)
-        .eq('score_status', 'ai_verified')
+        .in('score_status', [...RANKED_SCORE_STATUSES])
     : { data: [] };
 
   const scoreByPerf = new Map((scores ?? []).map((s) => [s.performance_id, s]));

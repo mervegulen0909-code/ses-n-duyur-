@@ -41,10 +41,7 @@ function makeCtx(userId = 'me') {
 }
 
 function makeService(opts: { insertError?: { code: string } | null } = {}) {
-  const sweepLte = vi.fn(async () => ({ error: null }));
-  const sweepIn = vi.fn(() => ({ lte: sweepLte }));
-  const sweepEq = vi.fn(() => ({ in: sweepIn }));
-  const sweepUpdate = vi.fn(() => ({ eq: sweepEq }));
+  const rpc = vi.fn(async () => ({ error: null }));
 
   const insertSingle = vi.fn(async () =>
     opts.insertError
@@ -53,7 +50,8 @@ function makeService(opts: { insertError?: { code: string } | null } = {}) {
   );
   const insert = vi.fn(() => ({ select: () => ({ single: insertSingle }) }));
 
-  const scoreEq = vi.fn(async () => ({ error: null }));
+  const scoreIs = vi.fn(async () => ({ error: null }));
+  const scoreEq = vi.fn(() => ({ is: scoreIs }));
   const scoreUpdate = vi.fn(() => ({ eq: scoreEq }));
 
   const referenceMaybeSingle = vi.fn(async () => ({ data: { id: REFERENCE } }));
@@ -64,18 +62,17 @@ function makeService(opts: { insertError?: { code: string } | null } = {}) {
         select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: referenceMaybeSingle }) }) }),
       };
     }
-    if (table === 'analysis_sessions') return { update: sweepUpdate, insert };
+    if (table === 'analysis_sessions') return { insert };
     if (table === 'scores') return { update: scoreUpdate };
     return {};
   });
 
   return {
-    service: { from } as unknown as Service,
+    service: { from, rpc } as unknown as Service,
     from,
-    sweepUpdate,
-    sweepEq,
-    sweepIn,
-    sweepLte,
+    rpc,
+    scoreUpdate,
+    scoreIs,
     insert,
   };
 }
@@ -90,7 +87,7 @@ describe('POST /api/analysis/sessions', () => {
     vi.clearAllMocks();
   });
 
-  it('expires stale active sessions before inserting a new one', async () => {
+  it('expires stale active sessions (and unsticks their score) before inserting', async () => {
     const service = makeService();
     vi.mocked(getRequestContext).mockResolvedValue(makeCtx());
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service.service);
@@ -101,16 +98,28 @@ describe('POST /api/analysis/sessions', () => {
     expect(json.sessionId).toBe(SESSION);
     expect(json.uploadUrl).toBe('https://analyzer.example/analyze');
 
-    expect(service.sweepUpdate).toHaveBeenCalledWith({ status: 'expired' });
-    expect(service.sweepEq).toHaveBeenCalledWith('performance_id', PERF);
-    expect(service.sweepIn).toHaveBeenCalledWith('status', ['created', 'uploading', 'processing']);
-    const lteArgs = service.sweepLte.mock.calls[0] as unknown as [string, string];
-    expect(lteArgs[0]).toBe('expires_at');
-    expect(new Date(lteArgs[1]).getTime()).not.toBeNaN();
+    expect(service.rpc).toHaveBeenCalledWith('expire_stale_analysis_sessions', {
+      p_performance_id: PERF,
+    });
 
-    const sweepOrder = service.sweepUpdate.mock.invocationCallOrder[0] ?? Number.MAX_SAFE_INTEGER;
+    const sweepOrder = service.rpc.mock.invocationCallOrder[0] ?? Number.MAX_SAFE_INTEGER;
     const insertOrder = service.insert.mock.invocationCallOrder[0] ?? 0;
     expect(sweepOrder).toBeLessThan(insertOrder);
+  });
+
+  it('only parks never-scored rows in analysis_pending (provisional stays visible)', async () => {
+    const service = makeService();
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx());
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.service);
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(201);
+    // The score-status flip must be constrained to rows with no score yet.
+    expect(service.scoreUpdate).toHaveBeenCalledWith({
+      score_status: 'analysis_pending',
+      score_source: 'none',
+    });
+    expect(service.scoreIs).toHaveBeenCalledWith('initial_ai_score', null);
   });
 
   it('still returns 409 when a non-expired session is active', async () => {
@@ -131,6 +140,6 @@ describe('POST /api/analysis/sessions', () => {
 
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(403);
-    expect(service.sweepUpdate).not.toHaveBeenCalled();
+    expect(service.rpc).not.toHaveBeenCalled();
   });
 });

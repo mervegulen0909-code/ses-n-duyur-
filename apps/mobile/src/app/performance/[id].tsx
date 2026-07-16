@@ -17,6 +17,7 @@ import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
 import {
   buildShareLine,
+  isRankedScoreStatus,
   measuredDisplayApplies,
   MIN_VERIFIED_LISTEN_SECONDS,
   scoreBar,
@@ -288,7 +289,10 @@ export default function PerformanceScreen() {
   const meta = perf?.oembed_meta ?? {};
   const score = one(perf?.scores);
   const isAiVerified = score?.score_status === 'ai_verified';
-  const breakdown = (isAiVerified ? (score?.ai_breakdown ?? {}) : {}) as Record<string, number>;
+  // Provisional estimates display and take votes too; only the "measured"
+  // presentation stays exclusive to ai_verified rows.
+  const isRanked = isRankedScoreStatus(score?.score_status);
+  const breakdown = (isRanked ? (score?.ai_breakdown ?? {}) : {}) as Record<string, number>;
   const activeCriteria = CRITERIA.filter((c) => perf?.has_video !== false || c !== 'stagePresence');
   // Same rule the measurements route blends by — a criterion only shows as
   // "Measured" when it actually counted toward current_score.
@@ -361,12 +365,12 @@ export default function PerformanceScreen() {
             {hint}
           </Text>
 
-          {listen.status === 'verified' && !isAiVerified && (
+          {listen.status === 'verified' && !isRanked && (
             <Text style={styles.aiPendingNotice}>{t('Performance.aiScoreRequired')}</Text>
           )}
 
           {/* Vote panel — only after a Verified Listen, and only when signed in. */}
-          {listen.status === 'verified' && isAiVerified && voteState !== 'done' && (
+          {listen.status === 'verified' && isRanked && voteState !== 'done' && (
             <View
               style={styles.voteCard}
               onLayout={(e) => {
@@ -423,9 +427,7 @@ export default function PerformanceScreen() {
             <View style={styles.scoreHead}>
               <View>
                 <Text style={styles.scoreBig}>
-                  {isAiVerified && score?.current_score != null
-                    ? score.current_score.toFixed(1)
-                    : '—'}
+                  {isRanked && score?.current_score != null ? score.current_score.toFixed(1) : '—'}
                 </Text>
                 <Text style={styles.scoreLabel}>{t('Performance.currentScore')}</Text>
               </View>
@@ -433,7 +435,7 @@ export default function PerformanceScreen() {
                 <Text style={styles.trend}>
                   {t('Performance.trend', {
                     value:
-                      isAiVerified && score?.trend_score != null
+                      isRanked && score?.trend_score != null
                         ? `${score.trend_score >= 0 ? '+' : ''}${score.trend_score.toFixed(1)}`
                         : '0.0',
                   })}
@@ -441,7 +443,7 @@ export default function PerformanceScreen() {
                 <Text style={styles.aiStart}>
                   {t('Performance.aiStart', {
                     value:
-                      isAiVerified && score?.initial_ai_score != null
+                      isRanked && score?.initial_ai_score != null
                         ? score.initial_ai_score.toFixed(1)
                         : '—',
                   })}
@@ -449,7 +451,11 @@ export default function PerformanceScreen() {
               </View>
             </View>
 
-            {!isAiVerified && <Text style={styles.badge}>{t('Performance.aiPendingBadge')}</Text>}
+            {!isAiVerified && (
+              <Text style={styles.badge}>
+                {isRanked ? t('Common.provisionalBadge') : t('Performance.aiPendingBadge')}
+              </Text>
+            )}
 
             {measured && measuredApplies && (
               <Text style={styles.measuredCaption}>{t('Performance.measuredCaption')}</Text>

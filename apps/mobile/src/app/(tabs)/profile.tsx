@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { isRankedScoreStatus } from '@voxscore/core';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { LegalLinks } from '@/components/legal-links';
 import { deleteAccount } from '@/lib/api';
@@ -173,8 +174,8 @@ export default function ProfileScreen() {
           id: p.id,
           title: meta.title ?? t('Common.untitled'),
           status: p.status,
-          score: score?.score_status === 'ai_verified' ? score.current_score : null,
-          // Column is NOT NULL default true; absent score → treat as provisional.
+          score: isRankedScoreStatus(score?.score_status) ? (score?.current_score ?? null) : null,
+          // Provisional estimates rank but stay clearly labeled as such.
           isProvisional: score?.score_status !== 'ai_verified',
         };
       }),
@@ -193,7 +194,7 @@ export default function ProfileScreen() {
             performanceId: perf.id,
             title: meta.title ?? t('Common.untitled'),
             artist: meta.authorName ?? null,
-            score: score?.score_status === 'ai_verified' ? score.current_score : null,
+            score: isRankedScoreStatus(score?.score_status) ? (score?.current_score ?? null) : null,
             votedAt: r.created_at,
           },
         ];

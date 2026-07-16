@@ -280,10 +280,39 @@ describe('POST /api/votes — atomic Verified Listen voting', () => {
     );
   });
 
-  it('blocks community voting until AI Judge has created the first score', async () => {
+  it('accepts votes on a provisional estimate using it as the blend basis', async () => {
     const { ctx } = makeCtx('me', { listen: validListen });
     const service = makeService({
-      scoreRow: { initial_ai_score: 70, score_status: 'legacy_metadata' },
+      scoreRow: { initial_ai_score: 70, score_status: 'provisional_estimate' },
+    });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    await POST(makeRequest(validBody));
+
+    expect(service.rpc).toHaveBeenCalledWith(
+      'submit_vote_and_recompute',
+      expect.objectContaining({ p_initial_ai_score: 70, p_trend_baseline: 70 }),
+    );
+  });
+
+  it('blocks community voting while a performance has no AI score at all', async () => {
+    const { ctx } = makeCtx('me', { listen: validListen });
+    const service = makeService({
+      scoreRow: { initial_ai_score: null, score_status: 'unscored' },
+    });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);
+
+    const response = await POST(makeRequest(validBody));
+    expect(response.status).toBe(409);
+    expect(service.rpc).not.toHaveBeenCalledWith('submit_vote_and_recompute', expect.anything());
+  });
+
+  it('blocks community voting while analysis is pending on an unscored row', async () => {
+    const { ctx } = makeCtx('me', { listen: validListen });
+    const service = makeService({
+      scoreRow: { initial_ai_score: 70, score_status: 'analysis_pending' },
     });
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service.client);

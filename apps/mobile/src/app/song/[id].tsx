@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { isRankedScoreStatus } from '@voxscore/core';
 import { supabase } from '@/lib/supabase';
 
 type ScoreRel = {
@@ -70,20 +71,19 @@ export default function SongScreen() {
 
     setSong((songRes.data as SongRow | null) ?? null);
     const rows = (perfRes.data ?? []) as unknown as PerfRow[];
-    // Every active cover stays reachable from its song page; only ai_verified
-    // ones carry a number, the rest rank below with a dash until the AI Judge
-    // scores them. Dropping unscored rows here would dead-end the song page
-    // while the catalog is mostly unscored.
+    // Every active cover stays reachable from its song page. Verified and
+    // provisional scores both carry a number (provisional labeled as such);
+    // rows still mid-analysis rank below with a dash.
     const mapped: Item[] = rows.map((p) => {
       const meta = p.oembed_meta ?? {};
       const score = scoreRowOf(p.scores);
-      const verified = score?.score_status === 'ai_verified';
+      const ranked = isRankedScoreStatus(score?.score_status);
       return {
         id: p.id,
         title: meta.title ?? t('Common.untitled'),
         artist: meta.authorName ?? '',
-        score: verified ? (score?.current_score ?? null) : null,
-        isProvisional: false,
+        score: ranked ? (score?.current_score ?? null) : null,
+        isProvisional: ranked && score?.score_status !== 'ai_verified',
       };
     });
     mapped.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));

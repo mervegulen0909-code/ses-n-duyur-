@@ -1,4 +1,4 @@
-import { voteSchema } from '@voxscore/core';
+import { isRankedScoreStatus, voteSchema } from '@voxscore/core';
 import { CRITERIA } from '@voxscore/scoring';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { botGuard, rateLimit } from '@/lib/guard';
@@ -119,11 +119,14 @@ export async function POST(req: Request): Promise<Response> {
     .eq('performance_id', parsed.data.performanceId)
     .maybeSingle();
 
+  // Votes blend on top of any ranked score (verified DSP measurement or the
+  // clearly-labeled provisional estimate). Rows still unscored/mid-analysis
+  // have no AI basis to blend against, so voting stays closed for them.
   if (scoreRow?.initial_ai_score === null || scoreRow?.initial_ai_score === undefined) {
-    return Response.json({ error: 'Verified AI score is required before voting' }, { status: 409 });
+    return Response.json({ error: 'An AI score is required before voting' }, { status: 409 });
   }
-  if (scoreRow.score_status !== 'ai_verified') {
-    return Response.json({ error: 'Verified AI score is required before voting' }, { status: 409 });
+  if (!isRankedScoreStatus(scoreRow.score_status)) {
+    return Response.json({ error: 'An AI score is required before voting' }, { status: 409 });
   }
   const storedInitial = scoreRow.initial_ai_score;
 

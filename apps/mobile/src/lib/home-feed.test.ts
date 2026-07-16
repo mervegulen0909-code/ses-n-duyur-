@@ -18,7 +18,7 @@ function perf(
   id: string,
   songId: string | null,
   score: number | null,
-  opts: { provisional?: boolean; thumb?: string; verified?: boolean } = {},
+  opts: { provisional?: boolean; thumb?: string; verified?: boolean; status?: string } = {},
 ): PerfFeedRow {
   return {
     id,
@@ -27,7 +27,7 @@ function perf(
     scores: {
       current_score: score,
       is_provisional: opts.provisional ?? true,
-      score_status: opts.verified === false ? 'unscored' : 'ai_verified',
+      score_status: opts.status ?? (opts.verified === false ? 'unscored' : 'ai_verified'),
     },
   };
 }
@@ -55,12 +55,24 @@ describe('buildSongFeed', () => {
     expect(s1.bestPerformanceId).toBe('high');
   });
 
-  it('does not rank an unverified metadata score above verified AI Judge output', () => {
+  it('does not rank an unscored row above verified AI Judge output', () => {
     const feed = buildSongFeed(songs, [
       perf('legacy', 's1', 99, { verified: false }),
       perf('verified', 's1', 75),
     ]);
     expect(feed[0]).toMatchObject({ topScore: 75, bestPerformanceId: 'verified' });
+  });
+
+  it('ranks a provisional estimate with its score, labeled provisional', () => {
+    const feed = buildSongFeed(songs, [
+      perf('prov', 's1', 88, { status: 'provisional_estimate' }),
+      perf('verified', 's1', 75),
+    ]);
+    expect(feed[0]).toMatchObject({
+      topScore: 88,
+      bestPerformanceId: 'prov',
+      topIsProvisional: true,
+    });
   });
 
   it('ranks songs by top score, then cover count, then title', () => {

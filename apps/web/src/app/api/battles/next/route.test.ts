@@ -72,7 +72,7 @@ function makeService(
     })),
   };
   const from = vi.fn((table: string) => {
-    if (table === 'performances') return { select: () => ({ eq: () => ({ eq: scoreStatusEq }) }) };
+    if (table === 'performances') return { select: () => ({ eq: () => ({ in: scoreStatusEq }) }) };
     if (table === 'battles') return { insert: battleInsert };
     if (table === 'seasons') return seasonsTable;
     return {};
@@ -121,7 +121,11 @@ describe('POST /api/battles/next — pairing creation', () => {
     // pickPair shuffles, so assert membership without depending on order.
     expect([body.a.performanceId, body.b.performanceId].sort()).toEqual([PERF_A, PERF_B].sort());
     expect(battleInsert).toHaveBeenCalledTimes(1);
-    expect(scoreStatusEq).toHaveBeenCalledWith('scores.score_status', 'ai_verified');
+    expect(scoreStatusEq).toHaveBeenCalledWith('scores.score_status', [
+      'ai_verified',
+      'provisional_estimate',
+      'legacy_metadata',
+    ]);
   });
 
   it('stamps the battle with the currently open season (never client-supplied)', async () => {

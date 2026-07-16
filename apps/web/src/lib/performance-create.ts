@@ -1,11 +1,18 @@
 import 'server-only';
-import { fetchOEmbed, normalizeSongKey, parseYouTubeId } from '@voxscore/core';
+import {
+  buildPerformanceCreate,
+  fetchCaptionText,
+  fetchOEmbed,
+  normalizeSongKey,
+  parseYouTubeId,
+} from '@voxscore/core';
 import type { SongCategory } from '@voxscore/core';
 import type { Json } from '@voxscore/db';
-import { AI_JUDGE_SCORING_VERSION } from '@voxscore/scoring';
 import type { createSupabaseServiceClient } from '@/lib/supabase/server';
+import { getScoringProvider } from '@/lib/adapters/scoring';
 import { getSongExtractor } from '@/lib/adapters/song';
 import { grantBadge } from '@/lib/badges';
+import { applyOffsets, loadCalibration } from '@/lib/calibration';
 import { currentSeasonId } from '@/lib/seasons';
 
 type ServiceClient = NonNullable<ReturnType<typeof createSupabaseServiceClient>>;
@@ -129,9 +136,11 @@ export async function repairMissingInitialScores(
 }
 
 /**
- * Turn a YouTube URL into an active, unscored performance. YouTube supplies
- * embed metadata and song identity only. AI Judge creates the first score later
- * from a performer-owned recording; metadata never becomes a score.
+ * The shared pipeline for turning a YouTube URL into a scored, ranked
+ * performance: oEmbed fetch → provisional AI estimate + song resolution →
+ * insert performance + score in one transaction. The estimate is explicitly
+ * provisional (metadata only, never audio); the AI Judge owned-recording flow
+ * later promotes the row to 'ai_verified' and replaces it.
  *
  * Always writes with the SERVICE client and an explicit `userId` — this lets
  * the admin-approval path create a performance on behalf of the REQUESTER
@@ -153,7 +162,19 @@ export async function createScoredPerformance(
     throw new OEmbedFetchError(err);
   }
 
-  const [resolvedSongId, seasonId] = await Promise.all([
+  // Score (caption-enriched), resolve the song, read the open season, and
+  // load the calibration offsets concurrently — four independent reads.
+  const [rawScoring, resolvedSongId, seasonId, calibration] = await Promise.all([
+    (async () => {
+      const transcript = await fetchCaptionText(videoId);
+      return getScoringProvider().score({
+        videoId,
+        title: oembed.title,
+        authorName: oembed.authorName,
+        hasVideo: true,
+        transcript: transcript ?? undefined,
+      });
+    })(),
     params.songId
       ? Promise.resolve<string | null>(null) // caller pinned the song explicitly
       : resolveSongId(service, {
@@ -162,26 +183,44 @@ export async function createScoredPerformance(
           category: params.category ?? null,
         }),
     currentSeasonId(service),
+    loadCalibration(service),
   ]);
+
+  // Human-anchor calibration: shift the LLM estimate by the fitted offsets
+  // (identity when nothing has been fitted yet).
+  const calibrated = applyOffsets(rawScoring.breakdown, calibration, true);
+  const scoring = {
+    ...rawScoring,
+    breakdown: calibrated.breakdown,
+    initialAiScore: calibrated.initialAiScore,
+  };
+
+  const payload = buildPerformanceCreate({
+    userId: params.userId,
+    youtubeUrl: params.youtubeUrl,
+    oembed,
+    scoring,
+    songId: params.songId ?? resolvedSongId,
+  });
 
   const { data: performanceId, error: createError } = await service.rpc(
     'create_scored_performance_atomic',
     {
       p_user_id: params.userId,
-      p_song_id: params.songId ?? resolvedSongId,
-      p_source: 'youtube',
-      p_youtube_video_id: videoId,
-      p_oembed_meta: oembed as unknown as Json,
-      p_duration_s: null,
-      p_has_video: true,
+      p_song_id: payload.performance.song_id ?? null,
+      p_source: payload.performance.source ?? 'youtube',
+      p_youtube_video_id: payload.performance.youtube_video_id ?? null,
+      p_oembed_meta: payload.performance.oembed_meta as unknown as Json,
+      p_duration_s: payload.performance.duration_s ?? null,
+      p_has_video: payload.performance.has_video ?? true,
       p_status: 'active',
-      p_scoring_version: AI_JUDGE_SCORING_VERSION,
-      p_initial_ai_score: null,
-      p_ai_breakdown: null,
-      p_ai_breakdown_raw: null,
-      p_is_provisional: true,
-      p_ai_provider: null,
-      p_ai_model: null,
+      p_scoring_version: payload.score.scoring_version ?? 1,
+      p_initial_ai_score: payload.score.initial_ai_score ?? null,
+      p_ai_breakdown: payload.score.ai_breakdown as unknown as Json,
+      p_ai_breakdown_raw: rawScoring.breakdown as unknown as Json,
+      p_is_provisional: payload.score.is_provisional ?? true,
+      p_ai_provider: payload.score.ai_provider ?? null,
+      p_ai_model: payload.score.ai_model ?? null,
       p_season_id: seasonId,
     },
   );
@@ -193,7 +232,7 @@ export async function createScoredPerformance(
     if (createError?.code === '23505') {
       throw new DuplicateVideoError();
     }
-    throw new Error('Could not create performance awaiting AI analysis');
+    throw new Error('Could not create scored performance');
   }
 
   // Server-granted only (grantBadge is idempotent — safe to call on every

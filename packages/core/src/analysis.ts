@@ -22,10 +22,28 @@ export const scoreStatusSchema = z.enum([
   'quality_rejected',
   'technique_only',
   'ai_verified',
+  'provisional_estimate',
   'legacy_metadata',
   'analysis_failed',
 ]);
 export type ScoreStatus = z.infer<typeof scoreStatusSchema>;
+
+/**
+ * Statuses whose score is real enough to display, rank, and vote on.
+ * 'ai_verified' is a DSP measurement of the performer's own recording;
+ * 'provisional_estimate' (and its pre-rename value 'legacy_metadata') is a
+ * clearly-labeled metadata estimate — rankable, but never presented as a
+ * measurement, and its listener vote weight is capped until verified.
+ */
+export const RANKED_SCORE_STATUSES = [
+  'ai_verified',
+  'provisional_estimate',
+  'legacy_metadata',
+] as const;
+
+export function isRankedScoreStatus(status: string | null | undefined): boolean {
+  return (RANKED_SCORE_STATUSES as readonly string[]).includes(status ?? '');
+}
 
 export const analysisQualityReasonSchema = z.enum([
   'invalid_wav',

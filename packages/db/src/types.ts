@@ -84,6 +84,7 @@ export interface PublicRows {
       | 'quality_rejected'
       | 'technique_only'
       | 'ai_verified'
+      | 'provisional_estimate'
       | 'legacy_metadata'
       | 'analysis_failed';
     score_source:
@@ -565,6 +566,10 @@ export type Database = {
           p_confidence: number | null;
         };
         Returns: Uuid;
+      };
+      expire_stale_analysis_sessions: {
+        Args: { p_performance_id: Uuid };
+        Returns: undefined;
       };
       publish_song_reference: {
         Args: {
