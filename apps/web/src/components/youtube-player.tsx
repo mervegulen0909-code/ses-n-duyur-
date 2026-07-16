@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import type { ListenEvent } from '@voxscore/core';
+import { MIN_VERIFIED_LISTEN_SECONDS, type ListenEvent } from '@voxscore/core';
 
 interface YTPlayer {
   getCurrentTime(): number;
@@ -58,13 +58,15 @@ export function YouTubePlayer({
   onComplete,
 }: {
   videoId: string;
-  onStart?: () => void;
+  onStart?: () => void | Promise<void>;
   onComplete?: (events: ListenEvent[], durationS: number) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<ListenEvent[]>([]);
   const startedRef = useRef(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const firstPlaybackPositionRef = useRef<number | null>(null);
+  const completionRequestedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -89,20 +91,35 @@ export function YouTubePlayer({
         videoId,
         playerVars: { rel: 0, modestbranding: 1 },
         events: {
-          onStateChange: (e) => {
+          onStateChange: async (e) => {
             if (e.data === YT.PlayerState.PLAYING) {
               if (!startedRef.current) {
                 startedRef.current = true;
-                onStart?.();
+                await onStart?.();
               }
+              firstPlaybackPositionRef.current ??= e.target.getCurrentTime();
               record('playing', e.target);
               stopPoll();
-              pollRef.current = setInterval(() => record('playing', e.target), 3000);
+              pollRef.current = setInterval(() => {
+                record('playing', e.target);
+                const first = firstPlaybackPositionRef.current;
+                if (
+                  first !== null &&
+                  e.target.getCurrentTime() - first >= MIN_VERIFIED_LISTEN_SECONDS &&
+                  !completionRequestedRef.current
+                ) {
+                  completionRequestedRef.current = true;
+                  stopPoll();
+                  onComplete?.([...eventsRef.current], Math.floor(e.target.getDuration()));
+                }
+              }, 250);
             } else if (e.data === YT.PlayerState.PAUSED) {
               stopPoll();
               record('paused', e.target);
             } else if (e.data === YT.PlayerState.ENDED) {
               stopPoll();
+              if (completionRequestedRef.current) return;
+              completionRequestedRef.current = true;
               record('ended', e.target);
               onComplete?.([...eventsRef.current], Math.floor(e.target.getDuration()));
             }

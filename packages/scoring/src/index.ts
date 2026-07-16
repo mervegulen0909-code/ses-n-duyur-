@@ -12,3 +12,4 @@ export * from './score';
 export * from './elo';
 export * from './wilson';
 export * from './confidence';
+export * from './ai-judge';

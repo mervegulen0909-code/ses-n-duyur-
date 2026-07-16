@@ -13,6 +13,7 @@ export * from './song';
 export * from './listen';
 export * from './score-update';
 export * from './measured';
+export * from './analysis';
 export * from './adapters/index';
 export { buildShareLine, scoreBar, type ShareLine } from './share-line';
 export { computeStreak, streakTier, type StreakTier } from './streak';

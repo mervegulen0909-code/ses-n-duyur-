@@ -65,8 +65,9 @@ export async function POST(req: Request): Promise<Response> {
 
   let query = service
     .from('performances')
-    .select('id, youtube_video_id, oembed_meta, song_id')
+    .select('id, youtube_video_id, oembed_meta, song_id, scores!inner(score_status)')
     .eq('status', 'active')
+    .eq('scores.score_status', 'ai_verified')
     .not('youtube_video_id', 'is', null);
   if (songId) query = query.eq('song_id', songId);
   const { data: perfs } = await query.limit(50);

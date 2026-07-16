@@ -46,12 +46,14 @@ function makeService(
   service: Service;
   battleInsert: ReturnType<typeof vi.fn>;
   songIdEq: ReturnType<typeof vi.fn>;
+  scoreStatusEq: ReturnType<typeof vi.fn>;
 } {
   // performances: select().eq('status').not().limit(), optionally with an
   // extra .eq('song_id', songId) between .not() and .limit() when scoped.
   const limit = vi.fn(async () => ({ data: opts.perfs ?? TWO_PERFS }));
   const songIdEq = vi.fn(() => ({ limit }));
   const notChain = vi.fn(() => ({ limit, eq: songIdEq }));
+  const scoreStatusEq = vi.fn(() => ({ not: notChain }));
   // battles: insert().select().single() resolves to the new row (or an error).
   const battleSingle = vi.fn(async () => ({
     data: 'battle' in opts ? opts.battle : { id: BATTLE },
@@ -70,12 +72,12 @@ function makeService(
     })),
   };
   const from = vi.fn((table: string) => {
-    if (table === 'performances') return { select: () => ({ eq: () => ({ not: notChain }) }) };
+    if (table === 'performances') return { select: () => ({ eq: () => ({ eq: scoreStatusEq }) }) };
     if (table === 'battles') return { insert: battleInsert };
     if (table === 'seasons') return seasonsTable;
     return {};
   });
-  return { service: { from } as unknown as Service, battleInsert, songIdEq };
+  return { service: { from } as unknown as Service, battleInsert, songIdEq, scoreStatusEq };
 }
 
 describe('POST /api/battles/next — pairing creation', () => {
@@ -104,7 +106,7 @@ describe('POST /api/battles/next — pairing creation', () => {
   });
 
   it('200 creates a battle and returns both sides', async () => {
-    const { service, battleInsert } = makeService();
+    const { service, battleInsert, scoreStatusEq } = makeService();
     vi.mocked(getRequestContext).mockResolvedValue(ctx);
     vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
 
@@ -119,6 +121,7 @@ describe('POST /api/battles/next — pairing creation', () => {
     // pickPair shuffles, so assert membership without depending on order.
     expect([body.a.performanceId, body.b.performanceId].sort()).toEqual([PERF_A, PERF_B].sort());
     expect(battleInsert).toHaveBeenCalledTimes(1);
+    expect(scoreStatusEq).toHaveBeenCalledWith('scores.score_status', 'ai_verified');
   });
 
   it('stamps the battle with the currently open season (never client-supplied)', async () => {

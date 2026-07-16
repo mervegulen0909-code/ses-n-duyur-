@@ -21,7 +21,11 @@ import { useSession } from '@/lib/use-session';
 
 type Profile = { handle: string; reputation: number };
 
-type ScoreRel = { current_score: number | null; is_provisional?: boolean | null };
+type ScoreRel = {
+  current_score: number | null;
+  is_provisional?: boolean | null;
+  score_status: string;
+};
 type PerfRow = {
   id: string;
   status: string;
@@ -34,6 +38,24 @@ type Item = {
   status: string;
   score: number | null;
   isProvisional: boolean;
+};
+type VotedPerfRel = {
+  id: string;
+  oembed_meta: { title?: string; authorName?: string } | null;
+  scores: ScoreRel | ScoreRel[] | null;
+};
+type RatingRow = {
+  id: string;
+  created_at: string;
+  performances: VotedPerfRel | VotedPerfRel[] | null;
+};
+type VotedItem = {
+  id: string;
+  performanceId: string;
+  title: string;
+  artist: string | null;
+  score: number | null;
+  votedAt: string;
 };
 
 function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): ScoreRel | null {
@@ -52,6 +74,7 @@ export default function ProfileScreen() {
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [items, setItems] = useState<Item[]>([]);
+  const [votedItems, setVotedItems] = useState<VotedItem[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
   const [deleting, setDeleting] = useState(false);
@@ -104,13 +127,21 @@ export default function ProfileScreen() {
     // Profile + performances both read directly through supabase (RLS-protected):
     // profiles is world-readable; performances are visible to their owner even
     // when not 'active'. No API/Bearer needed for these reads.
-    const [profileRes, perfRes] = await Promise.all([
+    const [profileRes, perfRes, ratingRes] = await Promise.all([
       supabase.from('profiles').select('handle, reputation').eq('id', userId).single(),
       supabase
         .from('performances')
-        .select('id, status, oembed_meta, scores(current_score, is_provisional)')
+        .select('id, status, oembed_meta, scores(current_score, is_provisional, score_status)')
         .eq('user_id', userId)
         .order('created_at', { ascending: false }),
+      supabase
+        .from('criteria_ratings')
+        .select(
+          'id, created_at, performances(id, oembed_meta, scores(current_score, is_provisional, score_status))',
+        )
+        .eq('voter_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20),
     ]);
 
     if (profileRes.error) {
@@ -120,6 +151,11 @@ export default function ProfileScreen() {
     }
     if (perfRes.error) {
       setError(perfRes.error.message);
+      setState('error');
+      return;
+    }
+    if (ratingRes.error) {
+      setError(ratingRes.error.message);
       setState('error');
       return;
     }
@@ -137,10 +173,30 @@ export default function ProfileScreen() {
           id: p.id,
           title: meta.title ?? t('Common.untitled'),
           status: p.status,
-          score: score?.current_score ?? null,
+          score: score?.score_status === 'ai_verified' ? score.current_score : null,
           // Column is NOT NULL default true; absent score → treat as provisional.
-          isProvisional: score?.is_provisional !== false,
+          isProvisional: score?.score_status !== 'ai_verified',
         };
+      }),
+    );
+
+    const ratingRows = (ratingRes.data ?? []) as unknown as RatingRow[];
+    setVotedItems(
+      ratingRows.flatMap((r) => {
+        const perf = Array.isArray(r.performances) ? r.performances[0] : r.performances;
+        if (!perf) return [];
+        const meta = perf.oembed_meta ?? {};
+        const score = scoreRowOf(perf.scores);
+        return [
+          {
+            id: r.id,
+            performanceId: perf.id,
+            title: meta.title ?? t('Common.untitled'),
+            artist: meta.authorName ?? null,
+            score: score?.score_status === 'ai_verified' ? score.current_score : null,
+            votedAt: r.created_at,
+          },
+        ];
       }),
     );
     setState('ready');
@@ -224,6 +280,39 @@ export default function ProfileScreen() {
           ListEmptyComponent={<Text style={styles.empty}>{t('Profile.empty')}</Text>}
           ListFooterComponent={
             <>
+              <View style={styles.votedSection}>
+                <Text style={styles.sectionLabel}>{t('Profile.votedPerformances')}</Text>
+                {votedItems.length === 0 ? (
+                  <Text style={styles.emptySmall}>{t('Profile.votedEmpty')}</Text>
+                ) : (
+                  votedItems.map((item) => (
+                    <Pressable
+                      key={item.id}
+                      style={({ pressed }) => [styles.votedRow, pressed && styles.rowPressed]}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/performance/[id]',
+                          params: { id: item.performanceId },
+                        })
+                      }
+                    >
+                      <View style={styles.rowMain}>
+                        <Text style={styles.title} numberOfLines={1}>
+                          {item.title}
+                        </Text>
+                        {!!item.artist && (
+                          <Text style={styles.votedMeta} numberOfLines={1}>
+                            {item.artist}
+                          </Text>
+                        )}
+                      </View>
+                      <Text style={styles.score}>
+                        {item.score != null ? item.score.toFixed(1) : '—'}
+                      </Text>
+                    </Pressable>
+                  ))
+                )}
+              </View>
               <Pressable
                 accessibilityRole="button"
                 onPress={onDeleteAccount}
@@ -297,6 +386,7 @@ const styles = StyleSheet.create({
   spinner: { marginTop: 40 },
   error: { margin: 20, color: '#fb7185' },
   empty: { marginTop: 40, textAlign: 'center', color: '#9ca3af' },
+  emptySmall: { color: '#6b7280', fontSize: 13 },
   list: { paddingHorizontal: 16, paddingBottom: 32, gap: 8 },
   row: {
     flexDirection: 'row',
@@ -313,6 +403,17 @@ const styles = StyleSheet.create({
   status: { marginTop: 2, fontSize: 12, color: '#fbbf24', textTransform: 'capitalize' },
   provisional: { marginTop: 4, fontSize: 10, fontWeight: '600', color: '#fbbf24' },
   score: { fontSize: 17, fontWeight: '800', color: '#22D3EE', minWidth: 48, textAlign: 'right' },
+  votedSection: { marginTop: 24, gap: 8 },
+  votedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#111827',
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  votedMeta: { marginTop: 2, fontSize: 12, color: '#9ca3af' },
   // Danger zone — store-required account deletion.
   deleteButton: {
     marginTop: 28,

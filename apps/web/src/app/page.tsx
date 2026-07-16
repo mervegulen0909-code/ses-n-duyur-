@@ -104,7 +104,8 @@ export default async function HomePage() {
       const { data: scores } = await supabase
         .from('scores')
         .select('performance_id, current_score, is_provisional')
-        .in('performance_id', ids);
+        .in('performance_id', ids)
+        .eq('score_status', 'ai_verified');
       scoreByPerf = new Map((scores ?? []).map((s) => [s.performance_id, s]));
     }
 

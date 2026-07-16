@@ -75,10 +75,80 @@ export interface PublicRows {
     current_score: number | null;
     trend_score: number | null;
     verified_vote_count: number;
-    ai_provider: 'anthropic' | 'openai' | 'gemini' | 'mock' | null;
+    ai_provider: 'anthropic' | 'openai' | 'gemini' | 'mock' | 'voxscore-dsp' | null;
     ai_model: string | null;
+    score_status:
+      | 'unscored'
+      | 'reference_required'
+      | 'analysis_pending'
+      | 'quality_rejected'
+      | 'technique_only'
+      | 'ai_verified'
+      | 'legacy_metadata'
+      | 'analysis_failed';
+    score_source:
+      | 'none'
+      | 'metadata_estimate'
+      | 'owned_audio_ai'
+      | 'ai_community_hybrid'
+      | 'community';
+    ai_judge_confidence: number | null;
+    analysis_result_id: Uuid | null;
     season_id: Uuid | null;
     updated_at: Timestamp;
+  };
+  song_references: {
+    id: Uuid;
+    song_id: Uuid;
+    status: 'draft' | 'ready' | 'retired';
+    reference_version: number;
+    source_type: 'licensed_midi' | 'admin_annotation';
+    notes: Json;
+    duration_ms: number;
+    tonic_midi: number | null;
+    created_by: Uuid | null;
+    created_at: Timestamp;
+    updated_at: Timestamp;
+  };
+  analysis_sessions: {
+    id: Uuid;
+    performance_id: Uuid;
+    user_id: Uuid;
+    reference_id: Uuid | null;
+    mode: 'song_reference' | 'technique_test';
+    status:
+      | 'created'
+      | 'uploading'
+      | 'processing'
+      | 'completed'
+      | 'rejected'
+      | 'failed'
+      | 'expired';
+    upload_nonce_hash: string;
+    expires_at: Timestamp;
+    attempt_count: number;
+    error_code: string | null;
+    error_message: string | null;
+    created_at: Timestamp;
+    started_at: Timestamp | null;
+    completed_at: Timestamp | null;
+  };
+  analysis_results: {
+    id: Uuid;
+    session_id: Uuid;
+    performance_id: Uuid;
+    user_id: Uuid;
+    reference_id: Uuid | null;
+    pipeline_version: number;
+    pitch_engine: string;
+    pitch_engine_version: string;
+    quality_gate: Json;
+    raw_metrics: Json;
+    measured_breakdown: Json | null;
+    ai_score: number | null;
+    confidence: number | null;
+    audio_sha256: string;
+    created_at: Timestamp;
   };
   measured_scores: {
     id: Uuid;
@@ -429,7 +499,7 @@ export type Database = {
           p_ai_breakdown: Json | null;
           p_ai_breakdown_raw: Json | null;
           p_is_provisional: boolean;
-          p_ai_provider: 'anthropic' | 'openai' | 'gemini' | 'mock' | null;
+          p_ai_provider: 'anthropic' | 'openai' | 'gemini' | 'mock' | 'voxscore-dsp' | null;
           p_ai_model: string | null;
           p_season_id: Uuid | null;
         };
@@ -486,6 +556,26 @@ export type Database = {
           verified_vote_count: number;
           listener_stddev: number | null;
         }[];
+      };
+      finalize_ai_analysis: {
+        Args: {
+          p_session_id: Uuid;
+          p_result: Json;
+          p_ai_score: number | null;
+          p_confidence: number | null;
+        };
+        Returns: Uuid;
+      };
+      publish_song_reference: {
+        Args: {
+          p_song_id: Uuid;
+          p_source_type: 'licensed_midi' | 'admin_annotation';
+          p_notes: Json;
+          p_duration_ms: number;
+          p_tonic_midi: number | null;
+          p_created_by: Uuid;
+        };
+        Returns: Uuid;
       };
       grant_badge: {
         Args: {

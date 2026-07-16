@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
-import type { ListenEvent } from '@voxscore/core';
+import { MIN_VERIFIED_LISTEN_SECONDS, type ListenEvent } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { nextBattle, submitBattleVote } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
@@ -47,6 +47,8 @@ function useSideTracker(performanceId: string) {
   const playerRef = useRef<YoutubeIframeRef>(null);
   const eventsRef = useRef<ListenEvent[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const firstPlaybackPositionRef = useRef<number | null>(null);
+  const completionRequestedRef = useRef(false);
   // Uploader disabled embedding (YouTube 101/150): this side can't be verified.
   const [embedBlocked, setEmbedBlocked] = useState(false);
 
@@ -66,12 +68,26 @@ function useSideTracker(performanceId: string) {
       if (s === 'playing') {
         await listen.onStart();
         const t = (await playerRef.current?.getCurrentTime()) ?? 0;
+        firstPlaybackPositionRef.current ??= t;
         pushEvent('playing', t);
         if (!pollRef.current) {
           pollRef.current = setInterval(async () => {
             const cur = await playerRef.current?.getCurrentTime();
-            if (typeof cur === 'number') pushEvent('playing', cur);
-          }, 1000);
+            if (typeof cur !== 'number') return;
+            pushEvent('playing', cur);
+            const first = firstPlaybackPositionRef.current;
+            if (
+              first !== null &&
+              cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
+              !completionRequestedRef.current
+            ) {
+              completionRequestedRef.current = true;
+              if (pollRef.current) clearInterval(pollRef.current);
+              pollRef.current = null;
+              const dur = (await playerRef.current?.getDuration()) ?? cur;
+              await listen.onComplete(eventsRef.current, dur);
+            }
+          }, 250);
         }
       } else if (s === 'paused') {
         if (pollRef.current) {
@@ -85,6 +101,8 @@ function useSideTracker(performanceId: string) {
           clearInterval(pollRef.current);
           pollRef.current = null;
         }
+        if (completionRequestedRef.current) return;
+        completionRequestedRef.current = true;
         const dur = (await playerRef.current?.getDuration()) ?? 0;
         pushEvent('ended', dur);
         await listen.onComplete(eventsRef.current, dur);

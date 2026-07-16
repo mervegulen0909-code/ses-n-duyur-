@@ -1,0 +1,19 @@
+{
+  "name": "@voxscore/analyzer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.2",
+    "@voxscore/core": "workspace:*",
+    "@voxscore/db": "workspace:*",
+    "@voxscore/dsp": "workspace:*",
+    "tsx": "^4.19.2"
+  }
+}

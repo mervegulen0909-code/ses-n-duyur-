@@ -14,7 +14,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { supabase } from '@/lib/supabase';
 
-type ScoreRel = { current_score: number | null; is_provisional?: boolean | null };
+type ScoreRel = {
+  current_score: number | null;
+  is_provisional?: boolean | null;
+  score_status: string;
+};
 type PerfRow = {
   id: string;
   oembed_meta: { title?: string; authorName?: string } | null;
@@ -53,7 +57,7 @@ export default function SongScreen() {
       supabase.from('songs').select('id, title, artist').eq('id', id).maybeSingle(),
       supabase
         .from('performances')
-        .select('id, oembed_meta, scores(current_score, is_provisional)')
+        .select('id, oembed_meta, scores(current_score, is_provisional, score_status)')
         .eq('song_id', id)
         .eq('status', 'active'),
     ]);
@@ -66,15 +70,20 @@ export default function SongScreen() {
 
     setSong((songRes.data as SongRow | null) ?? null);
     const rows = (perfRes.data ?? []) as unknown as PerfRow[];
+    // Every active cover stays reachable from its song page; only ai_verified
+    // ones carry a number, the rest rank below with a dash until the AI Judge
+    // scores them. Dropping unscored rows here would dead-end the song page
+    // while the catalog is mostly unscored.
     const mapped: Item[] = rows.map((p) => {
       const meta = p.oembed_meta ?? {};
       const score = scoreRowOf(p.scores);
+      const verified = score?.score_status === 'ai_verified';
       return {
         id: p.id,
         title: meta.title ?? t('Common.untitled'),
         artist: meta.authorName ?? '',
-        score: score?.current_score ?? null,
-        isProvisional: score?.is_provisional !== false,
+        score: verified ? (score?.current_score ?? null) : null,
+        isProvisional: false,
       };
     });
     mapped.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));

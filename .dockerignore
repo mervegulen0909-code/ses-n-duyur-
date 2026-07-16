@@ -1,0 +1,10 @@
+node_modules
+.git
+.next
+coverage
+tmp
+tmp-*
+.claude
+*.apk
+*.png
+

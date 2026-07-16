@@ -37,6 +37,7 @@ export default async function PerformanceOpengraphImage({
       .from('scores')
       .select('current_score, is_provisional')
       .eq('performance_id', id)
+      .eq('score_status', 'ai_verified')
       .maybeSingle();
     if (score?.current_score !== null && score?.current_score !== undefined) {
       scoreLabel = score.current_score.toFixed(1);

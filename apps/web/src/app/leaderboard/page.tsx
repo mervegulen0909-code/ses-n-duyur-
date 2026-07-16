@@ -43,7 +43,8 @@ export default async function LeaderboardPage({
   const activeSeason = resolveSeason(seasons, season);
   let scoresQuery = supabase
     .from('scores')
-    .select('performance_id, current_score, trend_score, is_provisional, verified_vote_count');
+    .select('performance_id, current_score, trend_score, is_provisional, verified_vote_count')
+    .eq('score_status', 'ai_verified');
   if (activeSeason) scoresQuery = scoresQuery.eq('season_id', activeSeason.id);
   const { data: scores } = await scoresQuery;
 
@@ -58,9 +59,12 @@ export default async function LeaderboardPage({
 
   const scoreByPerf = new Map((scores ?? []).map((s) => [s.performance_id, s]));
 
-  const perfsInCategory = activeCategory
+  const categoryFilteredPerfs = activeCategory
     ? (perfs ?? []).filter((p) => p.song_id && categoryBySong.get(p.song_id) === activeCategory)
     : (perfs ?? []);
+  const perfsInCategory = categoryFilteredPerfs.filter((performance) =>
+    scoreByPerf.has(performance.id),
+  );
 
   const rows: LeaderboardRow[] = perfsInCategory.map((p) => {
     const s = scoreByPerf.get(p.id);

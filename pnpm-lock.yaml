@@ -56,6 +56,24 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.19.20)(lightningcss@1.32.0)(terser@5.49.0)
 
+  apps/analyzer:
+    dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.110.2
+        version: 2.110.2
+      '@voxscore/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@voxscore/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@voxscore/dsp':
+        specifier: workspace:*
+        version: link:../../packages/dsp
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.0
+
   apps/mobile:
     dependencies:
       '@expo-google-fonts/dm-mono':
@@ -7325,9 +7343,7 @@ snapshots:
       metro-runtime: 0.84.4
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 

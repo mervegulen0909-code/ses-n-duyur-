@@ -14,7 +14,9 @@ import { supabase } from './supabase';
 import { getNativeIntegrityHeaders } from './attestation';
 import {
   completeListen,
+  createAnalysisSession,
   deleteAccount,
+  getAnalysisSession,
   myPerformanceRequests,
   nextBattle,
   postComment,
@@ -132,6 +134,33 @@ describe('mobile api client', () => {
       isValid: false,
       reason: 'too short',
     });
+  });
+
+  it('creates and reads an AI analysis session with bearer auth', async () => {
+    const upload = {
+      sessionId: 's1',
+      uploadUrl: 'https://analyzer.test/analyze',
+      uploadToken: 'signed',
+      expiresAt: '2030-01-01T00:00:00.000Z',
+      maxBytes: 1024,
+    };
+    mockFetchOnce(upload, { status: 201 });
+    expect(await createAnalysisSession('p1')).toMatchObject({ ok: true, session: upload });
+    let request = lastFetch();
+    expect(request.url).toMatch(/\/api\/analysis\/sessions$/);
+    expect(JSON.parse(request.opts.body as string)).toEqual({
+      performanceId: 'p1',
+      mode: 'song_reference',
+    });
+
+    mockFetchOnce({ session: { id: 's1', status: 'completed' } });
+    expect(await getAnalysisSession('s1')).toMatchObject({
+      ok: true,
+      session: { id: 's1', status: 'completed' },
+    });
+    request = lastFetch();
+    expect(request.url).toMatch(/\/api\/analysis\/sessions\/s1$/);
+    expect(request.opts.method).toBe('GET');
   });
 
   it('submitVote surfaces currentScore and honours ok=false / non-2xx', async () => {
