@@ -36,10 +36,16 @@ export async function generateMetadata({
     .select('oembed_meta')
     .eq('id', id)
     .maybeSingle();
-  // Missing/hidden performances must 404 here: the page body streams after
-  // metadata, so a notFound() thrown there ships with an already-committed
-  // 200 status and a placeholder title.
-  if (!perf) notFound();
+  // The root loading boundary streams a 200 shell before metadata resolves,
+  // so a status-changing notFound() is impossible here; keep crawlers out of
+  // missing/hidden performances with noindex and an honest title instead of
+  // the "Performance — — on VoxScore" placeholder.
+  if (!perf) {
+    return {
+      title: 'Performance not found — VoxScore',
+      robots: { index: false, follow: false },
+    };
+  }
   const { data: score } = await supabase
     .from('scores')
     .select('current_score')
