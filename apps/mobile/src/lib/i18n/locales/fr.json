@@ -171,6 +171,7 @@
     "short": "Groupes",
     "error": "La ligue n’a pas pu être mise à jour.",
     "invalidCode": "Saisis un code valide de 8 caractères.",
+    "joinFailed": "Aucune ligue trouvée pour ce code.",
     "nameTooShort": "Le nom de la ligue doit contenir au moins 3 caractères.",
     "empty": "Aucune ligue privée pour le moment.",
     "owner": "Créateur",

@@ -173,6 +173,7 @@
     "short": "Ekipler",
     "error": "Lig güncellenemedi.",
     "invalidCode": "Geçerli bir 8 karakterlik kod gir.",
+    "joinFailed": "Bu koda sahip bir lig bulunamadı.",
     "nameTooShort": "Lig adı en az 3 karakter olmalı.",
     "empty": "Henüz özel ligin yok.",
     "owner": "Kurucu",

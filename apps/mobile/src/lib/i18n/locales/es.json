@@ -171,6 +171,7 @@
     "short": "Grupos",
     "error": "No se pudo actualizar la liga.",
     "invalidCode": "Introduce un código válido de 8 caracteres.",
+    "joinFailed": "No se encontró ninguna liga con ese código.",
     "nameTooShort": "El nombre de la liga debe tener al menos 3 caracteres.",
     "empty": "Aún no hay ligas privadas.",
     "owner": "Creador",

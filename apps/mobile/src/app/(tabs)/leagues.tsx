@@ -23,7 +23,7 @@ import { useSession } from '@/lib/use-session';
 
 export default function CustomLeaguesScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, loading: authLoading } = useSession();
   const [items, setItems] = useState<CustomLeagueSummary[]>([]);
   const [name, setName] = useState('');
@@ -63,7 +63,7 @@ export default function CustomLeaguesScreen() {
     setError('');
     const result = await joinCustomLeague(normalized);
     setBusy(false);
-    if (!result.ok) return setError(t('Leagues.error'));
+    if (!result.ok) return setError(t('Leagues.joinFailed'));
     setCode('');
     await load();
   }
@@ -108,7 +108,9 @@ export default function CustomLeaguesScreen() {
               <View style={styles.rowMain}>
                 <Text style={styles.name}>{item.name}</Text>
                 <Text style={styles.role}>
-                  {item.isOwner ? t('Leagues.owner') : t('Leagues.member')}
+                  {(item.isOwner ? t('Leagues.owner') : t('Leagues.member')).toLocaleUpperCase(
+                    i18n.language,
+                  )}
                 </Text>
               </View>
               <Text style={styles.chevron}>›</Text>
@@ -171,12 +173,13 @@ const styles = StyleSheet.create({
   },
   rowMain: { flex: 1 },
   name: { color: '#fafafa', fontSize: 16, fontWeight: '800' },
+  // Uppercasing happens in JS with the active i18n locale; RN textTransform
+  // uses the device locale, which turns English "i" into Turkish "İ".
   role: {
     marginTop: 4,
     color: '#737373',
     fontSize: 11,
     fontWeight: '700',
-    textTransform: 'uppercase',
   },
   chevron: { color: '#22d3ee', fontSize: 28 },
   forms: { marginTop: 22, borderTopWidth: 1, borderTopColor: '#262626', paddingTop: 22 },
