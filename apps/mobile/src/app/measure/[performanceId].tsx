@@ -23,7 +23,7 @@ type ScreenState =
 
 export default function MeasurePerformanceScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { performanceId } = useLocalSearchParams<{ performanceId: string }>();
   const [state, setState] = useState<ScreenState>('idle');
   const [message, setMessage] = useState('');
@@ -197,7 +197,9 @@ export default function MeasurePerformanceScreen() {
 
       <View style={styles.content}>
         <View style={styles.heading}>
-          <Text style={styles.eyebrow}>{t('Measure.aiJudgeEyebrow')}</Text>
+          <Text style={styles.eyebrow}>
+            {t('Measure.aiJudgeEyebrow').toLocaleUpperCase(i18n.language)}
+          </Text>
           <Text style={styles.title}>{t('Measure.title')}</Text>
           <Text style={styles.body}>{t('Measure.aiJudgeBody')}</Text>
         </View>
@@ -278,7 +280,9 @@ const styles = StyleSheet.create({
   back: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
   content: { flex: 1, paddingHorizontal: 24, paddingBottom: 24, justifyContent: 'space-between' },
   heading: { gap: 10, paddingTop: 20 },
-  eyebrow: { color: '#22D3EE', fontSize: 12, fontWeight: '800', textTransform: 'uppercase' },
+  // Uppercased in JS with the active i18n locale; RN textTransform uses the
+  // device locale, which turns English "i" into Turkish "İ".
+  eyebrow: { color: '#22D3EE', fontSize: 12, fontWeight: '800' },
   title: { color: '#F8FAFC', fontSize: 28, lineHeight: 34, fontWeight: '800' },
   body: { color: '#A8B3C2', fontSize: 15, lineHeight: 23 },
   meter: { alignItems: 'center', gap: 10 },

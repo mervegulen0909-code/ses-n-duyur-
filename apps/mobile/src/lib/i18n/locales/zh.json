@@ -171,6 +171,7 @@
     "short": "小组",
     "error": "无法更新联赛。",
     "invalidCode": "请输入有效的 8 位代码。",
+    "joinFailed": "未找到该邀请码对应的联赛。",
     "nameTooShort": "联赛名称至少需要 3 个字符。",
     "empty": "还没有私人联赛。",
     "owner": "创建者",

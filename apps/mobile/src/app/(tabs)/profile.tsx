@@ -65,7 +65,7 @@ function scoreRowOf(scores: ScoreRel | ScoreRel[] | null | undefined): ScoreRel 
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, loading: sessionLoading } = useSession();
   // Key data-loading on the STABLE id string, not the `user` object identity:
   // Supabase mints a fresh user object on every token refresh, which would
@@ -275,13 +275,17 @@ export default function ProfileScreen() {
           keyExtractor={(i) => i.id}
           contentContainerStyle={styles.list}
           ListHeaderComponent={
-            <Text style={styles.sectionLabel}>{t('Profile.yourPerformances')}</Text>
+            <Text style={styles.sectionLabel}>
+              {t('Profile.yourPerformances').toLocaleUpperCase(i18n.language)}
+            </Text>
           }
           ListEmptyComponent={<Text style={styles.empty}>{t('Profile.empty')}</Text>}
           ListFooterComponent={
             <>
               <View style={styles.votedSection}>
-                <Text style={styles.sectionLabel}>{t('Profile.votedPerformances')}</Text>
+                <Text style={styles.sectionLabel}>
+                  {t('Profile.votedPerformances').toLocaleUpperCase(i18n.language)}
+                </Text>
                 {votedItems.length === 0 ? (
                   <Text style={styles.emptySmall}>{t('Profile.votedEmpty')}</Text>
                 ) : (
@@ -375,11 +379,12 @@ const styles = StyleSheet.create({
   repRow: { marginTop: 4, flexDirection: 'row', alignItems: 'baseline', gap: 6 },
   repValue: { fontSize: 17, fontWeight: '800', color: '#22D3EE', fontVariant: ['tabular-nums'] },
   repLabel: { fontSize: 13, color: '#9ca3af' },
+  // Uppercased in JS with the active i18n locale; RN textTransform uses the
+  // device locale, which turns English "i" into Turkish "İ".
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
     color: '#6b7280',
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 4,
   },

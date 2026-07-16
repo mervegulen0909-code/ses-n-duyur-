@@ -173,6 +173,7 @@
     "short": "Crews",
     "error": "The league could not be updated.",
     "invalidCode": "Enter a valid 8-character code.",
+    "joinFailed": "No league found for that code.",
     "nameTooShort": "League name must be at least 3 characters.",
     "empty": "No private leagues yet.",
     "owner": "Owner",
