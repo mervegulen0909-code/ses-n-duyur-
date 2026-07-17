@@ -77,7 +77,9 @@
     "google": "Continue with Google",
     "orDivider": "or"
   },
-  "MobileTurnstile": { "verifying": "Verifying this signup is human…" },
+  "MobileTurnstile": {
+    "verifying": "Verifying this signup is human…"
+  },
   "Add": {
     "title": "Add a performance",
     "subtitle": "Paste a YouTube link. We embed it (never download), fetch its metadata, and create a Provisional AI Estimate.",
@@ -110,7 +112,7 @@
     "statusListened": "✓ Listened",
     "statusNotFully": "Listen not verified",
     "statusListening": "Listening…",
-    "statusPressPlay": "Press play & watch for 1 second",
+    "statusPressPlay": "Press play & watch for 30 seconds",
     "voteRecorded": "Vote recorded! 🎉",
     "nextBattle": "Next battle →",
     "sideWins": "{title} wins",
@@ -248,12 +250,20 @@
     "originality": "Originality",
     "stagePresence": "Stage presence"
   },
+  "AiJudgeCriteria": {
+    "melodyAccuracy": "Melody accuracy",
+    "rhythmAccuracy": "Rhythm accuracy",
+    "pitchControl": "Pitch control",
+    "noteTransitions": "Note transitions",
+    "sustainControl": "Sustain control",
+    "dynamicPhrasing": "Dynamic phrasing"
+  },
   "Vote": {
-    "hintIdle": "Press play and watch for at least 1 second to unlock voting.",
+    "hintIdle": "Press play and watch for at least 30 seconds to unlock voting.",
     "errStart": "Could not start the listen session.",
     "verifying": "Verifying your listen…",
     "verified": "Verified Listen complete — you can vote now.",
-    "notVerified": "Listen not verified. Watch for at least 1 second to vote.",
+    "notVerified": "Listen not verified. Watch for at least 30 seconds to vote.",
     "errVerify": "Could not verify the listen.",
     "rateThis": "Rate this performance",
     "submitting": "Submitting…",

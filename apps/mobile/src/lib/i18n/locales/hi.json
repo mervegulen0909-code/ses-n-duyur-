@@ -230,6 +230,14 @@
     "originality": "मौलिकता",
     "stagePresence": "स्टेज उपस्थिति"
   },
+  "AiJudgeCriteria": {
+    "melodyAccuracy": "मेलोडी सटीकता",
+    "rhythmAccuracy": "लय सटीकता",
+    "pitchControl": "स्वर नियंत्रण",
+    "noteTransitions": "स्वर परिवर्तन",
+    "sustainControl": "सुर टिकाव",
+    "dynamicPhrasing": "गतिशील प्रस्तुति"
+  },
   "Legal": {
     "label": "कानूनी",
     "terms": "सेवा की शर्तें",

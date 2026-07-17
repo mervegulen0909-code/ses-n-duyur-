@@ -14,6 +14,12 @@ function voteRpcFailure(error: { code?: string; message?: string } | null): Resp
   if (message.includes('daily_vote_limit')) {
     return Response.json({ error: 'Daily voting limit reached' }, { status: 429 });
   }
+  if (message.includes('vote_locked')) {
+    return Response.json(
+      { error: 'Your vote is final — ratings can only be revised for 24 hours' },
+      { status: 409 },
+    );
+  }
   if (message.includes('verified_listen_required')) {
     return Response.json(
       { error: 'A completed Verified Listen is required to vote' },

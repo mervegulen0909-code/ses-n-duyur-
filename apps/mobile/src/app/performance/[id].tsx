@@ -24,9 +24,9 @@ import {
   type ListenEvent,
 } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
-import { CRITERIA } from '@voxscore/scoring';
+import { AI_JUDGE_CRITERIA, CRITERIA } from '@voxscore/scoring';
 import { postComment, submitVote } from '@/lib/api';
-import { useCriterionLabels } from '@/lib/criteria-labels';
+import { useAiJudgeCriterionLabels, useCriterionLabels } from '@/lib/criteria-labels';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
 import { useVerifiedListen } from '@/lib/use-verified-listen';
@@ -69,6 +69,7 @@ export default function PerformanceScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const criterionLabels = useCriterionLabels();
+  const aiJudgeLabels = useAiJudgeCriterionLabels();
   const { user } = useSession();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -462,23 +463,43 @@ export default function PerformanceScreen() {
             )}
 
             <View style={styles.criteria}>
-              {activeCriteria.map((c) => {
-                const measuredValue = measuredApplies ? (measured?.[c] ?? null) : null;
-                const value = measuredValue ?? (breakdown[c] != null ? breakdown[c] : null);
-                return (
-                  <View key={c} style={styles.critRow}>
-                    <View style={styles.critNameWrap}>
-                      <Text style={styles.critLabel}>{criterionLabels[c]}</Text>
-                      {measuredValue != null && (
-                        <Text style={styles.measuredChip}>{t('Performance.measuredChip')}</Text>
-                      )}
-                    </View>
-                    <Text style={[styles.critVal, measuredValue != null && styles.critValMeasured]}>
-                      {value != null ? Number(value).toFixed(0) : '—'}
-                    </Text>
-                  </View>
-                );
-              })}
+              {/* An ai_verified breakdown holds the 6 DSP-measured AI Judge
+                  metrics; the 9-criterion list only fits estimate rows —
+                  reading one with the other's keys would render all "—". */}
+              {isAiVerified
+                ? AI_JUDGE_CRITERIA.map((c) => {
+                    const value = breakdown[c] != null ? breakdown[c] : null;
+                    return (
+                      <View key={c} style={styles.critRow}>
+                        <View style={styles.critNameWrap}>
+                          <Text style={styles.critLabel}>{aiJudgeLabels[c]}</Text>
+                          <Text style={styles.measuredChip}>{t('Performance.measuredChip')}</Text>
+                        </View>
+                        <Text style={[styles.critVal, styles.critValMeasured]}>
+                          {value != null ? Number(value).toFixed(0) : '—'}
+                        </Text>
+                      </View>
+                    );
+                  })
+                : activeCriteria.map((c) => {
+                    const measuredValue = measuredApplies ? (measured?.[c] ?? null) : null;
+                    const value = measuredValue ?? (breakdown[c] != null ? breakdown[c] : null);
+                    return (
+                      <View key={c} style={styles.critRow}>
+                        <View style={styles.critNameWrap}>
+                          <Text style={styles.critLabel}>{criterionLabels[c]}</Text>
+                          {measuredValue != null && (
+                            <Text style={styles.measuredChip}>{t('Performance.measuredChip')}</Text>
+                          )}
+                        </View>
+                        <Text
+                          style={[styles.critVal, measuredValue != null && styles.critValMeasured]}
+                        >
+                          {value != null ? Number(value).toFixed(0) : '—'}
+                        </Text>
+                      </View>
+                    );
+                  })}
             </View>
 
             {user?.id === perf.user_id && (

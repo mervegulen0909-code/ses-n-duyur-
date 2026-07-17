@@ -101,6 +101,9 @@ export function validateListen(
  * Minimum seconds of genuine in-step playback for a YouTube Verified Listen.
  * Without a trusted video length (oEmbed exposes none), this absolute floor —
  * combined with the server wall-clock anchor — is what makes the listen real:
- * the user must actually spend this long with the embed playing.
+ * the user must actually spend this long with the embed playing. 30s is the
+ * anti-bot COST of a vote (Hard Rule 4): a fleet of fake accounts must pay
+ * real, server-verified wall-clock time per listen, and no one can fairly
+ * judge a vocal performance on less.
  */
-export const MIN_VERIFIED_LISTEN_SECONDS = 1;
+export const MIN_VERIFIED_LISTEN_SECONDS = 30;

@@ -13,7 +13,9 @@ import { verifyAnalysisUploadToken } from './auth';
 import { deliverCallback } from './callback';
 
 const MAX_WAV_BYTES = 8 * 1024 * 1024;
-const PIPELINE_VERSION = 1;
+// v2: confidence curves aligned with the quality gate (snr/voicing/reference
+// length) + rubato-tolerant onset window (0.025 → 0.05 normalized).
+const PIPELINE_VERSION = 2;
 const PITCH_ENGINE = 'yin';
 const PITCH_ENGINE_VERSION = 'voxscore-yin-1';
 

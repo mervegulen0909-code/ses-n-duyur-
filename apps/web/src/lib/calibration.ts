@@ -22,11 +22,18 @@ export interface AnchorPair {
 
 const MIN_PAIRS = 5;
 const MAX_OFFSET = 10;
+/**
+ * Bayesian shrinkage prior for the fitted mean: offset = mean * n / (n + K).
+ * At the MIN_PAIRS floor a raw mean is mostly noise — shrinking toward zero
+ * keeps a handful of anchors from swinging every new score by ±10.
+ */
+const SHRINKAGE_PRIOR = 10;
 
 /**
- * Mean(anchor − ai) per criterion over pairs where BOTH sides rated it.
- * Below MIN_PAIRS pairs (globally, or for a given criterion) nothing is
- * fitted — a calibration must never be built on noise.
+ * Shrunk mean(anchor − ai) per criterion over pairs where BOTH sides rated
+ * it. Below MIN_PAIRS pairs (globally, or for a given criterion) nothing is
+ * fitted — a calibration must never be built on noise — and small samples are
+ * shrunk toward zero so early fits stay conservative.
  */
 export function computeOffsets(pairs: readonly AnchorPair[]): {
   offsets: CalibrationOffsets;
@@ -44,7 +51,8 @@ export function computeOffsets(pairs: readonly AnchorPair[]): {
       .filter((d): d is number => d !== null);
     if (deltas.length < MIN_PAIRS) continue;
     const mean = deltas.reduce((s, d) => s + d, 0) / deltas.length;
-    offsets[c] = clamp(Math.round(mean * 100) / 100, -MAX_OFFSET, MAX_OFFSET);
+    const shrunk = mean * (deltas.length / (deltas.length + SHRINKAGE_PRIOR));
+    offsets[c] = clamp(Math.round(shrunk * 100) / 100, -MAX_OFFSET, MAX_OFFSET);
   }
   return { offsets, sampleCount: pairs.length };
 }

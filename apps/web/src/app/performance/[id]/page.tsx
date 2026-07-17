@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import type { Criterion } from '@voxscore/scoring';
+import type { AiJudgeCriterion, Criterion } from '@voxscore/scoring';
 import { isRankedScoreStatus, RANKED_SCORE_STATUSES } from '@voxscore/core';
 import { YouTubeEmbed } from '@/components/youtube-embed';
 import { ScoreBreakdown } from '@/components/score-breakdown';
@@ -121,8 +121,14 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
   // Provisional estimates are rankable and votable too — only the "measured"
   // presentation stays exclusive to ai_verified rows.
   const isRanked = isRankedScoreStatus(score?.score_status);
-  const breakdown = (isRanked ? (score?.ai_breakdown ?? null) : null) as Partial<
+  // An ai_verified row's ai_breakdown holds the 6 DSP-measured AI Judge
+  // metrics; a provisional row's holds the 9 LLM-estimated criteria. Feed each
+  // to its own renderer — reading one with the other's keys shows only "—".
+  const breakdown = (!isAiVerified && isRanked ? (score?.ai_breakdown ?? null) : null) as Partial<
     Record<Criterion, number>
+  > | null;
+  const aiJudgeBreakdown = (isAiVerified ? (score?.ai_breakdown ?? null) : null) as Partial<
+    Record<AiJudgeCriterion, number>
   > | null;
   const measured = (measuredRow?.measured_breakdown ?? null) as Partial<
     Record<Criterion, number>
@@ -209,6 +215,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           trendScore={isRanked ? (score?.trend_score ?? null) : null}
           isProvisional={!isAiVerified}
           breakdown={breakdown}
+          aiJudgeBreakdown={aiJudgeBreakdown}
           measured={isAiVerified ? measured : null}
           hasVideo={perf.has_video}
           verifiedVoteCount={score?.verified_vote_count ?? 0}

@@ -374,7 +374,8 @@ export interface PublicRows {
       | 'share_rendered'
       | 'challenge_link_visited'
       | 'guest_battle_started'
-      | 'prediction_submitted';
+      | 'prediction_submitted'
+      | 'scoring_mock_fallback';
     session_id: Uuid;
     user_id: Uuid | null;
     meta: Json | null;

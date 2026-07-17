@@ -154,9 +154,9 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
     expect(trackServer).not.toHaveBeenCalled();
   });
 
-  it('accepts one genuine second during the temporary preview flow', async () => {
+  it('accepts thirty genuine seconds of in-step playback', async () => {
     vi.mocked(getRequestContext).mockResolvedValue(
-      makeCtx('me', { ...ownedListen, created_at: new Date(Date.now() - 2_000).toISOString() }),
+      makeCtx('me', { ...ownedListen, created_at: new Date(Date.now() - 40_000).toISOString() }),
     );
     const svc = makeService();
     vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
@@ -166,17 +166,17 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
         ...validBody,
         events: [
           { kind: 'playing', atSeconds: 0, clientTs: 0 },
-          { kind: 'playing', atSeconds: 1.1, clientTs: 1_100 },
+          { kind: 'playing', atSeconds: 31, clientTs: 31_000 },
         ],
       }),
     );
 
-    await expect(res.json()).resolves.toEqual({ isValid: true, watchedPct: 0.0055, reason: null });
+    await expect(res.json()).resolves.toEqual({ isValid: true, watchedPct: 0.155, reason: null });
   });
 
-  it('rejects playback shorter than one second', async () => {
+  it('rejects playback shorter than the 30s anti-bot floor', async () => {
     vi.mocked(getRequestContext).mockResolvedValue(
-      makeCtx('me', { ...ownedListen, created_at: new Date(Date.now() - 2_000).toISOString() }),
+      makeCtx('me', { ...ownedListen, created_at: new Date(Date.now() - 40_000).toISOString() }),
     );
     vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().service);
 
@@ -185,14 +185,14 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
         ...validBody,
         events: [
           { kind: 'playing', atSeconds: 0, clientTs: 0 },
-          { kind: 'playing', atSeconds: 0.5, clientTs: 500 },
+          { kind: 'playing', atSeconds: 5, clientTs: 5_000 },
         ],
       }),
     );
 
     const json = (await res.json()) as { isValid: boolean; reason: string };
     expect(json.isValid).toBe(false);
-    expect(json.reason).toMatch(/required 1s/);
+    expect(json.reason).toMatch(/required 30s/);
   });
 
   it('fires verified_listen_completed analytics only when the listen is actually valid', async () => {

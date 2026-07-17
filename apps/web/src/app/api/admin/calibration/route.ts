@@ -44,6 +44,21 @@ export async function POST(req: Request): Promise<Response> {
     .filter((p) => Object.keys(p.ai).length > 0);
 
   const { offsets, sampleCount } = computeOffsets(pairs);
+
+  // A criterion that fell below the sample floor must not keep serving its
+  // OLD offset forever — clear anything this refit did not (re)produce.
+  const fittedCriteria = Object.keys(offsets);
+  const staleDelete = fittedCriteria.length
+    ? service
+        .from('scoring_calibration')
+        .delete()
+        .not('criterion', 'in', `(${fittedCriteria.map((c) => `"${c}"`).join(',')})`)
+    : service.from('scoring_calibration').delete().not('criterion', 'is', null);
+  const { error: staleError } = await staleDelete;
+  if (staleError) {
+    return Response.json({ error: 'Could not clear stale calibration' }, { status: 500 });
+  }
+
   for (const [criterion, offset] of Object.entries(offsets)) {
     const { error: upsertError } = await service.from('scoring_calibration').upsert(
       {

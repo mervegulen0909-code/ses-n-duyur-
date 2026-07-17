@@ -11,6 +11,7 @@ import type { Json } from '@voxscore/db';
 import type { createSupabaseServiceClient } from '@/lib/supabase/server';
 import { getScoringProvider } from '@/lib/adapters/scoring';
 import { getSongExtractor } from '@/lib/adapters/song';
+import { trackServer } from '@/lib/analytics-server';
 import { grantBadge } from '@/lib/badges';
 import { applyOffsets, loadCalibration } from '@/lib/calibration';
 import { currentSeasonId } from '@/lib/seasons';
@@ -185,6 +186,19 @@ export async function createScoredPerformance(
     currentSeasonId(service),
     loadCalibration(service),
   ]);
+
+  // A silent fall back to the mock provider despite configured keys would
+  // stamp every new performance with placeholder numbers — surface it loudly
+  // (the score row still records ai_provider='mock', so it's auditable too).
+  if (
+    rawScoring.provider === 'mock' &&
+    (process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.ANTHROPIC_API_KEY)
+  ) {
+    console.error(
+      '[performance-create] scoring degraded to the mock provider despite a configured API key',
+    );
+    void trackServer(service, 'scoring_mock_fallback', params.userId, { videoId });
+  }
 
   // Human-anchor calibration: shift the LLM estimate by the fitted offsets
   // (identity when nothing has been fitted yet).

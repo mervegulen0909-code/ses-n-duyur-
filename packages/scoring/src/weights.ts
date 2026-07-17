@@ -31,21 +31,39 @@ export interface ScoreWeights {
 }
 
 /**
- * Smooth Bayesian-shrinkage listener weight: lw = min(CAP, n / (n + K)).
+ * Smooth Bayesian-shrinkage listener weight: lw = min(cap(n), n / (n + K)).
  * Replaces the step tiers (regime v4): no discontinuities between adjacent
  * vote counts, and a single early vote has ~1.6% influence instead of 15% —
  * verified votes are expensive (real listen time), so crowd trust converging
  * by ~75 votes is deliberate.
+ *
+ * The cap itself relaxes with scale: 0.55 up to 200 votes, then rising
+ * linearly to 0.75 at 1000+. A provisional metadata estimate should anchor a
+ * small crowd, but it must not permanently overrule a very large honest one.
  */
 export const BLEND_PRIOR_STRENGTH = 60;
 export const LISTENER_WEIGHT_CAP = 0.55;
+export const PROVISIONAL_CAP_RELAX_START = 200;
+export const PROVISIONAL_CAP_RELAX_RANGE = 800;
+export const PROVISIONAL_CAP_RELAX_MAX = 0.2;
+
+export function listenerWeightCapForVotes(verifiedVotes: number): number {
+  assertFinite(verifiedVotes, 'verifiedVotes');
+  if (verifiedVotes < 0) throw new RangeError('verifiedVotes must be >= 0');
+  const n = Math.floor(verifiedVotes);
+  const relax = Math.min(
+    1,
+    Math.max(0, n - PROVISIONAL_CAP_RELAX_START) / PROVISIONAL_CAP_RELAX_RANGE,
+  );
+  return LISTENER_WEIGHT_CAP + PROVISIONAL_CAP_RELAX_MAX * relax;
+}
 
 export function listenerWeightForVotes(verifiedVotes: number): number {
   assertFinite(verifiedVotes, 'verifiedVotes');
   if (verifiedVotes < 0) throw new RangeError('verifiedVotes must be >= 0');
   const n = Math.floor(verifiedVotes);
   if (n <= 0) return 0;
-  return Math.min(LISTENER_WEIGHT_CAP, n / (n + BLEND_PRIOR_STRENGTH));
+  return Math.min(listenerWeightCapForVotes(n), n / (n + BLEND_PRIOR_STRENGTH));
 }
 
 /**

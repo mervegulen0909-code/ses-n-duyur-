@@ -39,6 +39,8 @@ function makeService(opts: {
   aiBreakdown?: unknown;
 }) {
   const upsert = vi.fn(async () => ({ error: null }));
+  const deleteNot = vi.fn(async () => ({ error: null }));
+  const deleteFn = vi.fn(() => ({ not: deleteNot }));
   const from = vi.fn((table: string) => {
     if (table === 'admin_scores') {
       return { select: vi.fn(async () => ({ data: opts.anchors ?? [], error: null })) };
@@ -56,10 +58,10 @@ function makeService(opts: {
         })),
       };
     }
-    if (table === 'scoring_calibration') return { upsert };
+    if (table === 'scoring_calibration') return { upsert, delete: deleteFn };
     throw new Error(`unexpected table ${table}`);
   });
-  return { service: { from } as unknown as Service, upsert };
+  return { service: { from } as unknown as Service, upsert, deleteNot };
 }
 
 describe('POST /api/admin/calibration — refit from human anchors', () => {
@@ -82,7 +84,7 @@ describe('POST /api/admin/calibration — refit from human anchors', () => {
     expect((await POST(makeRequest())).status).toBe(403);
   });
 
-  it('refits: mean(anchor − ai) clamped, upserted per criterion', async () => {
+  it('refits: shrunk mean(anchor − ai) clamped, upserted per criterion', async () => {
     mockAdmin();
     const anchors = Array.from({ length: 5 }, () => ({
       performance_id: PERF,
@@ -96,15 +98,21 @@ describe('POST /api/admin/calibration — refit from human anchors', () => {
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toMatchObject({
       sampleCount: 5,
-      offsets: { vocalAccuracy: 10 }, // +25 clamped to +10
+      offsets: { vocalAccuracy: 8.33 }, // +25 shrunk by 5/(5+10)
     });
     expect(svc.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ criterion: 'vocalAccuracy', offset_value: 10, sample_count: 5 }),
+      expect.objectContaining({
+        criterion: 'vocalAccuracy',
+        offset_value: 8.33,
+        sample_count: 5,
+      }),
       { onConflict: 'criterion' },
     );
+    // Criteria the refit did NOT produce are cleared, never left stale.
+    expect(svc.deleteNot).toHaveBeenCalledWith('criterion', 'in', '("vocalAccuracy")');
   });
 
-  it('with no anchors: returns empty offsets and writes nothing', async () => {
+  it('with no anchors: returns empty offsets and clears every stale offset', async () => {
     mockAdmin();
     const svc = makeService({ anchors: [] });
     vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
@@ -113,5 +121,6 @@ describe('POST /api/admin/calibration — refit from human anchors', () => {
 
     await expect(res.json()).resolves.toEqual({ sampleCount: 0, offsets: {} });
     expect(svc.upsert).not.toHaveBeenCalled();
+    expect(svc.deleteNot).toHaveBeenCalledWith('criterion', 'is', null);
   });
 });

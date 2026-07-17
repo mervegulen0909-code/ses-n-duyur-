@@ -77,7 +77,9 @@
     "google": "Google ile devam et",
     "orDivider": "veya"
   },
-  "MobileTurnstile": { "verifying": "Bu kaydın bir insana ait olduğu doğrulanıyor…" },
+  "MobileTurnstile": {
+    "verifying": "Bu kaydın bir insana ait olduğu doğrulanıyor…"
+  },
   "Add": {
     "title": "Performans ekle",
     "subtitle": "Bir YouTube linki yapıştır. Gömeriz (asla indirmeyiz), meta verisini çekeriz ve Geçici YZ Tahmini oluştururuz.",
@@ -102,19 +104,19 @@
   },
   "Battle": {
     "shareResult": "Kararını paylaş",
-    "guestWatchBoth": "Kazananı seçmek için ikisini de en az 1 saniye izle",
+    "guestWatchBoth": "Kazananı seçmek için ikisini de en az 30 saniye izle",
     "guestPickCta": "Kazananı seç — ücretsiz hesabını aç",
     "guestListened": "İzlendi ✓",
-    "subtitle": "İki performans, tek kazanan. İkisini de en az 1 saniye dinle, sonra karar ver.",
+    "subtitle": "İki performans, tek kazanan. İkisini de en az 30 saniye dinle, sonra karar ver.",
     "signInPrompt": "Düello yapmak için lütfen <link>giriş yap</link>.",
     "statusListened": "✓ Dinlendi",
     "statusNotFully": "Tam dinlenmedi",
     "statusListening": "Dinleniyor…",
-    "statusPressPlay": "Oynat ve en az 1 saniye izle",
+    "statusPressPlay": "Oynat ve en az 30 saniye izle",
     "voteRecorded": "Oy kaydedildi! 🎉",
     "nextBattle": "Sonraki düello →",
     "sideWins": "{title} kazanır",
-    "mustListenBoth": "Kazananı seçmeden önce HER İKİ performansı da en az 1 saniye dinlemelisin.",
+    "mustListenBoth": "Kazananı seçmeden önce HER İKİ performansı da en az 30 saniye dinlemelisin.",
     "finding": "Bir düello bulunuyor…",
     "notEnough": "Düello için henüz yeterli performans yok. Daha fazla ekle!",
     "couldNotLoad": "Düello yüklenemedi.",
@@ -248,12 +250,20 @@
     "originality": "Özgünlük",
     "stagePresence": "Sahne hâkimiyeti"
   },
+  "AiJudgeCriteria": {
+    "melodyAccuracy": "Melodi doğruluğu",
+    "rhythmAccuracy": "Ritim doğruluğu",
+    "pitchControl": "Perde kontrolü",
+    "noteTransitions": "Nota geçişleri",
+    "sustainControl": "Uzatma kontrolü",
+    "dynamicPhrasing": "Dinamik ifade"
+  },
   "Vote": {
-    "hintIdle": "Oylamayı açmak için oynat ve en az 1 saniye izle.",
+    "hintIdle": "Oylamayı açmak için oynat ve en az 30 saniye izle.",
     "errStart": "Dinleme oturumu başlatılamadı.",
     "verifying": "Dinlemen doğrulanıyor…",
     "verified": "Doğrulanmış Dinleme tamamlandı — artık oylayabilirsin.",
-    "notVerified": "Dinleme doğrulanmadı. Oylamak için en az 1 saniye izle.",
+    "notVerified": "Dinleme doğrulanmadı. Oylamak için en az 30 saniye izle.",
     "errVerify": "Dinleme doğrulanamadı.",
     "rateThis": "Bu performansı puanla",
     "submitting": "Gönderiliyor…",
