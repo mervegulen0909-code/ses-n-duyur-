@@ -20,7 +20,7 @@ import {
   isRankedScoreStatus,
   measuredDisplayApplies,
   MIN_VERIFIED_LISTEN_SECONDS,
-  MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
   scoreBar,
   type ListenEvent,
 } from '@voxscore/core';
@@ -193,13 +193,12 @@ export default function PerformanceScreen() {
             pushEvent('playing', cur);
             const first = firstPlaybackPositionRef.current;
             const dur = (await playerRef.current?.getDuration()) ?? 0;
-            // Submit once the viewer reaches ~the end (>=90% of the real length)
-            // AND past the anti-bot floor. The server re-checks against the
-            // YouTube-trusted duration; `ended` covers clips shorter than that.
+            // Submit near the end with a margin above the server's 90% gate.
+            // IFrame and YouTube Data API durations can differ by a few seconds.
             if (
               first !== null &&
               dur > 0 &&
-              cur >= MIN_VERIFIED_LISTEN_WATCHED_PCT * dur &&
+              cur >= VERIFIED_LISTEN_CLIENT_SUBMIT_PCT * dur &&
               cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
               !completionRequestedRef.current
             ) {
