@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateListen } from './listen';
+import { validateListen, MIN_VERIFIED_LISTEN_WATCHED_PCT } from './listen';
 import type { ListenEvent } from './schemas';
 
 function play(atSeconds: number, clientTs: number): ListenEvent {
@@ -51,6 +51,37 @@ describe('validateListen', () => {
   it('rejects invalid duration and empty events', () => {
     expect(validateListen([play(0, 0)], 0).isValid).toBe(false);
     expect(validateListen([], 100).reason).toBe('no events');
+  });
+
+  describe(`full-listen gate (${MIN_VERIFIED_LISTEN_WATCHED_PCT * 100}% of trusted length)`, () => {
+    const opts = { minWatchedPct: MIN_VERIFIED_LISTEN_WATCHED_PCT, minWatchSeconds: 30 };
+
+    it('rejects an 89% watch just under the threshold', () => {
+      // 200s video, honest heartbeats up to 178s (89%).
+      const events: ListenEvent[] = [];
+      for (let s = 0; s <= 178; s += 2) events.push(play(s, s * 1000));
+      const r = validateListen(events, 200, { ...opts, serverElapsedS: 185 });
+      expect(r.isValid).toBe(false);
+      expect(r.watchedPct).toBeCloseTo(0.89, 2);
+      expect(r.reason).toMatch(/89% < required 90%/);
+    });
+
+    it('accepts a 90% watch at the threshold', () => {
+      const events: ListenEvent[] = [];
+      for (let s = 0; s <= 180; s += 2) events.push(play(s, s * 1000));
+      const r = validateListen(events, 200, { ...opts, serverElapsedS: 185 });
+      expect(r.isValid).toBe(true);
+      expect(r.watchedPct).toBeGreaterThanOrEqual(MIN_VERIFIED_LISTEN_WATCHED_PCT);
+    });
+
+    it('rejects a short clip whose 90% falls under the 30s floor even when fully watched', () => {
+      // 20s clip watched end-to-end: 100% covered, but only 20s < 30s floor.
+      const events: ListenEvent[] = [];
+      for (let s = 0; s <= 20; s += 1) events.push(play(s, s * 1000));
+      const r = validateListen(events, 20, { ...opts, serverElapsedS: 25 });
+      expect(r.isValid).toBe(false);
+      expect(r.reason).toMatch(/insufficient playback/);
+    });
   });
 
   describe('server anchors (unforgeable)', () => {

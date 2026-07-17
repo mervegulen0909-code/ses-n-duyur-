@@ -5,7 +5,11 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
-import { MIN_VERIFIED_LISTEN_SECONDS, type ListenEvent } from '@voxscore/core';
+import {
+  MIN_VERIFIED_LISTEN_SECONDS,
+  MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  type ListenEvent,
+} from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { nextBattle, submitBattleVote } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
@@ -76,15 +80,20 @@ function useSideTracker(performanceId: string) {
             if (typeof cur !== 'number') return;
             pushEvent('playing', cur);
             const first = firstPlaybackPositionRef.current;
+            const dur = (await playerRef.current?.getDuration()) ?? 0;
+            // Both battle sides must be watched to ~the end (>=90% of the real
+            // length) past the anti-bot floor; the server re-checks against the
+            // YouTube-trusted duration. `ended` covers shorter clips.
             if (
               first !== null &&
+              dur > 0 &&
+              cur >= MIN_VERIFIED_LISTEN_WATCHED_PCT * dur &&
               cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
               !completionRequestedRef.current
             ) {
               completionRequestedRef.current = true;
               if (pollRef.current) clearInterval(pollRef.current);
               pollRef.current = null;
-              const dur = (await playerRef.current?.getDuration()) ?? cur;
               await listen.onComplete(eventsRef.current, dur);
             }
           }, 250);

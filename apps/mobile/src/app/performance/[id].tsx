@@ -20,6 +20,7 @@ import {
   isRankedScoreStatus,
   measuredDisplayApplies,
   MIN_VERIFIED_LISTEN_SECONDS,
+  MIN_VERIFIED_LISTEN_WATCHED_PCT,
   scoreBar,
   type ListenEvent,
 } from '@voxscore/core';
@@ -191,15 +192,20 @@ export default function PerformanceScreen() {
             if (typeof cur !== 'number') return;
             pushEvent('playing', cur);
             const first = firstPlaybackPositionRef.current;
+            const dur = (await playerRef.current?.getDuration()) ?? 0;
+            // Submit once the viewer reaches ~the end (>=90% of the real length)
+            // AND past the anti-bot floor. The server re-checks against the
+            // YouTube-trusted duration; `ended` covers clips shorter than that.
             if (
               first !== null &&
+              dur > 0 &&
+              cur >= MIN_VERIFIED_LISTEN_WATCHED_PCT * dur &&
               cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
               !completionRequestedRef.current
             ) {
               completionRequestedRef.current = true;
               if (pollRef.current) clearInterval(pollRef.current);
               pollRef.current = null;
-              const dur = (await playerRef.current?.getDuration()) ?? cur;
               await listen.onComplete(eventsRef.current, dur);
             }
           }, 250);
