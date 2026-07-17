@@ -300,6 +300,8 @@
     "keepWatching": "Continue de regarder jusqu’à la fin…",
     "notFullyListened": "Écoute incomplète — regarde à nouveau pour qu’elle compte.",
     "pressPlay": "Appuie sur lecture et regarde en entier.",
+    "startPlayback": "Lancer la lecture",
+    "listenFirstSide": "Écoute la première performance jusqu’au bout avant de lancer celle-ci.",
     "voteRecorded": "Vote enregistré. Merci d’avoir jugé !",
     "nextBattle": "Battle suivante ›",
     "signInToPick": "Connecte-toi pour choisir un gagnant ›",

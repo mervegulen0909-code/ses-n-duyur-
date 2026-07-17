@@ -12,6 +12,7 @@ import {
 } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { nextBattle, submitBattleVote } from '@/lib/api';
+import { battlePlaybackPhase } from '@/lib/battle-flow';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
 import { useVerifiedListen } from '@/lib/use-verified-listen';
@@ -55,10 +56,15 @@ function useSideTracker(performanceId: string) {
   const completionRequestedRef = useRef(false);
   // Uploader disabled embedding (YouTube 101/150): this side can't be verified.
   const [embedBlocked, setEmbedBlocked] = useState(false);
+  const [playRequested, setPlayRequested] = useState(false);
+  const [playbackObserved, setPlaybackObserved] = useState(false);
+  const playbackObservedRef = useRef(false);
+  const attemptTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(
     () => () => {
       if (pollRef.current) clearInterval(pollRef.current);
+      if (attemptTimeoutRef.current) clearTimeout(attemptTimeoutRef.current);
     },
     [],
   );
@@ -70,6 +76,10 @@ function useSideTracker(performanceId: string) {
   const onChangeState = useCallback(
     async (s: string) => {
       if (s === 'playing') {
+        playbackObservedRef.current = true;
+        setPlaybackObserved(true);
+        if (attemptTimeoutRef.current) clearTimeout(attemptTimeoutRef.current);
+        attemptTimeoutRef.current = null;
         await listen.onStart();
         const t = (await playerRef.current?.getCurrentTime()) ?? 0;
         firstPlaybackPositionRef.current ??= t;
@@ -119,7 +129,34 @@ function useSideTracker(performanceId: string) {
     [listen],
   );
 
-  return { listen, playerRef, onChangeState, embedBlocked, setEmbedBlocked };
+  const requestPlayback = useCallback(() => {
+    if (embedBlocked || playbackObservedRef.current) return;
+    setPlayRequested(true);
+    if (attemptTimeoutRef.current) clearTimeout(attemptTimeoutRef.current);
+    attemptTimeoutRef.current = setTimeout(() => {
+      if (playbackObservedRef.current) return;
+      setPlayRequested(false);
+      setEmbedBlocked(true);
+    }, 15_000);
+  }, [embedBlocked]);
+
+  const blockPlayback = useCallback(() => {
+    if (attemptTimeoutRef.current) clearTimeout(attemptTimeoutRef.current);
+    attemptTimeoutRef.current = null;
+    setPlayRequested(false);
+    setEmbedBlocked(true);
+  }, []);
+
+  return {
+    listen,
+    playerRef,
+    onChangeState,
+    embedBlocked,
+    playRequested,
+    playbackObserved,
+    requestPlayback,
+    blockPlayback,
+  };
 }
 
 function statusHint(
@@ -127,17 +164,36 @@ function statusHint(
   status: ReturnType<typeof useVerifiedListen>['status'],
   reason: string | null,
   embedBlocked: boolean,
+  playerVisible: boolean,
 ) {
   if (embedBlocked) return t('Battle.embedBlockedHint');
   if (status === 'verified') return t('Battle.listenedOk');
   if (status === 'listening') return t('Battle.keepWatching');
   if (status === 'invalid') return reason ?? t('Battle.notFullyListened');
+  if (!playerVisible) return t('Battle.listenFirstSide');
   return t('Battle.pressPlay');
 }
 
-function BattleSide({ side, tracker }: { side: Side; tracker: ReturnType<typeof useSideTracker> }) {
+function BattleSide({
+  side,
+  tracker,
+  playerVisible,
+}: {
+  side: Side;
+  tracker: ReturnType<typeof useSideTracker>;
+  playerVisible: boolean;
+}) {
   const { t } = useTranslation();
-  const { listen, playerRef, onChangeState, embedBlocked, setEmbedBlocked } = tracker;
+  const {
+    listen,
+    playerRef,
+    onChangeState,
+    embedBlocked,
+    playRequested,
+    playbackObserved,
+    requestPlayback,
+    blockPlayback,
+  } = tracker;
   return (
     <View style={styles.sideCard}>
       <Text style={styles.sideTitle} numberOfLines={2}>
@@ -148,17 +204,38 @@ function BattleSide({ side, tracker }: { side: Side; tracker: ReturnType<typeof 
           {side.authorName}
         </Text>
       )}
-      <View style={styles.player}>
-        <NativeYouTubePlayer
-          ref={playerRef}
-          height={200}
-          videoId={side.videoId}
-          onChangeState={onChangeState}
-          onError={(e: string) => {
-            if (e === 'embed_not_allowed') setEmbedBlocked(true);
-          }}
-        />
-      </View>
+      {playerVisible && (
+        <View style={styles.player}>
+          <NativeYouTubePlayer
+            ref={playerRef}
+            height={200}
+            videoId={side.videoId}
+            play={playRequested}
+            onChangeState={onChangeState}
+            onError={blockPlayback}
+          />
+          {!playbackObserved &&
+            (embedBlocked ? (
+              <View style={styles.playerGuard}>
+                <Text style={styles.playerGuardError}>{t('Battle.embedBlockedHint')}</Text>
+              </View>
+            ) : playRequested ? (
+              <View style={styles.playerGuard}>
+                <ActivityIndicator color="#22D3EE" />
+              </View>
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('Battle.pressPlay')}
+                onPress={requestPlayback}
+                style={({ pressed }) => [styles.playerGuard, pressed && { opacity: 0.85 }]}
+              >
+                <Text style={styles.playerGuardPlay}>▶</Text>
+                <Text style={styles.playerGuardLabel}>{t('Battle.startPlayback')}</Text>
+              </Pressable>
+            ))}
+        </View>
+      )}
       <Text
         style={[
           styles.sideStatus,
@@ -166,7 +243,7 @@ function BattleSide({ side, tracker }: { side: Side; tracker: ReturnType<typeof 
           (listen.status === 'invalid' || embedBlocked) && styles.sideStatusBad,
         ]}
       >
-        {statusHint(t, listen.status, listen.reason, embedBlocked)}
+        {statusHint(t, listen.status, listen.reason, embedBlocked, playerVisible)}
       </Text>
     </View>
   );
@@ -186,6 +263,10 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
   // Listen. The server re-checks this; we also gate the UI here.
   const bothVerified =
     trackerA.listen.status === 'verified' && trackerB.listen.status === 'verified';
+  const playbackPhase = battlePlaybackPhase(
+    trackerA.listen.status === 'verified',
+    trackerB.listen.status === 'verified',
+  );
 
   async function pickWinner(winnerPerformanceId: string) {
     const listenAId = trackerA.listen.listenId.current;
@@ -227,9 +308,17 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
         {bothVerified ? t('Battle.gateUnlocked') : t('Battle.gateLocked')}
       </Text>
 
-      <BattleSide side={battle.a} tracker={trackerA} />
+      {/* Keep the escape hatch above every native WebView. Android WebViews can
+          otherwise retain a stale touch surface after a ScrollView moves. */}
+      {voteState !== 'done' && (
+        <Pressable onPress={onNext} hitSlop={8} style={styles.skipBtn}>
+          <Text style={styles.skipText}>{t('Battle.skip')}</Text>
+        </Pressable>
+      )}
+
+      <BattleSide side={battle.a} tracker={trackerA} playerVisible={playbackPhase === 'a'} />
       <Text style={styles.vs}>{t('Battle.vs')}</Text>
-      <BattleSide side={battle.b} tracker={trackerB} />
+      <BattleSide side={battle.b} tracker={trackerB} playerVisible={playbackPhase === 'b'} />
 
       {voteState === 'done' ? (
         <View style={styles.resultCard}>
@@ -278,15 +367,6 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
 
       {voteState === 'submitting' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
       {voteState === 'error' && <Text style={styles.error}>{voteMsg}</Text>}
-
-      {/* Always offer a way out: if a side can't be completed (embedding
-          disabled, broken video, or the user just isn't interested), the
-          battle would otherwise dead-end — Next only appeared after a vote. */}
-      {voteState !== 'done' && (
-        <Pressable onPress={onNext} hitSlop={8} style={styles.skipBtn}>
-          <Text style={styles.skipText}>{t('Battle.skip')}</Text>
-        </Pressable>
-      )}
     </ScrollView>
   );
 }
@@ -461,6 +541,18 @@ const styles = StyleSheet.create({
   sideTitle: { fontSize: 16, fontWeight: '700', color: '#fafafa' },
   sideArtist: { fontSize: 12, color: '#9ca3af' },
   player: { marginTop: 6, borderRadius: 12, overflow: 'hidden', backgroundColor: '#000' },
+  playerGuard: {
+    position: 'absolute',
+    inset: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    padding: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.58)',
+  },
+  playerGuardPlay: { color: '#22D3EE', fontSize: 34, fontWeight: '900' },
+  playerGuardLabel: { color: '#fafafa', fontSize: 14, fontWeight: '800' },
+  playerGuardError: { color: '#fb7185', fontSize: 13, fontWeight: '700', textAlign: 'center' },
   sideStatus: { marginTop: 4, fontSize: 12, color: '#9ca3af', fontWeight: '600' },
   sideStatusOk: { color: '#22D3EE' },
   sideStatusBad: { color: '#fb7185' },

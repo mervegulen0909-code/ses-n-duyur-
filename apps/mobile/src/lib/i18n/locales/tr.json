@@ -323,6 +323,8 @@
     "keepWatching": "Puanlamayı açmak için sonuna kadar izlemeye devam et…",
     "notFullyListened": "Dinleme doğrulanmadı — videoyu baştan sona tekrar izle.",
     "pressPlay": "Oynat’a bas ve sonuna kadar izle.",
+    "startPlayback": "Oynatmayı başlat",
+    "listenFirstSide": "Bunu başlatmadan önce ilk performansı sonuna kadar dinle.",
     "voteRecorded": "Oy kaydedildi. Jüri olduğun için teşekkürler!",
     "nextBattle": "Sonraki düello ›",
     "signInToPick": "Kazananı seçmek için giriş yap ›",

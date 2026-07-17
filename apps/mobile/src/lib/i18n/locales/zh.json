@@ -300,6 +300,8 @@
     "keepWatching": "继续观看到结尾…",
     "notFullyListened": "未完整收听——请重新观看才能计入。",
     "pressPlay": "点击播放并完整观看。",
+    "startPlayback": "开始播放",
+    "listenFirstSide": "请先完整听完第一个表演，再开始这个表演。",
     "voteRecorded": "投票已记录。感谢你的评判！",
     "nextBattle": "下一场对决 ›",
     "signInToPick": "登录以选出胜者 ›",
