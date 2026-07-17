@@ -112,7 +112,7 @@
     "statusListened": "✓ Listened",
     "statusNotFully": "Listen not verified",
     "statusListening": "Listening…",
-    "statusPressPlay": "Press play & watch for 30 seconds",
+    "statusPressPlay": "Press play and watch to the end",
     "voteRecorded": "Vote recorded! 🎉",
     "nextBattle": "Next battle →",
     "sideWins": "{title} wins",
@@ -259,11 +259,11 @@
     "dynamicPhrasing": "Dynamic phrasing"
   },
   "Vote": {
-    "hintIdle": "Press play and watch for at least 30 seconds to unlock voting.",
+    "hintIdle": "Press play and watch to the end to unlock voting.",
     "errStart": "Could not start the listen session.",
     "verifying": "Verifying your listen…",
     "verified": "Verified Listen complete — you can vote now.",
-    "notVerified": "Listen not verified. Watch for at least 30 seconds to vote.",
+    "notVerified": "Listen not verified. Replay and watch the full video to vote.",
     "errVerify": "Could not verify the listen.",
     "rateThis": "Rate this performance",
     "submitting": "Submitting…",

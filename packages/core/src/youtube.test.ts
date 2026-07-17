@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   fetchCaptionText,
+  fetchEmbeddableVideoIds,
   fetchOEmbed,
   fetchVideoDurationSeconds,
   parseIsoDurationSeconds,
@@ -37,6 +38,67 @@ describe('parseYouTubeId', () => {
     ['https://www.youtube.com/channel/UC1234567890'],
   ])('rejects %s', (url) => {
     expect(parseYouTubeId(url)).toBeNull();
+  });
+});
+
+describe('fetchEmbeddableVideoIds — Data API status metadata only', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('returns only available videos whose status explicitly allows embedding', async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        items: [
+          { id: 'playable001', status: { embeddable: true } },
+          { id: 'blocked0001', status: { embeddable: false } },
+        ],
+      }),
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await fetchEmbeddableVideoIds(
+      ['playable001', 'blocked0001', 'removed0001'],
+      'yt-key',
+    );
+
+    expect(result).toEqual(new Set(['playable001']));
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('part=status&id=playable001%2Cblocked0001%2Cremoved0001'),
+    );
+  });
+
+  it('deduplicates and caps the request at the Data API limit of 50 ids', async () => {
+    const fetchMock = vi.fn(async (_input: Parameters<typeof fetch>[0]) => ({
+      ok: true,
+      json: async () => ({ items: [] }),
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const ids = Array.from({ length: 55 }, (_, i) => `video-${i}`);
+
+    await fetchEmbeddableVideoIds([...ids, ids[0]!], 'yt-key');
+
+    const url = String(fetchMock.mock.calls[0]?.[0]);
+    const requested = (new URL(url).searchParams.get('id') ?? '').split(',');
+    expect(requested).toHaveLength(50);
+    expect(new Set(requested).size).toBe(50);
+  });
+
+  it('returns null when unavailable, but an empty set for an empty pool', async () => {
+    await expect(fetchEmbeddableVideoIds(['x'], undefined)).resolves.toBeNull();
+    await expect(fetchEmbeddableVideoIds([], 'yt-key')).resolves.toEqual(new Set());
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false })),
+    );
+    await expect(fetchEmbeddableVideoIds(['x'], 'yt-key')).resolves.toBeNull();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('network');
+      }),
+    );
+    await expect(fetchEmbeddableVideoIds(['x'], 'yt-key')).resolves.toBeNull();
   });
 });
 
