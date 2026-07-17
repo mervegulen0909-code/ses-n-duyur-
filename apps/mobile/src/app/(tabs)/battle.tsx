@@ -7,7 +7,7 @@ import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
 import {
   MIN_VERIFIED_LISTEN_SECONDS,
-  MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
   type ListenEvent,
 } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
@@ -81,13 +81,12 @@ function useSideTracker(performanceId: string) {
             pushEvent('playing', cur);
             const first = firstPlaybackPositionRef.current;
             const dur = (await playerRef.current?.getDuration()) ?? 0;
-            // Both battle sides must be watched to ~the end (>=90% of the real
-            // length) past the anti-bot floor; the server re-checks against the
-            // YouTube-trusted duration. `ended` covers shorter clips.
+            // Both battle sides submit near the end with a margin above the
+            // server's 90% gate. IFrame and API durations can differ slightly.
             if (
               first !== null &&
               dur > 0 &&
-              cur >= MIN_VERIFIED_LISTEN_WATCHED_PCT * dur &&
+              cur >= VERIFIED_LISTEN_CLIENT_SUBMIT_PCT * dur &&
               cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
               !completionRequestedRef.current
             ) {

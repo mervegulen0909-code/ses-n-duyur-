@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { validateListen, MIN_VERIFIED_LISTEN_WATCHED_PCT } from './listen';
+import {
+  validateListen,
+  MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
+} from './listen';
 import type { ListenEvent } from './schemas';
 
 function play(atSeconds: number, clientTs: number): ListenEvent {
@@ -7,6 +11,11 @@ function play(atSeconds: number, clientTs: number): ListenEvent {
 }
 
 describe('validateListen', () => {
+  it('keeps the client submit trigger safely above the server acceptance gate', () => {
+    expect(VERIFIED_LISTEN_CLIENT_SUBMIT_PCT).toBeGreaterThan(MIN_VERIFIED_LISTEN_WATCHED_PCT);
+    expect(VERIFIED_LISTEN_CLIENT_SUBMIT_PCT).toBeLessThanOrEqual(1);
+  });
+
   it('accepts an honest, near-complete watch', () => {
     // 100s video, heartbeats every 10s tracking real time.
     const events: ListenEvent[] = [];

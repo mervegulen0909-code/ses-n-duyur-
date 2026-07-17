@@ -117,3 +117,16 @@ export const MIN_VERIFIED_LISTEN_SECONDS = 30;
  * under the floor) can never unlock a vote.
  */
 export const MIN_VERIFIED_LISTEN_WATCHED_PCT = 0.9;
+
+/**
+ * Client-side point at which the event trail is submitted for verification.
+ *
+ * The IFrame player's duration can be a few seconds shorter than the canonical
+ * YouTube Data API duration used by the server. Submitting at the exact 90%
+ * server threshold can therefore turn an honest full watch into an 89% reject
+ * and, because completion is intentionally single-shot, prevent the `ended`
+ * event from retrying. The client waits for 95% to leave a small metadata
+ * margin; this does not weaken the server-side 90% gate or its wall-clock and
+ * playback-continuity checks.
+ */
+export const VERIFIED_LISTEN_CLIENT_SUBMIT_PCT = 0.95;

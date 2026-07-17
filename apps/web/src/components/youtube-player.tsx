@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import {
   MIN_VERIFIED_LISTEN_SECONDS,
-  MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
   type ListenEvent,
 } from '@voxscore/core';
 
@@ -109,15 +109,14 @@ export function YouTubePlayer({
                 const first = firstPlaybackPositionRef.current;
                 const dur = e.target.getDuration();
                 const cur = e.target.getCurrentTime();
-                // Submit once the viewer has reached ~the end (>=90% of the
-                // real length) AND spent at least the anti-bot floor watching.
-                // The server re-checks against the YouTube-trusted duration, so
-                // this only decides WHEN to submit the full trail. `ended`
-                // covers short clips that finish before the pct target.
+                // Submit near the end with a margin above the server's 90%
+                // gate. IFrame and YouTube Data API durations can differ by a
+                // few seconds; the shared 95% trigger avoids rejecting an
+                // honest full watch because of that metadata drift.
                 if (
                   first !== null &&
                   dur > 0 &&
-                  cur >= MIN_VERIFIED_LISTEN_WATCHED_PCT * dur &&
+                  cur >= VERIFIED_LISTEN_CLIENT_SUBMIT_PCT * dur &&
                   cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
                   !completionRequestedRef.current
                 ) {
