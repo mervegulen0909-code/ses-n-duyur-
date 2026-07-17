@@ -1,7 +1,11 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { MIN_VERIFIED_LISTEN_SECONDS, type ListenEvent } from '@voxscore/core';
+import {
+  MIN_VERIFIED_LISTEN_SECONDS,
+  MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  type ListenEvent,
+} from '@voxscore/core';
 
 interface YTPlayer {
   getCurrentTime(): number;
@@ -103,14 +107,23 @@ export function YouTubePlayer({
               pollRef.current = setInterval(() => {
                 record('playing', e.target);
                 const first = firstPlaybackPositionRef.current;
+                const dur = e.target.getDuration();
+                const cur = e.target.getCurrentTime();
+                // Submit once the viewer has reached ~the end (>=90% of the
+                // real length) AND spent at least the anti-bot floor watching.
+                // The server re-checks against the YouTube-trusted duration, so
+                // this only decides WHEN to submit the full trail. `ended`
+                // covers short clips that finish before the pct target.
                 if (
                   first !== null &&
-                  e.target.getCurrentTime() - first >= MIN_VERIFIED_LISTEN_SECONDS &&
+                  dur > 0 &&
+                  cur >= MIN_VERIFIED_LISTEN_WATCHED_PCT * dur &&
+                  cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
                   !completionRequestedRef.current
                 ) {
                   completionRequestedRef.current = true;
                   stopPoll();
-                  onComplete?.([...eventsRef.current], Math.floor(e.target.getDuration()));
+                  onComplete?.([...eventsRef.current], Math.floor(dur));
                 }
               }, 250);
             } else if (e.data === YT.PlayerState.PAUSED) {

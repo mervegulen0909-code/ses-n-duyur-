@@ -19,7 +19,13 @@ vi.mock('@/lib/badges', () => ({
 vi.mock('@/lib/league-points', () => ({
   addLeaguePoints: vi.fn(async () => {}),
 }));
+// Keep the real validateListen / constants; only stub the network duration fetch.
+vi.mock('@voxscore/core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@voxscore/core')>()),
+  fetchVideoDurationSeconds: vi.fn(),
+}));
 
+import { fetchVideoDurationSeconds } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { trackServer } from '@/lib/analytics-server';
 import { currentListenStreak } from '@/lib/streak-server';
@@ -66,7 +72,16 @@ function makeCtx(userId = 'me', listen: Record<string, unknown> | null = ownedLi
   return { supabase: { from }, user: { id: userId } } as unknown as RequestCtx;
 }
 
-function makeService(opts: { updateError?: unknown; finalized?: { id: string } | null } = {}) {
+const defaultPerf = { id: PERF, youtube_video_id: 'vid12345678', duration_s: 200 };
+
+function makeService(
+  opts: {
+    updateError?: unknown;
+    finalized?: { id: string } | null;
+    perf?: Record<string, unknown> | null;
+  } = {},
+) {
+  // verified_listens finalize chain: update().eq().eq().select().maybeSingle()
   const updateMaybeSingle = vi.fn(async () => ({
     data: 'finalized' in opts ? opts.finalized : { id: LISTEN },
     error: opts.updateError ?? null,
@@ -75,13 +90,27 @@ function makeService(opts: { updateError?: unknown; finalized?: { id: string } |
   const updateValidEq = vi.fn(() => ({ select: updateSelect }));
   const updateEq = vi.fn(() => ({ eq: updateValidEq }));
   const update = vi.fn(() => ({ eq: updateEq }));
-  const from = vi.fn(() => ({ update }));
+
+  // performances read: select().eq().maybeSingle()
+  const perf = 'perf' in opts ? opts.perf : defaultPerf;
+  const perfMaybeSingle = vi.fn(async () => ({ data: perf }));
+  const perfSelect = vi.fn(() => ({ eq: () => ({ maybeSingle: perfMaybeSingle }) }));
+  // performances duration cache: update().eq()
+  const perfUpdateEq = vi.fn(async () => ({ error: null }));
+  const perfUpdate = vi.fn(() => ({ eq: perfUpdateEq }));
+
+  const from = vi.fn((table: string) => {
+    if (table === 'performances') return { select: perfSelect, update: perfUpdate };
+    return { update };
+  });
   return {
     service: { from } as unknown as Service,
     update,
     updateEq,
     updateValidEq,
     updateSelect,
+    perfUpdate,
+    perfUpdateEq,
   };
 }
 
@@ -154,12 +183,12 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
     expect(trackServer).not.toHaveBeenCalled();
   });
 
-  it('accepts thirty genuine seconds of in-step playback', async () => {
+  it('rejects a 30s partial watch that is far under the full-listen threshold', async () => {
+    // 31s of a 200s video = 16% — genuine, but not a full listen (Hard Rule 4/5).
     vi.mocked(getRequestContext).mockResolvedValue(
       makeCtx('me', { ...ownedListen, created_at: new Date(Date.now() - 40_000).toISOString() }),
     );
-    const svc = makeService();
-    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().service);
 
     const res = await POST(
       makeRequest({
@@ -171,7 +200,26 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
       }),
     );
 
-    await expect(res.json()).resolves.toEqual({ isValid: true, watchedPct: 0.155, reason: null });
+    const json = (await res.json()) as { isValid: boolean; watchedPct: number; reason: string };
+    expect(json.isValid).toBe(false);
+    expect(json.watchedPct).toBeCloseTo(0.155, 3);
+    expect(json.reason).toMatch(/16% < required 90%/);
+  });
+
+  it('accepts a genuine full watch (>=90% of the trusted length)', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(
+      makeCtx('me', { ...ownedListen, created_at: new Date(Date.now() - 200_000).toISOString() }),
+    );
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().service);
+
+    const events: { kind: 'playing'; atSeconds: number; clientTs: number }[] = [];
+    for (let s = 0; s <= 190; s += 10)
+      events.push({ kind: 'playing', atSeconds: s, clientTs: s * 1000 });
+    const res = await POST(makeRequest({ ...validBody, events }));
+
+    const json = (await res.json()) as { isValid: boolean; watchedPct: number };
+    expect(json.isValid).toBe(true);
+    expect(json.watchedPct).toBeGreaterThanOrEqual(0.9);
   });
 
   it('rejects playback shorter than the 30s anti-bot floor', async () => {
@@ -304,5 +352,64 @@ describe('POST /api/listens/complete — server-side anti-cheat wiring', () => {
     expect(trackServer).not.toHaveBeenCalled();
     expect(currentListenStreak).not.toHaveBeenCalled();
     expect(addLeaguePoints).not.toHaveBeenCalled();
+  });
+
+  it('fails closed when the trusted video length cannot be resolved (no vote unlocked)', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen()));
+    const svc = makeService({
+      perf: { id: PERF, youtube_video_id: 'vid12345678', duration_s: null },
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+    vi.mocked(fetchVideoDurationSeconds).mockResolvedValue(null);
+
+    const res = await POST(makeRequest(validListenBody));
+
+    const json = (await res.json()) as { isValid: boolean; reason: string };
+    expect(json.isValid).toBe(false);
+    expect(json.reason).toMatch(/could not verify the video length/i);
+    // Fail-closed writes nothing and runs no side effects — fully retryable.
+    expect(svc.update).not.toHaveBeenCalled();
+    expect(trackServer).not.toHaveBeenCalled();
+    expect(addLeaguePoints).not.toHaveBeenCalled();
+  });
+
+  it('fetches the duration from the YouTube API and caches it when missing', async () => {
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen()));
+    const svc = makeService({
+      perf: { id: PERF, youtube_video_id: 'vid12345678', duration_s: null },
+    });
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(svc.service);
+    vi.mocked(fetchVideoDurationSeconds).mockResolvedValue(200);
+
+    const res = await POST(makeRequest(validListenBody));
+
+    expect(((await res.json()) as { isValid: boolean }).isValid).toBe(true);
+    expect(fetchVideoDurationSeconds).toHaveBeenCalledWith(
+      'vid12345678',
+      process.env.YOUTUBE_API_KEY,
+    );
+    expect(svc.perfUpdate).toHaveBeenCalledWith({ duration_s: 200 });
+  });
+
+  it('ignores the client-reported durationS and gates on the trusted length', async () => {
+    // Client claims a 30s "video" fully watched; the trusted length is 200s.
+    // Shrinking durationS must not fake a full listen (Hard Rule 4).
+    vi.mocked(getRequestContext).mockResolvedValue(makeCtx('me', recentListen()));
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(makeService().service);
+
+    const res = await POST(
+      makeRequest({
+        ...validBody,
+        durationS: 30,
+        events: [
+          { kind: 'playing', atSeconds: 0, clientTs: 0 },
+          { kind: 'playing', atSeconds: 30, clientTs: 30_000 },
+        ],
+      }),
+    );
+
+    const json = (await res.json()) as { isValid: boolean; watchedPct: number };
+    expect(json.isValid).toBe(false);
+    expect(json.watchedPct).toBeCloseTo(0.15, 2);
   });
 });

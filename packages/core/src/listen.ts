@@ -107,3 +107,13 @@ export function validateListen(
  * judge a vocal performance on less.
  */
 export const MIN_VERIFIED_LISTEN_SECONDS = 30;
+
+/**
+ * Fraction of the SERVER-trusted video length that must be genuinely watched for
+ * a Verified Listen (Hard Rule 4/5: "vote only after listening to the whole
+ * performance"). Enforced against the YouTube Data API duration — never a
+ * client-supplied length — so it cannot be gamed by shrinking `durationS`. The
+ * 30s floor above still applies underneath, so very short clips (whose 90% is
+ * under the floor) can never unlock a vote.
+ */
+export const MIN_VERIFIED_LISTEN_WATCHED_PCT = 0.9;
