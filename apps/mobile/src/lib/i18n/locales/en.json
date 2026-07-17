@@ -323,6 +323,8 @@
     "keepWatching": "Keep watching to the end to unlock rating…",
     "notFullyListened": "Listen not verified — replay and watch the full video.",
     "pressPlay": "Press play and watch to the end.",
+    "startPlayback": "Start playback",
+    "listenFirstSide": "Finish the first performance before starting this one.",
     "voteRecorded": "Vote recorded. Thanks for judging!",
     "nextBattle": "Next battle ›",
     "signInToPick": "Sign in to pick a winner ›",
