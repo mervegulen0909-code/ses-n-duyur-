@@ -81,8 +81,12 @@ function makeService(
 }
 
 describe('POST /api/battles/next — pairing creation', () => {
-  beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
+  beforeEach(() => {
+    delete process.env.YOUTUBE_API_KEY;
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
     vi.clearAllMocks();
   });
@@ -126,6 +130,68 @@ describe('POST /api/battles/next — pairing creation', () => {
       'provisional_estimate',
       'legacy_metadata',
     ]);
+  });
+
+  it('excludes videos that YouTube reports as non-embeddable or unavailable', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-key';
+    const playableA = { ...TWO_PERFS[0], id: PERF_A, youtube_video_id: 'playable001' };
+    const blocked = {
+      ...TWO_PERFS[1],
+      id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+      youtube_video_id: 'blocked0001',
+    };
+    const playableB = { ...TWO_PERFS[1], id: PERF_B, youtube_video_id: 'playable002' };
+    const { service, battleInsert } = makeService({ perfs: [playableA, blocked, playableB] });
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          items: [
+            { id: 'playable001', status: { embeddable: true } },
+            { id: 'blocked0001', status: { embeddable: false } },
+            { id: 'playable002', status: { embeddable: true } },
+          ],
+        }),
+      })),
+    );
+
+    expect((await POST(makeRequest())).status).toBe(200);
+    const inserted = battleInsert.mock.calls[0]?.[0] as { perf_a: string; perf_b: string };
+    expect(new Set([inserted.perf_a, inserted.perf_b])).toEqual(new Set([PERF_A, PERF_B]));
+  });
+
+  it('returns 404 instead of creating a dead-end battle when fewer than two videos embed', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-key';
+    const { service, battleInsert } = makeService();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ items: [{ id: 'vidA', status: { embeddable: true } }] }),
+      })),
+    );
+
+    expect((await POST(makeRequest())).status).toBe(404);
+    expect(battleInsert).not.toHaveBeenCalled();
+  });
+
+  it('fails closed without creating a dead-end battle when the status check fails', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-key';
+    const { service, battleInsert } = makeService();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false })),
+    );
+
+    expect((await POST(makeRequest())).status).toBe(503);
+    expect(battleInsert).not.toHaveBeenCalled();
   });
 
   it('stamps the battle with the currently open season (never client-supplied)', async () => {

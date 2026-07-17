@@ -156,3 +156,40 @@ export async function fetchVideoDurationSeconds(
     return null;
   }
 }
+
+/**
+ * Return the subset of video ids that YouTube currently allows inside an
+ * embedded player. This reads only the public `status.embeddable` metadata;
+ * it never downloads media. `null` means the check was unavailable (missing
+ * key, HTTP failure, or network failure), so callers can degrade gracefully.
+ *
+ * The Data API accepts at most 50 ids per videos.list call. Callers in the
+ * battle matcher already cap their candidate pool to that same size.
+ */
+export async function fetchEmbeddableVideoIds(
+  videoIds: readonly string[],
+  apiKey: string | undefined,
+): Promise<ReadonlySet<string> | null> {
+  if (!apiKey) return null;
+  const uniqueIds = [...new Set(videoIds)].slice(0, 50);
+  if (uniqueIds.length === 0) return new Set<string>();
+
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=status&id=${encodeURIComponent(uniqueIds.join(','))}&key=${encodeURIComponent(apiKey)}`,
+    );
+    if (!res.ok) return null;
+    const body = (await res.json()) as {
+      items?: { id?: unknown; status?: { embeddable?: unknown } }[];
+    };
+    const embeddable = new Set<string>();
+    for (const item of body.items ?? []) {
+      if (typeof item.id === 'string' && item.status?.embeddable === true) {
+        embeddable.add(item.id);
+      }
+    }
+    return embeddable;
+  } catch {
+    return null;
+  }
+}

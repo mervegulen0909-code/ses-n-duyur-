@@ -1,4 +1,4 @@
-import { battleNextSchema, RANKED_SCORE_STATUSES } from '@voxscore/core';
+import { battleNextSchema, fetchEmbeddableVideoIds, RANKED_SCORE_STATUSES } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 import { currentSeasonId } from '@/lib/seasons';
@@ -72,9 +72,25 @@ export async function POST(req: Request): Promise<Response> {
   if (songId) query = query.eq('song_id', songId);
   const { data: perfs } = await query.limit(50);
 
-  const pair = songId
-    ? pickAnyPair((perfs ?? []) as PerfRow[])
-    : pickPair((perfs ?? []) as PerfRow[]);
+  const candidates = (perfs ?? []) as PerfRow[];
+  const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+  const embeddableIds = await fetchEmbeddableVideoIds(
+    candidates.flatMap((p) => (p.youtube_video_id ? [p.youtube_video_id] : [])),
+    youtubeApiKey,
+  );
+  // With the production API key configured, fail closed if YouTube's status
+  // check is unavailable: creating an unfinishable battle is worse than a
+  // retryable load error. Local/keyless environments retain the old fallback.
+  if (youtubeApiKey && embeddableIds === null) {
+    return Response.json({ error: 'Could not verify playable videos' }, { status: 503 });
+  }
+  // Exclude both videos with embedding disabled and videos no longer returned
+  // by videos.list. A missing key keeps local/keyless environments usable.
+  const playableCandidates = embeddableIds
+    ? candidates.filter((p) => p.youtube_video_id !== null && embeddableIds.has(p.youtube_video_id))
+    : candidates;
+
+  const pair = songId ? pickAnyPair(playableCandidates) : pickPair(playableCandidates);
   if (!pair) {
     return Response.json(
       {
