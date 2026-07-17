@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { RANKED_SCORE_STATUSES } from '@voxscore/core';
 import { FollowButton } from '@/components/follow-button';
 import { ProfileEditor } from '@/components/profile-editor';
 import { ProvisionalBadge } from '@/components/provisional-badge';
@@ -98,7 +99,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
         .from('scores')
         .select('performance_id, current_score, is_provisional')
         .in('performance_id', ids)
-        .eq('score_status', 'ai_verified')
+        .in('score_status', [...RANKED_SCORE_STATUSES])
     : { data: [] };
 
   const summary = summarizeCreator(perfs ?? [], scores ?? []);

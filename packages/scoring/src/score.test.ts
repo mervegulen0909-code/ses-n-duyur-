@@ -44,9 +44,11 @@ describe('currentScore', () => {
     expect(currentScore({ initialAiScore: 80, listenerScore: 60, verifiedVotes: 10 })).toBe(77.14);
   });
 
-  it('shifts toward the crowd as votes grow, capped at lw = 0.55', () => {
-    // 3000 votes → lw capped at 0.55 → 0.45*80 + 0.55*60 = 69
-    expect(currentScore({ initialAiScore: 80, listenerScore: 60, verifiedVotes: 3000 })).toBe(69);
+  it('shifts toward the crowd as votes grow, capped at the relaxed lw = 0.75', () => {
+    // 200 votes → cap still 0.55 → 0.45*80 + 0.55*60 = 69
+    expect(currentScore({ initialAiScore: 80, listenerScore: 60, verifiedVotes: 200 })).toBe(69);
+    // 3000 votes → cap fully relaxed to 0.75 → 0.25*80 + 0.75*60 = 65
+    expect(currentScore({ initialAiScore: 80, listenerScore: 60, verifiedVotes: 3000 })).toBe(65);
   });
 
   it('clamps the blend into [0, 100]', () => {

@@ -3,7 +3,13 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { FULL_COMMUNITY_VOTES } from './ai-judge';
 import { DEFAULT_CRITERION_WEIGHTS } from './criteria';
-import { BLEND_PRIOR_STRENGTH, LISTENER_WEIGHT_CAP } from './weights';
+import {
+  BLEND_PRIOR_STRENGTH,
+  LISTENER_WEIGHT_CAP,
+  PROVISIONAL_CAP_RELAX_MAX,
+  PROVISIONAL_CAP_RELAX_RANGE,
+  PROVISIONAL_CAP_RELAX_START,
+} from './weights';
 
 // The SQL RPC re-implements the blend for atomicity; this guard keeps the two
 // implementations from ever drifting apart silently. When the regime changes,
@@ -13,7 +19,10 @@ import { BLEND_PRIOR_STRENGTH, LISTENER_WEIGHT_CAP } from './weights';
 // assertion below even though the SQL content itself is unaffected.
 const SQL = readFileSync(
   fileURLToPath(
-    new URL('../../../supabase/migrations/20260716090000_ai_judge_v1.sql', import.meta.url),
+    new URL(
+      '../../../supabase/migrations/20260717120000_scoring_fairness_hardening.sql',
+      import.meta.url,
+    ),
   ),
   'utf8',
 ).replace(/\r\n/g, '\n');
@@ -26,9 +35,27 @@ describe('SQL RPC mirrors the TS scoring constants (RPC v7)', () => {
     }
   });
 
-  it('embeds the smooth-blend constants', () => {
+  it('embeds the smooth-blend constants with the scale-relaxed provisional cap', () => {
     expect(SQL).toContain(`(v_vote_count + ${BLEND_PRIOR_STRENGTH}.0)`);
-    expect(SQL).toContain(`least(${LISTENER_WEIGHT_CAP}, `);
+    expect(SQL).toContain(
+      `least(${LISTENER_WEIGHT_CAP} + ${PROVISIONAL_CAP_RELAX_MAX.toFixed(2)} * least(1.0, ` +
+        `greatest(0, v_vote_count - ${PROVISIONAL_CAP_RELAX_START}) / ${PROVISIONAL_CAP_RELAX_RANGE}.0)`,
+    );
+  });
+
+  it('winsorizes small samples to median ± 25 below the trim threshold', () => {
+    expect(SQL).toContain('when c.n < 10');
+    expect(SQL).toContain('greatest(c.med - 25, least(c.med + 25, pv.overall))');
+  });
+
+  it('ramps new-voter weight with proven listening history (sybil warm-up)', () => {
+    expect(SQL).toContain('0.4 + 0.06 * v_prior_listens');
+  });
+
+  it('allows revising a vote for 24 hours, then locks it', () => {
+    expect(SQL).toContain('on conflict (voter_id, performance_id) do update');
+    expect(SQL).toContain("interval '24 hours'");
+    expect(SQL).toContain('vote_locked');
   });
 
   it('hands AI-verified scores fully to the community at the configured vote count', () => {

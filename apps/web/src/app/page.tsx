@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import { RANKED_SCORE_STATUSES } from '@voxscore/core';
 import { ProvisionalBadge } from '@/components/provisional-badge';
 import { CategoryChips } from '@/components/category-chips';
 import { GuestBattle } from '@/components/guest-battle';
@@ -105,7 +106,7 @@ export default async function HomePage() {
         .from('scores')
         .select('performance_id, current_score, is_provisional')
         .in('performance_id', ids)
-        .eq('score_status', 'ai_verified');
+        .in('score_status', [...RANKED_SCORE_STATUSES]);
       scoreByPerf = new Map((scores ?? []).map((s) => [s.performance_id, s]));
     }
 

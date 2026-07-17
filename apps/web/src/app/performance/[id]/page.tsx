@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import type { Criterion } from '@voxscore/scoring';
+import type { AiJudgeCriterion, Criterion } from '@voxscore/scoring';
+import { isRankedScoreStatus, RANKED_SCORE_STATUSES } from '@voxscore/core';
 import { YouTubeEmbed } from '@/components/youtube-embed';
 import { ScoreBreakdown } from '@/components/score-breakdown';
 import { VotePanel } from '@/components/vote-panel';
@@ -50,7 +51,7 @@ export async function generateMetadata({
     .from('scores')
     .select('current_score')
     .eq('performance_id', id)
-    .eq('score_status', 'ai_verified')
+    .in('score_status', [...RANKED_SCORE_STATUSES])
     .maybeSingle();
 
   const meta = (perf?.oembed_meta ?? {}) as OEmbedish;
@@ -117,8 +118,17 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
   const meta = (perf.oembed_meta ?? {}) as OEmbedish;
   const isAiVerified = score?.score_status === 'ai_verified';
-  const breakdown = (isAiVerified ? (score?.ai_breakdown ?? null) : null) as Partial<
+  // Provisional estimates are rankable and votable too — only the "measured"
+  // presentation stays exclusive to ai_verified rows.
+  const isRanked = isRankedScoreStatus(score?.score_status);
+  // An ai_verified row's ai_breakdown holds the 6 DSP-measured AI Judge
+  // metrics; a provisional row's holds the 9 LLM-estimated criteria. Feed each
+  // to its own renderer — reading one with the other's keys shows only "—".
+  const breakdown = (!isAiVerified && isRanked ? (score?.ai_breakdown ?? null) : null) as Partial<
     Record<Criterion, number>
+  > | null;
+  const aiJudgeBreakdown = (isAiVerified ? (score?.ai_breakdown ?? null) : null) as Partial<
+    Record<AiJudgeCriterion, number>
   > | null;
   const measured = (measuredRow?.measured_breakdown ?? null) as Partial<
     Record<Criterion, number>
@@ -174,7 +184,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
         )}
         {!perf.youtube_video_id ? (
           <p className="text-neutral-500">{t('Performance.noVideo')}</p>
-        ) : user && isAiVerified ? (
+        ) : user && isRanked ? (
           <VotePanel
             performanceId={perf.id}
             videoId={perf.youtube_video_id}
@@ -184,7 +194,7 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
           <>
             <YouTubeEmbed videoId={perf.youtube_video_id} title={meta.title} />
             <p className="text-xs text-neutral-600">
-              {isAiVerified
+              {isRanked
                 ? t.rich('Performance.signInToVote', {
                     link: (chunks) => (
                       <Link href="/login" className="text-emerald-400">
@@ -200,11 +210,12 @@ export default async function PerformancePage({ params }: { params: Promise<{ id
 
       <aside>
         <ScoreBreakdown
-          initialAiScore={isAiVerified ? (score?.initial_ai_score ?? null) : null}
-          currentScore={isAiVerified ? (score?.current_score ?? null) : null}
-          trendScore={isAiVerified ? (score?.trend_score ?? null) : null}
+          initialAiScore={isRanked ? (score?.initial_ai_score ?? null) : null}
+          currentScore={isRanked ? (score?.current_score ?? null) : null}
+          trendScore={isRanked ? (score?.trend_score ?? null) : null}
           isProvisional={!isAiVerified}
           breakdown={breakdown}
+          aiJudgeBreakdown={aiJudgeBreakdown}
           measured={isAiVerified ? measured : null}
           hasVideo={perf.has_video}
           verifiedVoteCount={score?.verified_vote_count ?? 0}

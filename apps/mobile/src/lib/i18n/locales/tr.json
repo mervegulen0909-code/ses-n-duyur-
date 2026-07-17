@@ -81,7 +81,7 @@
     "pathSingerNote": "Giriş yalnızca gerektiğinde istenir.",
     "pathJurorEyebrow": "JÜRİ YOLU",
     "pathJurorHeadline": "Dinle. Karar ver. Etki yarat.",
-    "pathJurorBody": "İki performansı en az 1 saniye dinle, kazananı seç ve tahmin puanlarıyla sezonuna ilerle.",
+    "pathJurorBody": "İki performansı en az 30 saniye dinle, kazananı seç ve tahmin puanlarıyla sezonuna ilerle.",
     "pathJurorCta": "İlk düellomu aç",
     "pathJurorNote": "Giriş yalnızca gerektiğinde istenir.",
     "pathExplorerEyebrow": "KEŞİF YOLU",
@@ -253,6 +253,14 @@
     "originality": "Özgünlük",
     "stagePresence": "Sahne duruşu"
   },
+  "AiJudgeCriteria": {
+    "melodyAccuracy": "Melodi doğruluğu",
+    "rhythmAccuracy": "Ritim doğruluğu",
+    "pitchControl": "Perde kontrolü",
+    "noteTransitions": "Nota geçişleri",
+    "sustainControl": "Uzatma kontrolü",
+    "dynamicPhrasing": "Dinamik ifade"
+  },
   "Legal": {
     "label": "Yasal",
     "terms": "Kullanım Koşulları",
@@ -312,9 +320,9 @@
     "gateUnlocked": "İki performans da dinlendi — kazananını seç.",
     "embedBlockedHint": "Gömme kapalı — yalnızca YouTube’da oynar, burada doğrulanamaz.",
     "listenedOk": "Dinlendi ✓",
-    "keepWatching": "Puanlamayı açmak için 1 saniye izlemeye devam et…",
-    "notFullyListened": "Dinleme doğrulanmadı — en az 1 saniye tekrar izle.",
-    "pressPlay": "Oynat’a bas ve en az 1 saniye izle.",
+    "keepWatching": "Puanlamayı açmak için 30 saniye izlemeye devam et…",
+    "notFullyListened": "Dinleme doğrulanmadı — en az 30 saniye tekrar izle.",
+    "pressPlay": "Oynat’a bas ve en az 30 saniye izle.",
     "voteRecorded": "Oy kaydedildi. Jüri olduğun için teşekkürler!",
     "nextBattle": "Sonraki düello ›",
     "signInToPick": "Kazananı seçmek için giriş yap ›",

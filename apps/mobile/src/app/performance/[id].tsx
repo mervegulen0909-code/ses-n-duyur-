@@ -17,15 +17,16 @@ import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
 import {
   buildShareLine,
+  isRankedScoreStatus,
   measuredDisplayApplies,
   MIN_VERIFIED_LISTEN_SECONDS,
   scoreBar,
   type ListenEvent,
 } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
-import { CRITERIA } from '@voxscore/scoring';
+import { AI_JUDGE_CRITERIA, CRITERIA } from '@voxscore/scoring';
 import { postComment, submitVote } from '@/lib/api';
-import { useCriterionLabels } from '@/lib/criteria-labels';
+import { useAiJudgeCriterionLabels, useCriterionLabels } from '@/lib/criteria-labels';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
 import { useVerifiedListen } from '@/lib/use-verified-listen';
@@ -68,6 +69,7 @@ export default function PerformanceScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const criterionLabels = useCriterionLabels();
+  const aiJudgeLabels = useAiJudgeCriterionLabels();
   const { user } = useSession();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -288,7 +290,10 @@ export default function PerformanceScreen() {
   const meta = perf?.oembed_meta ?? {};
   const score = one(perf?.scores);
   const isAiVerified = score?.score_status === 'ai_verified';
-  const breakdown = (isAiVerified ? (score?.ai_breakdown ?? {}) : {}) as Record<string, number>;
+  // Provisional estimates display and take votes too; only the "measured"
+  // presentation stays exclusive to ai_verified rows.
+  const isRanked = isRankedScoreStatus(score?.score_status);
+  const breakdown = (isRanked ? (score?.ai_breakdown ?? {}) : {}) as Record<string, number>;
   const activeCriteria = CRITERIA.filter((c) => perf?.has_video !== false || c !== 'stagePresence');
   // Same rule the measurements route blends by — a criterion only shows as
   // "Measured" when it actually counted toward current_score.
@@ -361,12 +366,12 @@ export default function PerformanceScreen() {
             {hint}
           </Text>
 
-          {listen.status === 'verified' && !isAiVerified && (
+          {listen.status === 'verified' && !isRanked && (
             <Text style={styles.aiPendingNotice}>{t('Performance.aiScoreRequired')}</Text>
           )}
 
           {/* Vote panel — only after a Verified Listen, and only when signed in. */}
-          {listen.status === 'verified' && isAiVerified && voteState !== 'done' && (
+          {listen.status === 'verified' && isRanked && voteState !== 'done' && (
             <View
               style={styles.voteCard}
               onLayout={(e) => {
@@ -423,9 +428,7 @@ export default function PerformanceScreen() {
             <View style={styles.scoreHead}>
               <View>
                 <Text style={styles.scoreBig}>
-                  {isAiVerified && score?.current_score != null
-                    ? score.current_score.toFixed(1)
-                    : '—'}
+                  {isRanked && score?.current_score != null ? score.current_score.toFixed(1) : '—'}
                 </Text>
                 <Text style={styles.scoreLabel}>{t('Performance.currentScore')}</Text>
               </View>
@@ -433,7 +436,7 @@ export default function PerformanceScreen() {
                 <Text style={styles.trend}>
                   {t('Performance.trend', {
                     value:
-                      isAiVerified && score?.trend_score != null
+                      isRanked && score?.trend_score != null
                         ? `${score.trend_score >= 0 ? '+' : ''}${score.trend_score.toFixed(1)}`
                         : '0.0',
                   })}
@@ -441,7 +444,7 @@ export default function PerformanceScreen() {
                 <Text style={styles.aiStart}>
                   {t('Performance.aiStart', {
                     value:
-                      isAiVerified && score?.initial_ai_score != null
+                      isRanked && score?.initial_ai_score != null
                         ? score.initial_ai_score.toFixed(1)
                         : '—',
                   })}
@@ -449,30 +452,54 @@ export default function PerformanceScreen() {
               </View>
             </View>
 
-            {!isAiVerified && <Text style={styles.badge}>{t('Performance.aiPendingBadge')}</Text>}
+            {!isAiVerified && (
+              <Text style={styles.badge}>
+                {isRanked ? t('Common.provisionalBadge') : t('Performance.aiPendingBadge')}
+              </Text>
+            )}
 
             {measured && measuredApplies && (
               <Text style={styles.measuredCaption}>{t('Performance.measuredCaption')}</Text>
             )}
 
             <View style={styles.criteria}>
-              {activeCriteria.map((c) => {
-                const measuredValue = measuredApplies ? (measured?.[c] ?? null) : null;
-                const value = measuredValue ?? (breakdown[c] != null ? breakdown[c] : null);
-                return (
-                  <View key={c} style={styles.critRow}>
-                    <View style={styles.critNameWrap}>
-                      <Text style={styles.critLabel}>{criterionLabels[c]}</Text>
-                      {measuredValue != null && (
-                        <Text style={styles.measuredChip}>{t('Performance.measuredChip')}</Text>
-                      )}
-                    </View>
-                    <Text style={[styles.critVal, measuredValue != null && styles.critValMeasured]}>
-                      {value != null ? Number(value).toFixed(0) : '—'}
-                    </Text>
-                  </View>
-                );
-              })}
+              {/* An ai_verified breakdown holds the 6 DSP-measured AI Judge
+                  metrics; the 9-criterion list only fits estimate rows —
+                  reading one with the other's keys would render all "—". */}
+              {isAiVerified
+                ? AI_JUDGE_CRITERIA.map((c) => {
+                    const value = breakdown[c] != null ? breakdown[c] : null;
+                    return (
+                      <View key={c} style={styles.critRow}>
+                        <View style={styles.critNameWrap}>
+                          <Text style={styles.critLabel}>{aiJudgeLabels[c]}</Text>
+                          <Text style={styles.measuredChip}>{t('Performance.measuredChip')}</Text>
+                        </View>
+                        <Text style={[styles.critVal, styles.critValMeasured]}>
+                          {value != null ? Number(value).toFixed(0) : '—'}
+                        </Text>
+                      </View>
+                    );
+                  })
+                : activeCriteria.map((c) => {
+                    const measuredValue = measuredApplies ? (measured?.[c] ?? null) : null;
+                    const value = measuredValue ?? (breakdown[c] != null ? breakdown[c] : null);
+                    return (
+                      <View key={c} style={styles.critRow}>
+                        <View style={styles.critNameWrap}>
+                          <Text style={styles.critLabel}>{criterionLabels[c]}</Text>
+                          {measuredValue != null && (
+                            <Text style={styles.measuredChip}>{t('Performance.measuredChip')}</Text>
+                          )}
+                        </View>
+                        <Text
+                          style={[styles.critVal, measuredValue != null && styles.critValMeasured]}
+                        >
+                          {value != null ? Number(value).toFixed(0) : '—'}
+                        </Text>
+                      </View>
+                    );
+                  })}
             </View>
 
             {user?.id === perf.user_id && (

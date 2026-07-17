@@ -230,6 +230,14 @@
     "originality": "الأصالة",
     "stagePresence": "الحضور على المسرح"
   },
+  "AiJudgeCriteria": {
+    "melodyAccuracy": "دقة اللحن",
+    "rhythmAccuracy": "دقة الإيقاع",
+    "pitchControl": "التحكم في طبقة الصوت",
+    "noteTransitions": "انتقالات النغمات",
+    "sustainControl": "ثبات النغمة",
+    "dynamicPhrasing": "التعبير الديناميكي"
+  },
   "Legal": {
     "label": "قانوني",
     "terms": "شروط الخدمة",

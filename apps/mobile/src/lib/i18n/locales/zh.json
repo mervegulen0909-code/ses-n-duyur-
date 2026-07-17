@@ -230,6 +230,14 @@
     "originality": "原创性",
     "stagePresence": "舞台表现力"
   },
+  "AiJudgeCriteria": {
+    "melodyAccuracy": "旋律准确度",
+    "rhythmAccuracy": "节奏准确度",
+    "pitchControl": "音准控制",
+    "noteTransitions": "音符衔接",
+    "sustainControl": "延音控制",
+    "dynamicPhrasing": "强弱处理"
+  },
   "Legal": {
     "label": "法律信息",
     "terms": "服务条款",

@@ -106,14 +106,14 @@ function makeServiceClient(
   return { client: { from, rpc } as never, rpc, createRpc, scoreUpdate };
 }
 
-describe('createScoredPerformance — atomic unscored performance persistence', () => {
+describe('createScoredPerformance — atomic scored performance persistence', () => {
   beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
   afterEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
   });
 
-  it('creates an unscored performance through one transactional RPC', async () => {
+  it('creates a provisionally-scored performance through one transactional RPC', async () => {
     const service = makeServiceClient({ openSeasonId: 'season-open' });
 
     const result = await createScoredPerformance(service.client, {
@@ -129,11 +129,10 @@ describe('createScoredPerformance — atomic unscored performance persistence', 
         p_user_id: 'requester-42',
         p_song_id: 'song-existing',
         p_youtube_video_id: 'dQw4w9WgXcQ',
-        p_scoring_version: 5,
-        p_initial_ai_score: null,
-        p_ai_breakdown: null,
-        p_ai_breakdown_raw: null,
-        p_ai_provider: null,
+        p_initial_ai_score: 73.5,
+        p_ai_breakdown_raw: expect.objectContaining({ vocalAccuracy: 73.5 }),
+        p_is_provisional: true,
+        p_ai_provider: 'mock',
         p_season_id: 'season-open',
       }),
     );
@@ -151,7 +150,7 @@ describe('createScoredPerformance — atomic unscored performance persistence', 
 
     await expect(
       createScoredPerformance(service.client, { userId: 'user-1', youtubeUrl: YOUTUBE_URL }),
-    ).rejects.toThrow('Could not create performance awaiting AI analysis');
+    ).rejects.toThrow('Could not create scored performance');
     expect(service.createRpc).toHaveBeenCalledTimes(1);
     expect(service.rpc).not.toHaveBeenCalledWith('grant_badge', expect.anything());
   });
@@ -210,7 +209,7 @@ describe('createScoredPerformance — atomic unscored performance persistence', 
     );
   });
 
-  it('never persists metadata or LLM output as the opening score', async () => {
+  it('persists calibrated and raw breakdowns independently', async () => {
     const service = makeServiceClient({
       calibrationRows: [{ criterion: 'vocalAccuracy', offset_value: 10 }],
     });
@@ -220,10 +219,10 @@ describe('createScoredPerformance — atomic unscored performance persistence', 
     expect(service.rpc).toHaveBeenCalledWith(
       'create_scored_performance_atomic',
       expect.objectContaining({
-        p_initial_ai_score: null,
-        p_ai_breakdown: null,
-        p_ai_breakdown_raw: null,
-        p_ai_model: null,
+        p_initial_ai_score: 75.5,
+        p_ai_breakdown: expect.objectContaining({ vocalAccuracy: 83.5 }),
+        p_ai_breakdown_raw: expect.objectContaining({ vocalAccuracy: 73.5 }),
+        p_ai_model: 'mock-provisional-v0',
       }),
     );
   });

@@ -45,10 +45,14 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'Only the performer can request AI analysis' }, { status: 403 });
   }
   if (!performance.song_id) {
+    // Only rows with no score yet get parked in 'reference_required' — a
+    // provisional or verified score must stay visible while its owner shops
+    // for an upgrade that isn't possible yet.
     await service
       .from('scores')
       .update({ score_status: 'reference_required', score_source: 'none' })
-      .eq('performance_id', performance.id);
+      .eq('performance_id', performance.id)
+      .is('initial_ai_score', null);
     return Response.json({ error: 'This performance needs a song reference' }, { status: 409 });
   }
 
@@ -62,7 +66,8 @@ export async function POST(req: Request): Promise<Response> {
     await service
       .from('scores')
       .update({ score_status: 'reference_required', score_source: 'none' })
-      .eq('performance_id', performance.id);
+      .eq('performance_id', performance.id)
+      .is('initial_ai_score', null);
     return Response.json(
       { error: 'A verified melody reference is not ready yet' },
       { status: 409 },
@@ -71,13 +76,11 @@ export async function POST(req: Request): Promise<Response> {
 
   // Abandoned sessions (client vanished before upload) would otherwise hold
   // analysis_sessions_one_active_idx forever and 409 every retry for this
-  // performance; nothing else transitions them once expires_at passes.
-  await service
-    .from('analysis_sessions')
-    .update({ status: 'expired' })
-    .eq('performance_id', performance.id)
-    .in('status', ['created', 'uploading', 'processing'])
-    .lte('expires_at', new Date().toISOString());
+  // performance; nothing else transitions them once expires_at passes. The RPC
+  // also releases a score stuck in 'analysis_pending' back to its true state.
+  await service.rpc('expire_stale_analysis_sessions', {
+    p_performance_id: performance.id,
+  });
 
   const expiresAtEpochSeconds = Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS;
   const expiresAt = new Date(expiresAtEpochSeconds * 1000).toISOString();
@@ -104,10 +107,13 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'Could not create analysis session' }, { status: 500 });
   }
 
+  // A row that already shows a provisional/verified score keeps showing it
+  // during analysis; only never-scored rows surface the pending state.
   const { error: scoreError } = await service
     .from('scores')
     .update({ score_status: 'analysis_pending', score_source: 'none' })
-    .eq('performance_id', performance.id);
+    .eq('performance_id', performance.id)
+    .is('initial_ai_score', null);
   if (scoreError) {
     await service.from('analysis_sessions').delete().eq('id', session.id);
     console.error('[analysis/sessions] score state update failed', scoreError);

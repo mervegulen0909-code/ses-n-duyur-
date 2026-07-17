@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import type { Criterion } from '@voxscore/scoring';
+import type { AiJudgeCriterion, Criterion } from '@voxscore/scoring';
 
 /**
  * English fallback labels for the 9 scoring criteria (mirrors the web app).
@@ -18,6 +18,22 @@ export const CRITERION_LABELS: Record<Criterion, string> = {
   originality: 'Originality',
   stagePresence: 'Stage presence',
 };
+
+/**
+ * Translated display labels for the 6 DSP-measured AI Judge metrics — shown
+ * instead of the 9 estimate criteria once a performance is ai_verified.
+ */
+export function useAiJudgeCriterionLabels(): Record<AiJudgeCriterion, string> {
+  const { t } = useTranslation();
+  return {
+    melodyAccuracy: t('AiJudgeCriteria.melodyAccuracy'),
+    rhythmAccuracy: t('AiJudgeCriteria.rhythmAccuracy'),
+    pitchControl: t('AiJudgeCriteria.pitchControl'),
+    noteTransitions: t('AiJudgeCriteria.noteTransitions'),
+    sustainControl: t('AiJudgeCriteria.sustainControl'),
+    dynamicPhrasing: t('AiJudgeCriteria.dynamicPhrasing'),
+  };
+}
 
 /** Translated display labels for the 9 scoring criteria. */
 export function useCriterionLabels(): Record<Criterion, string> {

@@ -234,6 +234,9 @@ export const ANALYTICS_EVENTS = [
   'guest_battle_started',
   // Prediction pools (listener game — NOT a vote).
   'prediction_submitted',
+  // Ops signal: the LLM scoring provider silently degraded to the mock
+  // despite a configured API key — new estimates are placeholders.
+  'scoring_mock_fallback',
 ] as const;
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number];
 

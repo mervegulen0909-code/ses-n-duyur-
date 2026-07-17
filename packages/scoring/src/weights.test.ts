@@ -22,9 +22,16 @@ describe('listenerWeightForVotes — smooth n/(n+k) curve (regime v4)', () => {
     }
   });
 
-  it('reaches 50% at n = k and caps at LISTENER_WEIGHT_CAP', () => {
+  it('reaches 50% at n = k and caps at LISTENER_WEIGHT_CAP up to 200 votes', () => {
     expect(listenerWeightForVotes(BLEND_PRIOR_STRENGTH)).toBeCloseTo(0.5, 6);
-    expect(listenerWeightForVotes(100000)).toBe(LISTENER_WEIGHT_CAP);
+    expect(listenerWeightForVotes(200)).toBe(LISTENER_WEIGHT_CAP);
+  });
+
+  it('relaxes the cap 0.55 → 0.75 between 200 and 1000 votes', () => {
+    // n = 600: halfway through the relax range → cap 0.65 (n/(n+60) ≈ 0.909 doesn't bind).
+    expect(listenerWeightForVotes(600)).toBeCloseTo(0.65, 6);
+    expect(listenerWeightForVotes(1000)).toBeCloseTo(0.75, 6);
+    expect(listenerWeightForVotes(100000)).toBeCloseTo(0.75, 6);
   });
 
   it('rejects negatives and non-finite input', () => {

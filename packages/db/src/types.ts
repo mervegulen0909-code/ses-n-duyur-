@@ -84,6 +84,7 @@ export interface PublicRows {
       | 'quality_rejected'
       | 'technique_only'
       | 'ai_verified'
+      | 'provisional_estimate'
       | 'legacy_metadata'
       | 'analysis_failed';
     score_source:
@@ -373,7 +374,8 @@ export interface PublicRows {
       | 'share_rendered'
       | 'challenge_link_visited'
       | 'guest_battle_started'
-      | 'prediction_submitted';
+      | 'prediction_submitted'
+      | 'scoring_mock_fallback';
     session_id: Uuid;
     user_id: Uuid | null;
     meta: Json | null;
@@ -565,6 +567,10 @@ export type Database = {
           p_confidence: number | null;
         };
         Returns: Uuid;
+      };
+      expire_stale_analysis_sessions: {
+        Args: { p_performance_id: Uuid };
+        Returns: undefined;
       };
       publish_song_reference: {
         Args: {

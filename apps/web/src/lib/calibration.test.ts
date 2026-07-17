@@ -18,15 +18,16 @@ describe('computeOffsets', () => {
     expect(computeOffsets([{ anchor: { vocalAccuracy: 90 }, ai }]).offsets).toEqual({});
   });
 
-  it('mean(anchor − ai) per criterion, clamped to ±10', () => {
+  it('shrunk mean(anchor − ai) per criterion, clamped to ±10', () => {
     const pairs = Array.from({ length: 5 }, () => ({
       anchor: { vocalAccuracy: 95, toneQuality: 40 },
       ai,
     }));
     const { offsets, sampleCount } = computeOffsets(pairs);
     expect(sampleCount).toBe(5);
-    expect(offsets.vocalAccuracy).toBe(10); // +25 clamped to +10
-    expect(offsets.toneQuality).toBe(-10); // −30 clamped to −10
+    // Small samples shrink toward zero: n/(n+10) = 5/15 = 1/3 of the raw mean.
+    expect(offsets.vocalAccuracy).toBe(8.33); // +25 shrunk to +8.33
+    expect(offsets.toneQuality).toBe(-10); // −30 shrunk to −10, at the clamp
     expect(offsets.rhythmTiming).toBeUndefined(); // anchor never rated it
   });
 });

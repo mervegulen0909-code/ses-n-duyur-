@@ -70,6 +70,13 @@ export interface AiJudgeOptions {
   readonly minReferenceCoverage?: number;
   readonly minAlignmentConfidence?: number;
   readonly minOverallConfidence?: number;
+  /**
+   * Onset-match tolerance as a fraction of the take duration. Rubato-aware:
+   * pitch metrics absorb tempo flex via DTW, but onsets are still compared on
+   * the linear clock — this tolerance is how much local timing freedom a
+   * deliberate interpretation gets before rhythm is penalized.
+   */
+  readonly onsetToleranceNormalized?: number;
 }
 
 // minReferenceCoverage and minOverallConfidence implement the score contract:
@@ -86,6 +93,7 @@ const DEFAULT_OPTIONS = {
   minReferenceCoverage: 0.8,
   minAlignmentConfidence: 0.2,
   minOverallConfidence: 0.75,
+  onsetToleranceNormalized: 0.05,
 } as const;
 
 const clamp01 = (value: number): number => Math.max(0, Math.min(1, value));
@@ -519,18 +527,28 @@ export function analyzeAiJudgeWav(
     .slice(1)
     .map((note) => note.startSeconds / reference.durationSeconds);
   const actualTransitions = transitionTimes(aligned);
-  const onsetF1 = greedyF1(actualTransitions, expectedTransitions, 0.025);
+  const onsetF1 = greedyF1(
+    actualTransitions,
+    expectedTransitions,
+    resolved.onsetToleranceNormalized,
+  );
   const stability =
     transposition === null
       ? { pitchControl: 0, sustainControl: 0 }
       : noteStability(pitchAligned, reference, transposition);
 
+  // Confidence curves are calibrated so a take that clears the quality gates
+  // by a healthy margin can actually reach the 0.75 verified threshold —
+  // a curve demanding studio-grade SNR would silently reject honest phone
+  // recordings that the gate itself declared acceptable.
   const signalQualityConfidence = Math.min(
-    clamp01((features.snrDb - 5) / 30),
+    clamp01((features.snrDb - 8) / 12),
     clamp01(1 - features.clippingRate / Math.max(0.0001, resolved.maxClippingRate)),
   );
-  const pitchEngineConfidence = clamp01(features.voicedRatio / 0.5);
-  const referenceQualityConfidence = clamp01(reference.notes.length / 12);
+  const pitchEngineConfidence = clamp01(features.voicedRatio / 0.4);
+  // 6 clean reference notes are enough for full confidence in the reference
+  // itself; requiring 12 made short references mathematically unverifiable.
+  const referenceQualityConfidence = clamp01(reference.notes.length / 8);
 
   let reason: QualityRejectionReason | null = null;
   if (features.durationS < resolved.minDurationSeconds) reason = 'too_short';

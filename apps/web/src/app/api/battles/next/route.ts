@@ -1,4 +1,4 @@
-import { battleNextSchema } from '@voxscore/core';
+import { battleNextSchema, RANKED_SCORE_STATUSES } from '@voxscore/core';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 import { currentSeasonId } from '@/lib/seasons';
@@ -67,7 +67,7 @@ export async function POST(req: Request): Promise<Response> {
     .from('performances')
     .select('id, youtube_video_id, oembed_meta, song_id, scores!inner(score_status)')
     .eq('status', 'active')
-    .eq('scores.score_status', 'ai_verified')
+    .in('scores.score_status', [...RANKED_SCORE_STATUSES])
     .not('youtube_video_id', 'is', null);
   if (songId) query = query.eq('song_id', songId);
   const { data: perfs } = await query.limit(50);

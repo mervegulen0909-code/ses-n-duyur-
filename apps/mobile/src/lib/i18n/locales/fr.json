@@ -230,6 +230,14 @@
     "originality": "Originalité",
     "stagePresence": "Présence scénique"
   },
+  "AiJudgeCriteria": {
+    "melodyAccuracy": "Justesse mélodique",
+    "rhythmAccuracy": "Précision rythmique",
+    "pitchControl": "Contrôle de la hauteur",
+    "noteTransitions": "Transitions de notes",
+    "sustainControl": "Tenue des notes",
+    "dynamicPhrasing": "Phrasé dynamique"
+  },
   "Legal": {
     "label": "Mentions légales",
     "terms": "Conditions d'utilisation",

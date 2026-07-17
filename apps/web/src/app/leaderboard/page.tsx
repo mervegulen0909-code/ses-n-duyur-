@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { wilsonLowerBound } from '@voxscore/scoring';
-import { isSongCategory } from '@voxscore/core';
+import { isSongCategory, RANKED_SCORE_STATUSES } from '@voxscore/core';
 import { RealtimeRefresh } from '@/components/realtime-refresh';
 import { CategoryChips } from '@/components/category-chips';
 import { SeasonSwitcher } from '@/components/season-switcher';
@@ -44,7 +44,7 @@ export default async function LeaderboardPage({
   let scoresQuery = supabase
     .from('scores')
     .select('performance_id, current_score, trend_score, is_provisional, verified_vote_count')
-    .eq('score_status', 'ai_verified');
+    .in('score_status', [...RANKED_SCORE_STATUSES]);
   if (activeSeason) scoresQuery = scoresQuery.eq('season_id', activeSeason.id);
   const { data: scores } = await scoresQuery;
 

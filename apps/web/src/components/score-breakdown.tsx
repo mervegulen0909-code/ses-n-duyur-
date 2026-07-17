@@ -2,7 +2,14 @@
 
 import { useTranslations } from 'next-intl';
 import { measuredDisplayApplies } from '@voxscore/core';
-import { CRITERIA, confidenceForVotes, confidenceMargin, type Criterion } from '@voxscore/scoring';
+import {
+  AI_JUDGE_CRITERIA,
+  CRITERIA,
+  confidenceForVotes,
+  confidenceMargin,
+  type AiJudgeCriterion,
+  type Criterion,
+} from '@voxscore/scoring';
 import { ProvisionalBadge } from './provisional-badge';
 import { trendDirection } from '@/lib/leaderboard';
 
@@ -12,6 +19,13 @@ export interface ScoreBreakdownProps {
   trendScore: number | null;
   isProvisional: boolean;
   breakdown: Partial<Record<Criterion, number>> | null;
+  /**
+   * AI Judge (owned-recording DSP) per-metric breakdown — the 6 metrics the
+   * pipeline actually measures. When set, it replaces the 9-criterion list:
+   * showing unmeasured criteria under a verified score would imply
+   * measurements that never happened.
+   */
+  aiJudgeBreakdown?: Partial<Record<AiJudgeCriterion, number>> | null;
   /** Real DSP values measured from the artist's own recording (ADR 0003). */
   measured?: Partial<Record<Criterion, number>> | null;
   hasVideo: boolean;
@@ -97,33 +111,57 @@ export function ScoreBreakdown(props: ScoreBreakdownProps) {
         <p className="mb-4 text-xs text-neutral-500">{t('Performance.measuredCaption')}</p>
       )}
 
-      <ul className="space-y-1.5">
-        {CRITERIA.filter((c) => props.hasVideo || c !== 'stagePresence').map((c) => {
-          const measuredValue = measuredApplies ? (props.measured?.[c] ?? null) : null;
-          const value = measuredValue ?? props.breakdown?.[c] ?? null;
-          return (
-            <li key={c} className="flex items-center gap-3 text-sm">
-              <span className="w-44 shrink-0 text-neutral-400">
-                {t(`Criteria.${c}`)}
-                {measuredValue !== null && (
+      {props.aiJudgeBreakdown ? (
+        <ul className="space-y-1.5">
+          {AI_JUDGE_CRITERIA.map((c) => {
+            const value = props.aiJudgeBreakdown?.[c] ?? null;
+            return (
+              <li key={c} className="flex items-center gap-3 text-sm">
+                <span className="w-44 shrink-0 text-neutral-400">
+                  {t(`AiJudgeCriteria.${c}`)}
                   <span className="ml-1.5 rounded bg-sky-500/15 px-1 py-px text-[10px] font-medium text-sky-400">
                     {t('Performance.measuredBadge')}
                   </span>
-                )}
-              </span>
-              <div className="h-1.5 flex-1 overflow-hidden rounded bg-neutral-800">
-                <div
-                  className={`h-full ${measuredValue !== null ? 'bg-sky-500/70' : 'bg-emerald-500/70'}`}
-                  style={{ width: `${value ?? 0}%` }}
-                />
-              </div>
-              <span className="w-10 shrink-0 text-right tabular-nums text-neutral-300">
-                {fmt(value)}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+                </span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded bg-neutral-800">
+                  <div className="h-full bg-sky-500/70" style={{ width: `${value ?? 0}%` }} />
+                </div>
+                <span className="w-10 shrink-0 text-right tabular-nums text-neutral-300">
+                  {fmt(value)}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <ul className="space-y-1.5">
+          {CRITERIA.filter((c) => props.hasVideo || c !== 'stagePresence').map((c) => {
+            const measuredValue = measuredApplies ? (props.measured?.[c] ?? null) : null;
+            const value = measuredValue ?? props.breakdown?.[c] ?? null;
+            return (
+              <li key={c} className="flex items-center gap-3 text-sm">
+                <span className="w-44 shrink-0 text-neutral-400">
+                  {t(`Criteria.${c}`)}
+                  {measuredValue !== null && (
+                    <span className="ml-1.5 rounded bg-sky-500/15 px-1 py-px text-[10px] font-medium text-sky-400">
+                      {t('Performance.measuredBadge')}
+                    </span>
+                  )}
+                </span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded bg-neutral-800">
+                  <div
+                    className={`h-full ${measuredValue !== null ? 'bg-sky-500/70' : 'bg-emerald-500/70'}`}
+                    style={{ width: `${value ?? 0}%` }}
+                  />
+                </div>
+                <span className="w-10 shrink-0 text-right tabular-nums text-neutral-300">
+                  {fmt(value)}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }
