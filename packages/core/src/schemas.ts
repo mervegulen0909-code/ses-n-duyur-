@@ -176,6 +176,17 @@ export const reportSchema = z.object({
 });
 export type ReportInput = z.infer<typeof reportSchema>;
 
+/**
+ * A client reports that a performance's video would not embed/play in-app (so an
+ * in-app Verified Listen is impossible). The server re-verifies with the YouTube
+ * Data API before flagging it, so this is advisory — it cannot exclude a
+ * genuinely embeddable video.
+ */
+export const reportUnplayableSchema = z.object({
+  performanceId: z.string().uuid(),
+});
+export type ReportUnplayableInput = z.infer<typeof reportUnplayableSchema>;
+
 /** Anyone may file a DMCA / takedown request (public form). */
 export const dmcaSchema = z.object({
   performanceId: z.string().uuid().optional(),

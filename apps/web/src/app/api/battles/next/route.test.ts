@@ -47,12 +47,15 @@ function makeService(
   battleInsert: ReturnType<typeof vi.fn>;
   songIdEq: ReturnType<typeof vi.fn>;
   scoreStatusEq: ReturnType<typeof vi.fn>;
+  isFilter: ReturnType<typeof vi.fn>;
 } {
-  // performances: select().eq('status').not().limit(), optionally with an
-  // extra .eq('song_id', songId) between .not() and .limit() when scoped.
+  // performances: select().eq('status').not().is('embed_unplayable_at', null)
+  // .limit(), optionally with an extra .eq('song_id', songId) between .is() and
+  // .limit() when scoped.
   const limit = vi.fn(async () => ({ data: opts.perfs ?? TWO_PERFS }));
   const songIdEq = vi.fn(() => ({ limit }));
-  const notChain = vi.fn(() => ({ limit, eq: songIdEq }));
+  const isFilter = vi.fn(() => ({ limit, eq: songIdEq }));
+  const notChain = vi.fn(() => ({ is: isFilter }));
   const scoreStatusEq = vi.fn(() => ({ not: notChain }));
   // battles: insert().select().single() resolves to the new row (or an error).
   const battleSingle = vi.fn(async () => ({
@@ -77,7 +80,13 @@ function makeService(
     if (table === 'seasons') return seasonsTable;
     return {};
   });
-  return { service: { from } as unknown as Service, battleInsert, songIdEq, scoreStatusEq };
+  return {
+    service: { from } as unknown as Service,
+    battleInsert,
+    songIdEq,
+    scoreStatusEq,
+    isFilter,
+  };
 }
 
 describe('POST /api/battles/next — pairing creation', () => {
@@ -130,6 +139,15 @@ describe('POST /api/battles/next — pairing creation', () => {
       'provisional_estimate',
       'legacy_metadata',
     ]);
+  });
+
+  it('excludes performances flagged unplayable (server re-verified embed block)', async () => {
+    const { service, isFilter } = makeService();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+    vi.mocked(createSupabaseServiceClient).mockReturnValue(service);
+
+    expect((await POST(makeRequest())).status).toBe(200);
+    expect(isFilter).toHaveBeenCalledWith('embed_unplayable_at', null);
   });
 
   it('excludes videos that YouTube reports as non-embeddable or unavailable', async () => {

@@ -21,6 +21,7 @@ import {
   nextBattle,
   postComment,
   registerPushToken,
+  reportUnplayable,
   startListen,
   submitBattleVote,
   submitPerformanceRequest,
@@ -115,6 +116,20 @@ describe('mobile api client', () => {
       performanceId: 'perf-9',
       body: 'great vibrato',
     });
+  });
+
+  it('reportUnplayable posts the performance id and never throws on failure', async () => {
+    mockFetchOnce({ ok: true, flagged: true });
+    await reportUnplayable('perf-77');
+
+    const { url, opts } = lastFetch();
+    expect(url).toMatch(/\/api\/performances\/report-unplayable$/);
+    expect(JSON.parse(opts.body as string)).toEqual({ performanceId: 'perf-77' });
+
+    // Best-effort: a network reject must resolve (never reject) so the caller's
+    // fire-and-forget `void reportUnplayable(...)` can't crash the battle screen.
+    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('offline'));
+    await expect(reportUnplayable('perf-77')).resolves.toBeUndefined();
   });
 
   it('startListen returns the listenId + status, or null when absent', async () => {

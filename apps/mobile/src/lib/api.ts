@@ -241,6 +241,16 @@ export async function submitBattleVote(
 }
 
 /**
+ * Best-effort: tell the server a performance's video would not embed/play in app
+ * (so an in-app Verified Listen is impossible). The server re-verifies with the
+ * YouTube Data API before excluding it from future battles, so this is advisory.
+ * Fire-and-forget — the user already sees the block, and a failure is harmless.
+ */
+export async function reportUnplayable(performanceId: string): Promise<void> {
+  await authedPost('/api/performances/report-unplayable', { performanceId });
+}
+
+/**
  * Permanently delete the signed-in user's account and all their data. Required
  * by Apple Guideline 5.1.1(v) and Google Play for any app with account creation.
  * The server deletes ONLY the JWT's user (no id in the body) and cascades all
