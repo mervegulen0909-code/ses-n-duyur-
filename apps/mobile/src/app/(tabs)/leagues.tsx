@@ -74,6 +74,7 @@ export default function CustomLeaguesScreen() {
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>
           <Text style={styles.title}>{t('Leagues.title')}</Text>
+          <Text style={styles.sub}>{t('Leagues.signInBody')}</Text>
           <Pressable style={styles.primary} onPress={() => router.push('/login')}>
             <Text style={styles.primaryText}>{t('Common.signIn')}</Text>
           </Pressable>
@@ -160,6 +161,14 @@ const styles = StyleSheet.create({
   back: { color: '#9ca3af', fontWeight: '600' },
   eyebrow: { marginTop: 24, color: '#22d3ee', fontSize: 11, fontWeight: '900', letterSpacing: 2 },
   title: { marginTop: 5, color: '#fafafa', fontSize: 30, fontWeight: '900' },
+  sub: {
+    marginTop: 10,
+    marginBottom: 8,
+    color: '#9ca3af',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
   spinner: { marginTop: 40 },
   list: { paddingHorizontal: 16, paddingBottom: 40, gap: 8 },
   empty: { color: '#9ca3af', marginVertical: 18 },

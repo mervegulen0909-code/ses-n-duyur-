@@ -168,6 +168,7 @@
   },
   "Leagues": {
     "title": "Tes ligues privées",
+    "signInBody": "Les ligues privées sont des groupes sur invitation avec leur propre classement. Connecte-toi pour en créer une ou en rejoindre une avec un code.",
     "short": "Groupes",
     "error": "La ligue n’a pas pu être mise à jour.",
     "invalidCode": "Saisis un code valide de 8 caractères.",

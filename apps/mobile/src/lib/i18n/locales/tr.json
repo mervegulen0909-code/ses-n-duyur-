@@ -170,6 +170,7 @@
   },
   "Leagues": {
     "title": "Özel liglerin",
+    "signInBody": "Özel ligler, kendi sıralaması olan, davetle katılınan gruplardır. Kendi ligini oluşturmak ya da bir kodla katılmak için giriş yap.",
     "short": "Ekipler",
     "error": "Lig güncellenemedi.",
     "invalidCode": "Geçerli bir 8 karakterlik kod gir.",

@@ -170,6 +170,7 @@
   },
   "Leagues": {
     "title": "Your private leagues",
+    "signInBody": "Private leagues are invite-only crews with their own leaderboard. Sign in to create one or join with a code.",
     "short": "Crews",
     "error": "The league could not be updated.",
     "invalidCode": "Enter a valid 8-character code.",
