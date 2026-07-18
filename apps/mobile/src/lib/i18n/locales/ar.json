@@ -168,6 +168,7 @@
   },
   "Leagues": {
     "title": "دورياتك الخاصة",
+    "signInBody": "الدوريات الخاصة مجموعات بالدعوة فقط ولها تصنيفها الخاص. سجّل الدخول لإنشاء واحدة أو الانضمام برمز.",
     "short": "المجموعات",
     "error": "تعذر تحديث الدوري.",
     "invalidCode": "أدخل رمزًا صالحًا من 8 أحرف.",
@@ -355,6 +356,11 @@
     "measured": "مقاس",
     "provisional": "مبدئي",
     "allCategories": "الكل",
+    "searchPlaceholder": "ابحث عن أغنية أو فنان",
+    "searchLabel": "بحث الأغاني",
+    "clearSearch": "مسح البحث",
+    "searchResults": "{{count}} نتيجة",
+    "noSearchResults": "لم يتم العثور على أغانٍ لـ \"{{query}}\".",
     "songsHeading": "الأغاني",
     "empty": "لا أغاني بعد."
   },

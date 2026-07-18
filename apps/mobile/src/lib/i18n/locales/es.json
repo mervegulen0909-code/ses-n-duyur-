@@ -168,6 +168,7 @@
   },
   "Leagues": {
     "title": "Tus ligas privadas",
+    "signInBody": "Las ligas privadas son grupos por invitación con su propia clasificación. Inicia sesión para crear una o unirte con un código.",
     "short": "Grupos",
     "error": "No se pudo actualizar la liga.",
     "invalidCode": "Introduce un código válido de 8 caracteres.",
@@ -355,6 +356,11 @@
     "measured": "Medido",
     "provisional": "Provisional",
     "allCategories": "Todos",
+    "searchPlaceholder": "Buscar canciones o artistas",
+    "searchLabel": "Buscar canciones",
+    "clearSearch": "Borrar búsqueda",
+    "searchResults": "{{count}} resultados",
+    "noSearchResults": "No se encontraron canciones para \"{{query}}\".",
     "songsHeading": "Canciones",
     "empty": "Aún no hay canciones."
   },

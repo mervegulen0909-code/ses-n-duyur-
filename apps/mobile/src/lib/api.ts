@@ -22,14 +22,13 @@ const ATTESTED_PATHS = new Set([
 //
 // AUTH: mobile sends the Supabase access token as a Bearer header. The API's
 // getRequestContext (apps/web/src/lib/supabase/server.ts) accepts BOTH cookie
-// (web) and Bearer (mobile) auth, and is LIVE in production — so routes WITHOUT
-// a botGuard authenticate from native today: battles (next/vote), listens
-// (start/complete), comments, account/delete, push/register. A 401 from these
-// means the session is missing/expired, not a missing backend.
+// (web) and Bearer (mobile) auth. A 401 from these routes means the session is
+// missing/expired, not a missing backend.
 //
-// STILL GATED on native: /api/votes and /api/performances run botGuard
-// (Turnstile on web; App Attest / Play Integrity on native, N2b) which is not
-// wired here yet, so those 403 from native until device attestation lands.
+// BOT GUARD: browser clients use Turnstile. Native clients identify themselves
+// with NATIVE_CLIENT_HEADERS; the server only requires Play Integrity / App
+// Attest when NATIVE_ATTESTATION_REQUIRED=true. When native attestation is
+// enabled for a build, authedPost attaches integrity headers for ATTESTED_PATHS.
 
 /**
  * Return a NON-expired access token for a Bearer header, refreshing first when
@@ -226,10 +225,10 @@ export async function nextBattle(): Promise<{
 /**
  * Pick a battle winner. Body matches battleVoteSchema. The server re-verifies
  * BOTH listens (valid, owned by this user, covering each side) before counting
- * the vote. /api/battles/vote uses only rateLimit (no botGuard), so there is no
- * device-attestation gate here — getRequestContext honors the Bearer header, so
- * this works from native (Bearer-auth is live in prod). A 403 means both sides
- * were not validly listened.
+ * the vote. The route also runs botGuard: web clients must pass Turnstile, while
+ * native clients pass via NATIVE_CLIENT_HEADERS and only need device attestation
+ * when the server requires it. A 403 can mean bot/device protection failed or
+ * one/both sides were not validly listened.
  */
 export async function submitBattleVote(
   input: BattleVoteInput,
@@ -239,6 +238,16 @@ export async function submitBattleVote(
     input,
   );
   return { ok: ok && data.ok !== false, status, error: data.error };
+}
+
+/**
+ * Best-effort: tell the server a performance's video would not embed/play in app
+ * (so an in-app Verified Listen is impossible). The server re-verifies with the
+ * YouTube Data API before excluding it from future battles, so this is advisory.
+ * Fire-and-forget — the user already sees the block, and a failure is harmless.
+ */
+export async function reportUnplayable(performanceId: string): Promise<void> {
+  await authedPost('/api/performances/report-unplayable', { performanceId });
 }
 
 /**

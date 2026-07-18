@@ -68,7 +68,11 @@ export async function POST(req: Request): Promise<Response> {
     .select('id, youtube_video_id, oembed_meta, song_id, scores!inner(score_status)')
     .eq('status', 'active')
     .in('scores.score_status', [...RANKED_SCORE_STATUSES])
-    .not('youtube_video_id', 'is', null);
+    .not('youtube_video_id', 'is', null)
+    // Skip videos a client reported (and the server re-verified) as unembeddable:
+    // a Verified Listen is impossible for them, so any battle they land in is
+    // unvotable. See /api/performances/report-unplayable.
+    .is('embed_unplayable_at', null);
   if (songId) query = query.eq('song_id', songId);
   const { data: perfs } = await query.limit(50);
 

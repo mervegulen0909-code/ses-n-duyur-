@@ -60,6 +60,7 @@ export interface PublicRows {
     elo_rating: number;
     battle_wins: number;
     battle_count: number;
+    embed_unplayable_at: Timestamp | null;
     created_at: Timestamp;
   };
   scores: {

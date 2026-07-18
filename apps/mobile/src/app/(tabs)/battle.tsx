@@ -11,7 +11,7 @@ import {
   type ListenEvent,
 } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
-import { nextBattle, submitBattleVote } from '@/lib/api';
+import { nextBattle, reportUnplayable, submitBattleVote } from '@/lib/api';
 import { battlePlaybackPhase } from '@/lib/battle-flow';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
@@ -60,6 +60,7 @@ function useSideTracker(performanceId: string) {
   const [playbackObserved, setPlaybackObserved] = useState(false);
   const playbackObservedRef = useRef(false);
   const attemptTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reportedUnplayableRef = useRef(false);
 
   useEffect(
     () => () => {
@@ -68,6 +69,16 @@ function useSideTracker(performanceId: string) {
     },
     [],
   );
+
+  // When either path (onError, or the 15s play-attempt timeout) marks this side
+  // unembeddable, tell the server once. It re-verifies with the YouTube Data API
+  // and drops the video from future battles, so nobody else hits the dead end.
+  useEffect(() => {
+    if (embedBlocked && !reportedUnplayableRef.current) {
+      reportedUnplayableRef.current = true;
+      void reportUnplayable(performanceId);
+    }
+  }, [embedBlocked, performanceId]);
 
   const pushEvent = (kind: ListenEvent['kind'], atSeconds: number) => {
     eventsRef.current.push({ kind, atSeconds: Math.max(0, atSeconds), clientTs: Date.now() });

@@ -2,16 +2,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter, type Href } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CRITERIA } from '@voxscore/scoring';
-import { COLORS, FONTS } from '@/constants/brand';
+import { alpha, COLORS, FONTS } from '@/constants/brand';
 import { CategoryChips, FeaturedHero, SkeletonCard, SongCard } from '@/components/home-visuals';
 import { useCategoryLabel } from '@/lib/category-labels';
 import {
   buildSongFeed,
   categoriesInFeed,
+  filterSongFeed,
   type PerfFeedRow,
   type SongEntry,
   type SongMetaRow,
@@ -39,6 +48,7 @@ export default function HomeScreen() {
   const [gate, setGate] = useState<'checking' | 'ok'>('checking');
   const [refreshing, setRefreshing] = useState(false);
   const [category, setCategory] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     isOnboardingComplete().then((done) => {
@@ -85,12 +95,14 @@ export default function HomeScreen() {
   }, [load]);
 
   const categories = useMemo(() => categoriesInFeed(entries), [entries]);
-  const visible = useMemo(
+  const categoryFiltered = useMemo(
     () => (category ? entries.filter((e) => e.category === category) : entries),
     [entries, category],
   );
+  const visible = useMemo(() => filterSongFeed(categoryFiltered, query), [categoryFiltered, query]);
   const featured = visible[0] ?? null;
   const rest = visible.slice(1);
+  const hasSearch = query.trim().length > 0;
 
   const openSong = useCallback(
     (songId: string) => router.push({ pathname: '/song/[id]', params: { id: songId } }),
@@ -115,6 +127,34 @@ export default function HomeScreen() {
         </Pressable>
       </View>
       <Text style={styles.sub}>{t('Leaderboard.signedOutSub', { count: CRITERIA.length })}</Text>
+
+      {state === 'ready' && (
+        <View style={styles.searchWrap}>
+          <Ionicons name="search" size={17} color={COLORS.faint} />
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t('Home.searchPlaceholder')}
+            placeholderTextColor={COLORS.faint}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+            style={styles.searchInput}
+            accessibilityLabel={t('Home.searchLabel')}
+          />
+          {hasSearch && (
+            <Pressable
+              onPress={() => setQuery('')}
+              hitSlop={10}
+              style={({ pressed }) => [styles.searchClear, pressed && { opacity: 0.65 }]}
+              accessibilityRole="button"
+              accessibilityLabel={t('Home.clearSearch')}
+            >
+              <Ionicons name="close" size={15} color={COLORS.muted} />
+            </Pressable>
+          )}
+        </View>
+      )}
 
       <View style={styles.quickRow}>
         {QUICK_LINKS.map((q) => (
@@ -149,7 +189,9 @@ export default function HomeScreen() {
       )}
 
       {state === 'ready' && rest.length > 0 && (
-        <Text style={styles.sectionHeading}>{t('Home.songsHeading')}</Text>
+        <Text style={styles.sectionHeading}>
+          {hasSearch ? t('Home.searchResults', { count: visible.length }) : t('Home.songsHeading')}
+        </Text>
       )}
     </View>
   );
@@ -176,7 +218,13 @@ export default function HomeScreen() {
           keyExtractor={(e) => e.songId}
           ListHeaderComponent={header}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={featured ? null : <Text style={styles.empty}>{t('Home.empty')}</Text>}
+          ListEmptyComponent={
+            featured ? null : (
+              <Text style={styles.empty}>
+                {hasSearch ? t('Home.noSearchResults', { query: query.trim() }) : t('Home.empty')}
+              </Text>
+            )
+          }
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.cyan} />
           }
@@ -214,6 +262,33 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   sub: { fontFamily: FONTS.sans, fontSize: 13, color: COLORS.muted, marginTop: -6 },
+
+  searchWrap: {
+    minHeight: 46,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: alpha(COLORS.raised, 0.78),
+    paddingHorizontal: 13,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 11,
+    fontFamily: FONTS.sansSemibold,
+    fontSize: 14,
+    color: COLORS.inkBright,
+  },
+  searchClear: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.borderDeep,
+  },
 
   quickRow: { flexDirection: 'row', gap: 8 },
   quickChip: {

@@ -168,6 +168,7 @@
   },
   "Leagues": {
     "title": "आपकी निजी लीग",
+    "signInBody": "निजी लीग केवल-आमंत्रण वाली टोलियाँ हैं जिनकी अपनी लीडरबोर्ड होती है। एक बनाने या कोड से जुड़ने के लिए साइन इन करें।",
     "short": "समूह",
     "error": "लीग अपडेट नहीं हुई।",
     "invalidCode": "मान्य 8-अक्षर कोड डालें।",
@@ -355,6 +356,11 @@
     "measured": "मापा गया",
     "provisional": "अस्थायी",
     "allCategories": "सभी",
+    "searchPlaceholder": "गीत या कलाकार खोजें",
+    "searchLabel": "गीत खोजें",
+    "clearSearch": "खोज साफ़ करें",
+    "searchResults": "{{count}} परिणाम",
+    "noSearchResults": "\"{{query}}\" के लिए कोई गीत नहीं मिला।",
     "songsHeading": "गीत",
     "empty": "अभी कोई गीत नहीं।"
   },
