@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildSongFeed,
   categoriesInFeed,
+  filterSongFeed,
   MIN_COVERS_PER_SONG,
   type PerfFeedRow,
   type SongMetaRow,
@@ -128,5 +129,38 @@ describe('categoriesInFeed', () => {
       perf('c', 's3', 70), // ballad
     ]);
     expect(categoriesInFeed(feed)).toEqual(['rock', 'pop', 'ballad']);
+  });
+});
+
+describe('filterSongFeed', () => {
+  const feed = buildSongFeed(songs, [
+    perf('adele', 's1', 91),
+    perf('queen', 's2', 88),
+    perf('nobody', 's3', 70),
+  ]);
+
+  it('matches song titles and artists', () => {
+    expect(filterSongFeed(feed, 'bohemian').map((e) => e.songId)).toEqual(['s2']);
+    expect(filterSongFeed(feed, 'adele').map((e) => e.songId)).toEqual(['s1']);
+  });
+
+  it('is case/diacritic insensitive and returns all entries for blank search', () => {
+    expect(filterSongFeed(feed, 'QUEEN').map((e) => e.songId)).toEqual(['s2']);
+    expect(filterSongFeed(feed, '   ')).toHaveLength(feed.length);
+  });
+
+  it('matches across Turkish dotted/dotless I regardless of device locale', () => {
+    const trFeed = buildSongFeed(
+      [
+        { id: 't1', title: 'Işık', artist: 'Sezen', category: 'pop' },
+        { id: 't2', title: 'İstanbul', artist: 'Someone', category: 'pop' },
+      ],
+      [perf('a', 't1', 80), perf('b', 't2', 70)],
+    );
+    // Dotless-ı title found by plain-i query, and vice versa — the bug that
+    // .toLocaleLowerCase() introduced on a Turkish device.
+    expect(filterSongFeed(trFeed, 'isik').map((e) => e.songId)).toEqual(['t1']);
+    expect(filterSongFeed(trFeed, 'istanbul').map((e) => e.songId)).toEqual(['t2']);
+    expect(filterSongFeed(trFeed, 'İSTANBUL').map((e) => e.songId)).toEqual(['t2']);
   });
 });

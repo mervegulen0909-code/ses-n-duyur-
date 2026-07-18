@@ -355,6 +355,11 @@
     "measured": "مقاس",
     "provisional": "مبدئي",
     "allCategories": "الكل",
+    "searchPlaceholder": "ابحث عن أغنية أو فنان",
+    "searchLabel": "بحث الأغاني",
+    "clearSearch": "مسح البحث",
+    "searchResults": "{{count}} نتيجة",
+    "noSearchResults": "لم يتم العثور على أغانٍ لـ \"{{query}}\".",
     "songsHeading": "الأغاني",
     "empty": "لا أغاني بعد."
   },

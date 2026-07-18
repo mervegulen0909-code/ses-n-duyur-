@@ -380,6 +380,11 @@
     "measured": "Ölçüldü",
     "provisional": "AI puanı bekleniyor",
     "allCategories": "Tümü",
+    "searchPlaceholder": "Şarkı veya sanatçı ara",
+    "searchLabel": "Şarkı ara",
+    "clearSearch": "Aramayı temizle",
+    "searchResults": "{{count}} sonuç",
+    "noSearchResults": "\"{{query}}\" için şarkı bulunamadı.",
     "songsHeading": "Şarkılar",
     "empty": "Henüz şarkı yok."
   },

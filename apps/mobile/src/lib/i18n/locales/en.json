@@ -380,6 +380,11 @@
     "measured": "Measured",
     "provisional": "AI score pending",
     "allCategories": "All",
+    "searchPlaceholder": "Search songs or artists",
+    "searchLabel": "Search songs",
+    "clearSearch": "Clear search",
+    "searchResults": "{{count}} results",
+    "noSearchResults": "No songs found for \"{{query}}\".",
     "songsHeading": "Songs",
     "empty": "No songs yet."
   },

@@ -355,6 +355,11 @@
     "measured": "Mesuré",
     "provisional": "Provisoire",
     "allCategories": "Tout",
+    "searchPlaceholder": "Rechercher chansons ou artistes",
+    "searchLabel": "Rechercher des chansons",
+    "clearSearch": "Effacer la recherche",
+    "searchResults": "{{count}} résultats",
+    "noSearchResults": "Aucune chanson trouvée pour \"{{query}}\".",
     "songsHeading": "Chansons",
     "empty": "Aucune chanson pour l’instant."
   },

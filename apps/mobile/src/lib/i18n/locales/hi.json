@@ -355,6 +355,11 @@
     "measured": "मापा गया",
     "provisional": "अस्थायी",
     "allCategories": "सभी",
+    "searchPlaceholder": "गीत या कलाकार खोजें",
+    "searchLabel": "गीत खोजें",
+    "clearSearch": "खोज साफ़ करें",
+    "searchResults": "{{count}} परिणाम",
+    "noSearchResults": "\"{{query}}\" के लिए कोई गीत नहीं मिला।",
     "songsHeading": "गीत",
     "empty": "अभी कोई गीत नहीं।"
   },

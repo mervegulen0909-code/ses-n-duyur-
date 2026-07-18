@@ -355,6 +355,11 @@
     "measured": "已测量",
     "provisional": "临时",
     "allCategories": "全部",
+    "searchPlaceholder": "搜索歌曲或歌手",
+    "searchLabel": "搜索歌曲",
+    "clearSearch": "清除搜索",
+    "searchResults": "{{count}} 个结果",
+    "noSearchResults": "未找到“{{query}}”的歌曲。",
     "songsHeading": "歌曲",
     "empty": "暂无歌曲。"
   },

@@ -136,3 +136,26 @@ export function categoriesInFeed(entries: SongEntry[]): string[] {
   }
   return out;
 }
+
+function normalizeSearch(value: string): string {
+  return value
+    // Fold Turkish dotted-capital İ and dotless ı to plain "i" BEFORE lowercasing.
+    // A Turkish-locale device folds "I" → dotless "ı", which would break matching
+    // ("Islands" vs typed "islands"). Doing this here + a locale-independent
+    // toLowerCase() keeps search consistent on every device and every language.
+    .replace(/[İı]/g, 'i')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .trim()
+    .toLowerCase();
+}
+
+/** Filter the song feed by what listeners naturally type: song, artist, category. */
+export function filterSongFeed(entries: SongEntry[], query: string): SongEntry[] {
+  const needle = normalizeSearch(query);
+  if (!needle) return entries;
+
+  return entries.filter((entry) =>
+    normalizeSearch(`${entry.title} ${entry.artist} ${entry.category ?? ''}`).includes(needle),
+  );
+}
