@@ -5,9 +5,9 @@ import { supabase } from './supabase';
 
 /** The slice of `supabase.auth` that {@link watchAuthSession} needs. */
 type AuthStateSource = {
-  onAuthStateChange(
-    callback: (event: string, session: Session | null) => void,
-  ): { data: { subscription: { unsubscribe(): void } } };
+  onAuthStateChange(callback: (event: string, session: Session | null) => void): {
+    data: { subscription: { unsubscribe(): void } };
+  };
 };
 
 /**
