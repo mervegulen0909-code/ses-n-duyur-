@@ -52,6 +52,16 @@ export function getRateLimiter(limit = 20, windowMs = 60_000): RateLimiter {
   if (creds) {
     return new UpstashRateLimiter(limit, windowMs, creds);
   }
+  // apps/web/e2e/authenticated-flows.spec.ts runs against a PRODUCTION build
+  // (`next start`, NODE_ENV=production — see apps/web/playwright.config.ts)
+  // with no Upstash configured, so without this the fail-closed limiter would
+  // 429 every mutating call the E2E suite makes. E2E_IN_MEMORY_RATE_LIMIT is
+  // set ONLY by that Playwright webServer config — never by a real deployment
+  // — so production's fail-closed stance ("missing distributed rate limiting
+  // is a deployment error, not a bypass") is unchanged outside of E2E.
+  if (process.env.E2E_IN_MEMORY_RATE_LIMIT === '1') {
+    return new InMemoryRateLimiter(limit, windowMs);
+  }
   return process.env.NODE_ENV === 'production'
     ? new FailClosedRateLimiter()
     : new InMemoryRateLimiter(limit, windowMs);

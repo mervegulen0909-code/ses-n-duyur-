@@ -254,7 +254,7 @@
   "Request": {
     "title": "Añadir una interpretación",
     "subtitle": "Pega un enlace de YouTube. Lo incrustamos (nunca lo descargamos) y lo enviamos a revisión.",
-    "reviewNote": "Un administrador revisa las solicitudes antes de que aparezcan en la liga.",
+    "reviewNote": "Si el video pasa las comprobaciones de metadatos y puntuación, aparece en la liga de inmediato. Si no, no se añade.",
     "urlPlaceholder": "https://youtu.be/…",
     "categoryLabel": "Categoría",
     "notePlaceholder": "Nota para el revisor (opcional)",

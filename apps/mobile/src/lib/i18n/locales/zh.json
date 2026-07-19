@@ -254,7 +254,7 @@
   "Request": {
     "title": "添加表演",
     "subtitle": "粘贴一个 YouTube 链接。我们只嵌入（绝不下载），并提交审核。",
-    "reviewNote": "申请在进入联赛前会由管理员审核。",
+    "reviewNote": "如果视频通过元数据和评分检查，会立即出现在联赛中。如果未通过，则不会添加。",
     "urlPlaceholder": "https://youtu.be/…",
     "categoryLabel": "分类",
     "notePlaceholder": "给审核员的备注（可选）",
