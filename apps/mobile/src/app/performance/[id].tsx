@@ -20,7 +20,7 @@ import {
   isRankedScoreStatus,
   measuredDisplayApplies,
   MIN_VERIFIED_LISTEN_SECONDS,
-  VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
+  verifiedListenClientSubmitSeconds,
   scoreBar,
   type ListenEvent,
 } from '@voxscore/core';
@@ -193,12 +193,13 @@ export default function PerformanceScreen() {
             pushEvent('playing', cur);
             const first = firstPlaybackPositionRef.current;
             const dur = (await playerRef.current?.getDuration()) ?? 0;
-            // Submit near the end with a margin above the server's 90% gate.
-            // IFrame and YouTube Data API durations can differ by a few seconds.
+            // Submit near the end with a margin above the server's gate
+            // (including its cap on long videos). IFrame and YouTube Data API
+            // durations can differ by a few seconds.
             if (
               first !== null &&
               dur > 0 &&
-              cur >= VERIFIED_LISTEN_CLIENT_SUBMIT_PCT * dur &&
+              cur >= verifiedListenClientSubmitSeconds(dur) &&
               cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
               !completionRequestedRef.current
             ) {

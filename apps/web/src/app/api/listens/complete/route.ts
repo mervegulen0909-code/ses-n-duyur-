@@ -4,7 +4,7 @@ import {
   streakTier,
   fetchVideoDurationSeconds,
   MIN_VERIFIED_LISTEN_SECONDS,
-  MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  requiredVerifiedListenSeconds,
 } from '@voxscore/core';
 import type { Json } from '@voxscore/db';
 import { createSupabaseServiceClient, getRequestContext } from '@/lib/supabase/server';
@@ -100,10 +100,13 @@ export async function POST(req: Request): Promise<Response> {
   // minimum playback floor, AND >=90% of the trusted length — so a forged event
   // trail or tiny client `durationS` cannot unlock voting (Hard Rule 4/5).
   const serverElapsedS = (Date.now() - Date.parse(listen.created_at)) / 1000;
+  // Long performances are capped at MAX_VERIFIED_LISTEN_SECONDS of required
+  // genuine playback instead of a flat 90% of (potentially very long) duration.
+  const effectiveMinWatchedPct = requiredVerifiedListenSeconds(trustedDurationS) / trustedDurationS;
   const result = validateListen(parsed.data.events, trustedDurationS, {
     serverElapsedS,
     minWatchSeconds: MIN_VERIFIED_LISTEN_SECONDS,
-    minWatchedPct: MIN_VERIFIED_LISTEN_WATCHED_PCT,
+    minWatchedPct: effectiveMinWatchedPct,
   });
 
   const { data: finalized, error } = await service

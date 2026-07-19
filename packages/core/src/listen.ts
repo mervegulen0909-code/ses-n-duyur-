@@ -130,3 +130,46 @@ export const MIN_VERIFIED_LISTEN_WATCHED_PCT = 0.9;
  * playback-continuity checks.
  */
 export const VERIFIED_LISTEN_CLIENT_SUBMIT_PCT = 0.95;
+
+/**
+ * Upper bound (seconds) on how much of a performance a listener must genuinely
+ * cover for a Verified Listen, regardless of the video's trusted length. Without
+ * this, a 15-minute performance would demand ~13.5 real minutes of playback
+ * (90%) before a vote unlocks, which kills vote volume on long videos. 180s
+ * (3 min) is a deliberate product choice, not a technical constant.
+ */
+export const MAX_VERIFIED_LISTEN_SECONDS = 180;
+
+/**
+ * Seconds of genuine playback required to satisfy Hard Rule 4/5 for a video of
+ * the given SERVER-trusted length: `minWatchedPct` of the video, capped at
+ * `capSeconds`. The absolute MIN_VERIFIED_LISTEN_SECONDS floor still applies on
+ * top of this via validateListen's `minWatchSeconds` option — this function only
+ * ever lowers the requirement below the flat percentage, never below the floor
+ * (for any durationS where the floor is reachable, minWatchedPct * durationS >=
+ * MIN_VERIFIED_LISTEN_SECONDS keeps the cap from cutting under it in practice).
+ */
+export function requiredVerifiedListenSeconds(
+  durationS: number,
+  minWatchedPct: number = MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  capSeconds: number = MAX_VERIFIED_LISTEN_SECONDS,
+): number {
+  return Math.min(minWatchedPct * durationS, capSeconds);
+}
+
+/**
+ * Seconds of covered playback at which a client should submit its event trail,
+ * mirroring `requiredVerifiedListenSeconds` but at the client's slightly higher
+ * submit percentage (see VERIFIED_LISTEN_CLIENT_SUBMIT_PCT) so the cap applies
+ * consistently — a capped long video must not require waiting for 95% of its
+ * full length just because the flat-percentage client margin was computed
+ * against the uncapped duration.
+ */
+export function verifiedListenClientSubmitSeconds(durationS: number): number {
+  const capRatio = VERIFIED_LISTEN_CLIENT_SUBMIT_PCT / MIN_VERIFIED_LISTEN_WATCHED_PCT;
+  return requiredVerifiedListenSeconds(
+    durationS,
+    VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
+    MAX_VERIFIED_LISTEN_SECONDS * capRatio,
+  );
+}

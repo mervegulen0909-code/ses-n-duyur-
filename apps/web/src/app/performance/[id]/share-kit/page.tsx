@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { ProvisionalBadge } from '@/components/provisional-badge';
 import { ShareKitActions } from '@/components/share-kit-actions';
 import { SITE_URL } from '@/lib/site';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -28,7 +29,7 @@ export default async function ShareKitPage({ params }: { params: Promise<{ id: s
     supabase.from('performances').select('id, oembed_meta, status').eq('id', id).maybeSingle(),
     supabase
       .from('scores')
-      .select('current_score')
+      .select('current_score, is_provisional')
       .eq('performance_id', id)
       .eq('score_status', 'ai_verified')
       .maybeSingle(),
@@ -56,9 +57,12 @@ export default async function ShareKitPage({ params }: { params: Promise<{ id: s
         <h1 className="mt-2 text-4xl font-black tracking-tight">{t('ShareKit.title')}</h1>
         <p className="mt-3 text-neutral-400">{title}</p>
         {score?.current_score !== null && score?.current_score !== undefined && (
-          <p className="mt-2 text-2xl font-black tabular-nums text-emerald-300">
-            {score.current_score.toFixed(1)}
-          </p>
+          <div className="mt-2 flex items-center gap-3">
+            <p className="text-2xl font-black tabular-nums text-emerald-300">
+              {score.current_score.toFixed(1)}
+            </p>
+            {score.is_provisional && <ProvisionalBadge />}
+          </div>
         )}
       </header>
 
