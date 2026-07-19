@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import {
   MIN_VERIFIED_LISTEN_SECONDS,
-  VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
+  verifiedListenClientSubmitSeconds,
   type ListenEvent,
 } from '@voxscore/core';
 
@@ -109,14 +109,15 @@ export function YouTubePlayer({
                 const first = firstPlaybackPositionRef.current;
                 const dur = e.target.getDuration();
                 const cur = e.target.getCurrentTime();
-                // Submit near the end with a margin above the server's 90%
-                // gate. IFrame and YouTube Data API durations can differ by a
-                // few seconds; the shared 95% trigger avoids rejecting an
-                // honest full watch because of that metadata drift.
+                // Submit near the end with a margin above the server's gate
+                // (including its MAX_VERIFIED_LISTEN_SECONDS cap on long
+                // videos). IFrame and YouTube Data API durations can differ by
+                // a few seconds; the margin avoids rejecting an honest full
+                // watch because of that metadata drift.
                 if (
                   first !== null &&
                   dur > 0 &&
-                  cur >= VERIFIED_LISTEN_CLIENT_SUBMIT_PCT * dur &&
+                  cur >= verifiedListenClientSubmitSeconds(dur) &&
                   cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
                   !completionRequestedRef.current
                 ) {

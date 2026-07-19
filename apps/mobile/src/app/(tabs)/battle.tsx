@@ -7,7 +7,7 @@ import { type YoutubeIframeRef } from 'react-native-youtube-iframe';
 
 import {
   MIN_VERIFIED_LISTEN_SECONDS,
-  VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
+  verifiedListenClientSubmitSeconds,
   type ListenEvent,
 } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
@@ -103,11 +103,12 @@ function useSideTracker(performanceId: string) {
             const first = firstPlaybackPositionRef.current;
             const dur = (await playerRef.current?.getDuration()) ?? 0;
             // Both battle sides submit near the end with a margin above the
-            // server's 90% gate. IFrame and API durations can differ slightly.
+            // server's gate (including its cap on long videos). IFrame and API
+            // durations can differ slightly.
             if (
               first !== null &&
               dur > 0 &&
-              cur >= VERIFIED_LISTEN_CLIENT_SUBMIT_PCT * dur &&
+              cur >= verifiedListenClientSubmitSeconds(dur) &&
               cur - first >= MIN_VERIFIED_LISTEN_SECONDS &&
               !completionRequestedRef.current
             ) {

@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   validateListen,
   MIN_VERIFIED_LISTEN_WATCHED_PCT,
+  MAX_VERIFIED_LISTEN_SECONDS,
   VERIFIED_LISTEN_CLIENT_SUBMIT_PCT,
+  requiredVerifiedListenSeconds,
+  verifiedListenClientSubmitSeconds,
 } from './listen';
 import type { ListenEvent } from './schemas';
 
@@ -90,6 +93,49 @@ describe('validateListen', () => {
       const r = validateListen(events, 20, { ...opts, serverElapsedS: 25 });
       expect(r.isValid).toBe(false);
       expect(r.reason).toMatch(/insufficient playback/);
+    });
+  });
+
+  describe('MAX_VERIFIED_LISTEN_SECONDS cap on long performances', () => {
+    it('does not lower the requirement for a 200s video (90% already under the cap)', () => {
+      expect(requiredVerifiedListenSeconds(200)).toBe(180);
+    });
+
+    it('caps a 600s video at 180s instead of the flat 90% (540s)', () => {
+      expect(requiredVerifiedListenSeconds(600)).toBe(MAX_VERIFIED_LISTEN_SECONDS);
+    });
+
+    it('accepts exactly the capped 180s watch of a 600s video', () => {
+      const events: ListenEvent[] = [];
+      for (let s = 0; s <= 180; s += 2) events.push(play(s, s * 1000));
+      const effectiveMinWatchedPct = requiredVerifiedListenSeconds(600) / 600;
+      const r = validateListen(events, 600, {
+        minWatchedPct: effectiveMinWatchedPct,
+        minWatchSeconds: 30,
+        serverElapsedS: 185,
+      });
+      expect(r.isValid).toBe(true);
+    });
+
+    it('rejects a 170s watch of a 600s video, just under the capped threshold', () => {
+      const events: ListenEvent[] = [];
+      for (let s = 0; s <= 170; s += 2) events.push(play(s, s * 1000));
+      const effectiveMinWatchedPct = requiredVerifiedListenSeconds(600) / 600;
+      const r = validateListen(events, 600, {
+        minWatchedPct: effectiveMinWatchedPct,
+        minWatchSeconds: 30,
+        serverElapsedS: 175,
+      });
+      expect(r.isValid).toBe(false);
+    });
+
+    it('keeps the client submit trigger above the capped server requirement', () => {
+      expect(verifiedListenClientSubmitSeconds(600)).toBeGreaterThan(
+        requiredVerifiedListenSeconds(600),
+      );
+      // ...and still below the full duration, so a capped long video doesn't
+      // force the client to wait for a near-complete watch.
+      expect(verifiedListenClientSubmitSeconds(600)).toBeLessThan(600);
     });
   });
 
