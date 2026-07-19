@@ -254,7 +254,7 @@
   "Request": {
     "title": "Ajouter une interprétation",
     "subtitle": "Collez un lien YouTube. Nous l'intégrons (jamais téléchargé) et l'envoyons en revue.",
-    "reviewNote": "Les demandes sont examinées par un administrateur avant d'apparaître dans la ligue.",
+    "reviewNote": "Si la vidéo réussit les vérifications de métadonnées et de notation, elle apparaît immédiatement dans la ligue. Sinon, rien n'est ajouté.",
     "urlPlaceholder": "https://youtu.be/…",
     "categoryLabel": "Catégorie",
     "notePlaceholder": "Note pour le relecteur (facultatif)",

@@ -19,5 +19,10 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
+    // See apps/web/src/lib/adapters/ratelimit.ts: a production build with no
+    // Upstash configured fails closed (429s every mutating call) by design.
+    // This E2E-only flag opts back into the in-memory limiter so
+    // authenticated-flows.spec.ts can exercise real write endpoints.
+    env: { E2E_IN_MEMORY_RATE_LIMIT: '1' },
   },
 });

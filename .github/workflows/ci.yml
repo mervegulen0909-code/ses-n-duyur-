@@ -68,11 +68,18 @@ jobs:
       # The local Supabase stack from "Database migrations from zero" is still
       # running in this job. Export its URL/anon key so the web server gets a
       # real (empty-DB) client and signed-out flows behave like production —
-      # e.g. /league must redirect to /login?next=/league instead of rendering
-      # the env-less "Supabase not configured" fallback.
-      - name: E2E (smoke)
+      # e.g. /league must redirect to /login?next=/login instead of rendering
+      # the env-less "Supabase not configured" fallback. SERVICE_ROLE_KEY is
+      # additionally exported for apps/web/e2e/authenticated-flows.spec.ts,
+      # which signs up real local users and drives the real HTTP gates
+      # (Verified Listen, votes, battles, account deletion) — it uses the
+      # service-role client only to seed test-fixture state (a trusted video
+      # duration, a throwaway song row) that would otherwise require a live
+      # YOUTUBE_API_KEY, never to bypass the gates themselves.
+      - name: E2E (smoke + authenticated flows)
         run: |
-          eval "$(pnpm exec supabase status -o env | grep -E '^(API_URL|ANON_KEY)=')"
+          eval "$(pnpm exec supabase status -o env | grep -E '^(API_URL|ANON_KEY|SERVICE_ROLE_KEY)=')"
           export NEXT_PUBLIC_SUPABASE_URL="$API_URL"
           export NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY"
+          export SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY"
           pnpm test:e2e

@@ -116,10 +116,14 @@ export default function PrivacyPage() {
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Your rights</h2>
       <p>
         You can delete your account and all associated data at any time from the app&apos;s Profile
-        screen (Delete account); deletion is immediate and permanent. Depending on where you live,
-        you may also have the right to access, correct, export, or object to the processing of your
-        data (for example, under the EU/UK GDPR or the California Consumer Privacy Act). To exercise
-        any of these rights, or for content disputes, contact us via the{' '}
+        screen (Delete account) or from{' '}
+        <a className="text-emerald-400" href="/account/delete">
+          voxscore.app/account/delete
+        </a>{' '}
+        on the web; deletion is immediate and permanent. Depending on where you live, you may also
+        have the right to access, correct, export, or object to the processing of your data (for
+        example, under the EU/UK GDPR or the California Consumer Privacy Act). To exercise any of
+        these rights, or for content disputes, contact us via the{' '}
         <a className="text-emerald-400" href="/dmca">
           takedown form
         </a>{' '}
