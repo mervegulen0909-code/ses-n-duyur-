@@ -61,6 +61,39 @@ needed to switch — set the env var and redeploy.
   Do not place service-account JSON or Apple private material in `EXPO_PUBLIC_*`.
 - Complete the physical-device checks in `docs/mobile-native-validation.md`.
 
+**As of 2026-07-19: only `GOOGLE_PLAY_PACKAGE_NAME` and
+`GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_B64` are set in Vercel production**
+(these two are enough for the unplayable-video re-verification check;
+they do NOT enable attestation). `NATIVE_ATTESTATION_REQUIRED`,
+`GOOGLE_PLAY_CERT_SHA256`, `APPLE_TEAM_ID`, `APPLE_BUNDLE_ID`, and
+`APP_ATTEST_ENVIRONMENT` are all unset — attestation is fully OFF, so the
+routes below currently accept native writes on the Verified-Listen
+time-anchor alone (`apps/web/src/lib/guard.ts:botGuard`, gate only engages
+when `isNativeClientRequest()` AND `NATIVE_ATTESTATION_REQUIRED==='true'`):
+
+`POST /api/battles/vote`, `/api/leagues`, `/api/leagues/join`,
+`/api/measurements`, `/api/performance-requests`, `/api/performances`,
+`/api/votes`.
+
+**Getting `GOOGLE_PLAY_CERT_SHA256` (you do this in Play Console, not here):**
+
+1. Play Console → your app → **Setup → App integrity** (or **Release → Setup
+   → App signing** on older Console layouts).
+2. Under **App signing key certificate**, copy the **SHA-256 certificate
+   fingerprint** — this is the value for `GOOGLE_PLAY_CERT_SHA256` (strip the
+   colons Play Console displays between hex pairs, or keep them — verify
+   which format `native-attestation.ts`'s comparison expects before setting
+   it in Vercel).
+3. This certificate only exists once you have at least one **store-signed**
+   (not EAS `preview` profile) build uploaded — the `production` EAS profile
+   in `apps/mobile/eas.json`, submitted at least to an internal testing track.
+4. Do not enable `NATIVE_ATTESTATION_REQUIRED=true` in production until a
+   store-signed build with `EXPO_PUBLIC_NATIVE_ATTESTATION_ENABLED=true` is
+   confirmed working against a **preview** environment first (canary per
+   `docs/remaining-prompts.md` P4) — an EAS `preview`-profile build can never
+   pass Play Integrity, so flipping this flag before a store build exists
+   would 403 every native write.
+
 ## 6. Vercel
 
 1. Import the repo. **Root Directory:** `apps/web`. Framework preset: Next.js.
