@@ -286,6 +286,7 @@
   },
   "Battle": {
     "sub": "Deux performances, un gagnant. Écoute les deux, puis décide.",
+    "loading": "Chargement des battles…",
     "signInTitle": "Connecte-toi pour battler",
     "signInBody": "Les battles opposent deux performances face à face. Connecte-toi pour écouter les deux et choisir le gagnant.",
     "emptyTitle": "Aucune battle ouverte",

@@ -497,7 +497,12 @@ export default function BattleScreen() {
         <Text style={styles.sub}>{t('Battle.sub')}</Text>
       </View>
 
-      {state === 'loading' && <ActivityIndicator style={styles.spinner} color="#22D3EE" />}
+      {state === 'loading' && (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator color="#22D3EE" />
+          <Text style={styles.loadingText}>{t('Battle.loading')}</Text>
+        </View>
+      )}
 
       {state === 'empty' && (
         <View style={styles.emptyWrap}>
@@ -539,6 +544,8 @@ const styles = StyleSheet.create({
   heading: { marginTop: 4, fontSize: 26, fontWeight: '800', color: '#fafafa' },
   sub: { marginTop: 4, fontSize: 13, color: '#9ca3af' },
   spinner: { marginTop: 40 },
+  loadingWrap: { marginTop: 40, alignItems: 'center', gap: 10 },
+  loadingText: { color: '#9ca3af', fontSize: 13 },
   error: { color: '#fb7185', fontSize: 14, textAlign: 'center' },
   content: { padding: 16, paddingBottom: 48, gap: 12 },
   gate: {
