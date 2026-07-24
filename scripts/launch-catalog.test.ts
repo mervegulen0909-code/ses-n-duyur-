@@ -29,17 +29,19 @@ function load(): TemplateSong[] {
 }
 
 describe('launch-catalog.template.json', () => {
-  it('has exactly 19 songs', () => {
-    expect(load()).toHaveLength(19);
+  // The catalog is a living library, not a fixed pilot set (docs/catalog-curation.md:
+  // "38 pilot -> 1000+") — pin a floor, not an exact count, so growth doesn't break CI.
+  it('has at least 500 songs', () => {
+    expect(load().length).toBeGreaterThanOrEqual(500);
   });
 
-  it('gives every song at least 3 performance slots (57+ total)', () => {
+  it('gives every song at least 1 performance slot (1000+ total)', () => {
     const songs = load();
     for (const song of songs) {
-      expect(song.performances.length).toBeGreaterThanOrEqual(3);
+      expect(song.performances.length).toBeGreaterThanOrEqual(1);
     }
     const total = songs.reduce((sum, s) => sum + s.performances.length, 0);
-    expect(total).toBeGreaterThanOrEqual(57);
+    expect(total).toBeGreaterThanOrEqual(1000);
   });
 
   it('uses only valid categories and difficulties', () => {

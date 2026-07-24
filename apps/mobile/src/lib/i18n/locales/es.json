@@ -286,6 +286,7 @@
   },
   "Battle": {
     "sub": "Dos actuaciones, un ganador. Escucha ambas y decide.",
+    "loading": "Cargando batallas…",
     "signInTitle": "Inicia sesión para batallar",
     "signInBody": "Las batallas enfrentan dos actuaciones cara a cara. Inicia sesión para escuchar ambas y elegir al ganador.",
     "emptyTitle": "No hay batallas abiertas",

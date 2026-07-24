@@ -309,6 +309,7 @@
   },
   "Battle": {
     "sub": "İki performans, tek kazanan. İkisini de dinle, sonra karar ver.",
+    "loading": "Düellolar yükleniyor…",
     "signInTitle": "Düello için giriş yap",
     "signInBody": "Düellolar iki performansı karşı karşıya getirir. İkisini de dinleyip kazananı seçmek için giriş yap.",
     "emptyTitle": "Açık düello yok",

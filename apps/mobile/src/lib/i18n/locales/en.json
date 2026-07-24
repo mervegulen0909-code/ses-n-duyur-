@@ -309,6 +309,7 @@
   },
   "Battle": {
     "sub": "Two performances, one winner. Listen to both, then decide.",
+    "loading": "Loading battles…",
     "signInTitle": "Sign in to battle",
     "signInBody": "Battles pit two performances head-to-head. Sign in to listen to both and pick the winner.",
     "emptyTitle": "No open battles",
