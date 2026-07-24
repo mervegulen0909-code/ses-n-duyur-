@@ -22,7 +22,7 @@
     "@voxscore/scoring": "workspace:*",
     "appattest-checker-node": "^1.0.3",
     "google-auth-library": "^10.9.0",
-    "next": "^16.2.10",
+    "next": "^16.2.11",
     "next-intl": "^4.13.2",
     "openai": "^6.42.0",
     "react": "^19.2.0",
