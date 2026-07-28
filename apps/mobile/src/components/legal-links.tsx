@@ -1,7 +1,7 @@
-import { openBrowserAsync } from 'expo-web-browser';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { openInAppBrowserAsync } from '@/lib/in-app-browser';
 import { LEGAL_LINKS } from '@/lib/links';
 
 /**
@@ -22,7 +22,7 @@ export function LegalLinks() {
           accessibilityRole="link"
           accessibilityHint={`Opens ${t(link.labelKey)} in the browser`}
           hitSlop={8}
-          onPress={() => void openBrowserAsync(link.url)}
+          onPress={() => void openInAppBrowserAsync(link.url)}
           style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
         >
           <Text style={styles.link}>{t(link.labelKey)}</Text>

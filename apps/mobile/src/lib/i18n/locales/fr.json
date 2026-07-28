@@ -7,7 +7,8 @@
     "demo": "Démo",
     "provisionalBadge": "Estimation IA provisoire",
     "untitled": "Sans titre",
-    "loadError": "Impossible de charger : {{error}}"
+    "loadError": "Impossible de charger. Vérifiez votre connexion Internet et réessayez.",
+    "tryAgain": "Réessayer"
   },
   "Security": {
     "title": "Vérification de sécurité",

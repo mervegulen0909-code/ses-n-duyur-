@@ -7,7 +7,8 @@
     "demo": "演示",
     "provisionalBadge": "AI 初步评估",
     "untitled": "未命名",
-    "loadError": "加载失败：{{error}}"
+    "loadError": "加载失败。请检查网络连接后重试。",
+    "tryAgain": "重试"
   },
   "Security": {
     "title": "安全检查",

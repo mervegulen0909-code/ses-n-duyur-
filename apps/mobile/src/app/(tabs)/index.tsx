@@ -44,7 +44,6 @@ export default function HomeScreen() {
 
   const [entries, setEntries] = useState<SongEntry[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [error, setError] = useState('');
   const [gate, setGate] = useState<'checking' | 'ok'>('checking');
   const [refreshing, setRefreshing] = useState(false);
   const [category, setCategory] = useState<string | null>(null);
@@ -67,7 +66,6 @@ export default function HomeScreen() {
     ]);
 
     if (perfRes.error || songRes.error) {
-      setError((perfRes.error ?? songRes.error)?.message ?? 'Unknown error');
       setState('error');
       return;
     }
@@ -209,7 +207,17 @@ export default function HomeScreen() {
       {state === 'error' && (
         <View style={styles.loadingWrap}>
           {header}
-          <Text style={styles.error}>{t('Common.loadError', { error })}</Text>
+          <Text style={styles.error}>{t('Common.loadError')}</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              setState('loading');
+              void load();
+            }}
+            style={({ pressed }) => [styles.retryButton, pressed && styles.retryButtonPressed]}
+          >
+            <Text style={styles.retryButtonText}>{t('Common.tryAgain')}</Text>
+          </Pressable>
         </View>
       )}
       {state === 'ready' && (
@@ -312,5 +320,15 @@ const styles = StyleSheet.create({
   },
 
   error: { color: COLORS.rose, fontFamily: FONTS.sans, marginTop: 20 },
+  retryButton: {
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: COLORS.cyan,
+    borderRadius: 999,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  retryButtonPressed: { opacity: 0.7 },
+  retryButtonText: { color: COLORS.cyan, fontFamily: FONTS.sansSemibold, fontSize: 15 },
   empty: { marginTop: 40, textAlign: 'center', color: COLORS.muted, fontFamily: FONTS.sans },
 });

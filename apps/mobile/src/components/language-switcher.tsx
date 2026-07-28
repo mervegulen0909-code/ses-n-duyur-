@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { isLocale, LOCALE_NAMES, LOCALES, setLocale, type Locale } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
@@ -37,7 +38,7 @@ export function LanguageSwitcher() {
       </Pressable>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
-          <View style={styles.sheet}>
+          <SafeAreaView style={styles.sheet} edges={['bottom']}>
             {LOCALES.map((l) => (
               <Pressable
                 key={l}
@@ -49,7 +50,7 @@ export function LanguageSwitcher() {
                 </Text>
               </Pressable>
             ))}
-          </View>
+          </SafeAreaView>
         </Pressable>
       </Modal>
     </>
