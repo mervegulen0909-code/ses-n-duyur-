@@ -381,7 +381,7 @@
     "coversCompeting": "{{count}} cover yarışıyor",
     "needMoreCovers": "{{count}}/3 cover",
     "measured": "Ölçüldü",
-    "provisional": "AI puanı bekleniyor",
+    "provisional": "Geçici AI Tahmini",
     "allCategories": "Tümü",
     "searchPlaceholder": "Şarkı veya sanatçı ara",
     "searchLabel": "Şarkı ara",

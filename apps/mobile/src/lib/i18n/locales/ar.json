@@ -356,7 +356,7 @@
     "coversCompeting": "{{count}} أداءً متنافساً",
     "needMoreCovers": "{{count}}/3 أداء",
     "measured": "مقاس",
-    "provisional": "مبدئي",
+    "provisional": "تقدير مبدئي بالذكاء الاصطناعي",
     "allCategories": "الكل",
     "searchPlaceholder": "ابحث عن أغنية أو فنان",
     "searchLabel": "بحث الأغاني",

@@ -356,7 +356,7 @@
     "coversCompeting": "{{count}} reprises en lice",
     "needMoreCovers": "{{count}}/3 reprises",
     "measured": "Mesuré",
-    "provisional": "Provisoire",
+    "provisional": "Estimation IA provisoire",
     "allCategories": "Tout",
     "searchPlaceholder": "Rechercher chansons ou artistes",
     "searchLabel": "Rechercher des chansons",

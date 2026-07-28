@@ -356,7 +356,7 @@
     "coversCompeting": "{{count}} कवर प्रतिस्पर्धा में",
     "needMoreCovers": "{{count}}/3 कवर",
     "measured": "मापा गया",
-    "provisional": "अस्थायी",
+    "provisional": "अस्थायी AI अनुमान",
     "allCategories": "सभी",
     "searchPlaceholder": "गीत या कलाकार खोजें",
     "searchLabel": "गीत खोजें",

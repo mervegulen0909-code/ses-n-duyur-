@@ -381,7 +381,7 @@
     "coversCompeting": "{{count}} covers competing",
     "needMoreCovers": "{{count}}/3 covers",
     "measured": "Measured",
-    "provisional": "AI score pending",
+    "provisional": "Provisional AI Estimate",
     "allCategories": "All",
     "searchPlaceholder": "Search songs or artists",
     "searchLabel": "Search songs",

@@ -356,7 +356,7 @@
     "coversCompeting": "{{count}} 个翻唱竞演",
     "needMoreCovers": "{{count}}/3 个翻唱",
     "measured": "已测量",
-    "provisional": "临时",
+    "provisional": "AI 初步评估",
     "allCategories": "全部",
     "searchPlaceholder": "搜索歌曲或歌手",
     "searchLabel": "搜索歌曲",
