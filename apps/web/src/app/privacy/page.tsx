@@ -5,10 +5,6 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-2xl space-y-4 px-6 py-10 text-sm leading-relaxed text-neutral-300">
       <h1 className="text-2xl font-bold text-neutral-100">Privacy Policy</h1>
       <p className="text-neutral-500">Last updated: July 12, 2026</p>
-      <p className="rounded-md border border-amber-700/40 bg-amber-950/30 p-3 text-amber-200">
-        This policy is written and maintained by the VoxScore team. It has not yet been reviewed by
-        a lawyer. Do not rely on it as a final, store-ready policy until that review is complete.
-      </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Who we are</h2>
       <p>
@@ -66,8 +62,7 @@ export default function PrivacyPage() {
       </p>
       <p>
         Voice recordings can be treated as sensitive data under some privacy laws (for example,
-        biometric-information statutes in certain US states). We are flagging this explicitly so it
-        gets specific legal attention — see the notice at the top of this page.
+        biometric-information statutes in certain US states).
       </p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">
