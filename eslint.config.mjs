@@ -13,6 +13,9 @@ export default tseslint.config(
       // Claude creates complete nested repository worktrees here. They are
       // independent checkouts and must not be linted as part of this root.
       '.claude/worktrees/**',
+      // Codex keeps full repo backups here; they are snapshots, not source.
+      '.codex-tmp/**',
+      '**/tmp/**',
       '**/*.config.*',
       '**/next-env.d.ts',
     ],

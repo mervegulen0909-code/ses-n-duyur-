@@ -105,6 +105,13 @@ when `isNativeClientRequest()` AND `NATIVE_ATTESTATION_REQUIRED==='true'`):
 5. Configure the platform readiness probe as `GET /api/health/ready`. A 503 is a
    deployment/configuration failure and should prevent traffic promotion.
 
+## 6b. Domain / DNS
+
+`voxscore.app` (and `noveta.dev`) are registered at **Porkbun**, account
+username `voxscoreapp`. Nameservers are Porkbun's own (`*.ns.porkbun.com`),
+so DNS records and email forwarding are both managed from the Porkbun
+dashboard (Domain Management → the domain row → Email icon for forwarding).
+
 ## 7. Post-deploy verification
 
 - Sign up → add a YouTube performance → confirm a (now OpenAI-backed) provisional

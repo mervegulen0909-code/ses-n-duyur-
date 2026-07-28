@@ -3,7 +3,10 @@ dist
 coverage
 .next
 next-env.d.ts
+expo-env.d.ts
 pnpm-lock.yaml
+.claude/worktrees
+.codex-tmp
 supabase/config.toml
 tmp
 tmp_*.png
