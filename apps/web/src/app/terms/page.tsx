@@ -4,14 +4,16 @@ export default function TermsPage() {
   return (
     <main className="mx-auto max-w-2xl space-y-4 px-6 py-10 text-sm leading-relaxed text-neutral-300">
       <h1 className="text-2xl font-bold text-neutral-100">Terms of Service</h1>
-      <p className="text-neutral-500">Last updated: July 11, 2026</p>
-      <p className="rounded-md border border-amber-700/40 bg-amber-950/30 p-3 text-amber-200">
-        These terms are written and maintained by the VoxScore team. They have not yet been reviewed
-        by a lawyer, and the governing-law and jurisdiction section below is a placeholder. Do not
-        rely on this as a final, store-ready terms document until that review is complete.
-      </p>
+      <p className="text-neutral-500">Last updated: July 31, 2026</p>
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">1. What VoxScore is</h2>
+      <p>
+        VoxScore is operated by Fersa Ltd. Şti.; full registration details are listed on our{' '}
+        <a className="text-emerald-400" href="/company">
+          Company Information
+        </a>{' '}
+        page.
+      </p>
       <p>
         VoxScore lets users submit links to vocal performances hosted on YouTube and rates them with
         AI estimates and community votes. We embed YouTube content via the official player; we do
