@@ -30,6 +30,9 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
     },
+    // Proves domain ownership to Google Search Console, which Play Console
+    // requires before a developer account can be converted to an organization.
+    verification: { google: 'WMpabfDiaNOAxO9fgRo6PIKnckoXORjksXRMJFiI-Ds' },
     // App-controlled i18n (next-intl) translates the UI — keep BROWSER auto-
     // translation OFF: Chrome Translate swaps text nodes for <font> wrappers and
     // breaks React reconciliation. See docs/adr/0002-disable-browser-auto-translation.md.
