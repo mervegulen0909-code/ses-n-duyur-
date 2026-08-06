@@ -28,6 +28,7 @@
     "@voxscore/scoring": "workspace:*",
     "aes-js": "^3.1.2",
     "expo": "~56.0.16",
+    "expo-apple-authentication": "~56.0.4",
     "expo-constants": "~56.0.21",
     "expo-crypto": "~56.0.4",
     "expo-device": "~56.0.4",

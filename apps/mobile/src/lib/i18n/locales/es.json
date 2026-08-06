@@ -41,7 +41,9 @@
     "emailNotConfirmed": "Confirma tu correo antes de iniciar sesión.",
     "accountExists": "Ya existe una cuenta con este correo.",
     "signInFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
-    "signUpFailed": "No se pudo crear la cuenta. Inténtalo de nuevo."
+    "signUpFailed": "No se pudo crear la cuenta. Inténtalo de nuevo.",
+    "appleFailError": "Error al iniciar sesión con Apple.",
+    "appleNoTokenError": "El inicio de sesión con Apple no devolvió un token de identidad."
   },
   "Onboarding": {
     "skip": "Omitir",

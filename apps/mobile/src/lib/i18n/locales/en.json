@@ -41,7 +41,9 @@
     "emailNotConfirmed": "Confirm your email address before signing in.",
     "accountExists": "An account already exists for this email address.",
     "signInFailed": "Could not sign in. Please try again.",
-    "signUpFailed": "Could not create the account. Please try again."
+    "signUpFailed": "Could not create the account. Please try again.",
+    "appleFailError": "Apple sign-in failed.",
+    "appleNoTokenError": "Apple sign-in did not return an identity token."
   },
   "Onboarding": {
     "skip": "Skip",

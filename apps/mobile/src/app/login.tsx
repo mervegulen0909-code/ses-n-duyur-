@@ -1,7 +1,8 @@
+import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -32,6 +33,21 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [turnstileOpen, setTurnstileOpen] = useState(false);
+  // App Store Review 4.8: offering Google sign-in obliges us to offer Sign in
+  // with Apple alongside it. The native button only renders where the OS can
+  // actually serve it — iOS 13+ — so ask before drawing it.
+  const [appleAvailable, setAppleAvailable] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+    let active = true;
+    void AppleAuthentication.isAvailableAsync().then((ok) => {
+      if (active) setAppleAvailable(ok);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function done() {
     if (router.canGoBack()) router.back();
@@ -90,6 +106,40 @@ export default function LoginScreen() {
     setMode('login');
   }
 
+  async function signInWithApple() {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      // Native Apple auth hands us a signed JWT directly, so there is no
+      // browser round-trip and no PKCE code to exchange like Google needs.
+      if (!credential.identityToken) throw new Error(t('Login.appleNoTokenError'));
+
+      const { error: idTokenError } = await supabase.auth.signInWithIdToken({
+        provider: 'apple',
+        token: credential.identityToken,
+      });
+      if (idTokenError) throw idTokenError;
+      setBusy(false);
+      done();
+    } catch (e) {
+      // Dismissing the Apple sheet is a normal exit, not a failure to report.
+      if (e instanceof Error && 'code' in e && e.code === 'ERR_REQUEST_CANCELED') {
+        setBusy(false);
+        return;
+      }
+      setError(e instanceof Error ? e.message : t('Login.appleFailError'));
+      setBusy(false);
+    }
+  }
+
   async function signInWithGoogle() {
     if (busy) return;
     setBusy(true);
@@ -141,6 +191,16 @@ export default function LoginScreen() {
         <Text style={styles.heading}>
           {mode === 'login' ? t('Login.signIn') : t('Login.createAccount')}
         </Text>
+
+        {appleAvailable && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+            cornerRadius={12}
+            style={styles.appleButton}
+            onPress={() => void signInWithApple()}
+          />
+        )}
 
         <Pressable
           style={({ pressed }) => [styles.googleButton, pressed && styles.buttonPressed]}
@@ -251,6 +311,9 @@ const styles = StyleSheet.create({
   buttonPressed: { opacity: 0.85 },
   buttonText: { color: '#06281d', fontSize: 16, fontWeight: '800' },
   toggle: { marginTop: 12, textAlign: 'center', color: '#9ca3af', fontSize: 14 },
+  // Apple requires its own button asset; height is fixed rather than derived
+  // from padding because the native view draws its own label and glyph.
+  appleButton: { height: 50, width: '100%' },
   googleButton: {
     backgroundColor: '#ffffff',
     borderRadius: 12,

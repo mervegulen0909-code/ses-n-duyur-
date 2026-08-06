@@ -41,7 +41,9 @@
     "emailNotConfirmed": "Confirmez votre e-mail avant de vous connecter.",
     "accountExists": "Un compte existe déjà pour cet e-mail.",
     "signInFailed": "Connexion impossible. Veuillez réessayer.",
-    "signUpFailed": "Création du compte impossible. Veuillez réessayer."
+    "signUpFailed": "Création du compte impossible. Veuillez réessayer.",
+    "appleFailError": "La connexion avec Apple a échoué.",
+    "appleNoTokenError": "La connexion avec Apple n'a pas renvoyé de jeton d'identité."
   },
   "Onboarding": {
     "skip": "Passer",

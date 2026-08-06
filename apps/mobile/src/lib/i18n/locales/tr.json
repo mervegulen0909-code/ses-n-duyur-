@@ -41,7 +41,9 @@
     "emailNotConfirmed": "Giriş yapmadan önce e-posta adresini onayla.",
     "accountExists": "Bu e-posta adresiyle zaten bir hesap var.",
     "signInFailed": "Giriş yapılamadı. Lütfen tekrar dene.",
-    "signUpFailed": "Hesap oluşturulamadı. Lütfen tekrar dene."
+    "signUpFailed": "Hesap oluşturulamadı. Lütfen tekrar dene.",
+    "appleFailError": "Apple ile giriş başarısız oldu.",
+    "appleNoTokenError": "Apple ile giriş kimlik jetonu döndürmedi."
   },
   "Onboarding": {
     "skip": "Geç",

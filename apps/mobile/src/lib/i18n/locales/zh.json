@@ -41,7 +41,9 @@
     "emailNotConfirmed": "请先确认邮箱地址再登录。",
     "accountExists": "此邮箱已存在账号。",
     "signInFailed": "无法登录，请重试。",
-    "signUpFailed": "无法创建账号，请重试。"
+    "signUpFailed": "无法创建账号，请重试。",
+    "appleFailError": "Apple 登录失败。",
+    "appleNoTokenError": "Apple 登录未返回身份令牌。"
   },
   "Onboarding": {
     "skip": "跳过",
