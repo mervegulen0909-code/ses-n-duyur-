@@ -153,6 +153,43 @@ provisional rather than measured.
    accepted iPhone aspect. These have to be captured from the app running on a real iPhone
    (an iPhone 12 Pro Max is available) or a simulator.
 
+## How production access was obtained (measured, 2026-07-31 → 08-06)
+
+Recorded here because the received wisdom is wrong and it cost real time to find out.
+
+The developer account started as a **personal** account, which carries Google Play's
+"12 testers opted in for 14 continuous days" requirement and locks the production track.
+Converting the account to an **organization** removed that requirement **retroactively**:
+after the conversion the tester block disappeared from the dashboard and the production
+track opened. Community answers and three separate AI research passes all claimed the
+requirement would persist because the app had been created under a personal account.
+Measured on screen, that is false — the requirement attaches to the account, not the app.
+
+Facts worth keeping:
+
+- The conversion is **free**, happens **in place**, and does **not** need a new developer
+  account. It creates a new *payments profile*, not a new account. It is **one-way**.
+- The gate for starting it is a **verified company website**, not the D-U-N-S number —
+  the "Change account type" button stays disabled until the site is verified.
+- The **D-U-N-S number came free and the same night** from Apple's own D-U-N-S lookup
+  tool, which needs only an Apple ID and no paid membership. The number is valid across
+  platforms, so the one obtained through Apple was used for the Google Play conversion.
+  A local D&B partner had quoted 15,750 TL for a five-business-day turnaround.
+- Organization verification asked for the **company registry certificate**, not personal
+  ID, and accepted a one-year-old scanned certificate.
+- Wait **72 hours** after the conversion before submitting a new app.
+- The conversion does **not** update the public **developer name** shown on the store —
+  that is a separate field under Account details → About you and kept the old personal
+  name here.
+
+Until the account strategy is settled, do not let anyone install the app **from Play**
+(closed testing included): a package name with even one lifetime install is locked
+forever, while a package name with zero installs stays reusable. Device testing during
+that window should use sideloaded APKs.
+
+The reusable version of this lives in the `yayin-hazirlik-denetimi` skill,
+`references/04-hesap-turu-ve-testci-sarti.md`.
+
 ## Screenshot Sequence
 
 1. Discover: latest performances and the VoxScore league promise.
