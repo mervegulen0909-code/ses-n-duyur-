@@ -123,35 +123,51 @@ contact details) or add a real support page before submitting.
 
 **Category:** Primary Music · Secondary Entertainment
 
-**Copyright:** `2026 FERSA Elektronik Sanayi ve Ticaret Ltd. Sti.` (only after the organization
-migration completes; while the membership is individual this line would carry a personal name)
+**Copyright:** `2026 FERSA Elektronik Sanayi ve Ticaret Ltd. Sti.` — set this once the
+organization migration lands, so the seller line and the copyright line agree.
 
 **App Review notes must include:** a working demo account, an explanation that voting is gated
 behind Verified Listen (a reviewer who skips the video cannot vote and may report it as broken),
 why the microphone is requested, and that AI scores on embedded YouTube content are labeled
 provisional rather than measured.
 
-## iOS submission blockers (verified 2026-08-05)
+## iOS readiness (as of 2026-08-06)
 
-1. **Sign in with Apple is REQUIRED — this will cause rejection as-is.** `src/app/login.tsx:101`
-   authenticates the primary account with Google via `supabase.auth.signInWithOAuth`. App Store
-   Review Guideline 4.8 requires an equivalent privacy-preserving login alongside any
-   third-party social login. None of the five exemptions apply: the exemption for own-account
-   systems requires the app to use them *exclusively*, and email/password sits next to Google
-   rather than replacing it. Either add Sign in with Apple, or drop the Google button on iOS.
-2. **The app has never been built for iOS.** There is no `ios/` directory (Expo CNG generates
-   it at build time) and no iOS build exists in EAS history. Compilation is unverified —
-   `react-native-reanimated` 4, `react-native-webview`, and the `@siteed/audio-studio` plugin
-   are the parts most likely to surface iOS-specific problems. A `simulator` profile build
-   needs no Apple credentials and answers "does it compile" without touching the pending
-   organization migration.
-3. **Individual to Organization migration is pending** (requested 2026-08-05). Accepting App
-   Store Connect agreements, entering tax/banking details, or creating the app record before it
-   completes means redoing them under the company, and the seller name would show a personal
-   name in the meantime.
-4. **Screenshots do not exist at iPhone sizes.** The Play set is 1080x2340, which is not an
-   accepted iPhone aspect. These have to be captured from the app running on a real iPhone
-   (an iPhone 12 Pro Max is available) or a simulator.
+Every code-side blocker found in the 2026-08-05/06 audit is closed. What is left is not
+engineering work — it waits on Apple.
+
+### Closed
+
+1. **Sign in with Apple** — Guideline 4.8 requires an equivalent privacy-preserving login
+   next to Google. Added via `expo-apple-authentication` with `signInWithIdToken`; Supabase's
+   Apple provider is enabled with `com.voxscore.app` in Client IDs.
+2. **Guideline 1.2, all four parts** — filtering before posting (comments plus profile bio and
+   link labels), in-app reporting, user blocking, and published contact info. Blocking was
+   verified against the live database and the follow-severing trigger with it.
+3. **Privacy manifest** — `ios.privacyManifests` declares the required reason APIs our
+   dependencies actually use, copied from their own `PrivacyInfo.xcprivacy` files rather than
+   guessed. Mandatory for App Store Connect uploads since 1 May 2024.
+4. **iOS compiles** — verified with `ios-simulator` profile builds, which need no Apple
+   credentials and so do not touch the pending membership migration.
+5. **Support URL** — `/support` is live, with every internal link resolving.
+
+### Waiting on Apple
+
+**Individual → Organization migration**, requested 2026-08-06 through
+`developer.apple.com/contact/request/migrate-individual-account`. The name correction from
+"Perhat" to "Ferhat" is already done — Apple Support applied it (case 20000126564887) and the
+Apple Account shows `Ferhat Gülen`. The developer team label still reads the old spelling;
+the migration replaces it with the company name anyway, so it needs no separate fix.
+
+Do not sign App Store Connect agreements, enter tax and banking details, or create the app
+record before the migration lands — all three are tied to the legal entity and would have to
+be redone under the company.
+
+### Still to produce
+
+**Screenshots at iPhone sizes.** The Play set is 1080x2340, which is not an accepted iPhone
+aspect, so these have to be captured from the app running on a real iPhone (an iPhone 12 Pro
+Max is available) once the membership can issue signing credentials.
 
 ## How production access was obtained (measured, 2026-07-31 → 08-06)
 
