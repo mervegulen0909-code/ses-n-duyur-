@@ -26,6 +26,7 @@ import {
 } from '@voxscore/core';
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { AI_JUDGE_CRITERIA, CRITERIA } from '@voxscore/scoring';
+import { ModerationActions } from '@/components/moderation-actions';
 import { postComment, submitVote } from '@/lib/api';
 import { useAiJudgeCriterionLabels, useCriterionLabels } from '@/lib/criteria-labels';
 import { supabase } from '@/lib/supabase';
@@ -47,6 +48,7 @@ type Perf = {
   has_video: boolean;
   song_id: string | null;
   oembed_meta: { title?: string; authorName?: string } | null;
+  profiles: { handle: string } | { handle: string }[] | null;
   scores: ScoreRow | ScoreRow[] | null;
 };
 
@@ -126,7 +128,7 @@ export default function PerformanceScreen() {
         const { data, error } = await supabase
           .from('performances')
           .select(
-            'id, user_id, youtube_video_id, has_video, song_id, oembed_meta, scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional, score_status)',
+            'id, user_id, youtube_video_id, has_video, song_id, oembed_meta, profiles(handle), scores(current_score, initial_ai_score, trend_score, ai_breakdown, is_provisional, score_status)',
           )
           .eq('id', id)
           .single();
@@ -350,6 +352,12 @@ export default function PerformanceScreen() {
             </Pressable>
           )}
 
+          <ModerationActions
+            targetType="performance"
+            targetId={perf.id}
+            handle={handleOf(perf.profiles)}
+          />
+
           <View style={styles.player}>
             <NativeYouTubePlayer
               ref={playerRef}
@@ -570,6 +578,11 @@ export default function PerformanceScreen() {
                     {handleOf(c.profiles) ?? t('Performance.anonymous')}
                   </Text>
                   <Text style={styles.commentBody}>{c.body}</Text>
+                  <ModerationActions
+                    targetType="comment"
+                    targetId={c.id}
+                    handle={handleOf(c.profiles)}
+                  />
                 </View>
               ))
             )}

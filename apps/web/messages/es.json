@@ -297,7 +297,11 @@
     "save": "Guardar",
     "saving": "Guardando…",
     "saveError": "No se pudo guardar el perfil.",
-    "cancelEdit": "Cancelar"
+    "cancelEdit": "Cancelar",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "blockConfirm": "¿Bloquear a @{handle}? Dejarás de ver sus comentarios y se eliminará cualquier seguimiento entre ustedes.",
+    "blockFailed": "No se pudo actualizar el bloqueo."
   },
   "Admin": {
     "accessRequired": "Se requiere acceso de administrador.",

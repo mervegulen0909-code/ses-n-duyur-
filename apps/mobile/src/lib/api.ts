@@ -48,8 +48,13 @@ async function freshAccessToken(): Promise<string | undefined> {
   return session.access_token;
 }
 
-async function authedPost<T>(
+/**
+ * Body-carrying authenticated request. Defaults to POST; DELETE is spelled out
+ * because a few routes (blocks) use the same JSON body to undo an action.
+ */
+async function authedRequest<T>(
   path: string,
+  method: 'POST' | 'DELETE',
   body: unknown,
 ): Promise<{ ok: boolean; status: number; data: T }> {
   const token = await freshAccessToken();
@@ -58,10 +63,10 @@ async function authedPost<T>(
     const pathname = path.split('?')[0] ?? path;
     const integrityHeaders =
       process.env.EXPO_PUBLIC_NATIVE_ATTESTATION_ENABLED === 'true' && ATTESTED_PATHS.has(pathname)
-        ? await getNativeIntegrityHeaders(path, 'POST', rawBody)
+        ? await getNativeIntegrityHeaders(path, method, rawBody)
         : {};
     const res = await fetch(`${API_BASE}${path}`, {
-      method: 'POST',
+      method,
       headers: {
         'content-type': 'application/json',
         ...NATIVE_CLIENT_HEADERS,
@@ -84,6 +89,13 @@ async function authedPost<T>(
       } as T,
     };
   }
+}
+
+async function authedPost<T>(
+  path: string,
+  body: unknown,
+): Promise<{ ok: boolean; status: number; data: T }> {
+  return authedRequest<T>(path, 'POST', body);
 }
 
 async function authedGet<T>(path: string): Promise<{ ok: boolean; status: number; data: T }> {
@@ -248,6 +260,45 @@ export async function submitBattleVote(
  */
 export async function reportUnplayable(performanceId: string): Promise<void> {
   await authedPost('/api/performances/report-unplayable', { performanceId });
+}
+
+/**
+ * Report offensive content. Distinct from reportUnplayable above, which is a
+ * playability signal about a video — this is the abuse channel and files a
+ * moderation flag for a human to review.
+ *
+ * App Store Review Guideline 1.2 requires this to exist INSIDE the app for
+ * user-generated content; having it on the website only does not satisfy it.
+ */
+export async function reportContent(
+  targetType: 'performance' | 'comment' | 'profile',
+  targetId: string,
+  reason: string,
+): Promise<{ ok: boolean; status: number; error?: string }> {
+  const { ok, status, data } = await authedPost<{ ok?: boolean; error?: string }>('/api/report', {
+    targetType,
+    targetId,
+    reason,
+  });
+  return { ok: ok && data.ok !== false, status, error: data.error };
+}
+
+/**
+ * Block or unblock a user by handle — Apple Guideline 1.2 ("the ability to
+ * block abusive users"). The server resolves handle → id and RLS pins the row
+ * to the caller, so no id is sent. Blocking also severs follows both ways,
+ * which a database trigger handles.
+ */
+export async function setBlocked(
+  blockedHandle: string,
+  blocked: boolean,
+): Promise<{ ok: boolean; status: number; error?: string }> {
+  const { ok, status, data } = await authedRequest<{ ok?: boolean; error?: string }>(
+    '/api/blocks',
+    blocked ? 'POST' : 'DELETE',
+    { blockedHandle },
+  );
+  return { ok: ok && data.ok !== false, status, error: data.error };
 }
 
 /**

@@ -8,7 +8,8 @@
     "provisionalBadge": "Geçici AI Tahmini",
     "untitled": "Başlıksız",
     "loadError": "Yüklenemedi. İnternet bağlantını kontrol edip tekrar dene.",
-    "tryAgain": "Tekrar dene"
+    "tryAgain": "Tekrar dene",
+    "cancel": "İptal"
   },
   "Security": {
     "title": "Güvenlik kontrolü",
@@ -399,5 +400,19 @@
     "add": "Ekle",
     "leagues": "Ligler",
     "profile": "Profil"
+  },
+  "Moderation": {
+    "report": "Bildir",
+    "reported": "Bildirildi",
+    "reportTitle": "İçeriği bildir",
+    "reportPrompt": "Sorunun ne olduğunu yaz. Her bildirimi bir moderatör inceler.",
+    "reportPlaceholder": "Sebep",
+    "send": "Gönder",
+    "reportFailed": "Bildirim gönderilemedi.",
+    "block": "Engelle",
+    "unblock": "Engeli kaldır",
+    "blockTitle": "Kullanıcıyı engelle",
+    "blockConfirm": "{{handle}} engellensin mi? Yorumlarını görmeyi bırakırsın ve aranızdaki takip kaldırılır.",
+    "blockFailed": "Engelleme güncellenemedi."
   }
 }

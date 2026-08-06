@@ -297,7 +297,11 @@
     "save": "حفظ",
     "saving": "جارٍ الحفظ…",
     "saveError": "تعذّر حفظ الملف الشخصي.",
-    "cancelEdit": "إلغاء"
+    "cancelEdit": "إلغاء",
+    "block": "حظر",
+    "unblock": "إلغاء الحظر",
+    "blockConfirm": "هل تريد حظر @{handle}؟ لن ترى تعليقاته وستتم إزالة أي متابعة بينكما.",
+    "blockFailed": "تعذر تحديث الحظر."
   },
   "Admin": {
     "accessRequired": "يتطلب صلاحية إدارة.",

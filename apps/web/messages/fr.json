@@ -297,7 +297,11 @@
     "save": "Enregistrer",
     "saving": "Enregistrement…",
     "saveError": "Impossible d'enregistrer le profil.",
-    "cancelEdit": "Annuler"
+    "cancelEdit": "Annuler",
+    "block": "Bloquer",
+    "unblock": "Débloquer",
+    "blockConfirm": "Bloquer @{handle} ? Vous ne verrez plus ses commentaires et tout abonnement entre vous sera supprimé.",
+    "blockFailed": "Impossible de mettre à jour le blocage."
   },
   "Admin": {
     "accessRequired": "Accès administrateur requis.",

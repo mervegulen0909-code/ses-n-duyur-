@@ -8,7 +8,8 @@
     "provisionalBadge": "Estimación provisional de IA",
     "untitled": "Sin título",
     "loadError": "No se pudo cargar. Comprueba tu conexión a Internet e inténtalo de nuevo.",
-    "tryAgain": "Intentar de nuevo"
+    "tryAgain": "Intentar de nuevo",
+    "cancel": "Cancelar"
   },
   "Security": {
     "title": "Comprobación de seguridad",
@@ -374,5 +375,19 @@
     "add": "Añadir",
     "leagues": "Ligas",
     "profile": "Perfil"
+  },
+  "Moderation": {
+    "report": "Denunciar",
+    "reported": "Denunciado",
+    "reportTitle": "Denunciar contenido",
+    "reportPrompt": "Cuéntanos qué ocurre. Un moderador revisa cada denuncia.",
+    "reportPlaceholder": "Motivo",
+    "send": "Enviar",
+    "reportFailed": "No se pudo enviar la denuncia.",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "blockTitle": "Bloquear usuario",
+    "blockConfirm": "¿Bloquear a {{handle}}? Dejarás de ver sus comentarios y se eliminará cualquier seguimiento entre ustedes.",
+    "blockFailed": "No se pudo actualizar el bloqueo."
   }
 }

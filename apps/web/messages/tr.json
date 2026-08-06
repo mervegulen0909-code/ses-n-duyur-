@@ -306,7 +306,11 @@
     "save": "Kaydet",
     "saving": "Kaydediliyor…",
     "saveError": "Profil kaydedilemedi.",
-    "cancelEdit": "Vazgeç"
+    "cancelEdit": "Vazgeç",
+    "block": "Engelle",
+    "unblock": "Engeli kaldır",
+    "blockConfirm": "@{handle} engellensin mi? Yorumlarını görmeyi bırakırsın ve aranızdaki takip kaldırılır.",
+    "blockFailed": "Engelleme güncellenemedi."
   },
   "Admin": {
     "accessRequired": "Yönetici erişimi gerekli.",

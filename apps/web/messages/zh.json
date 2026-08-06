@@ -297,7 +297,11 @@
     "save": "保存",
     "saving": "保存中…",
     "saveError": "个人资料保存失败。",
-    "cancelEdit": "取消"
+    "cancelEdit": "取消",
+    "block": "屏蔽",
+    "unblock": "取消屏蔽",
+    "blockConfirm": "确定屏蔽 @{handle}？你将不再看到其评论，你们之间的关注也会被移除。",
+    "blockFailed": "无法更新屏蔽状态。"
   },
   "Admin": {
     "accessRequired": "需要管理员权限。",

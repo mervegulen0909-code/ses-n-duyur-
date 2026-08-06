@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { RANKED_SCORE_STATUSES } from '@voxscore/core';
+import { BlockButton } from '@/components/block-button';
 import { FollowButton } from '@/components/follow-button';
 import { ProfileEditor } from '@/components/profile-editor';
 import { ProvisionalBadge } from '@/components/provisional-badge';
@@ -75,14 +76,26 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   ]);
   const viewerId = viewer.data.user?.id ?? null;
   let viewerFollows = false;
+  let viewerBlocks = false;
   if (viewerId && viewerId !== profile.id) {
-    const { data: edge } = await supabase
-      .from('follows')
-      .select('follower_id')
-      .eq('follower_id', viewerId)
-      .eq('followee_id', profile.id)
-      .maybeSingle();
+    // blocked_users is readable only by the blocker under RLS, so this returns
+    // the viewer's own state and never leaks who else blocked this creator.
+    const [{ data: edge }, { data: block }] = await Promise.all([
+      supabase
+        .from('follows')
+        .select('follower_id')
+        .eq('follower_id', viewerId)
+        .eq('followee_id', profile.id)
+        .maybeSingle(),
+      supabase
+        .from('blocked_users')
+        .select('blocker_id')
+        .eq('blocker_id', viewerId)
+        .eq('blocked_id', profile.id)
+        .maybeSingle(),
+    ]);
     viewerFollows = !!edge;
+    viewerBlocks = !!block;
   }
 
   // Public view: active performances only (RLS would also surface the owner's
@@ -127,7 +140,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
                 </span>
               )}
               {viewerId && viewerId !== profile.id && (
-                <FollowButton handle={profile.handle} initialFollowing={viewerFollows} />
+                <>
+                  <FollowButton handle={profile.handle} initialFollowing={viewerFollows} />
+                  <BlockButton handle={profile.handle} initialBlocked={viewerBlocks} />
+                </>
               )}
             </div>
             <p className="mt-2 text-sm text-neutral-400">

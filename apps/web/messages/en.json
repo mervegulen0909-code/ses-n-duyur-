@@ -306,7 +306,11 @@
     "save": "Save",
     "saving": "Saving…",
     "saveError": "Could not save profile.",
-    "cancelEdit": "Cancel"
+    "cancelEdit": "Cancel",
+    "block": "Block",
+    "unblock": "Unblock",
+    "blockConfirm": "Block @{handle}? You will stop seeing their comments, and any follow between you will be removed.",
+    "blockFailed": "Could not update the block."
   },
   "Admin": {
     "accessRequired": "Admin access required.",

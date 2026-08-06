@@ -134,6 +134,16 @@ export const followSchema = z.object({
 });
 export type FollowInput = z.infer<typeof followSchema>;
 
+/**
+ * Block/unblock a user by handle. Same shape and reasoning as followSchema: the
+ * client never sends an id, RLS enforces blocker_id = auth.uid(), and the DB
+ * check constraint blocks self-blocks.
+ */
+export const blockSchema = z.object({
+  blockedHandle: z.string().trim().min(1).max(64),
+});
+export type BlockInput = z.infer<typeof blockSchema>;
+
 export const leagueCreateSchema = z.object({ name: z.string().trim().min(3).max(40) });
 export const leagueJoinSchema = z.object({
   code: z

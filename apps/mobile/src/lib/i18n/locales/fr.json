@@ -8,7 +8,8 @@
     "provisionalBadge": "Estimation IA provisoire",
     "untitled": "Sans titre",
     "loadError": "Impossible de charger. Vérifiez votre connexion Internet et réessayez.",
-    "tryAgain": "Réessayer"
+    "tryAgain": "Réessayer",
+    "cancel": "Annuler"
   },
   "Security": {
     "title": "Vérification de sécurité",
@@ -374,5 +375,19 @@
     "add": "Ajouter",
     "leagues": "Ligues",
     "profile": "Profil"
+  },
+  "Moderation": {
+    "report": "Signaler",
+    "reported": "Signalé",
+    "reportTitle": "Signaler le contenu",
+    "reportPrompt": "Dites-nous ce qui ne va pas. Un modérateur examine chaque signalement.",
+    "reportPlaceholder": "Motif",
+    "send": "Envoyer",
+    "reportFailed": "Impossible d'envoyer le signalement.",
+    "block": "Bloquer",
+    "unblock": "Débloquer",
+    "blockTitle": "Bloquer l'utilisateur",
+    "blockConfirm": "Bloquer {{handle}} ? Vous ne verrez plus ses commentaires et tout abonnement entre vous sera supprimé.",
+    "blockFailed": "Impossible de mettre à jour le blocage."
   }
 }

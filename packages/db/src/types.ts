@@ -338,6 +338,11 @@ export interface PublicRows {
     followee_id: Uuid;
     created_at: Timestamp;
   };
+  blocked_users: {
+    blocker_id: Uuid;
+    blocked_id: Uuid;
+    created_at: Timestamp;
+  };
   appeals: {
     id: Uuid;
     user_id: Uuid;

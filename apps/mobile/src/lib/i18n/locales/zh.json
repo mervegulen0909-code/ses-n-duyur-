@@ -8,7 +8,8 @@
     "provisionalBadge": "AI 初步评估",
     "untitled": "未命名",
     "loadError": "加载失败。请检查网络连接后重试。",
-    "tryAgain": "重试"
+    "tryAgain": "重试",
+    "cancel": "取消"
   },
   "Security": {
     "title": "安全检查",
@@ -374,5 +375,19 @@
     "add": "添加",
     "leagues": "联赛",
     "profile": "我的"
+  },
+  "Moderation": {
+    "report": "举报",
+    "reported": "已举报",
+    "reportTitle": "举报内容",
+    "reportPrompt": "告诉我们问题所在。每条举报都会由审核员处理。",
+    "reportPlaceholder": "原因",
+    "send": "发送",
+    "reportFailed": "举报发送失败。",
+    "block": "屏蔽",
+    "unblock": "取消屏蔽",
+    "blockTitle": "屏蔽用户",
+    "blockConfirm": "确定屏蔽 {{handle}}？你将不再看到其评论，你们之间的关注也会被移除。",
+    "blockFailed": "无法更新屏蔽状态。"
   }
 }
