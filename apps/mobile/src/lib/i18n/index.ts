@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Localization from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { I18nManager } from 'react-native';
@@ -26,27 +25,26 @@ const resources = {
 
 const STORAGE_KEY = 'voxscore.locale';
 
-/** Device locale from the OS, mapped to a supported code, else the default. */
-function deviceLocale(): Locale {
-  for (const l of Localization.getLocales()) {
-    if (isLocale(l.languageCode)) return l.languageCode;
-  }
-  return DEFAULT_LOCALE;
-}
-
 function isRtl(locale: Locale): boolean {
   return (RTL_LOCALES as readonly string[]).includes(locale);
 }
 
 /**
- * Resolve the starting locale (stored override > device locale > default) and
- * initialize i18next synchronously with it. AsyncStorage is async, so the
- * FIRST render always uses the device/default locale; once the stored
- * override loads we re-set the language (see `initLocale` below), same
- * pattern as the web cookie flow — a one-frame flash is an acceptable
- * trade-off vs. blocking app boot on storage I/O.
+ * Start in English, whatever the device language is, and initialize i18next
+ * synchronously with it.
+ *
+ * The OS locale is deliberately NOT consulted. The store listing ships in
+ * English only, so following the device language made the app disagree with
+ * the page the user just came from — a Turkish phone opened a Turkish app off
+ * an English listing, and a reviewer on a non-English device would have judged
+ * a translation we do not advertise. The other languages stay available; they
+ * are now an explicit choice in the language switcher rather than a guess.
+ *
+ * A stored override still wins: AsyncStorage is async, so the FIRST render
+ * uses English and `initLocale` re-sets the language once the override loads.
+ * A one-frame flash beats blocking app boot on storage I/O.
  */
-const initialLocale = deviceLocale();
+const initialLocale: Locale = DEFAULT_LOCALE;
 I18nManager.allowRTL(true);
 
 void i18n.use(initReactI18next).init({
