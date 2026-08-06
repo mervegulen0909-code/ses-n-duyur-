@@ -352,7 +352,8 @@
     "signInToComment": "Connecte-toi pour commenter ›",
     "commentSessionExpired": "Reconnecte-toi pour commenter.",
     "noComments": "Pas encore de commentaires — sois le premier.",
-    "anonymous": "anonyme"
+    "anonymous": "anonyme",
+    "commentRejected": "Votre commentaire enfreint les règles de la communauté."
   },
   "Home": {
     "featuredEyebrow": "À la une",

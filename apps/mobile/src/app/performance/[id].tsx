@@ -61,6 +61,7 @@ type CommentRow = {
   id: string;
   body: string;
   created_at: string;
+  user_id: string;
   profiles: { handle: string } | { handle: string }[] | null;
 };
 function handleOf(p: CommentRow['profiles']): string | null {
@@ -167,7 +168,7 @@ export default function PerformanceScreen() {
   const loadComments = useCallback(async () => {
     const { data } = await supabase
       .from('comments')
-      .select('id, body, created_at, profiles(handle)')
+      .select('id, body, created_at, user_id, profiles(handle)')
       .eq('performance_id', id)
       .order('created_at', { ascending: false });
     setComments((data ?? []) as unknown as CommentRow[]);
@@ -287,10 +288,16 @@ export default function PerformanceScreen() {
       setCommentText('');
       await loadComments();
     } else {
+      // 422 is the content filter (or a schema failure). The server answers in
+      // English; surfacing that raw string put an English sentence in the middle
+      // of a Turkish screen, so use our own copy and keep the server text for
+      // the cases we have no wording for.
       setCommentErr(
         res.status === 401
           ? t('Performance.commentSessionExpired')
-          : (res.error ?? t('Performance.failed', { status: res.status })),
+          : res.status === 422
+            ? t('Performance.commentRejected')
+            : (res.error ?? t('Performance.failed', { status: res.status })),
       );
     }
   }
@@ -356,6 +363,7 @@ export default function PerformanceScreen() {
             targetType="performance"
             targetId={perf.id}
             handle={handleOf(perf.profiles)}
+            isOwn={!!user && user.id === perf.user_id}
           />
 
           <View style={styles.player}>
@@ -582,6 +590,7 @@ export default function PerformanceScreen() {
                     targetType="comment"
                     targetId={c.id}
                     handle={handleOf(c.profiles)}
+                    isOwn={!!user && user.id === c.user_id}
                   />
                 </View>
               ))

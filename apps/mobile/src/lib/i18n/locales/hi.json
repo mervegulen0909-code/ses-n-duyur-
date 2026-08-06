@@ -352,7 +352,8 @@
     "signInToComment": "टिप्पणी करने के लिए साइन इन करें ›",
     "commentSessionExpired": "टिप्पणी करने के लिए फिर से साइन इन करें।",
     "noComments": "अभी कोई टिप्पणी नहीं — पहले बनें।",
-    "anonymous": "अनाम"
+    "anonymous": "अनाम",
+    "commentRejected": "आपकी टिप्पणी सामुदायिक दिशानिर्देशों का उल्लंघन करती है।"
   },
   "Home": {
     "featuredEyebrow": "विशेष",

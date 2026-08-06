@@ -352,7 +352,8 @@
     "signInToComment": "Inicia sesión para comentar ›",
     "commentSessionExpired": "Inicia sesión de nuevo para comentar.",
     "noComments": "Aún no hay comentarios — sé el primero.",
-    "anonymous": "anónimo"
+    "anonymous": "anónimo",
+    "commentRejected": "Tu comentario incumple las normas de la comunidad."
   },
   "Home": {
     "featuredEyebrow": "Destacado",

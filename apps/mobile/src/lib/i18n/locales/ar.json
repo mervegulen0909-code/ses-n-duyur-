@@ -352,7 +352,8 @@
     "signInToComment": "سجّل الدخول للتعليق ›",
     "commentSessionExpired": "سجّل الدخول مجددًا للتعليق.",
     "noComments": "لا تعليقات بعد — كن الأول.",
-    "anonymous": "مجهول"
+    "anonymous": "مجهول",
+    "commentRejected": "تعليقك يخالف إرشادات المجتمع."
   },
   "Home": {
     "featuredEyebrow": "مميّز",

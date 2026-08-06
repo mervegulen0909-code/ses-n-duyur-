@@ -352,7 +352,8 @@
     "signInToComment": "登录以发表评论 ›",
     "commentSessionExpired": "请重新登录后再评论。",
     "noComments": "还没有评论——来做第一个吧。",
-    "anonymous": "匿名"
+    "anonymous": "匿名",
+    "commentRejected": "你的评论违反了社区准则。"
   },
   "Home": {
     "featuredEyebrow": "精选",

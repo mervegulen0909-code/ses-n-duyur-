@@ -377,7 +377,8 @@
     "signInToComment": "Yorum yapmak için giriş yap ›",
     "commentSessionExpired": "Yorum yapmak için tekrar giriş yap.",
     "noComments": "Henüz yorum yok — ilk sen ol.",
-    "anonymous": "anonim"
+    "anonymous": "anonim",
+    "commentRejected": "Yorumun topluluk kurallarına aykırı."
   },
   "Home": {
     "featuredEyebrow": "Öne çıkan",

@@ -23,10 +23,14 @@ export function ModerationActions({
   targetType,
   targetId,
   handle,
+  isOwn = false,
 }: {
   targetType: 'performance' | 'comment' | 'profile';
   targetId: string;
   handle?: string | null;
+  /** Hides the block action on your own content — the server rejects a
+   *  self-block, so offering the button could only ever produce an error. */
+  isOwn?: boolean;
 }) {
   const { t } = useTranslation();
   const [reported, setReported] = useState(false);
@@ -47,7 +51,7 @@ export function ModerationActions({
     setPromptOpen(false);
     setReason('');
     if (res.ok) setReported(true);
-    else Alert.alert(t('Moderation.reportFailed'), res.error ?? '');
+    else Alert.alert(t('Moderation.reportFailed'));
   }
 
   async function toggleBlock(next: boolean) {
@@ -56,7 +60,7 @@ export function ModerationActions({
     const res = await setBlocked(handle.replace(/^@/, ''), next);
     setBusy(false);
     if (res.ok) setBlockedState(next);
-    else Alert.alert(t('Moderation.blockFailed'), res.error ?? '');
+    else Alert.alert(t('Moderation.blockFailed'));
   }
 
   function onBlockPress() {
@@ -83,7 +87,7 @@ export function ModerationActions({
         </Pressable>
       )}
 
-      {!!handle && (
+      {!!handle && !isOwn && (
         <Pressable onPress={onBlockPress} disabled={busy} hitSlop={8}>
           <Text style={styles.action}>
             {blocked ? t('Moderation.unblock') : t('Moderation.block')}

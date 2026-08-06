@@ -377,7 +377,8 @@
     "signInToComment": "Sign in to comment ›",
     "commentSessionExpired": "Sign in again to comment.",
     "noComments": "No comments yet — be the first.",
-    "anonymous": "anonymous"
+    "anonymous": "anonymous",
+    "commentRejected": "Your comment breaks the community guidelines."
   },
   "Home": {
     "featuredEyebrow": "Featured",
