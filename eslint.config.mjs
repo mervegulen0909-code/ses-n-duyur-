@@ -38,7 +38,7 @@ export default tseslint.config(
   // Node helper scripts (e.g. Expo's reset-project) run under Node, not RN —
   // give them Node globals and allow CommonJS require().
   {
-    files: ['**/scripts/**/*.js', '**/*.cjs'],
+    files: ['**/scripts/**/*.{js,mjs}', '**/*.cjs'],
     languageOptions: {
       globals: {
         require: 'readonly',
@@ -49,6 +49,10 @@ export default tseslint.config(
         __dirname: 'readonly',
         __filename: 'readonly',
         Buffer: 'readonly',
+        // Node 18+ ships these on the global scope; the Play upload script
+        // uses them instead of pulling in a dependency.
+        fetch: 'readonly',
+        URLSearchParams: 'readonly',
       },
     },
     rules: {
