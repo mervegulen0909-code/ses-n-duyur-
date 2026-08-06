@@ -19,7 +19,8 @@
     "terms": "条款",
     "privacy": "隐私",
     "dmca": "DMCA / 下架申请",
-    "company": "公司信息"
+    "company": "公司信息",
+    "support": "支持"
   },
   "Common": {
     "provisionalBadge": "AI 初步估分",
@@ -78,7 +79,9 @@
     "google": "使用 Google 继续",
     "orDivider": "或"
   },
-  "MobileTurnstile": { "verifying": "正在验证此次注册由真人完成…" },
+  "MobileTurnstile": {
+    "verifying": "正在验证此次注册由真人完成…"
+  },
   "Add": {
     "title": "添加表演",
     "subtitle": "粘贴一个 YouTube 链接。我们会嵌入它（绝不下载），获取其元数据，并生成 AI 初步估分。",

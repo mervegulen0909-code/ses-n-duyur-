@@ -19,7 +19,8 @@
     "terms": "Términos",
     "privacy": "Privacidad",
     "dmca": "DMCA / Retirada de contenido",
-    "company": "Empresa"
+    "company": "Empresa",
+    "support": "Soporte"
   },
   "Common": {
     "provisionalBadge": "Estimación provisional de IA",
@@ -78,7 +79,9 @@
     "google": "Continuar con Google",
     "orDivider": "o"
   },
-  "MobileTurnstile": { "verifying": "Verificando que este registro sea humano…" },
+  "MobileTurnstile": {
+    "verifying": "Verificando que este registro sea humano…"
+  },
   "Add": {
     "title": "Añadir una interpretación",
     "subtitle": "Pega un enlace de YouTube. Lo insertamos (nunca lo descargamos), obtenemos sus metadatos y creamos una estimación provisional de IA.",

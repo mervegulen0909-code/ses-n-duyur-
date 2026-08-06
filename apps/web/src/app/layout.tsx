@@ -101,6 +101,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 <Link href="/dmca" className="hover:text-neutral-300">
                   {t('dmca')}
                 </Link>
+                <Link href="/support" className="hover:text-neutral-300">
+                  {t('support')}
+                </Link>
                 <Link href="/company" className="hover:text-neutral-300">
                   {t('company')}
                 </Link>

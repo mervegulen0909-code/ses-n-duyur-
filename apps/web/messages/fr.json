@@ -19,7 +19,8 @@
     "terms": "Conditions",
     "privacy": "Confidentialité",
     "dmca": "DMCA / Retrait",
-    "company": "Entreprise"
+    "company": "Entreprise",
+    "support": "Assistance"
   },
   "Common": {
     "provisionalBadge": "Estimation IA provisoire",
@@ -78,7 +79,9 @@
     "google": "Continuer avec Google",
     "orDivider": "ou"
   },
-  "MobileTurnstile": { "verifying": "Vérification humaine de cette inscription…" },
+  "MobileTurnstile": {
+    "verifying": "Vérification humaine de cette inscription…"
+  },
   "Add": {
     "title": "Ajouter une performance",
     "subtitle": "Collez un lien YouTube. Nous l'intégrons (sans jamais le télécharger), récupérons ses métadonnées et créons une estimation IA provisoire.",
