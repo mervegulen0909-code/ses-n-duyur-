@@ -57,6 +57,30 @@ describe('POST /api/comments', () => {
     expect(from).not.toHaveBeenCalled();
   });
 
+  // Guideline 1.2 wants objectionable material filtered "from being posted", so
+  // the rejection has to happen before the insert, not in moderation afterwards.
+  it('422 on objectionable content without touching the DB', async () => {
+    const { ctx, from } = makeCtx();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+
+    const res = await POST(makeRequest({ performanceId: PERF, body: 'you fucking suck' }));
+
+    expect(res.status).toBe(422);
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it('still accepts ordinary criticism — the filter must not swallow real feedback', async () => {
+    const { ctx, insert } = makeCtx();
+    vi.mocked(getRequestContext).mockResolvedValue(ctx);
+
+    const res = await POST(
+      makeRequest({ performanceId: PERF, body: 'The pitch drifts in the chorus, honestly.' }),
+    );
+
+    expect(res.status).toBe(201);
+    expect(insert).toHaveBeenCalled();
+  });
+
   it('401 when unauthenticated', async () => {
     vi.mocked(getRequestContext).mockResolvedValue(null);
 

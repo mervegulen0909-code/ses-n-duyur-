@@ -1,4 +1,4 @@
-import { commentSchema } from '@voxscore/core';
+import { commentSchema, containsObjectionableContent } from '@voxscore/core';
 import { getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
 
@@ -28,6 +28,14 @@ export async function POST(req: Request): Promise<Response> {
 
   const limited = await rateLimit(req, user.id);
   if (limited) return limited;
+
+  // App Store Review Guideline 1.2 asks for objectionable material to be
+  // filtered "from being posted", so this rejects before the insert rather than
+  // leaving it for a moderator. 422 (not 400) to match the schema-failure shape
+  // the clients already handle.
+  if (containsObjectionableContent(parsed.data.body)) {
+    return Response.json({ error: 'Comment violates the community guidelines' }, { status: 422 });
+  }
 
   const { data, error } = await supabase
     .from('comments')

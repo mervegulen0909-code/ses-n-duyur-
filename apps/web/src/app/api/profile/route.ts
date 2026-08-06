@@ -1,4 +1,4 @@
-import { profileUpdateSchema } from '@voxscore/core';
+import { containsObjectionableContent, profileUpdateSchema } from '@voxscore/core';
 import type { Json } from '@voxscore/db';
 import { getRequestContext } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/guard';
@@ -51,6 +51,14 @@ export async function PATCH(req: Request): Promise<Response> {
   const { bio, avatarUrl, links, locale } = parsed.data;
   if (avatarUrl && !isOwnAvatarUrl(avatarUrl, ctx.user.id)) {
     return Response.json({ error: 'avatarUrl must be your own uploaded avatar' }, { status: 422 });
+  }
+
+  // A bio and link labels are public text like a comment is, so they go through
+  // the same pre-publication filter (App Store Review Guideline 1.2). Filtering
+  // comments alone would just move the abuse one screen over.
+  const publicText = [bio ?? '', ...(links ?? []).map((l) => l.label)].join(' ');
+  if (containsObjectionableContent(publicText)) {
+    return Response.json({ error: 'Profile violates the community guidelines' }, { status: 422 });
   }
 
   const patch: ProfilePatch = {};
