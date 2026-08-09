@@ -1,9 +1,15 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { BattleArena } from '@/components/battle-arena';
 import { getCurrentUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Nav');
+  return { title: `${t('battle')} — VoxScore` };
+}
 
 export default async function BattlePage() {
   const t = await getTranslations();

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { wilsonLowerBound } from '@voxscore/scoring';
@@ -11,6 +12,13 @@ import { rankByScore, type LeaderboardRow } from '@/lib/leaderboard';
 import { listSeasons, resolveSeason } from '@/lib/seasons';
 
 export const dynamic = 'force-dynamic';
+
+// A distinct title per public route. They all used to inherit the root one, which
+// is what made Google treat the routes as duplicates of each other.
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Nav');
+  return { title: `${t('leaderboard')} — VoxScore` };
+}
 
 function titleOf(meta: unknown): string {
   const m = (meta ?? {}) as { title?: string };

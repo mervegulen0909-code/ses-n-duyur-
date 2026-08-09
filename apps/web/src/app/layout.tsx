@@ -18,6 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     applicationName: 'VoxScore',
+    // Every route is its own canonical. Without this Google clustered the routes
+    // together (they all inherited this one title) and dropped the home page as
+    // "Duplicate without user-selected canonical" — Search Console, 5 Aug 2026.
+    alternates: { canonical: './' },
     openGraph: {
       title,
       description,
