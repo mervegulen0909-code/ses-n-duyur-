@@ -12,9 +12,22 @@ live listing.
 
 ## Google Play - English
 
-**App name:** VoxScore
+> **ASO revision 2026-08-23** (visibility audit, `magaza-gorunurlugu`): the live listing
+> ranks ONLY for the brand query "voxscore" — not in the top 30 for "vocal league",
+> "singing battle", "vocal battle", "singing competition", "rate my singing", "vocal cover"
+> or "sing off" (measured on the public Play search, en, 2026-08-23). The title `VoxScore`
+> spends the highest-weight field on brand only. Direct positioning competitor
+> "Singing League: AI Vocal Judge" ranks #1 for "vocal league" at just 5K+ downloads —
+> the niche is enterable. Paste-ready replacements below; the old values follow for history.
 
-**Short description:**
+**App name (proposed, 29/30):** `VoxScore: Vocal Battle League`
+
+**Short description (proposed, 77/80):**
+`Vocal battles, AI judge scores & fair cover rankings in a global sing league.`
+
+**App name (live):** VoxScore
+
+**Short description (live):**
 Compare vocal covers, measure your voice, and climb the global league.
 
 **Full description:**
