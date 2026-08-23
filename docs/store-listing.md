@@ -126,10 +126,37 @@ and is live. The earlier note in this file claiming it was missing was stale.
 and the account stayed Individual, so the copyright line must match the individual seller, not
 the company. Do not enter the FERSA Ltd. name here unless the account is migrated later.
 
-**App Review notes must include:** a working demo account, an explanation that voting is gated
-behind Verified Listen (a reviewer who skips the video cannot vote and may report it as broken),
-why the microphone is requested, and that AI scores on embedded YouTube content are labeled
-provisional rather than measured.
+**App Review Notes** — drafted, ready to paste into the Notes box on the version page. App Store
+Connect refuses to persist the whole App Review Information block while "Sign-in required" is
+checked and the demo user/password are empty, so paste the credentials and this text in the same
+edit, then Save.
+
+```
+Notes for review:
+
+1. Voting is gated behind a Verified Listen. A reviewer who skips or scrubs the embedded video
+will find the vote and score controls disabled - this is intended anti-fraud behaviour, not a
+bug. Please let the performance play to completion before voting. In a battle, both sides must
+be fully listened to before a winner can be picked.
+
+2. Microphone permission is requested only when the user chooses to record a performance they
+own. The recording is analysed in memory and deleted immediately; only the resulting numeric
+measurements are stored.
+
+3. AI scores shown on YouTube performances are labelled "Provisional AI Estimate" in the UI.
+They are interpretive, not audio measurements.
+
+4. YouTube content is embedded through the official YouTube player only. The app never
+downloads, caches, hosts or analyses YouTube audio or video.
+
+5. Moderation: every performance and comment can be reported, users can be blocked, and reported
+content is reviewed by moderators. Account deletion is available in Profile.
+
+Sign in with Apple is available alongside Google on the login screen.
+```
+
+**App Review contact** (also refused to save without the demo credentials): Ferhat / Gülen /
+`+905352811235` / `destek@voxscore.app`.
 
 ## iOS readiness (as of 2026-08-06)
 
