@@ -29,6 +29,7 @@ import { AI_JUDGE_CRITERIA, CRITERIA } from '@voxscore/scoring';
 import { ModerationActions } from '@/components/moderation-actions';
 import { postComment, submitVote } from '@/lib/api';
 import { useAiJudgeCriterionLabels, useCriterionLabels } from '@/lib/criteria-labels';
+import { recordSuccessMoment } from '@/lib/review-prompt';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
 import { useVerifiedListen } from '@/lib/use-verified-listen';
@@ -245,6 +246,7 @@ export default function PerformanceScreen() {
     );
     const res = await submitVote(perf.id, listenId, activeRatings);
     if (res.ok) {
+      void recordSuccessMoment();
       setVoteState('done');
       setVoteMsg(
         res.currentScore != null
