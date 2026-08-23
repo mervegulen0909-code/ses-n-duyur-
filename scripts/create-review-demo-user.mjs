@@ -10,7 +10,10 @@
  * The password is never stored here and never committed: you pass it in for the
  * length of one command.
  *
- *   DEMO_EMAIL=review@voxscore.app DEMO_PASSWORD='...' node scripts/create-review-demo-user.mjs
+ *   node scripts/create-review-demo-user.mjs review@voxscore.app '...'
+ *
+ * Arguments are used so the command is identical in bash and PowerShell; the
+ * DEMO_EMAIL / DEMO_PASSWORD environment variables still work as a fallback.
  *
  * Reads NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from the
  * environment, falling back to .env.local / apps/web/.env.local.
@@ -38,16 +41,17 @@ loadEnvFile(resolve(root, 'apps/web/.env.local'));
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const email = process.env.DEMO_EMAIL;
-const password = process.env.DEMO_PASSWORD;
+const [argEmail, argPassword] = process.argv.slice(2);
+const email = argEmail || process.env.DEMO_EMAIL;
+const password = argPassword || process.env.DEMO_PASSWORD;
 
-const missing = Object.entries({ NEXT_PUBLIC_SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: serviceRole, DEMO_EMAIL: email, DEMO_PASSWORD: password })
+const missing = Object.entries({ NEXT_PUBLIC_SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: serviceRole, email, password })
   .filter(([, v]) => !v)
   .map(([k]) => k);
 
 if (missing.length) {
   console.error(`Missing: ${missing.join(', ')}`);
-  console.error("Example: DEMO_EMAIL=review@voxscore.app DEMO_PASSWORD='...' node scripts/create-review-demo-user.mjs");
+  console.error("Usage: node scripts/create-review-demo-user.mjs <email> '<password>'");
   process.exit(1);
 }
 
