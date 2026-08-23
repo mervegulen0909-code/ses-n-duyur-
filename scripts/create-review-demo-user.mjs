@@ -55,6 +55,16 @@ if (missing.length) {
   process.exit(1);
 }
 
+// The checked-in .env.local files point at the local stack, but the shipped app
+// talks to production — an account created locally would not let a reviewer in.
+if (/127\.0\.0\.1|localhost/.test(url)) {
+  console.error(`Refusing to run: NEXT_PUBLIC_SUPABASE_URL is the local stack (${url}).`);
+  console.error('The App Review account must exist in the production project that the release build uses.');
+  console.error('Either sign up through the app on a device, or re-run with the production values:');
+  console.error('  $env:NEXT_PUBLIC_SUPABASE_URL="https://<ref>.supabase.co"; $env:SUPABASE_SERVICE_ROLE_KEY="<key>"');
+  process.exit(1);
+}
+
 const res = await fetch(`${url}/auth/v1/admin/users`, {
   method: 'POST',
   headers: {
