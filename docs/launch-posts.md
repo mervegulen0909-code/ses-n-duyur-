@@ -18,12 +18,12 @@ Kanıtlanabilir iddialar (özellik listesi değil, doğrulanabilir farklar):
 
 ## Hesap kapısı — GÖNDERMEDEN ÖNCE doğrula
 
-| Platform | Durum (2026-08-23) | Gereken |
-|---|---|---|
-| Hacker News (`arfgln`) | 🔴 Show HN yeni hesaba kapalı — 18 Ağustos'ta ÖLÇÜLDÜ (`showlim` sayfasına düştü) | Birkaç hafta doğal katılım (yorum, oy), sonra tekrar dene |
-| Reddit | ❓ hesap bilinmiyor | `old.reddit.com/user/<ad>` → yaş + karma + geçmiş; r/androidapps Kural 4: `[Self Promo]` etiketi, 45 günde bir, geçmiş etkinlik ŞART |
-| Product Hunt | ❓ profil bilinmiyor | Profil %100 tamam + lansman günü 3 saat başında olma + dışarıdan trafik getirecek en az 1 kanal. Bunlar yoksa ERTELE (Scanizma PH turu 2 oyla bitti — ölçüldü) |
-| TR forumları (Ekşi, DonanımHaber, R10) | ⚠️ dil uyumsuzluğu | Mağaza sayfası SADECE İngilizce — TR forumdan gelen kullanıcı İngilizce sayfaya düşer. Ya tr-TR listing geri eklenir, ya TR kanalları beklenir |
+| Platform                               | Durum (2026-08-23)                                                                | Gereken                                                                                                                                                        |
+| -------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hacker News (`arfgln`)                 | 🔴 Show HN yeni hesaba kapalı — 18 Ağustos'ta ÖLÇÜLDÜ (`showlim` sayfasına düştü) | Birkaç hafta doğal katılım (yorum, oy), sonra tekrar dene                                                                                                      |
+| Reddit                                 | ❓ hesap bilinmiyor                                                               | `old.reddit.com/user/<ad>` → yaş + karma + geçmiş; r/androidapps Kural 4: `[Self Promo]` etiketi, 45 günde bir, geçmiş etkinlik ŞART                           |
+| Product Hunt                           | ❓ profil bilinmiyor                                                              | Profil %100 tamam + lansman günü 3 saat başında olma + dışarıdan trafik getirecek en az 1 kanal. Bunlar yoksa ERTELE (Scanizma PH turu 2 oyla bitti — ölçüldü) |
+| TR forumları (Ekşi, DonanımHaber, R10) | ⚠️ dil uyumsuzluğu                                                                | Mağaza sayfası SADECE İngilizce — TR forumdan gelen kullanıcı İngilizce sayfaya düşer. Ya tr-TR listing geri eklenir, ya TR kanalları beklenir                 |
 
 `[ÇIKARIM]` Üç ana kanalın üçü de hesap olgunluğuna takılıyor. Kısa vadede en
 yüksek getirili iş mağaza içi çark: **puan isteme mekanizması eklendi**

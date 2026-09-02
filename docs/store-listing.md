@@ -197,7 +197,7 @@ Measured on screen, that is false — the requirement attaches to the account, n
 Facts worth keeping:
 
 - The conversion is **free**, happens **in place**, and does **not** need a new developer
-  account. It creates a new *payments profile*, not a new account. It is **one-way**.
+  account. It creates a new _payments profile_, not a new account. It is **one-way**.
 - The gate for starting it is a **verified company website**, not the D-U-N-S number —
   the "Change account type" button stays disabled until the site is verified.
 - The **D-U-N-S number came free and the same night** from Apple's own D-U-N-S lookup

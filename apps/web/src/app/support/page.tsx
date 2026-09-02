@@ -34,14 +34,18 @@ export default function SupportPage() {
 
       <h2 className="pt-2 text-lg font-semibold text-neutral-100">Common questions</h2>
 
-      <h3 className="pt-2 font-semibold text-neutral-200">I can&apos;t vote or score a performance</h3>
+      <h3 className="pt-2 font-semibold text-neutral-200">
+        I can&apos;t vote or score a performance
+      </h3>
       <p>
-        Scoring unlocks only after a Verified Listen. Play the performance and let it run to the
-        end — skipping ahead does not count, which is deliberate: it keeps rankings honest. In a
-        battle, both sides have to be listened to before a winner can be picked.
+        Scoring unlocks only after a Verified Listen. Play the performance and let it run to the end
+        — skipping ahead does not count, which is deliberate: it keeps rankings honest. In a battle,
+        both sides have to be listened to before a winner can be picked.
       </p>
 
-      <h3 className="pt-2 font-semibold text-neutral-200">What does &ldquo;Provisional AI Estimate&rdquo; mean?</h3>
+      <h3 className="pt-2 font-semibold text-neutral-200">
+        What does &ldquo;Provisional AI Estimate&rdquo; mean?
+      </h3>
       <p>
         For performances added as YouTube links, VoxScore never downloads or analyses the audio. The
         score shown is an interpretive estimate and is labelled as provisional. It is not a
@@ -51,8 +55,8 @@ export default function SupportPage() {
 
       <h3 className="pt-2 font-semibold text-neutral-200">What happens to a recording I make?</h3>
       <p>
-        It is analysed and then immediately deleted. Only the resulting measurements are stored — the
-        audio itself is not kept. See the{' '}
+        It is analysed and then immediately deleted. Only the resulting measurements are stored —
+        the audio itself is not kept. See the{' '}
         <a className="text-emerald-400" href="/privacy">
           Privacy Policy
         </a>{' '}
