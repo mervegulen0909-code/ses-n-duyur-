@@ -36,6 +36,11 @@ jobs:
       - name: Format
         run: pnpm format:check
 
+      # Findings are fixed by pinning the vulnerable transitive package in
+      # `pnpm.overrides` (root package.json). Advisories with no safe fix are
+      # listed in `pnpm.auditConfig.ignoreGhsas` — each one is justified in
+      # docs/adr/0004-production-dependency-audit-policy.md. Read that before
+      # adding an entry; the allowlist is silent once a fix does ship.
       - name: Production dependency audit
         run: pnpm audit --prod --ignore-registry-errors
 
