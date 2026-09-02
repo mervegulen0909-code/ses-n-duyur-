@@ -13,6 +13,7 @@ import {
 import { NativeYouTubePlayer } from '@/components/native-youtube-player';
 import { nextBattle, reportUnplayable, submitBattleVote } from '@/lib/api';
 import { battlePlaybackPhase } from '@/lib/battle-flow';
+import { recordSuccessMoment } from '@/lib/review-prompt';
 import { supabase } from '@/lib/supabase';
 import { useSession } from '@/lib/use-session';
 import { useVerifiedListen } from '@/lib/use-verified-listen';
@@ -294,6 +295,7 @@ function BattleArena({ battle, onNext }: { battle: Battle; onNext: () => void })
       listenBId,
     });
     if (res.ok) {
+      void recordSuccessMoment();
       setVoteState('done');
       setVoteMsg(t('Battle.voteRecorded'));
     } else {
