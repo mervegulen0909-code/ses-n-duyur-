@@ -183,8 +183,7 @@ engineering work — it waits on Apple.
 The **Individual → Organization migration was cancelled on 2026-08-14**; the account ships as
 Individual (team `YMW2NVHASS`). The old warning against creating the app record or signing
 agreements before migration no longer applies — the record exists and the build is uploaded.
-The name correction from "Perhat" to "Ferhat" was applied by Apple Support (case
-20000126564887) and the Apple Account shows `Ferhat Gülen`; the developer team label still
+The name correction from "Perhat" to "Ferhat" was applied by Apple Support (case 20000126564887) and the Apple Account shows `Ferhat Gülen`; the developer team label still
 reads the old spelling and now has no migration to fix it, so it needs a separate request if
 the wrong spelling on the seller line matters.
 
@@ -211,7 +210,7 @@ Measured on screen, that is false — the requirement attaches to the account, n
 Facts worth keeping:
 
 - The conversion is **free**, happens **in place**, and does **not** need a new developer
-  account. It creates a new *payments profile*, not a new account. It is **one-way**.
+  account. It creates a new _payments profile_, not a new account. It is **one-way**.
 - The gate for starting it is a **verified company website**, not the D-U-N-S number —
   the "Change account type" button stays disabled until the site is verified.
 - The **D-U-N-S number came free and the same night** from Apple's own D-U-N-S lookup

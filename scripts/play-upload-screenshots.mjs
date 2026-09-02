@@ -116,13 +116,15 @@ async function main() {
   if (!KEY_PATH) {
     die(
       'Servis hesabı anahtarı gerekli.\n' +
-        '  node scripts/play-upload-screenshots.mjs --key /yol/play-sa.json [--apply]'
+        '  node scripts/play-upload-screenshots.mjs --key /yol/play-sa.json [--apply]',
     );
   }
 
   // Önce ne yapılacağını göster — dry-run'da API'ye hiç dokunmuyoruz.
   console.log(`\nPaket: ${PACKAGE_NAME}`);
-  console.log(`Mod:   ${APPLY ? 'UYGULA (mevcut görseller silinecek)' : 'DRY-RUN (değişiklik yok)'}\n`);
+  console.log(
+    `Mod:   ${APPLY ? 'UYGULA (mevcut görseller silinecek)' : 'DRY-RUN (değişiklik yok)'}\n`,
+  );
 
   const plan = SOURCES.map((s) => ({ ...s, files: listImages(s.dir) }));
   for (const { locale, files } of plan) {
@@ -152,7 +154,7 @@ async function main() {
       await api(
         token,
         'DELETE',
-        `/androidpublisher/v3/applications/${PACKAGE_NAME}/edits/${editId}/listings/${locale}/${imageType}`
+        `/androidpublisher/v3/applications/${PACKAGE_NAME}/edits/${editId}/listings/${locale}/${imageType}`,
       );
 
       for (const file of files) {
@@ -165,9 +167,10 @@ async function main() {
             method: 'POST',
             headers: { authorization: `Bearer ${token}`, 'content-type': ct },
             body: bytes,
-          }
+          },
         );
-        if (!res.ok) die(`Yükleme başarısız: ${locale}/${imageType}/${basename(file)}\n${await res.text()}`);
+        if (!res.ok)
+          die(`Yükleme başarısız: ${locale}/${imageType}/${basename(file)}\n${await res.text()}`);
         console.log(`  ✓ ${locale}/${imageType}/${basename(file)}`);
       }
     }
@@ -176,9 +179,11 @@ async function main() {
   await api(
     token,
     'POST',
-    `/androidpublisher/v3/applications/${PACKAGE_NAME}/edits/${editId}:commit`
+    `/androidpublisher/v3/applications/${PACKAGE_NAME}/edits/${editId}:commit`,
   );
-  console.log(`\n✓ Edit commit edildi. Play Console'da Mağaza girişleri'ni yenileyip doğrulayın.\n`);
+  console.log(
+    `\n✓ Edit commit edildi. Play Console'da Mağaza girişleri'ni yenileyip doğrulayın.\n`,
+  );
 }
 
 main().catch((e) => die(e.stack || String(e)));
