@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -10,6 +11,11 @@ import { rankByElo, winRate, type StandingsRow } from '@/lib/leaderboard';
 import { listSeasons, resolveSeason, type SeasonSummary } from '@/lib/seasons';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Nav');
+  return { title: `${t('standings')} — VoxScore` };
+}
 
 function titleOf(meta: unknown): string {
   const m = (meta ?? {}) as { title?: string };

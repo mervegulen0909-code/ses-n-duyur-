@@ -82,7 +82,8 @@ YouTube performansları için gösterilen YZ puanları açıkça Geçici YZ Tahm
 Apple's fields are not the same shape as Play's, so this is an adaptation, not a copy.
 Character limits are Apple's hard caps; counts below are the drafted lengths.
 
-**App Name** (max 30): `VoxScore` — 8
+**App Name** (max 30): `VoxScore - Vocal League` — 23. Plain `VoxScore` was already taken
+globally, so the App Store Connect record (ASC ID `6803250678`) was created under this name.
 
 **Subtitle** (max 30): `Sing, score, climb the league` — 29
 
@@ -129,20 +130,46 @@ YouTube player and never downloads or hosts their media.
 
 **URLs:** Marketing `https://voxscore.app` · Privacy Policy `https://voxscore.app/privacy`
 
-Support URL: **there is no `/support` route.** `apps/web/src/app` has `company`, `privacy`,
-`terms` and `dmca` only. Apple requires a Support URL that actually resolves and offers a way to
-get help, so either point it at `https://voxscore.app/company` (which carries the company and
-contact details) or add a real support page before submitting.
+Support URL: `https://voxscore.app/support` — the route exists (`apps/web/src/app/support/page.tsx`)
+and is live. The earlier note in this file claiming it was missing was stale.
 
 **Category:** Primary Music · Secondary Entertainment
 
-**Copyright:** `2026 FERSA Elektronik Sanayi ve Ticaret Ltd. Sti.` — set this once the
-organization migration lands, so the seller line and the copyright line agree.
+**Copyright:** `2026 Ferhat Gülen` — the organization migration was **cancelled on 2026-08-14**
+and the account stayed Individual, so the copyright line must match the individual seller, not
+the company. Do not enter the FERSA Ltd. name here unless the account is migrated later.
 
-**App Review notes must include:** a working demo account, an explanation that voting is gated
-behind Verified Listen (a reviewer who skips the video cannot vote and may report it as broken),
-why the microphone is requested, and that AI scores on embedded YouTube content are labeled
-provisional rather than measured.
+**App Review Notes** — drafted, ready to paste into the Notes box on the version page. App Store
+Connect refuses to persist the whole App Review Information block while "Sign-in required" is
+checked and the demo user/password are empty, so paste the credentials and this text in the same
+edit, then Save.
+
+```
+Notes for review:
+
+1. Voting is gated behind a Verified Listen. A reviewer who skips or scrubs the embedded video
+will find the vote and score controls disabled - this is intended anti-fraud behaviour, not a
+bug. Please let the performance play to completion before voting. In a battle, both sides must
+be fully listened to before a winner can be picked.
+
+2. Microphone permission is requested only when the user chooses to record a performance they
+own. The recording is analysed in memory and deleted immediately; only the resulting numeric
+measurements are stored.
+
+3. AI scores shown on YouTube performances are labelled "Provisional AI Estimate" in the UI.
+They are interpretive, not audio measurements.
+
+4. YouTube content is embedded through the official YouTube player only. The app never
+downloads, caches, hosts or analyses YouTube audio or video.
+
+5. Moderation: every performance and comment can be reported, users can be blocked, and reported
+content is reviewed by moderators. Account deletion is available in Profile.
+
+Sign in with Apple is available alongside Google on the login screen.
+```
+
+**App Review contact** (also refused to save without the demo credentials): Ferhat / Gülen /
+`+905352811235` / `destek@voxscore.app`.
 
 ## iOS readiness (as of 2026-08-06)
 
@@ -164,23 +191,22 @@ engineering work — it waits on Apple.
    credentials and so do not touch the pending membership migration.
 5. **Support URL** — `/support` is live, with every internal link resolving.
 
-### Waiting on Apple
+### ~~Waiting on Apple~~ — resolved
 
-**Individual → Organization migration**, requested 2026-08-06 through
-`developer.apple.com/contact/request/migrate-individual-account`. The name correction from
-"Perhat" to "Ferhat" is already done — Apple Support applied it (case 20000126564887) and the
-Apple Account shows `Ferhat Gülen`. The developer team label still reads the old spelling;
-the migration replaces it with the company name anyway, so it needs no separate fix.
-
-Do not sign App Store Connect agreements, enter tax and banking details, or create the app
-record before the migration lands — all three are tied to the legal entity and would have to
-be redone under the company.
+The **Individual → Organization migration was cancelled on 2026-08-14**; the account ships as
+Individual (team `YMW2NVHASS`). The old warning against creating the app record or signing
+agreements before migration no longer applies — the record exists and the build is uploaded.
+The name correction from "Perhat" to "Ferhat" was applied by Apple Support (case 20000126564887) and the Apple Account shows `Ferhat Gülen`; the developer team label still
+reads the old spelling and now has no migration to fix it, so it needs a separate request if
+the wrong spelling on the seller line matters.
 
 ### Still to produce
 
 **Screenshots at iPhone sizes.** The Play set is 1080x2340, which is not an accepted iPhone
 aspect, so these have to be captured from the app running on a real iPhone (an iPhone 12 Pro
-Max is available) once the membership can issue signing credentials.
+Max is available). Signing credentials now exist, build 1.0.0 (3) is **Ready to Submit** in
+TestFlight, so this is the only remaining blocker before "Submit for Review" alongside the age
+rating questionnaire and the version metadata above.
 
 ## How production access was obtained (measured, 2026-07-31 → 08-06)
 
